@@ -529,10 +529,10 @@ AXIOM identifie le bon cadre avant de parler de résultats.
                 </p>
                 <p class="text-xs text-slate-400">
                   Temps estimé : 15-20 minutes
-                </p>
-              </div>
+              </p>
             </div>
           </div>
+            </div>
 
           <!-- Card 2 - Étape 2 (Masquée - Intégration native) -->
           <div id="card2" class="step-card video-card rounded-2xl shadow-lg flex flex-col relative overflow-hidden" style="display: none !important;">
@@ -2696,12 +2696,12 @@ Le matching est terminé.`;
           'value': 1
         });
       }
-      
-      // Feedback visuel temporaire
-      const originalText = this.querySelector('span').textContent;
+        
+        // Feedback visuel temporaire
+        const originalText = this.querySelector('span').textContent;
       this.querySelector('span').textContent = 'Redirection...';
-      this.style.transform = 'scale(0.98)';
-      
+        this.style.transform = 'scale(0.98)';
+        
       // Redirection vers AXIOM
       const axiomUrl = getAxiomUrl();
       console.log('Redirection vers AXIOM:', axiomUrl);
