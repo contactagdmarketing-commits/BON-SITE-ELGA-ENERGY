@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1025.25 683.25">
+  <style>
+    @import url('/assets/logos/elga-energy-logo.svg');
+  </style>
+  <use href="/assets/logos/elga-energy-logo.svg#root"/>
+</svg>
