@@ -18,7 +18,7 @@ L’erreur `EMFILE: too many open files, open '.gitmodules'` indique que **le no
 |---------|--------|
 | **.gitignore** | OK – `node_modules/` et `axiom-app/node_modules/` sont ignorés |
 | **.env** | OK – Fichiers d’environnement exclus du Git |
-| **Branche main** | Dernier commit : `f0dbe56` ("Recrutement: version finale, Revelium, cartes 2 étapes") |
+| **Branche main** | Dernier commit : `f0dbe56` ("Recrutement: version finale, Reveliom, cartes 2 étapes") |
 | **Remote origin** | `https://github.com/contactagdmarketing-commits/BON-SITE-ELGA-ENERGY.git` |
 
 ---
