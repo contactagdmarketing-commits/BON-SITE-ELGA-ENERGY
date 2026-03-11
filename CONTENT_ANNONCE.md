@@ -1,3 +1,7 @@
+<p style="font-size:0.9em; opacity:0.8;">
+Temps de lecture estimé : 2 minutes 30
+</p>
+
 ## Descriptif du poste
 
 Commençons par être honnêtes.
