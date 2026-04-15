@@ -1,0 +1,9 @@
+User-agent: *
+Allow: /
+
+Disallow: /axiom-app/
+Disallow: /ptest.html
+Disallow: /vide.html
+Disallow: /text.html
+
+Sitemap: https://elgaenergy.fr/sitemap.xml

@@ -1,21 +1,60 @@
-<!-- test cursor -->
-
 <!doctype html>
 <html lang="fr-FR" class="scroll-smooth">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Elga Energy — Courtier en énergie.</title>
-  <meta name="description" content="Elga Energy compare et négocie vos contrats d'électricité et de gaz pour entreprises et collectivités. Offres sur-mesure, conseils, et économies mesurables." />
-  <meta property="og:title" content="Elga Energy — Courtier en énergie" />
-  <meta property="og:description" content="Comparez des offres d'énergie adaptées à votre activité et gagnez du temps et de l'argent." />
+  <title>Elga Energy — Courtier en énergie B2B | Toulouse</title>
+  <meta name="description" content="Elga Energy compare et négocie vos contrats d'électricité et de gaz pour entreprises et collectivités. Audit gratuit, sans engagement. Toulouse." />
+  <link rel="canonical" href="https://elgaenergy.fr/" />
+  <meta property="og:title" content="Elga Energy — Courtier en énergie B2B" />
+  <meta property="og:description" content="Comparez des offres d'énergie adaptées à votre activité. Audit gratuit, négociation pro, économies mesurables." />
   <meta property="og:type" content="website" />
-  <meta property="og:image" content="/assets/images/og-cover.jpg" />
+  <meta property="og:image" content="https://elgaenergy.fr/assets/images/image_fond.jpg" />
   <meta property="og:locale" content="fr_FR" />
+  <meta property="og:url" content="https://elgaenergy.fr/" />
+  <meta name="theme-color" content="#0e8a57" />
   <link rel="icon" href="/assets/logos/elga-energy-logo.svg" type="image/svg+xml" sizes="any" />
   <link rel="apple-touch-icon" href="/assets/logos/elga-energy-logo.svg" />
+  <link rel="preconnect" href="https://cdn.tailwindcss.com" crossorigin />
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin />
+  <link rel="preconnect" href="https://www.googletagmanager.com" crossorigin />
 
-  <!-- Tailwind (CDN) -->
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "LocalBusiness",
+    "name": "Elga Energy",
+    "description": "Courtier en énergie B2B — comparaison et négociation de contrats électricité et gaz pour entreprises et collectivités.",
+    "url": "https://elgaenergy.fr",
+    "telephone": "+33678147350",
+    "email": "cotations@elgaenergy.fr",
+    "address": {
+      "@type": "PostalAddress",
+      "streetAddress": "6 place du président Wilson",
+      "addressLocality": "Toulouse",
+      "postalCode": "31000",
+      "addressCountry": "FR"
+    },
+    "areaServed": "FR",
+    "priceRange": "Gratuit"
+  }
+  </script>
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [
+      {"@type":"Question","name":"Faut-il acheter le gaz et l'électricité auprès du même fournisseur ?","acceptedAnswer":{"@type":"Answer","text":"Ce n'est pas nécessaire. Si un meilleur prix est trouvé pour l'un des deux, nous traitons les contrats séparément et gérons l'administratif pour vous."}},
+      {"@type":"Question","name":"Est-ce que j'obtiens un prix fixe ou variable ?","acceptedAnswer":{"@type":"Answer","text":"Nous suivons de près le marché et recommandons l'option (fixe ou indexée) la plus pertinente au moment de l'analyse."}},
+      {"@type":"Question","name":"Combien vais-je économiser ?","acceptedAnswer":{"@type":"Answer","text":"En moyenne, nos clients économisent entre 10 et 30%. Cela dépend de votre situation initiale."}},
+      {"@type":"Question","name":"Dois-je changer de fournisseur ?","acceptedAnswer":{"@type":"Answer","text":"Notre audit est gratuit et sans engagement. La décision vous appartient — on vous donne une recommandation claire et documentée."}},
+      {"@type":"Question","name":"Y a-t-il des frais d'annulation si je quitte mon fournisseur actuel ?","acceptedAnswer":{"@type":"Answer","text":"Dans la plupart des cas non. Un préavis peut toutefois s'appliquer. Nous vérifions tout pour vous."}},
+      {"@type":"Question","name":"Puis-je profiter du meilleur prix si je suis déjà client du fournisseur proposé ?","acceptedAnswer":{"@type":"Answer","text":"Oui. Si votre fournisseur actuel l'emporte, nous faisons appliquer le nouveau tarif sans démarches de votre part."}}
+    ]
+  }
+  </script>
+
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -37,772 +76,816 @@
     }
   </script>
 
-  <!-- Swiper -->
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.css">
   <script defer src="https://cdn.jsdelivr.net/npm/swiper@10/swiper-bundle.min.js"></script>
 
   <style>
-    .glass{backdrop-filter:saturate(180%) blur(12px);background:rgba(255,255,255,.75)}
+    .glass{backdrop-filter:saturate(180%) blur(12px);background:rgba(255,255,255,.82)}
     .shadow-soft{box-shadow:0 10px 30px rgba(2,6,12,.08)}
     .picture-cover{object-fit:cover;object-position:center}
-    .hero-overlay{background:linear-gradient(120deg,rgba(14,138,87,.85),rgba(11,61,145,.85))}
-    /* Carrousel fournisseurs : défilement continu (linéaire) */
-    .suppliers-swiper .swiper-wrapper{ transition-timing-function: linear !important; }
+    .hero-overlay{background:linear-gradient(120deg,rgba(14,138,87,.9),rgba(11,61,145,.88))}
+    .suppliers-swiper .swiper-wrapper{transition-timing-function:linear!important}
+    /* Pill radio */
+    .pill-radio{display:flex;align-items:flex-start;gap:.75rem;padding:.75rem 1rem;border-radius:.875rem;border:1.5px solid #e2e8f0;cursor:pointer;transition:border-color .15s,background .15s}
+    .pill-radio:hover{border-color:#10b981;background:#ecfdf5}
+    .pill-radio.is-active{border-color:#0e8a57;background:#d1fae5}
+    .pill-radio input{margin-top:.15rem;accent-color:#0e8a57}
+    .pill-radio span{font-weight:600;font-size:.9rem;color:#1e293b;display:block}
+    .pill-radio small{font-size:.78rem;color:#64748b;margin-top:.1rem;display:block}
+    /* FAQ Accordion */
+    .faq-item .faq-answer{max-height:0;overflow:hidden;transition:max-height .35s ease}
+    .faq-item.open .faq-answer{max-height:400px}
+    .faq-item.open .faq-icon{transform:rotate(45deg)}
+    .faq-icon{transition:transform .3s ease}
+    /* Step form */
+    .field-card{display:none}
+    .field-card.active-step{display:block;animation:fadeIn .3s ease}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+    /* Cards hover */
+    .service-card{transition:transform .2s ease,box-shadow .2s ease}
+    .service-card:hover{transform:translateY(-4px);box-shadow:0 20px 40px rgba(2,6,12,.12)}
+    /* Step progress */
+    .step-progress-bar{transition:width .4s ease}
   </style>
-  <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-SHXXPV14N7"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
 
-  gtag('config', 'G-SHXXPV14N7');
-</script>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-SHXXPV14N7"></script>
+  <script>
+    window.dataLayer=window.dataLayer||[];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js',new Date());
+    gtag('config','G-SHXXPV14N7');
+  </script>
 </head>
-  
-<body class="antialiased text-slate-800 bg-white">
 
-  </div>
+<body class="antialiased text-slate-800 bg-white">
 
   <!-- Header -->
   <header class="sticky top-0 z-50 border-b border-slate-200/60 bg-white/90 glass">
-    <div class="container flex items-center justify-between py-1.5 md:py-2.5 gap-3">
-      <a href="#" class="flex items-center gap-3">
-        <img id="logo-elga" src="/assets/logos/elga-energy-logo.svg" alt="Elga Energy" class="h-20 md:h-24 w-auto" onerror="this.replaceWith(document.getElementById('logo-fallback').content.cloneNode(true))" />
+    <div class="container flex items-center justify-between py-2 md:py-2.5 gap-3">
+      <a href="/" class="flex items-center gap-2">
+        <img src="/assets/logos/elga-energy-logo.svg" alt="Elga Energy" class="h-12 md:h-14 w-auto" onerror="this.replaceWith(document.getElementById('logo-fallback').content.cloneNode(true))" />
         <span class="sr-only">Elga Energy</span>
       </a>
-     <nav class="hidden md:flex items-center gap-6 text-sm">
-  <a href="#offre" class="hover:text-primary-700">Offre</a>
-  <a href="#fournisseurs" class="hover:text-primary-700">Fournisseurs</a>
-  <a href="#avis" class="hover:text-primary-700">Avis</a>
-  <a href="#faq" class="hover:text-primary-700">FAQ</a>
-  <a href="/actu.html" class="hover:text-primary-700">Blog</a>
-  <a href="/Recrutement.html" class="hover:text-primary-700">Recrutement</a>
-  <a href="#contact" class="hover:text-primary-700">Contact</a>
-</nav>
-      <div class="flex items-center gap-2">
-        <a href="/devis.html" class="inline-flex items-center rounded-xl bg-primary-600 px-4 py-2 text-white text-sm font-medium shadow-soft hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-400">Obtenir un devis</a>
-        <button id="menuBtn" class="md:hidden inline-flex items-center justify-center size-10 rounded-lg border border-slate-300"><span class="sr-only">Ouvrir le menu</span>☰</button>
+      <nav class="hidden md:flex items-center gap-6 text-sm font-medium text-slate-600">
+        <a href="#offre" class="hover:text-primary-700 transition-colors">Offre</a>
+        <a href="#process" class="hover:text-primary-700 transition-colors">Méthode</a>
+        <a href="#fournisseurs" class="hover:text-primary-700 transition-colors">Fournisseurs</a>
+        <a href="#avis" class="hover:text-primary-700 transition-colors">Avis</a>
+        <a href="#faq" class="hover:text-primary-700 transition-colors">FAQ</a>
+        <a href="/actu.html" class="hover:text-primary-700 transition-colors">Blog</a>
+        <a href="/Recrutement.html" class="hover:text-primary-700 transition-colors">Recrutement</a>
+      </nav>
+      <div class="flex items-center gap-3">
+        <a href="tel:+33678147350" class="hidden md:flex items-center gap-1.5 text-sm text-slate-600 hover:text-primary-700 transition-colors font-medium">
+          <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.12 1.22 2 2 0 012.1 0h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 14.92z"/></svg>
+          06 78 14 73 50
+        </a>
+        <a href="#devis" class="inline-flex items-center rounded-xl bg-primary-600 px-4 py-2.5 text-white text-sm font-semibold shadow-soft hover:bg-primary-700 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-400">Obtenir un devis</a>
+        <button id="menuBtn" class="md:hidden inline-flex items-center justify-center size-10 rounded-lg border border-slate-300 hover:border-slate-400 transition-colors" aria-label="Ouvrir le menu" aria-expanded="false">
+          <svg id="menuIconOpen" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+          <svg id="menuIconClose" class="w-5 h-5 hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
       </div>
     </div>
     <div id="mobileMenu" class="md:hidden hidden border-t border-slate-200 bg-white">
-      <nav class="container flex flex-col py-3 text-sm">
-        <a href="/devis.html" class="py-2">Offre</a>
-        <!-- Lien Méthode retiré -->
-        <a href="#fournisseurs" class="py-2">Fournisseurs</a>
-        <a href="#avis" class="py-2">Avis</a>
-        <a href="#faq" class="py-2">FAQ</a>
-        <a href="/actu.html" class="py-2">Blog</a>
-        <a href="/Recrutement.html" class="py-2">Recrutement</a>
-        <a href="#contact" class="py-2">Contact</a>
+      <nav class="container flex flex-col py-3 gap-0.5 text-sm">
+        <a href="#offre" class="py-2.5 px-3 rounded-lg hover:bg-slate-50 hover:text-primary-700 transition-colors text-slate-700">Offre</a>
+        <a href="#process" class="py-2.5 px-3 rounded-lg hover:bg-slate-50 hover:text-primary-700 transition-colors text-slate-700">Méthode</a>
+        <a href="#fournisseurs" class="py-2.5 px-3 rounded-lg hover:bg-slate-50 hover:text-primary-700 transition-colors text-slate-700">Fournisseurs</a>
+        <a href="#avis" class="py-2.5 px-3 rounded-lg hover:bg-slate-50 hover:text-primary-700 transition-colors text-slate-700">Avis</a>
+        <a href="#faq" class="py-2.5 px-3 rounded-lg hover:bg-slate-50 hover:text-primary-700 transition-colors text-slate-700">FAQ</a>
+        <a href="/actu.html" class="py-2.5 px-3 rounded-lg hover:bg-slate-50 hover:text-primary-700 transition-colors text-slate-700">Blog</a>
+        <a href="/Recrutement.html" class="py-2.5 px-3 rounded-lg hover:bg-slate-50 hover:text-primary-700 transition-colors text-slate-700">Recrutement</a>
+        <div class="pt-2 mt-1 border-t border-slate-100">
+          <a href="tel:+33678147350" class="flex items-center gap-2 py-2.5 px-3 text-primary-700 font-semibold">
+            <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.12 1.22 2 2 0 012.1 0h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 14.92z"/></svg>
+            06 78 14 73 50
+          </a>
+        </div>
       </nav>
     </div>
   </header>
-
-  <!-- Fallback Logo -->
-  <template id="logo-fallback"><div class="h-8 w-auto px-2 py-1 rounded bg-primary-600 text-white font-semibold">ELGA ENERGY</div></template>
+  <template id="logo-fallback"><div class="h-10 px-3 py-1.5 rounded-lg bg-primary-600 text-white font-bold text-sm flex items-center">ELGA ENERGY</div></template>
 
   <!-- Hero -->
   <section class="relative overflow-hidden">
     <div class="absolute inset-0 hero-overlay"></div>
     <div class="absolute inset-0">
-      <img src="/assets/images/image2.jpg" alt="Illustration énergie" class="w-full h-full picture-cover opacity-25" onerror="this.remove()"/>
+      <img src="/assets/images/image_fond.jpg" alt="" class="w-full h-full picture-cover opacity-15" loading="eager" />
     </div>
-
-    <div class="relative container grid gap-10 md:grid-cols-2 py-16 md:py-24 items-center text-white">
+    <div class="relative container grid gap-10 md:grid-cols-2 py-20 md:py-28 items-center text-white">
       <div class="space-y-6">
-        <h1 class="text-3xl md:text-5xl font-extrabold leading-tight"> Votre courtier en énergie </h1>
-        <p class="text-white/90 text-lg">Nous comparons et négocions vos contrats électricité & gaz auprès de dizaines de fournisseurs. Gain de temps, transparence et économies garanties contractuellement.</p>
-        <div class="flex flex-wrap gap-3">
-          <a href="#contact" class="inline-flex items-center rounded-xl bg-white px-5 py-3 text-slate-900 font-semibold shadow-soft hover:bg-primary-50">Parlons énergie</a>
-          <a href="#offre" class="inline-flex items-center rounded-xl border border-white/70 px-5 py-3 font-semibold hover:bg-white/10">Découvrir l'offre</a>
+        <div class="inline-flex items-center gap-2 rounded-full bg-white/15 border border-white/25 px-4 py-1.5 text-sm font-medium">
+          <span class="size-2 rounded-full bg-primary-300 animate-pulse shrink-0"></span>
+          Partenaire de +500 entreprises en France
         </div>
-        <p class="text-sm text-white/80">Service sans frais ni engagement.</p>
+        <h1 class="text-4xl md:text-5xl font-extrabold leading-tight">
+          Économisez jusqu'à 30&nbsp;% sur vos factures d'énergie
+        </h1>
+        <p class="text-white/90 text-lg max-w-lg">Nous comparons et négocions vos contrats électricité & gaz auprès de plus de 30 fournisseurs. Gain de temps, transparence et économies garanties contractuellement.</p>
+        <div class="flex flex-wrap gap-3">
+          <a href="#devis" class="inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3.5 text-slate-900 font-bold shadow-soft hover:bg-primary-50 transition-colors">
+            Obtenir mon audit gratuit
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5-5 5M6 12h12"/></svg>
+          </a>
+          <a href="#offre" class="inline-flex items-center rounded-xl border border-white/60 px-6 py-3.5 font-semibold hover:bg-white/10 transition-colors">Découvrir l'offre</a>
+        </div>
+        <p class="text-sm text-white/70 flex items-center gap-1.5">
+          <svg class="w-4 h-4 text-primary-300 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+          Service gratuit, sans frais ni engagement.
+        </p>
       </div>
-
-      <!-- Carte visuel hero -->
-      <div class="relative">
-        <div class="aspect-[16/10] w-full rounded-2xl bg-white/10 backdrop-blur shadow-soft overflow-hidden">
-          <img src="/assets/images/image_fond.jpg" alt="Illustration Elga Energy" class="w-full h-full picture-cover" onerror="this.replaceWith(document.getElementById('hero-skeleton').content.cloneNode(true))">
+      <!-- Carte stats hero (desktop) -->
+      <div class="hidden md:block">
+        <div class="rounded-3xl bg-white/10 backdrop-blur border border-white/20 p-8 space-y-5">
+          <p class="text-white/60 text-xs font-semibold uppercase tracking-widest">Nos résultats en chiffres</p>
+          <div class="grid grid-cols-2 gap-4">
+            <div class="rounded-2xl bg-white/10 border border-white/15 p-5">
+              <p class="text-3xl font-extrabold">15&thinsp;000+</p>
+              <p class="text-white/70 text-sm mt-1">Points de livraison gérés</p>
+            </div>
+            <div class="rounded-2xl bg-white/10 border border-white/15 p-5">
+              <p class="text-3xl font-extrabold">30+</p>
+              <p class="text-white/70 text-sm mt-1">Fournisseurs consultés</p>
+            </div>
+            <div class="rounded-2xl bg-white/10 border border-white/15 p-5">
+              <p class="text-3xl font-extrabold">20&thinsp;h</p>
+              <p class="text-white/70 text-sm mt-1">Économisées par dossier</p>
+            </div>
+            <div class="rounded-2xl bg-white/10 border border-white/15 p-5">
+              <p class="text-3xl font-extrabold">98&thinsp;%</p>
+              <p class="text-white/70 text-sm mt-1">Clients satisfaits</p>
+            </div>
+          </div>
         </div>
       </div>
     </div>
   </section>
-  <!-- Skeleton de secours -->
-  <template id="hero-skeleton">
-    <div class="grid gap-3 w-full p-6">
-      <div class="h-4 w-1/2 bg-white/40 rounded"></div>
-      <div class="h-3 w-5/6 bg-white/30 rounded"></div>
-      <div class="h-3 w-2/3 bg-white/30 rounded"></div>
-      <div class="h-48 w-full rounded-lg bg-white/20"></div>
+
+  <!-- Stats mobile -->
+  <section class="md:hidden bg-gradient-to-r from-primary-700 to-secondary-700 text-white">
+    <div class="container py-8 grid grid-cols-2 gap-4">
+      <div class="text-center"><p class="text-2xl font-extrabold">15&thinsp;000+</p><p class="text-white/75 text-xs mt-0.5">Points de livraison</p></div>
+      <div class="text-center"><p class="text-2xl font-extrabold">30+</p><p class="text-white/75 text-xs mt-0.5">Fournisseurs</p></div>
+      <div class="text-center"><p class="text-2xl font-extrabold">20&thinsp;h</p><p class="text-white/75 text-xs mt-0.5">Gagnées par dossier</p></div>
+      <div class="text-center"><p class="text-2xl font-extrabold">98&thinsp;%</p><p class="text-white/75 text-xs mt-0.5">Clients satisfaits</p></div>
     </div>
-  </template>
-
-  <!-- Chiffres clés -->
-  <!-- ===== Pourquoi choisir Elga Energy (animé + compteur) ===== -->
-<section id="avantages" class="bg-white py-14">
-  <div class="container text-center">
-    <h2 class="text-2xl md:text-3xl font-extrabold text-slate-900 mb-10">
-      Pourquoi choisir <span class="text-primary-600">Elga Energy</span> ?
-    </h2>
-
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-6 justify-center">
-      
-      <!-- Stat 1 -->
-      <div class="stat-bubble opacity-0 translate-y-6 transition-all duration-700 ease-out flex flex-col items-center justify-center rounded-full size-36 md:size-40 bg-gradient-to-br from-primary-50 to-slate-50 shadow-md border border-slate-100">
-        <p class="stat-number text-2xl md:text-3xl font-extrabold text-primary-700" data-target="15000">0</p>
-        <p class="text-sm md:text-base text-slate-600 mt-1">Points de livraison</p>
-      </div>
-
-      <!-- Stat 2 -->
-      <div class="stat-bubble opacity-0 translate-y-6 transition-all duration-700 ease-out delay-100 flex flex-col items-center justify-center rounded-full size-36 md:size-40 bg-gradient-to-br from-primary-50 to-slate-50 shadow-md border border-slate-100">
-        <p class="stat-number text-2xl md:text-3xl font-extrabold text-primary-700" data-target="30">0</p>
-        <p class="text-sm md:text-base text-slate-600 mt-1">Fournisseurs</p>
-      </div>
-
-      <!-- Stat 3 -->
-      <div class="stat-bubble opacity-0 translate-y-6 transition-all duration-700 ease-out delay-200 flex flex-col items-center justify-center rounded-full size-36 md:size-40 bg-gradient-to-br from-primary-50 to-slate-50 shadow-md border border-slate-100">
-        <p class="stat-number text-2xl md:text-3xl font-extrabold text-primary-700" data-target="20">0</p>
-        <p class="text-sm md:text-base text-slate-600 mt-1">Heures gagnées</p>
-      </div>
-
-      <!-- Stat 4 -->
-      <div class="stat-bubble opacity-0 translate-y-6 transition-all duration-700 ease-out delay-300 flex flex-col items-center justify-center rounded-full size-36 md:size-40 bg-gradient-to-br from-primary-50 to-slate-50 shadow-md border border-slate-100">
-        <p class="stat-number text-2xl md:text-3xl font-extrabold text-primary-700" data-target="98">0</p>
-        <p class="text-sm md:text-base text-slate-600 mt-1">Clients satisfaits (%)</p>
-      </div>
-
-    </div>
-  </div>
-</section>
-
-<script>
-  // ✅ Apparition + animation du compteur
-  const stats = document.querySelectorAll('.stat-bubble');
-  const observer = new IntersectionObserver(entries => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        // Fade + montée
-        entry.target.classList.remove('opacity-0', 'translate-y-6');
-        entry.target.classList.add('opacity-100', 'translate-y-0');
-
-        // Compteur animé
-        const number = entry.target.querySelector('.stat-number');
-        const target = +number.getAttribute('data-target');
-        const duration = 1500; // ms
-        const startTime = performance.now();
-
-        const animate = (time) => {
-          const progress = Math.min((time - startTime) / duration, 1);
-          number.textContent = Math.floor(progress * target);
-          if (progress < 1) requestAnimationFrame(animate);
-          else {
-            if (target >= 1000) number.textContent = target.toLocaleString('fr-FR') + '+';
-            else if (target === 98) number.textContent = target + ' %';
-            else if (target === 20) number.textContent = target + ' h';
-            else number.textContent = target + '+';
-          }
-        };
-        requestAnimationFrame(animate);
-
-        observer.unobserve(entry.target);
-      }
-    });
-  }, { threshold: 0.4 });
-
-  stats.forEach(stat => observer.observe(stat));
-</script>
+  </section>
 
   <!-- Offre -->
-  <section id="offre" class="bg-slate-50">
-    <div class="container py-12 md:py-16 grid gap-10">
-      <h2 class="text-2xl md:text-3xl font-bold">Une offre claire, pensée pour les pros</h2>
-      <div class="grid lg:grid-cols-12 gap-8">
-        <!-- Visuel -->
-        <div class="lg:col-span-5">
-          <div class="aspect-[4/3] bg-white rounded-2xl shadow-soft overflow-hidden">
-            <img src="/assets/images/offre-visuel.jpg" alt="Offre Elga Energy" class="w-full h-full picture-cover" onerror="this.replaceWith(document.getElementById('offre-fallback').content.cloneNode(true))">
+  <section id="offre" class="bg-white py-16 md:py-20">
+    <div class="container">
+      <div class="text-center max-w-2xl mx-auto mb-12">
+        <span class="inline-block rounded-full bg-primary-100 text-primary-700 text-xs font-semibold uppercase tracking-widest px-3 py-1 mb-3">Ce que nous faisons</span>
+        <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900">Une offre claire, pensée pour les pros</h2>
+        <p class="mt-3 text-slate-500">De la collecte de vos factures à la signature du contrat, nous gérons tout.</p>
+      </div>
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="service-card rounded-2xl border border-slate-100 bg-slate-50 p-6 space-y-3">
+          <div class="size-12 rounded-xl bg-primary-100 grid place-items-center text-primary-700">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
           </div>
+          <h3 class="font-bold text-slate-900">Comparaison en temps réel</h3>
+          <p class="text-sm text-slate-500">Analyse des grilles tarifaires électricité & gaz de plus de 30 fournisseurs simultanément.</p>
         </div>
+        <div class="service-card rounded-2xl border border-slate-100 bg-slate-50 p-6 space-y-3">
+          <div class="size-12 rounded-xl bg-secondary-100 grid place-items-center text-secondary-700">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+          </div>
+          <h3 class="font-bold text-slate-900">Négociation des clauses</h3>
+          <p class="text-sm text-slate-500">Indexation, durée, garanties, pénalités — nous défendons vos intérêts contractuels.</p>
+        </div>
+        <div class="service-card rounded-2xl border border-slate-100 bg-slate-50 p-6 space-y-3">
+          <div class="size-12 rounded-xl bg-primary-100 grid place-items-center text-primary-700">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+          </div>
+          <h3 class="font-bold text-slate-900">Recommandation objective</h3>
+          <p class="text-sm text-slate-500">Conseil indépendant selon vos profils de consommation réels, sans conflit d'intérêts.</p>
+        </div>
+        <div class="service-card rounded-2xl border border-slate-100 bg-slate-50 p-6 space-y-3">
+          <div class="size-12 rounded-xl bg-secondary-100 grid place-items-center text-secondary-700">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+          </div>
+          <h3 class="font-bold text-slate-900">Accompagnement complet</h3>
+          <p class="text-sm text-slate-500">Prise en charge administrative de la souscription et du changement de fournisseur.</p>
+        </div>
+        <div class="service-card rounded-2xl border border-slate-100 bg-slate-50 p-6 space-y-3">
+          <div class="size-12 rounded-xl bg-primary-100 grid place-items-center text-primary-700">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+          </div>
+          <h3 class="font-bold text-slate-900">Suivi post-signature</h3>
+          <p class="text-sm text-slate-500">Contrôle de factures, alertes prix, optimisation des puissances souscrites.</p>
+        </div>
+        <div class="service-card rounded-2xl bg-gradient-to-br from-primary-600 to-secondary-700 p-6 space-y-3 text-white">
+          <div class="size-12 rounded-xl bg-white/20 grid place-items-center">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+          <h3 class="font-bold">100% gratuit pour vous</h3>
+          <p class="text-sm text-white/85">Notre rémunération est assurée par les fournisseurs. Zéro frais pour vous, zéro conflit d'intérêts.</p>
+          <a href="#devis" class="inline-flex items-center gap-1.5 text-sm font-semibold border border-white/40 rounded-lg px-4 py-2 hover:bg-white/15 transition-colors mt-1">
+            Démarrer gratuitement
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5-5 5M6 12h12"/></svg>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
 
-        <div class="lg:col-span-7">
-          <ul class="space-y-4 text-slate-700">
-            <li><strong>Comparaison en temps réel</strong> des grilles tarifaires électricité & gaz.</li>
-            <li><strong>Négociation des clauses</strong> (indexation, durée, garanties, pénalités).</li>
-            <li><strong>Recommandation objective</strong> selon vos profils de consommation.</li>
-            <li><strong>Accompagnement</strong> à la souscription et au changement de fournisseur.</li>
-            <li><strong>Suivi post-signature</strong> : contrôle de factures, alertes prix, optimisation des puissances.</li>
-          </ul>
-          <div class="mt-6 flex flex-wrap gap-3">
-            <a href="/devis.html" class="inline-flex items-center rounded-xl bg-primary-600 px-5 py-3 text-white font-semibold shadow-soft hover:bg-primary-700">Obtenir une simulation</a>
-            <a href="#faq" class="inline-flex items-center rounded-xl border border-slate-300 px-5 py-3 font-semibold hover:border-slate-400">Questions fréquentes</a>
+  <!-- Processus 5 étapes -->
+  <section id="process" class="bg-slate-50 py-16 md:py-20">
+    <div class="container">
+      <div class="text-center max-w-2xl mx-auto mb-14">
+        <span class="inline-block rounded-full bg-secondary-100 text-secondary-700 text-xs font-semibold uppercase tracking-widest px-3 py-1 mb-3">Notre méthode</span>
+        <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900">Un processus rodé, de A à Z</h2>
+        <p class="mt-3 text-slate-500">5 étapes claires, une équipe dédiée, des résultats mesurables.</p>
+      </div>
+      <div class="relative">
+        <div class="hidden lg:block absolute top-10 left-[calc(10%+2.5rem)] right-[calc(10%+2.5rem)] h-px bg-gradient-to-r from-primary-200 via-secondary-200 to-primary-200"></div>
+        <div class="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-8">
+          <div class="flex flex-col items-center text-center gap-4">
+            <div class="relative z-10 size-20 rounded-2xl bg-white border-2 border-primary-200 grid place-items-center shadow-soft">
+              <svg class="w-8 h-8 text-primary-600" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+              <span class="absolute -top-2.5 -right-2.5 size-6 rounded-full bg-primary-600 text-white text-xs font-bold grid place-items-center">1</span>
+            </div>
+            <div><h3 class="font-bold text-slate-900">Collecte & Analyse</h3><p class="text-sm text-slate-500 mt-1">Nous étudions vos factures et profils de consommation.</p></div>
+          </div>
+          <div class="flex flex-col items-center text-center gap-4">
+            <div class="relative z-10 size-20 rounded-2xl bg-white border-2 border-secondary-200 grid place-items-center shadow-soft">
+              <svg class="w-8 h-8 text-secondary-600" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+              <span class="absolute -top-2.5 -right-2.5 size-6 rounded-full bg-secondary-600 text-white text-xs font-bold grid place-items-center">2</span>
+            </div>
+            <div><h3 class="font-bold text-slate-900">Négociation</h3><p class="text-sm text-slate-500 mt-1">Nous consultons et négocions les meilleurs tarifs auprès des fournisseurs.</p></div>
+          </div>
+          <div class="flex flex-col items-center text-center gap-4">
+            <div class="relative z-10 size-20 rounded-2xl bg-white border-2 border-primary-200 grid place-items-center shadow-soft">
+              <svg class="w-8 h-8 text-primary-600" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+              <span class="absolute -top-2.5 -right-2.5 size-6 rounded-full bg-primary-600 text-white text-xs font-bold grid place-items-center">3</span>
+            </div>
+            <div><h3 class="font-bold text-slate-900">Comparatif client</h3><p class="text-sm text-slate-500 mt-1">Présentation claire et documentée de toutes les offres.</p></div>
+          </div>
+          <div class="flex flex-col items-center text-center gap-4">
+            <div class="relative z-10 size-20 rounded-2xl bg-white border-2 border-secondary-200 grid place-items-center shadow-soft">
+              <svg class="w-8 h-8 text-secondary-600" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              <span class="absolute -top-2.5 -right-2.5 size-6 rounded-full bg-secondary-600 text-white text-xs font-bold grid place-items-center">4</span>
+            </div>
+            <div><h3 class="font-bold text-slate-900">Signature & Bascule</h3><p class="text-sm text-slate-500 mt-1">Nous gérons toutes les démarches administratives à votre place.</p></div>
+          </div>
+          <div class="flex flex-col items-center text-center gap-4">
+            <div class="relative z-10 size-20 rounded-2xl bg-white border-2 border-primary-200 grid place-items-center shadow-soft">
+              <svg class="w-8 h-8 text-primary-600" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+              <span class="absolute -top-2.5 -right-2.5 size-6 rounded-full bg-primary-600 text-white text-xs font-bold grid place-items-center">5</span>
+            </div>
+            <div><h3 class="font-bold text-slate-900">Suivi continu</h3><p class="text-sm text-slate-500 mt-1">Alertes marché, contrôle de factures, optimisation permanente.</p></div>
           </div>
         </div>
       </div>
     </div>
   </section>
-  <!-- Fallback offre -->
-  <template id="offre-fallback">
-    <div class="w-full h-full grid place-items-center bg-primary-50">
-      <div class="size-28 rounded-full bg-primary-200 grid place-items-center text-primary-700 font-extrabold">€</div>
-    </div>
-  </template>
 
-  
-<!-- ===== Tunnel de Devis (intégré à la page d'accueil) ===== -->
-  
-<section id="devis" class="bg-gradient-to-br from-secondary-900 via-slate-900 to-primary-900 text-white">
-  <div class="container py-16 md:py-20">
-    <h2 class="text-3xl md:text-4xl font-extrabold mb-4 text-center">Mon comparatif d'offre d’énergie sur-mesure ⚡</h2>
-    <p class="max-w-2xl mx-auto text-white/85 text-center text-lg mb-10">
-      6 étapes simples, moins de 3 minutes, zéro engagement.
-    </p>
+  <!-- Tunnel de Devis -->
+  <section id="devis" class="bg-gradient-to-br from-secondary-900 via-slate-900 to-primary-900 text-white py-16 md:py-20">
+    <div class="container">
+      <div class="text-center mb-10">
+        <span class="inline-block rounded-full bg-white/15 border border-white/20 text-white text-xs font-semibold uppercase tracking-widest px-3 py-1 mb-3">Audit gratuit</span>
+        <h2 class="text-3xl md:text-4xl font-extrabold">Mon comparatif d'énergie sur-mesure</h2>
+        <p class="mt-3 text-white/75 text-lg">6 étapes simples — moins de 3 minutes — zéro engagement.</p>
+      </div>
 
-    <div class="bg-slate-50 text-slate-800 rounded-3xl shadow-soft p-8 md:p-10 max-w-4xl mx-auto">
-      <form id="quote-form" class="space-y-8"
-            action="https://formsubmit.co/el/fefevo"
-            method="POST" enctype="multipart/form-data">
-
-        <input type="hidden" name="_subject" value="🔔 Nouveau devis Elga Energy via la page d'accueil">
-        <input type="hidden" name="_next" value="https://elgaenergy.fr/merci.html">
-        <input type="text" name="_honey" style="display:none">
-
-        <!-- ÉTAPE 1 -->
-        <div class="field-card" data-step="0">
-          <h3>Combien de compteurs souhaitez-vous renseigner ?</h3>
-          <div class="grid md:grid-cols-2 gap-4">
-            <label class="text-sm font-medium text-slate-700">
-              Nombre de compteurs <span class="font-semibold text-primary-700">Électricité</span>
-              <input type="number" min="0" max="20" name="nb_compteurs_elec" required
-                     class="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 focus:border-primary-400 focus:ring-primary-200"
-                     placeholder="ex. 3">
-            </label>
-            <label class="text-sm font-medium text-slate-700">
-              Nombre de compteurs <span class="font-semibold text-primary-700">Gaz</span>
-              <input type="number" min="0" max="20" name="nb_compteurs_gaz" required
-                     class="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 focus:border-primary-400 focus:ring-primary-200"
-                     placeholder="ex. 1">
-            </label>
+      <div class="bg-slate-50 text-slate-800 rounded-3xl shadow-soft max-w-4xl mx-auto overflow-hidden">
+        <!-- Barre de progression -->
+        <div class="bg-white border-b border-slate-100 px-8 py-4">
+          <div class="flex items-center justify-between text-xs mb-2">
+            <span id="step-label" class="font-semibold text-slate-700">Étape 1 sur 6</span>
+            <span id="step-percent" class="font-semibold text-primary-600">17 %</span>
+          </div>
+          <div class="w-full bg-slate-200 rounded-full h-1.5">
+            <div id="step-progress-bar" class="step-progress-bar h-1.5 rounded-full bg-gradient-to-r from-primary-500 to-secondary-500" style="width:17%"></div>
           </div>
         </div>
 
-        <!-- ÉTAPE 2 -->
-        <div class="field-card hidden" data-step="1" id="step-compteurs">
-          <h3>Caractéristiques de vos compteurs</h3>
-          <div id="compteurs-container" class="space-y-6 mt-4"></div>
-        </div>
+        <form id="quote-form" class="p-8 md:p-10"
+              action="https://formsubmit.co/el/fefevo"
+              method="POST" enctype="multipart/form-data">
 
-        <!-- ÉTAPE 3 -->
-        <div class="field-card hidden" data-step="2">
-          <h3>Informations sur vos sites</h3>
-          <div class="grid gap-4 md:grid-cols-2">
-            <label class="text-sm font-medium text-slate-700">
-              Adresse du siège social
-              <input type="text" name="adresse_siege" required
-                     class="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 focus:border-primary-400 focus:ring-primary-200"
-                     placeholder="ex. 15 rue Victor Hugo, Paris">
-            </label>
-            <label class="text-sm font-medium text-slate-700">
-              Nombre d’établissements
-              <input type="number" min="1" name="nb_etablissements"
-                     class="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 focus:border-primary-400 focus:ring-primary-200"
-                     placeholder="ex. 4">
+          <input type="hidden" name="_subject" value="Nouveau devis Elga Energy">
+          <input type="hidden" name="_next" value="https://elgaenergy.fr/merci.html">
+          <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
+
+          <!-- ÉTAPE 1 -->
+          <div class="field-card active-step" data-step="0">
+            <h3 class="text-xl font-bold text-slate-900 mb-6">Combien de compteurs souhaitez-vous renseigner&nbsp;?</h3>
+            <div class="grid md:grid-cols-2 gap-4">
+              <label class="text-sm font-medium text-slate-700">
+                Compteurs <span class="font-bold text-primary-700">Électricité</span>
+                <input type="number" min="0" max="20" name="nb_compteurs_elec" required
+                       class="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 focus:border-primary-400 focus:ring-2 focus:ring-primary-100 outline-none transition"
+                       placeholder="ex. 3">
+              </label>
+              <label class="text-sm font-medium text-slate-700">
+                Compteurs <span class="font-bold text-primary-700">Gaz</span>
+                <input type="number" min="0" max="20" name="nb_compteurs_gaz" required
+                       class="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 focus:border-primary-400 focus:ring-2 focus:ring-primary-100 outline-none transition"
+                       placeholder="ex. 1">
+              </label>
+            </div>
+          </div>
+
+          <!-- ÉTAPE 2 -->
+          <div class="field-card" data-step="1" id="step-compteurs">
+            <h3 class="text-xl font-bold text-slate-900 mb-6">Caractéristiques de vos compteurs</h3>
+            <div id="compteurs-container" class="space-y-6"></div>
+          </div>
+
+          <!-- ÉTAPE 3 -->
+          <div class="field-card" data-step="2">
+            <h3 class="text-xl font-bold text-slate-900 mb-6">Informations sur vos sites</h3>
+            <div class="grid gap-4 md:grid-cols-2">
+              <label class="text-sm font-medium text-slate-700">
+                Adresse du siège social
+                <input type="text" name="adresse_siege" required
+                       class="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 focus:border-primary-400 focus:ring-2 focus:ring-primary-100 outline-none transition"
+                       placeholder="ex. 15 rue Victor Hugo, Paris">
+              </label>
+              <label class="text-sm font-medium text-slate-700">
+                Nombre d'établissements
+                <input type="number" min="1" name="nb_etablissements"
+                       class="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 focus:border-primary-400 focus:ring-2 focus:ring-primary-100 outline-none transition"
+                       placeholder="ex. 4">
+              </label>
+            </div>
+          </div>
+
+          <!-- ÉTAPE 4 -->
+          <div class="field-card" data-step="3">
+            <h3 class="text-xl font-bold text-slate-900 mb-6">Vos coordonnées</h3>
+            <div class="grid md:grid-cols-2 gap-4">
+              <label class="text-sm font-medium text-slate-700">Raison sociale *<input type="text" name="raison_sociale" required class="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 focus:border-primary-400 focus:ring-2 focus:ring-primary-100 outline-none transition"></label>
+              <label class="text-sm font-medium text-slate-700">SIRET<input type="text" name="siret" class="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 focus:border-primary-400 focus:ring-2 focus:ring-primary-100 outline-none transition"></label>
+              <label class="text-sm font-medium text-slate-700">Nom *<input type="text" name="nom_prospect" required class="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 focus:border-primary-400 focus:ring-2 focus:ring-primary-100 outline-none transition"></label>
+              <label class="text-sm font-medium text-slate-700">Prénom *<input type="text" name="prenom_prospect" required class="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 focus:border-primary-400 focus:ring-2 focus:ring-primary-100 outline-none transition"></label>
+              <label class="text-sm font-medium text-slate-700">Téléphone *<input type="tel" name="telephone" required class="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 focus:border-primary-400 focus:ring-2 focus:ring-primary-100 outline-none transition"></label>
+              <label class="text-sm font-medium text-slate-700">Email *<input type="email" name="email" required class="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 focus:border-primary-400 focus:ring-2 focus:ring-primary-100 outline-none transition"></label>
+            </div>
+          </div>
+
+          <!-- ÉTAPE 5 -->
+          <div class="field-card" data-step="4" id="step-docs">
+            <h3 class="text-xl font-bold text-slate-900 mb-2">Ajoutez vos documents</h3>
+            <p class="text-sm text-slate-500 mb-6">Formats PDF, JPG, PNG — facultatif mais accélère l'analyse.</p>
+            <div id="docs-container" class="space-y-6"></div>
+          </div>
+
+          <!-- ÉTAPE 6 -->
+          <div class="field-card" data-step="5">
+            <h3 class="text-xl font-bold text-slate-900 mb-2">Votre besoin en quelques mots</h3>
+            <p class="text-sm text-slate-500 mb-4">Précisez vos attentes, échéances ou remarques particulières.</p>
+            <textarea name="message" rows="5"
+                      class="w-full rounded-2xl border border-slate-200 px-5 py-4 focus:border-primary-400 focus:ring-2 focus:ring-primary-100 outline-none transition"
+                      placeholder="Ex. renégociation anticipée, bilan multi-sites, contrat arrivant à échéance…"></textarea>
+            <label class="flex items-start gap-3 text-sm text-slate-500 mt-4">
+              <input type="checkbox" required class="mt-1 size-4 rounded border-slate-300 text-primary-600 focus:ring-primary-500">
+              J'accepte que mes données soient utilisées pour étudier mon dossier et être recontacté par Elga Energy.
             </label>
           </div>
-        </div>
 
-        <!-- ÉTAPE 4 -->
-        <div class="field-card hidden" data-step="3">
-          <h3>Vos coordonnées</h3>
-          <div class="grid md:grid-cols-2 gap-4">
-            <label class="text-sm font-medium text-slate-700">Raison sociale *
-              <input type="text" name="raison_sociale" required class="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 focus:border-primary-400 focus:ring-primary-200">
-            </label>
-            <label class="text-sm font-medium text-slate-700">SIRET
-              <input type="text" name="siret" class="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 focus:border-primary-400 focus:ring-primary-200">
-            </label>
-            <label class="text-sm font-medium text-slate-700">Nom *
-              <input type="text" name="nom_prospect" required class="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 focus:border-primary-400 focus:ring-primary-200">
-            </label>
-            <label class="text-sm font-medium text-slate-700">Prénom *
-              <input type="text" name="prenom_prospect" required class="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 focus:border-primary-400 focus:ring-primary-200">
-            </label>
-            <label class="text-sm font-medium text-slate-700">Téléphone *
-              <input type="tel" name="telephone" required class="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 focus:border-primary-400 focus:ring-primary-200">
-            </label>
-            <label class="text-sm font-medium text-slate-700">Email *
-              <input type="email" name="email" required class="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 focus:border-primary-400 focus:ring-primary-200">
-            </label>
-          </div>
-        </div>
-
-        <!-- ÉTAPE 5 -->
-        <div class="field-card hidden" data-step="4" id="step-docs">
-          <h3>Ajoutez vos documents</h3>
-          <p class="text-sm text-slate-500">Formats PDF, JPG, PNG — plusieurs fichiers par compteur.</p>
-          <div id="docs-container" class="space-y-6 mt-5"></div>
-        </div>
-
-        <!-- ÉTAPE 6 -->
-        <div class="field-card hidden" data-step="5">
-          <h3>Votre besoin en quelques mots</h3>
-          <p class="text-sm text-slate-500 mb-4">Précisez vos attentes, échéances ou remarques.</p>
-          <textarea name="message" rows="6"
-                    class="w-full rounded-2xl border border-slate-200 px-5 py-4 focus:border-primary-400 focus:ring-primary-200"
-                    placeholder="Ex. renégociation anticipée, bilan multi-sites…"></textarea>
-          <label class="flex items-start gap-3 text-sm text-slate-500 mt-4">
-            <input type="checkbox" required class="mt-1 size-4 rounded border-slate-300 text-primary-600 focus:ring-primary-500">
-            J’accepte que mes données soient utilisées pour étudier mon dossier et être recontacté.
-          </label>
-        </div>
-
-        <!-- Navigation -->
-        <div class="flex flex-wrap items-center justify-between gap-4">
-          <button type="button" id="step-prev"
-                  class="hidden rounded-xl border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-600 hover:border-slate-400">
-            Précédent
-          </button>
-          <div class="ml-auto flex gap-3">
-            <button type="button" id="step-next"
-                    class="rounded-xl bg-secondary-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-secondary-500">
-              Suivant
+          <!-- Navigation -->
+          <div class="flex flex-wrap items-center justify-between gap-4 mt-8 pt-6 border-t border-slate-100">
+            <button type="button" id="step-prev"
+                    class="hidden rounded-xl border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-600 hover:border-primary-400 hover:text-primary-700 transition-colors">
+              ← Précédent
             </button>
-            <button type="submit" id="step-submit"
-                    class="hidden rounded-xl bg-primary-600 px-6 py-2.5 text-sm font-semibold text-white hover:bg-primary-500">
-              Envoyer
-            </button>
+            <div class="ml-auto flex gap-3">
+              <button type="button" id="step-next"
+                      class="rounded-xl bg-secondary-600 px-7 py-2.5 text-sm font-bold text-white hover:bg-secondary-500 transition-colors shadow-soft">
+                Suivant →
+              </button>
+              <button type="submit" id="step-submit"
+                      class="hidden rounded-xl bg-primary-600 px-7 py-2.5 text-sm font-bold text-white hover:bg-primary-500 transition-colors shadow-soft">
+                Envoyer ma demande
+              </button>
+            </div>
           </div>
-        </div>
-      </form>
+        </form>
+      </div>
     </div>
-  </div>
-</section>
-<!-- ===== /Tunnel de Devis ===== -->
-
-<script>
-  const form = document.getElementById('quote-form');
-  const panels = Array.from(form.querySelectorAll('[data-step]'));
-  const prevBtn = document.getElementById('step-prev');
-  const nextBtn = document.getElementById('step-next');
-  const submitBtn = document.getElementById('step-submit');
-  const compteursContainer = document.getElementById('compteurs-container');
-  const docsContainer = document.getElementById('docs-container');
-  let currentStep = 0;
-
-  function generateCompteurs(nbElec, nbGaz) {
-    compteursContainer.innerHTML = '';
-    for (let i = 1; i <= nbElec; i++) {
-      compteursContainer.innerHTML += `
-        <fieldset class="space-y-2">
-          <legend class="text-sm font-semibold text-slate-700 uppercase tracking-[0.2em] mb-1">Compteur Électrique ${i}</legend>
-          <label class="pill-radio"><input type="radio" name="typologie_compteurs_elec_${i}" value="-36"><span>&lt; 36 kVA</span><small>Tarif Bleu / PME</small></label>
-          <label class="pill-radio"><input type="radio" name="typologie_compteurs_elec_${i}" value="36-250"><span>36 à 250 kVA</span><small>Tarif Jaune / industriel léger</small></label>
-          <label class="pill-radio"><input type="radio" name="typologie_compteurs_elec_${i}" value="+250"><span>&gt; 250 kVA</span><small>Grands sites / tarif vert</small></label>
-        </fieldset>`;
-    }
-    for (let j = 1; j <= nbGaz; j++) {
-      compteursContainer.innerHTML += `
-        <fieldset class="space-y-2">
-          <legend class="text-sm font-semibold text-slate-700 uppercase tracking-[0.2em] mb-1">Compteur Gaz ${j}</legend>
-          <label class="pill-radio"><input type="radio" name="typologie_compteurs_gaz_${j}" value="t1"><span>T1 / &lt; 6 MWh/an</span><small>Petits volumes</small></label>
-          <label class="pill-radio"><input type="radio" name="typologie_compteurs_gaz_${j}" value="t2"><span>T2 / 6 à 300 MWh</span><small>Sites multisites, restauration</small></label>
-          <label class="pill-radio"><input type="radio" name="typologie_compteurs_gaz_${j}" value="t3"><span>T3/T4 / +300 MWh</span><small>Industrie, gros volumes</small></label>
-        </fieldset>`;
-    }
-    const radioInputs = compteursContainer.querySelectorAll('.pill-radio input');
-    radioInputs.forEach(input => {
-      input.addEventListener('change', () => {
-        document.querySelectorAll(`input[name="${input.name}"]`).forEach(i => {
-          const card = i.closest('.pill-radio');
-          card.classList.toggle('is-active', i.checked);
-        });
-      });
-    });
-  }
-
-  function generateUploadZones(nbElec, nbGaz) {
-    docsContainer.innerHTML = '';
-    for (let i = 1; i <= nbElec; i++) {
-      docsContainer.innerHTML += `
-        <label class="block text-sm font-medium text-slate-700">
-          Factures compteur Électricité ${i}
-          <input type="file" name="facture_elec_${i}[]" multiple accept=".pdf,.jpg,.jpeg,.png"
-                 class="mt-2 block w-full rounded-xl border border-dashed border-primary-300 px-4 py-5 text-sm text-slate-600 file:mr-4 file:rounded-lg file:border-0 file:bg-primary-100 file:px-4 file:py-2 file:text-primary-700 hover:file:bg-primary-200">
-        </label>`;
-    }
-    for (let j = 1; j <= nbGaz; j++) {
-      docsContainer.innerHTML += `
-        <label class="block text-sm font-medium text-slate-700">
-          Factures compteur Gaz ${j}
-          <input type="file" name="facture_gaz_${j}[]" multiple accept=".pdf,.jpg,.jpeg,.png"
-                 class="mt-2 block w-full rounded-xl border border-dashed border-primary-300 px-4 py-5 text-sm text-slate-600 file:mr-4 file:rounded-lg file:border-0 file:bg-primary-100 file:px-4 file:py-2 file:text-primary-700 hover:file:bg-primary-200">
-        </label>`;
-    }
-  }
-
-  function showStep(step) {
-    currentStep = Math.min(Math.max(step, 0), panels.length - 1);
-    panels.forEach((panel, index) => {
-      if (index === currentStep) {
-        panel.classList.remove('hidden');
-        requestAnimationFrame(() => panel.classList.add('active-step'));
-      } else {
-        panel.classList.remove('active-step');
-        setTimeout(() => panel.classList.add('hidden'), 300);
-      }
-    });
-    prevBtn.classList.toggle('hidden', currentStep === 0);
-    nextBtn.classList.toggle('hidden', currentStep === panels.length - 1);
-    submitBtn.classList.toggle('hidden', currentStep !== panels.length - 1);
-  }
-
-  prevBtn.addEventListener('click', () => showStep(currentStep - 1));
-  nextBtn.addEventListener('click', () => {
-    const nbElec = parseInt(form.nb_compteurs_elec.value || 0);
-    const nbGaz = parseInt(form.nb_compteurs_gaz.value || 0);
-    if (currentStep === 0) generateCompteurs(nbElec, nbGaz);
-    if (currentStep === 1) generateUploadZones(nbElec, nbGaz);
-    showStep(currentStep + 1);
-  });
-
-  form.addEventListener('submit', () => {
-    setTimeout(() => {
-      form.innerHTML = `
-        <div class="text-center space-y-4 p-10 bg-primary-50 rounded-3xl border border-primary-200">
-          <div class="inline-flex items-center justify-center rounded-full bg-primary-100 text-primary-700 size-16 mx-auto">
-            <svg viewBox="0 0 24 24" class="size-8" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 13l4 4L19 7"/></svg>
-          </div>
-          <h3 class="text-2xl font-bold text-slate-900">Merci !</h3>
-          <p class="text-slate-600 max-w-xl mx-auto">Votre demande a été transmise à Elga Energy.</p>
-        </div>`;
-    }, 500);
-  });
-
-  showStep(0);
-</script>
-
+  </section>
 
   <!-- Carrousel fournisseurs -->
-  <section id="fournisseurs" class="bg-white">
-    <div class="container py-12 md:py-16">
-      <p class="text-center text-slate-600 mb-6">Parmis les fournisseurs consultés : </p>
+  <section id="fournisseurs" class="bg-white py-12 md:py-16">
+    <div class="container">
+      <div class="text-center mb-8">
+        <p class="text-slate-400 text-xs font-semibold uppercase tracking-widest mb-2">Réseau de fournisseurs</p>
+        <h2 class="text-2xl md:text-3xl font-bold text-slate-900">Nous négocions auprès des grands acteurs</h2>
+      </div>
       <div class="swiper suppliers-swiper">
-        <div class="swiper-wrapper">
-          <div class="swiper-slide"><div class="h-20 grid place-items-center border rounded-xl p-3"><img src="/assets/fournisseurs/totalenergies.svg" alt="TotalEnergies" class="max-h-10" onerror="this.closest('.swiper-slide').querySelector('.fallback')?.classList.remove('hidden'); this.remove();"><span class="fallback hidden text-sm font-medium">TotalEnergies</span></div></div>
-          <div class="swiper-slide"><div class="h-20 grid place-items-center border rounded-xl p-3"><img src="/assets/fournisseurs/eni.svg" alt="Eni" class="max-h-10" onerror="this.closest('.swiper-slide').querySelector('.fallback')?.classList.remove('hidden'); this.remove();"><span class="fallback hidden text-sm font-medium">Eni</span></div></div>
-          <div class="swiper-slide"><div class="h-20 grid place-items-center border rounded-xl p-3"><img src="/assets/fournisseurs/vattenfall.svg" alt="Vattenfall" class="max-h-10" onerror="this.closest('.swiper-slide').querySelector('.fallback')?.classList.remove('hidden'); this.remove();"><span class="fallback hidden text-sm font-medium">Vattenfall</span></div></div>
-          <div class="swiper-slide"><div class="h-20 grid place-items-center border rounded-xl p-3"><img src="/assets/fournisseurs/edf.svg" alt="EDF" class="max-h-10" onerror="this.closest('.swiper-slide').querySelector('.fallback')?.classList.remove('hidden'); this.remove();"><span class="fallback hidden text-sm font-medium">EDF</span></div></div>
-          <div class="swiper-slide"><div class="h-20 grid place-items-center border rounded-xl p-3"><img src="/assets/fournisseurs/engie.svg" alt="Engie" class="max-h-10" onerror="this.closest('.swiper-slide').querySelector('.fallback')?.classList.remove('hidden'); this.remove();"><span class="fallback hidden text-sm font-medium">Engie</span></div></div>
-          <div class="swiper-slide"><div class="h-20 grid place-items-center border rounded-xl p-3"><img src="/assets/fournisseurs/endesa-grupo.svg" alt="endesa" class="max-h-10" onerror="this.closest('.swiper-slide').querySelector('.fallback')?.classList.remove('hidden'); this.remove();"><span class="fallback hidden text-sm font-medium">ekWateur</span></div></div>
-        </div>
-        <div class="flex items-center justify-center gap-4 mt-6">
-          <button class="suppliers-prev rounded-lg border px-3 py-2">◀</button>
-          <button class="suppliers-next rounded-lg border px-3 py-2">▶</button>
+        <div class="swiper-wrapper items-center">
+          <div class="swiper-slide"><div class="h-20 grid place-items-center border border-slate-100 rounded-2xl p-4 bg-slate-50 hover:border-primary-200 transition-colors mx-1"><img src="/assets/fournisseurs/totalenergies.svg" alt="TotalEnergies" class="max-h-10 w-auto" loading="lazy" onerror="this.parentElement.innerHTML='<span class=\'text-sm font-medium text-slate-600\'>TotalEnergies</span>'"></div></div>
+          <div class="swiper-slide"><div class="h-20 grid place-items-center border border-slate-100 rounded-2xl p-4 bg-slate-50 hover:border-primary-200 transition-colors mx-1"><img src="/assets/fournisseurs/eni.svg" alt="Eni" class="max-h-10 w-auto" loading="lazy" onerror="this.parentElement.innerHTML='<span class=\'text-sm font-medium text-slate-600\'>Eni</span>'"></div></div>
+          <div class="swiper-slide"><div class="h-20 grid place-items-center border border-slate-100 rounded-2xl p-4 bg-slate-50 hover:border-primary-200 transition-colors mx-1"><img src="/assets/fournisseurs/vattenfall.svg" alt="Vattenfall" class="max-h-10 w-auto" loading="lazy" onerror="this.parentElement.innerHTML='<span class=\'text-sm font-medium text-slate-600\'>Vattenfall</span>'"></div></div>
+          <div class="swiper-slide"><div class="h-20 grid place-items-center border border-slate-100 rounded-2xl p-4 bg-slate-50 hover:border-primary-200 transition-colors mx-1"><img src="/assets/fournisseurs/edf.svg" alt="EDF" class="max-h-10 w-auto" loading="lazy" onerror="this.parentElement.innerHTML='<span class=\'text-sm font-medium text-slate-600\'>EDF</span>'"></div></div>
+          <div class="swiper-slide"><div class="h-20 grid place-items-center border border-slate-100 rounded-2xl p-4 bg-slate-50 hover:border-primary-200 transition-colors mx-1"><img src="/assets/fournisseurs/engie.svg" alt="Engie" class="max-h-10 w-auto" loading="lazy" onerror="this.parentElement.innerHTML='<span class=\'text-sm font-medium text-slate-600\'>Engie</span>'"></div></div>
+          <div class="swiper-slide"><div class="h-20 grid place-items-center border border-slate-100 rounded-2xl p-4 bg-slate-50 hover:border-primary-200 transition-colors mx-1"><img src="/assets/fournisseurs/endesa-grupo.svg" alt="Endesa" class="max-h-10 w-auto" loading="lazy" onerror="this.parentElement.innerHTML='<span class=\'text-sm font-medium text-slate-600\'>Endesa</span>'"></div></div>
         </div>
       </div>
     </div>
   </section>
 
   <!-- Avis clients -->
-  <section id="avis" class="bg-slate-50">
-    <div class="container py-12 md:py-16">
-      <div class="flex items-center justify-between mb-6">
-        <h2 class="text-2xl md:text-3xl font-bold">Ils nous font confiance</h2>
-        <div class="hidden md:block text-sm text-slate-600">Note moyenne 4,9/5</div>
+  <section id="avis" class="bg-slate-50 py-12 md:py-16">
+    <div class="container">
+      <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-10">
+        <div>
+          <span class="inline-block rounded-full bg-primary-100 text-primary-700 text-xs font-semibold uppercase tracking-widest px-3 py-1 mb-2">Témoignages</span>
+          <h2 class="text-2xl md:text-3xl font-bold text-slate-900">Ils nous font confiance</h2>
+        </div>
+        <div class="flex items-center gap-2 bg-white border border-slate-200 rounded-xl px-4 py-2.5 shadow-soft shrink-0">
+          <div class="flex text-amber-400 gap-0.5">
+            <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+            <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+            <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+            <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+            <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+          </div>
+          <span class="text-sm font-bold text-slate-800">4,9/5</span>
+          <span class="text-xs text-slate-400">note moyenne</span>
+        </div>
       </div>
       <div class="swiper reviews-swiper">
         <div class="swiper-wrapper">
-          <div class="swiper-slide">
-            <article class="rounded-2xl bg-white border p-5 h-full">
-              <p class="text-slate-700">“Accompagnement de A à Z et économies réelles dès le premier mois.”</p>
-              <div class="mt-4 text-sm text-slate-500">— Atelier Martin, Lyon</div>
+          <div class="swiper-slide h-auto">
+            <article class="rounded-2xl bg-white border border-slate-100 p-6 h-full shadow-soft flex flex-col gap-4">
+              <div class="flex text-amber-400 gap-0.5"><svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg><svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg><svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg><svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg><svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg></div>
+              <p class="text-slate-700 italic flex-1">"Accompagnement de A à Z et économies réelles dès le premier mois."</p>
+              <div class="mt-auto"><p class="text-sm font-semibold text-slate-800">Atelier Martin</p><p class="text-xs text-slate-400">Lyon — PME industrie</p></div>
             </article>
           </div>
-          <div class="swiper-slide">
-            <article class="rounded-2xl bg-white border p-5 h-full">
-              <p class="text-slate-700">“Comparatif clair, négociation efficace. On a gagné du temps et de l'argent.”</p>
-              <div class="mt-4 text-sm text-slate-500">— Résidence Les Pins</div>
+          <div class="swiper-slide h-auto">
+            <article class="rounded-2xl bg-white border border-slate-100 p-6 h-full shadow-soft flex flex-col gap-4">
+              <div class="flex text-amber-400 gap-0.5"><svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg><svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg><svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg><svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg><svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg></div>
+              <p class="text-slate-700 italic flex-1">"Comparatif clair, négociation efficace. On a gagné du temps et de l'argent."</p>
+              <div class="mt-auto"><p class="text-sm font-semibold text-slate-800">Résidence Les Pins</p><p class="text-xs text-slate-400">Copropriété — Marseille</p></div>
             </article>
           </div>
-          <div class="swiper-slide">
-            <article class="rounded-2xl bg-white border p-5 h-full">
-              <p class="text-slate-700">“Très pro sur les clauses contractuelles, rien à redire.”</p>
-              <div class="mt-4 text-sm text-slate-500">— PME Agro, Lille</div>
+          <div class="swiper-slide h-auto">
+            <article class="rounded-2xl bg-white border border-slate-100 p-6 h-full shadow-soft flex flex-col gap-4">
+              <div class="flex text-amber-400 gap-0.5"><svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg><svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg><svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg><svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg><svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg></div>
+              <p class="text-slate-700 italic flex-1">"Très pro sur les clauses contractuelles, rien à redire."</p>
+              <div class="mt-auto"><p class="text-sm font-semibold text-slate-800">PME Agro</p><p class="text-xs text-slate-400">Agro-industrie — Lille</p></div>
             </article>
           </div>
         </div>
-        <div class="flex items-center justify-center gap-4 mt-6">
-          <button class="reviews-prev rounded-lg border px-3 py-2">◀</button>
-          <button class="reviews-next rounded-lg border px-3 py-2">▶</button>
+        <div class="flex items-center justify-center gap-4 mt-8">
+          <button class="reviews-prev size-10 rounded-xl border border-slate-200 bg-white hover:border-primary-400 hover:text-primary-700 transition-colors grid place-items-center"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg></button>
+          <button class="reviews-next size-10 rounded-xl border border-slate-200 bg-white hover:border-primary-400 hover:text-primary-700 transition-colors grid place-items-center"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg></button>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- FAQ -->
-  <section id="faq" class="relative bg-white isolate">
-    <div class="absolute inset-0 pointer-events-none select-none">
-      <img src="/assets/images/faq-bg.jpg" alt="" class="w-full h-full picture-cover opacity-5" onerror="this.remove()" />
-    </div>
-
-    <div class="relative container py-12 md:py-16">
-      <div class="text-center">
-        <h2 class="text-2xl md:text-3xl font-bold text-secondary-600">Questions fréquemment posées</h2>
-        <div class="mt-3 h-0.5 w-24 bg-secondary-600/40 mx-auto rounded"></div>
-        <p class="mt-2 text-slate-600">On vous répond simplement. Si besoin, on prend tout en charge.</p>
+  <!-- FAQ Accordéon -->
+  <section id="faq" class="bg-white py-16 md:py-20">
+    <div class="container max-w-3xl">
+      <div class="text-center mb-12">
+        <span class="inline-block rounded-full bg-secondary-100 text-secondary-700 text-xs font-semibold uppercase tracking-widest px-3 py-1 mb-3">FAQ</span>
+        <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900">Questions fréquentes</h2>
+        <p class="mt-3 text-slate-500">Tout ce que vous voulez savoir avant de nous contacter.</p>
       </div>
-
-      <div class="mt-12 grid md:grid-cols-2 gap-x-14 gap-y-10">
-        <article class="flex items-start gap-4">
-          <div class="shrink-0"><div class="size-12 rounded-full bg-primary-600 grid place-items-center text-white shadow-soft">
-            <svg viewBox="0 0 24 24" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 3a7 7 0 1 0 10 10c3-3 1-9-5-9a5 5 0 0 0-5 5"/><path d="M13 21a7 7 0 1 1 0-14"/></svg>
-          </div></div>
-          <div>
-            <h3 class="font-semibold text-slate-900">Faut-il acheter le gaz et l’électricité auprès du même fournisseur&nbsp;?</h3>
-            <p class="mt-2 text-slate-600">Ce n’est pas nécessaire. Si un meilleur prix est trouvé pour l’un des deux, nous traitons les contrats séparément et gérons l’administratif pour vous.</p>
-          </div>
-        </article>
-
-        <article class="flex items-start gap-4">
-          <div class="shrink-0"><div class="size-12 rounded-full bg-primary-600 grid place-items-center text-white shadow-soft">
-            <svg viewBox="0 0 24 24" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 7h18M3 12h18M3 17h18"/></svg>
-          </div></div>
-          <div>
-            <h3 class="font-semibold text-slate-900">Est-ce que j’obtiens un prix fixe ou variable&nbsp;?</h3>
-            <p class="mt-2 text-slate-600">Nous suivons de près le marché de l’énergie et recommandons l’option (fixe ou indexée) la plus pertinente au moment de l’analyse.</p>
-          </div>
-        </article>
-
-        <article class="flex items-start gap-4">
-          <div class="shrink-0"><div class="size-12 rounded-full bg-primary-600 grid place-items-center text-white shadow-soft">
-            <svg viewBox="0 0 24 24" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 5H9a6 6 0 0 0 0 12h8"/><path d="M3 10h12M3 14h12"/></svg>
-          </div></div>
-          <div>
-            <h3 class="font-semibold text-slate-900">Combien vais-je économiser&nbsp;?</h3>
-            <p class="mt-2 text-slate-600">Cela dépend de votre situation initiale. Au-delà du nouveau tarif, nous conseillons aussi sur la consommation pour amplifier les économies.</p>
-          </div>
-        </article>
-
-        <article class="flex items-start gap-4">
-          <div class="shrink-0"><div class="size-12 rounded-full bg-primary-600 grid place-items-center text-white shadow-soft">
-            <svg viewBox="0 0 24 24" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 7h11l-3-3M17 17H6l3 3"/></svg>
-          </div></div>
-          <div>
-            <h3 class="font-semibold text-slate-900">Dois-je changer de fournisseur&nbsp;?</h3>
-            <p class="mt-2 text-slate-600">Notre audit est <strong>gratuit</strong> et sans engagement. La décision vous appartient — on vous donne une recommandation claire et documentée.</p>
-          </div>
-        </article>
-
-        <article class="flex items-start gap-4">
-          <div class="shrink-0"><div class="size-12 rounded-full bg-primary-600 grid place-items-center text-white shadow-soft">
-            <svg viewBox="0 0 24 24" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg>
-          </div></div>
-          <div>
-            <h3 class="font-semibold text-slate-900">Y a-t-il des frais d’annulation si je quitte mon fournisseur actuel&nbsp;?</h3>
-            <p class="mt-2 text-slate-600">Dans la plupart des cas non. Un préavis peut toutefois s’appliquer selon le type de contrat et la réglementation locale. Nous vérifions tout pour vous.</p>
-          </div>
-        </article>
-
-        <article class="flex items-start gap-4">
-          <div class="shrink-0"><div class="size-12 rounded-full bg-primary-600 grid place-items-center text-white shadow-soft">
-            <svg viewBox="0 0 24 24" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 6l-11 11l-5-5"/></svg>
-          </div></div>
-          <div>
-            <h3 class="font-semibold text-slate-900">Puis-je profiter du meilleur prix si je suis déjà client du fournisseur proposé&nbsp;?</h3>
-            <p class="mt-2 text-slate-600">Si, à l’issue de la négociation, votre fournisseur actuel l’emporte et propose mieux, nous faisons appliquer le nouveau tarif — sans démarches de votre part.</p>
-          </div>
-        </article>
+      <div class="space-y-3">
+        <div class="faq-item rounded-2xl border border-slate-200 overflow-hidden">
+          <button class="faq-trigger w-full flex items-center justify-between gap-4 px-6 py-5 text-left font-semibold text-slate-900 hover:bg-slate-50 transition-colors">
+            <span>Faut-il acheter le gaz et l'électricité auprès du même fournisseur&nbsp;?</span>
+            <svg class="faq-icon shrink-0 w-5 h-5 text-primary-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+          </button>
+          <div class="faq-answer px-6 text-slate-600 text-sm"><p class="pb-5">Ce n'est pas nécessaire. Si un meilleur prix est trouvé pour l'un des deux, nous traitons les contrats séparément et gérons l'administratif pour vous.</p></div>
+        </div>
+        <div class="faq-item rounded-2xl border border-slate-200 overflow-hidden">
+          <button class="faq-trigger w-full flex items-center justify-between gap-4 px-6 py-5 text-left font-semibold text-slate-900 hover:bg-slate-50 transition-colors">
+            <span>Est-ce que j'obtiens un prix fixe ou variable&nbsp;?</span>
+            <svg class="faq-icon shrink-0 w-5 h-5 text-primary-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+          </button>
+          <div class="faq-answer px-6 text-slate-600 text-sm"><p class="pb-5">Nous suivons de près le marché de l'énergie et recommandons l'option (fixe ou indexée) la plus pertinente au moment de l'analyse de votre dossier.</p></div>
+        </div>
+        <div class="faq-item rounded-2xl border border-slate-200 overflow-hidden">
+          <button class="faq-trigger w-full flex items-center justify-between gap-4 px-6 py-5 text-left font-semibold text-slate-900 hover:bg-slate-50 transition-colors">
+            <span>Combien vais-je économiser&nbsp;?</span>
+            <svg class="faq-icon shrink-0 w-5 h-5 text-primary-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+          </button>
+          <div class="faq-answer px-6 text-slate-600 text-sm"><p class="pb-5">En moyenne, nos clients économisent entre 10 et 30 %. Cela dépend de votre situation initiale. Au-delà du tarif, nous conseillons aussi sur la consommation pour amplifier les économies.</p></div>
+        </div>
+        <div class="faq-item rounded-2xl border border-slate-200 overflow-hidden">
+          <button class="faq-trigger w-full flex items-center justify-between gap-4 px-6 py-5 text-left font-semibold text-slate-900 hover:bg-slate-50 transition-colors">
+            <span>Dois-je changer de fournisseur&nbsp;?</span>
+            <svg class="faq-icon shrink-0 w-5 h-5 text-primary-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+          </button>
+          <div class="faq-answer px-6 text-slate-600 text-sm"><p class="pb-5">Notre audit est <strong>gratuit</strong> et sans engagement. La décision vous appartient — on vous donne une recommandation claire et documentée, sans aucune pression.</p></div>
+        </div>
+        <div class="faq-item rounded-2xl border border-slate-200 overflow-hidden">
+          <button class="faq-trigger w-full flex items-center justify-between gap-4 px-6 py-5 text-left font-semibold text-slate-900 hover:bg-slate-50 transition-colors">
+            <span>Y a-t-il des frais d'annulation si je quitte mon fournisseur actuel&nbsp;?</span>
+            <svg class="faq-icon shrink-0 w-5 h-5 text-primary-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+          </button>
+          <div class="faq-answer px-6 text-slate-600 text-sm"><p class="pb-5">Dans la plupart des cas non. Un préavis peut toutefois s'appliquer selon le type de contrat et la réglementation locale. Nous vérifions tout pour vous avant toute décision.</p></div>
+        </div>
+        <div class="faq-item rounded-2xl border border-slate-200 overflow-hidden">
+          <button class="faq-trigger w-full flex items-center justify-between gap-4 px-6 py-5 text-left font-semibold text-slate-900 hover:bg-slate-50 transition-colors">
+            <span>Puis-je profiter du meilleur prix si je suis déjà client du fournisseur proposé&nbsp;?</span>
+            <svg class="faq-icon shrink-0 w-5 h-5 text-primary-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
+          </button>
+          <div class="faq-answer px-6 text-slate-600 text-sm"><p class="pb-5">Oui. Si, à l'issue de la négociation, votre fournisseur actuel l'emporte et propose mieux, nous faisons appliquer le nouveau tarif — sans démarches de votre part.</p></div>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- Blog (Actualités statiques, sans autoplay) -->
-  <section id="blog" class="bg-slate-50">
-    <div class="container py-12 md:py-16">
-      <h2 class="text-2xl md:text-3xl font-bold text-center">Actualités énergie</h2>
-
-      <div class="swiper actu-swiper mt-8">
+  <!-- Blog -->
+  <section id="blog" class="bg-slate-50 py-12 md:py-16">
+    <div class="container">
+      <div class="flex items-center justify-between mb-8">
+        <div>
+          <span class="inline-block rounded-full bg-primary-100 text-primary-700 text-xs font-semibold uppercase tracking-widest px-3 py-1 mb-2">Blog</span>
+          <h2 class="text-2xl md:text-3xl font-bold text-slate-900">Actualités énergie</h2>
+        </div>
+        <a href="/actu.html" class="hidden md:inline-flex items-center gap-1.5 text-sm font-semibold text-primary-700 hover:text-primary-800 transition-colors">
+          Voir tous les articles
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5-5 5M6 12h12"/></svg>
+        </a>
+      </div>
+      <div class="swiper actu-swiper">
         <div class="swiper-wrapper">
-          <!-- 6 cartes statiques -->
-          <div class="swiper-slide">
-            <article class="rounded-2xl bg-white border overflow-hidden h-full flex flex-col">
-              <a href="/actu.html" class="block">
-                <img src="/assets/images/image_arenh.jpg" alt="Fin de l’ARENH" class="aspect-[4/3] w-full object-cover">
-              </a>
+          <div class="swiper-slide h-auto">
+            <article class="rounded-2xl bg-white border border-slate-100 overflow-hidden h-full flex flex-col shadow-soft">
+              <a href="/actu.html" class="block overflow-hidden"><img src="/assets/images/image_arenh.jpg" alt="Fin de l'ARENH" class="aspect-[16/9] w-full object-cover hover:scale-105 transition-transform duration-300" loading="lazy"></a>
               <div class="p-5 flex flex-col gap-2 grow">
-                <h3 class="font-semibold"><a href="/actu.html" class="hover:text-primary-700">Fin de l’ARENH : Quels changements pour les entreprises ?</a></h3>
-                <p class="text-sm text-slate-600">La fin de l’accès régulé à l’électricité nucléaire rebat les cartes du marché.</p>
-                <div class="mt-auto"><a href="/actu.html" class="text-primary-700 font-medium">Lire →</a></div>
+                <div class="flex items-center gap-2"><span class="rounded-full bg-primary-100 text-primary-700 text-xs font-medium px-2.5 py-0.5">Marché</span><span class="text-xs text-slate-400">11 oct. 2025</span></div>
+                <h3 class="font-bold text-slate-900"><a href="/actu.html" class="hover:text-primary-700 transition-colors">Fin de l'ARENH : quels changements pour les entreprises&nbsp;?</a></h3>
+                <p class="text-sm text-slate-500">La fin de l'accès régulé à l'électricité nucléaire rebat les cartes du marché.</p>
+                <div class="mt-auto pt-2"><a href="/actu.html" class="text-primary-700 text-sm font-semibold hover:text-primary-800 transition-colors">Lire l'article →</a></div>
               </div>
             </article>
           </div>
-
-          <div class="swiper-slide">
-            <article class="rounded-2xl bg-white border overflow-hidden h-full flex flex-col">
-              <a href="/actu.html" class="block">
-                <img src="/assets/images/offre-visuel.jpg" alt="Réduire la facture" class="aspect-[4/3] w-full object-cover">
-              </a>
+          <div class="swiper-slide h-auto">
+            <article class="rounded-2xl bg-white border border-slate-100 overflow-hidden h-full flex flex-col shadow-soft">
+              <a href="/actu.html" class="block overflow-hidden"><img src="/assets/images/offre-visuel.jpg" alt="Réduire la facture" class="aspect-[16/9] w-full object-cover hover:scale-105 transition-transform duration-300" loading="lazy"></a>
               <div class="p-5 flex flex-col gap-2 grow">
-                <h3 class="font-semibold"><a href="/actu.html" class="hover:text-primary-700">Comment réduire sa facture d’électricité pro en 2025</a></h3>
-                <p class="text-sm text-slate-600">Nos experts partagent les meilleures stratégies pour limiter la hausse tarifaire.</p>
-                <div class="mt-auto"><a href="/actu.html" class="text-primary-700 font-medium">Lire →</a></div>
+                <div class="flex items-center gap-2"><span class="rounded-full bg-secondary-100 text-secondary-700 text-xs font-medium px-2.5 py-0.5">Conseils</span><span class="text-xs text-slate-400">28 sept. 2025</span></div>
+                <h3 class="font-bold text-slate-900"><a href="/actu.html" class="hover:text-primary-700 transition-colors">Comment réduire sa facture d'électricité pro en 2025</a></h3>
+                <p class="text-sm text-slate-500">Nos experts partagent les meilleures stratégies pour limiter la hausse tarifaire.</p>
+                <div class="mt-auto pt-2"><a href="/actu.html" class="text-primary-700 text-sm font-semibold hover:text-primary-800 transition-colors">Lire l'article →</a></div>
               </div>
             </article>
           </div>
-
-          <div class="swiper-slide">
-            <article class="rounded-2xl bg-white border overflow-hidden h-full flex flex-col">
-              <a href="/actu.html" class="block">
-                <img src="/assets/images/process-bg.jpg" alt="Marché de gros" class="aspect-[4/3] w-full object-cover">
-              </a>
+          <div class="swiper-slide h-auto">
+            <article class="rounded-2xl bg-white border border-slate-100 overflow-hidden h-full flex flex-col shadow-soft">
+              <a href="/actu.html" class="block overflow-hidden"><img src="/assets/images/process-bg.jpg" alt="Marché de gros" class="aspect-[16/9] w-full object-cover hover:scale-105 transition-transform duration-300" loading="lazy"></a>
               <div class="p-5 flex flex-col gap-2 grow">
-                <h3 class="font-semibold"><a href="/actu.html" class="hover:text-primary-700">Marché de gros : les signaux clés à surveiller</a></h3>
-                <p class="text-sm text-slate-600">Les fluctuations du marché européen peuvent impacter vos coûts.</p>
-                <div class="mt-auto"><a href="/actu.html" class="text-primary-700 font-medium">Lire →</a></div>
+                <div class="flex items-center gap-2"><span class="rounded-full bg-primary-100 text-primary-700 text-xs font-medium px-2.5 py-0.5">Analyse</span><span class="text-xs text-slate-400">15 sept. 2025</span></div>
+                <h3 class="font-bold text-slate-900"><a href="/actu.html" class="hover:text-primary-700 transition-colors">Marché de gros : les signaux clés à surveiller</a></h3>
+                <p class="text-sm text-slate-500">Les fluctuations du marché européen peuvent impacter vos coûts.</p>
+                <div class="mt-auto pt-2"><a href="/actu.html" class="text-primary-700 text-sm font-semibold hover:text-primary-800 transition-colors">Lire l'article →</a></div>
               </div>
             </article>
           </div>
-
-          <div class="swiper-slide">
-            <article class="rounded-2xl bg-white border overflow-hidden h-full flex flex-col">
-              <a href="/actu.html" class="block">
-                <img src="/assets/images/hero-visual.jpg" alt="TURPE 2025" class="aspect-[4/3] w-full object-cover">
-              </a>
+          <div class="swiper-slide h-auto">
+            <article class="rounded-2xl bg-white border border-slate-100 overflow-hidden h-full flex flex-col shadow-soft">
+              <a href="/actu.html" class="block overflow-hidden"><img src="/assets/images/hero-visual.jpg" alt="TURPE 2025" class="aspect-[16/9] w-full object-cover hover:scale-105 transition-transform duration-300" loading="lazy"></a>
               <div class="p-5 flex flex-col gap-2 grow">
-                <h3 class="font-semibold"><a href="/actu.html" class="hover:text-primary-700">Le TURPE 2025 expliqué simplement</a></h3>
-                <p class="text-sm text-slate-600">Tout comprendre des nouveaux barèmes et des leviers d’optimisation.</p>
-                <div class="mt-auto"><a href="/actu.html" class="text-primary-700 font-medium">Lire →</a></div>
+                <div class="flex items-center gap-2"><span class="rounded-full bg-secondary-100 text-secondary-700 text-xs font-medium px-2.5 py-0.5">Réglementation</span><span class="text-xs text-slate-400">2 sept. 2025</span></div>
+                <h3 class="font-bold text-slate-900"><a href="/actu.html" class="hover:text-primary-700 transition-colors">Le TURPE 2025 expliqué simplement</a></h3>
+                <p class="text-sm text-slate-500">Tout comprendre des nouveaux barèmes et des leviers d'optimisation.</p>
+                <div class="mt-auto pt-2"><a href="/actu.html" class="text-primary-700 text-sm font-semibold hover:text-primary-800 transition-colors">Lire l'article →</a></div>
               </div>
             </article>
           </div>
-
-          <div class="swiper-slide">
-            <article class="rounded-2xl bg-white border overflow-hidden h-full flex flex-col">
-              <a href="/actu.html" class="block">
-                <img src="/assets/images/offre-visuel.jpg" alt="Gaz naturel" class="aspect-[4/3] w-full object-cover">
-              </a>
+          <div class="swiper-slide h-auto">
+            <article class="rounded-2xl bg-white border border-slate-100 overflow-hidden h-full flex flex-col shadow-soft">
+              <a href="/actu.html" class="block overflow-hidden"><img src="/assets/images/fin-arenh.jpg" alt="Gaz naturel" class="aspect-[16/9] w-full object-cover hover:scale-105 transition-transform duration-300" loading="lazy"></a>
               <div class="p-5 flex flex-col gap-2 grow">
-                <h3 class="font-semibold"><a href="/actu.html" class="hover:text-primary-700">Gaz naturel : bien négocier son contrat</a></h3>
-                <p class="text-sm text-slate-600">Durée, indexation, clauses de sortie… nos conseils essentiels.</p>
-                <div class="mt-auto"><a href="/actu.html" class="text-primary-700 font-medium">Lire →</a></div>
+                <div class="flex items-center gap-2"><span class="rounded-full bg-primary-100 text-primary-700 text-xs font-medium px-2.5 py-0.5">Contrats</span><span class="text-xs text-slate-400">20 août 2025</span></div>
+                <h3 class="font-bold text-slate-900"><a href="/actu.html" class="hover:text-primary-700 transition-colors">Gaz naturel : bien négocier son contrat</a></h3>
+                <p class="text-sm text-slate-500">Durée, indexation, clauses de sortie — nos conseils essentiels.</p>
+                <div class="mt-auto pt-2"><a href="/actu.html" class="text-primary-700 text-sm font-semibold hover:text-primary-800 transition-colors">Lire l'article →</a></div>
               </div>
             </article>
           </div>
-
-          <div class="swiper-slide">
-            <article class="rounded-2xl bg-white border overflow-hidden h-full flex flex-col">
-              <a href="/actu.html" class="block">
-                <img src="/assets/images/fin-arenh.jpg" alt="Énergies renouvelables" class="aspect-[4/3] w-full object-cover">
-              </a>
+          <div class="swiper-slide h-auto">
+            <article class="rounded-2xl bg-white border border-slate-100 overflow-hidden h-full flex flex-col shadow-soft">
+              <a href="/actu.html" class="block overflow-hidden"><img src="/assets/images/image1.jpg" alt="Énergies renouvelables" class="aspect-[16/9] w-full object-cover hover:scale-105 transition-transform duration-300" loading="lazy"></a>
               <div class="p-5 flex flex-col gap-2 grow">
-                <h3 class="font-semibold"><a href="/actu.html" class="hover:text-primary-700">Énergies renouvelables : investir ou patienter ?</a></h3>
-                <p class="text-sm text-slate-600">Photovoltaïque, autoconsommation : ce qu’il faut savoir avant de se lancer.</p>
-                <div class="mt-auto"><a href="/actu.html" class="text-primary-700 font-medium">Lire →</a></div>
+                <div class="flex items-center gap-2"><span class="rounded-full bg-secondary-100 text-secondary-700 text-xs font-medium px-2.5 py-0.5">Tendances</span><span class="text-xs text-slate-400">5 août 2025</span></div>
+                <h3 class="font-bold text-slate-900"><a href="/actu.html" class="hover:text-primary-700 transition-colors">Énergies renouvelables : investir ou patienter&nbsp;?</a></h3>
+                <p class="text-sm text-slate-500">Photovoltaïque, autoconsommation : ce qu'il faut savoir avant de se lancer.</p>
+                <div class="mt-auto pt-2"><a href="/actu.html" class="text-primary-700 text-sm font-semibold hover:text-primary-800 transition-colors">Lire l'article →</a></div>
               </div>
             </article>
           </div>
         </div>
-
-        <!-- flèches -->
-        <div class="flex items-center justify-center gap-4 mt-6">
-          <button class="actu-prev rounded-lg border px-3 py-2">◀</button>
-          <button class="actu-next rounded-lg border px-3 py-2">▶</button>
+        <div class="flex items-center justify-center gap-4 mt-8">
+          <button class="actu-prev size-10 rounded-xl border border-slate-200 bg-white hover:border-primary-400 hover:text-primary-700 transition-colors grid place-items-center"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg></button>
+          <button class="actu-next size-10 rounded-xl border border-slate-200 bg-white hover:border-primary-400 hover:text-primary-700 transition-colors grid place-items-center"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg></button>
         </div>
       </div>
     </div>
   </section>
-  
+
   <!-- CTA -->
-  <section class="bg-gradient-to-r from-primary-600 to-secondary-600 text-white">
-    <div class="container py-10 flex flex-col md:flex-row items-center justify-between gap-4">
-      <div>
-        <h2 class="text-2xl font-bold">Audit énergie gratuit et sans engagement</h2>
-        <p class="text-white/90">On vient à vous ou on s’appelle : à vous de choisir.</p>
+  <section id="contact" class="bg-gradient-to-r from-primary-600 to-secondary-700 text-white">
+    <div class="container py-14 md:py-16 flex flex-col md:flex-row items-center justify-between gap-6">
+      <div class="max-w-xl">
+        <h2 class="text-2xl md:text-3xl font-extrabold">Audit énergie gratuit, sans engagement</h2>
+        <p class="text-white/85 mt-2">On vient à vous ou on s'appelle — à vous de choisir. Réponse sous 24 h.</p>
       </div>
-      <a href="#contact" class="inline-flex items-center rounded-xl bg-white px-5 py-3 text-slate-900 font-semibold shadow-soft hover:bg-primary-50">Prendre RDV</a>
+      <div class="flex flex-wrap gap-3 shrink-0">
+        <a href="#devis" class="inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3.5 text-slate-900 font-bold shadow-soft hover:bg-primary-50 transition-colors">
+          Démarrer l'audit
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5-5 5M6 12h12"/></svg>
+        </a>
+        <a href="tel:+33678147350" class="inline-flex items-center gap-2 rounded-xl border border-white/50 px-6 py-3.5 font-semibold hover:bg-white/10 transition-colors">
+          <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.12 1.22 2 2 0 012.1 0h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 14.92z"/></svg>
+          Appeler directement
+        </a>
+      </div>
     </div>
   </section>
 
   <!-- Footer -->
-  <footer class="bg-slate-950 text-slate-200">
-    <div class="container py-10 grid md:grid-cols-3 gap-8">
-      <div>
-        <img src="/assets/logos/elga-energy-logo.svg" alt="Elga Energy" class="h-8 w-auto mb-3" onerror="this.remove()">
-        <p class="text-sm text-slate-400">ELGA Energy — Courtage & conseil en achats d'énergie.</p>
+  <footer class="bg-slate-950 text-slate-300">
+    <div class="container py-12 grid md:grid-cols-4 gap-8">
+      <div class="md:col-span-1">
+        <img src="/assets/logos/elga-energy-logo.svg" alt="Elga Energy" class="h-10 w-auto mb-4" loading="lazy" style="filter:brightness(0) invert(1)" onerror="this.remove()">
+        <p class="text-sm text-slate-400 leading-relaxed">Courtage & conseil en achats d'énergie pour entreprises et collectivités.</p>
+        <div class="flex items-center gap-3 mt-5">
+          <a href="https://www.linkedin.com/company/elga-energy" target="_blank" rel="noopener noreferrer" class="size-9 rounded-lg bg-slate-800 hover:bg-primary-700 grid place-items-center transition-colors" aria-label="LinkedIn Elga Energy">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433a2.062 2.062 0 01-2.063-2.065 2.064 2.064 0 112.063 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>
+          </a>
+        </div>
       </div>
       <div>
-        <h4 class="font-semibold mb-3">Coordonnées</h4>
-        <p class="text-sm">cotations@elgaenergy.fr<br/>+33 06 78 14 73 50</p>
-        <p class="text-sm mt-2">6 place du président Wilson, 31000 TOULOUSE</p>
+        <h4 class="font-semibold text-white mb-4">Contact</h4>
+        <ul class="space-y-2 text-sm text-slate-400">
+          <li><a href="mailto:cotations@elgaenergy.fr" class="hover:text-white transition-colors">cotations@elgaenergy.fr</a></li>
+          <li><a href="tel:+33678147350" class="hover:text-white transition-colors">06 78 14 73 50</a></li>
+          <li class="pt-1 leading-relaxed">6 place du président Wilson<br>31000 Toulouse</li>
+        </ul>
       </div>
-    <div>
-  <h4 class="font-semibold mb-3">Liens</h4>
-  <ul class="space-y-2 text-sm">
-    <li><a class="hover:text-white" href="#faq">FAQ</a></li>
-    <li><a class="hover:text-white" href="/actu.html">Blog</a></li>
-    <li><a class="hover:text-white" href="#">Mentions légales</a></li>
-    <li><a class="hover:text-white" href="#">Politique de confidentialité</a></li>
-  </ul>
-</div>
+      <div>
+        <h4 class="font-semibold text-white mb-4">Navigation</h4>
+        <ul class="space-y-2 text-sm text-slate-400">
+          <li><a href="#offre" class="hover:text-white transition-colors">Notre offre</a></li>
+          <li><a href="#process" class="hover:text-white transition-colors">Notre méthode</a></li>
+          <li><a href="#faq" class="hover:text-white transition-colors">FAQ</a></li>
+          <li><a href="/actu.html" class="hover:text-white transition-colors">Blog</a></li>
+          <li><a href="/Recrutement.html" class="hover:text-white transition-colors">Recrutement</a></li>
+        </ul>
+      </div>
+      <div>
+        <h4 class="font-semibold text-white mb-4">Légal</h4>
+        <ul class="space-y-2 text-sm text-slate-400">
+          <li><a href="/mentions-legales.html" class="hover:text-white transition-colors">Mentions légales</a></li>
+          <li><a href="/confidentialite.html" class="hover:text-white transition-colors">Politique de confidentialité</a></li>
+          <li><a href="/confidentialite.html" class="hover:text-white transition-colors">RGPD & données personnelles</a></li>
+        </ul>
+        <p class="text-xs text-slate-600 mt-5 leading-relaxed">ELGA ENERGY<br>Courtier en énergie — Toulouse</p>
+      </div>
     </div>
-    <div class="border-t border-white/10">
-      <div class="container py-4 text-xs text-slate-400 flex flex-wrap items-center justify-between gap-2">
-        <span>© 2025 Elga Energy</span>
-        <a href="/vide.html" class="hover:text-white underline-offset-2 hover:underline">ici</a>
+    <div class="border-t border-white/5">
+      <div class="container py-4 text-xs text-slate-500 flex flex-wrap items-center justify-between gap-2">
+        <span>© 2026 Elga Energy — Tous droits réservés</span>
+        <span>Courtier en énergie B2B — Toulouse, France</span>
       </div>
     </div>
   </footer>
 
-  <!-- Scripts -->
-<script>
-  // Menu mobile
-  const menuBtn = document.getElementById('menuBtn');
-  if (menuBtn) {
-    menuBtn.addEventListener('click', () => {
-      const mobileMenu = document.getElementById('mobileMenu');
-      if (mobileMenu) mobileMenu.classList.toggle('hidden');
-    });
-  }
-
-  // Initialise Swiper quand tout est chargé
-  window.addEventListener('load', function () {
-    try {
-      // --- Carrousel fournisseurs : défilement continu + boutons ---
-      new Swiper('.suppliers-swiper', {
-        slidesPerView: 2,
-        spaceBetween: 16,
-        loop: true,
-        loopAdditionalSlides: 12,
-        speed: 9000, // grand = lent (défilement continu)
-        autoplay: { delay: 0, disableOnInteraction: false, pauseOnMouseEnter: true },
-        navigation: { nextEl: '.suppliers-next', prevEl: '.suppliers-prev' },
-        breakpoints: { 640:{slidesPerView:3}, 768:{slidesPerView:4}, 1024:{slidesPerView:6} }
+  <script>
+    // Menu mobile avec icône toggle
+    const menuBtn = document.getElementById('menuBtn');
+    const mobileMenu = document.getElementById('mobileMenu');
+    const menuIconOpen = document.getElementById('menuIconOpen');
+    const menuIconClose = document.getElementById('menuIconClose');
+    if (menuBtn) {
+      menuBtn.addEventListener('click', () => {
+        const isOpen = !mobileMenu.classList.contains('hidden');
+        mobileMenu.classList.toggle('hidden');
+        menuIconOpen.classList.toggle('hidden', !isOpen);
+        menuIconClose.classList.toggle('hidden', isOpen);
+        menuBtn.setAttribute('aria-expanded', String(!isOpen));
       });
-
-      // --- Avis : autoplay conservé comme avant ---
-      new Swiper('.reviews-swiper', {
-        slidesPerView: 1,
-        spaceBetween: 16,
-        loop: true,
-        autoplay: { delay: 3500, disableOnInteraction: false },
-        navigation: { nextEl: '.reviews-next', prevEl: '.reviews-prev' },
-        breakpoints: { 768:{slidesPerView:2}, 1024:{slidesPerView:3} }
+      mobileMenu.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => {
+          mobileMenu.classList.add('hidden');
+          menuIconOpen.classList.remove('hidden');
+          menuIconClose.classList.add('hidden');
+          menuBtn.setAttribute('aria-expanded', 'false');
+        });
       });
-
-      // --- Actualités : PAS d'autoplay (manuel) ---
-      new Swiper('.actu-swiper', {
-        slidesPerView: 1,
-        spaceBetween: 16,
-        loop: true,
-        autoplay: false,
-        navigation: { nextEl: '.actu-next', prevEl: '.actu-prev' },
-        breakpoints: { 768:{slidesPerView:2}, 1024:{slidesPerView:3} }
-      });
-
-    } catch (e) {
-      console.error('Swiper init error:', e);
     }
-  });
-</script>
+
+    // FAQ Accordéon
+    document.querySelectorAll('.faq-trigger').forEach(trigger => {
+      trigger.addEventListener('click', () => {
+        const item = trigger.closest('.faq-item');
+        const isOpen = item.classList.contains('open');
+        document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
+        if (!isOpen) item.classList.add('open');
+      });
+    });
+
+    // Formulaire multi-étapes
+    const form = document.getElementById('quote-form');
+    const panels = Array.from(form.querySelectorAll('[data-step]'));
+    const prevBtn = document.getElementById('step-prev');
+    const nextBtn = document.getElementById('step-next');
+    const submitBtn = document.getElementById('step-submit');
+    const compteursContainer = document.getElementById('compteurs-container');
+    const docsContainer = document.getElementById('docs-container');
+    const stepLabel = document.getElementById('step-label');
+    const stepPercent = document.getElementById('step-percent');
+    const stepProgressBar = document.getElementById('step-progress-bar');
+    let currentStep = 0;
+
+    function updateProgress(step) {
+      const total = panels.length;
+      const pct = Math.round(((step + 1) / total) * 100);
+      stepLabel.textContent = `Étape ${step + 1} sur ${total}`;
+      stepPercent.textContent = `${pct} %`;
+      stepProgressBar.style.width = `${pct}%`;
+    }
+
+    function generateCompteurs(nbElec, nbGaz) {
+      compteursContainer.innerHTML = '';
+      for (let i = 1; i <= nbElec; i++) {
+        compteursContainer.innerHTML += `<fieldset class="space-y-2"><legend class="text-sm font-bold text-slate-700 uppercase tracking-widest mb-2">Compteur Électrique ${i}</legend><label class="pill-radio"><input type="radio" name="typologie_compteurs_elec_${i}" value="-36"><span>&lt; 36 kVA</span><small>Tarif Bleu / PME</small></label><label class="pill-radio"><input type="radio" name="typologie_compteurs_elec_${i}" value="36-250"><span>36 à 250 kVA</span><small>Tarif Jaune / industriel léger</small></label><label class="pill-radio"><input type="radio" name="typologie_compteurs_elec_${i}" value="+250"><span>&gt; 250 kVA</span><small>Grands sites / tarif vert</small></label></fieldset>`;
+      }
+      for (let j = 1; j <= nbGaz; j++) {
+        compteursContainer.innerHTML += `<fieldset class="space-y-2"><legend class="text-sm font-bold text-slate-700 uppercase tracking-widest mb-2">Compteur Gaz ${j}</legend><label class="pill-radio"><input type="radio" name="typologie_compteurs_gaz_${j}" value="t1"><span>T1 / &lt; 6 MWh/an</span><small>Petits volumes</small></label><label class="pill-radio"><input type="radio" name="typologie_compteurs_gaz_${j}" value="t2"><span>T2 / 6 à 300 MWh</span><small>Sites multisites, restauration</small></label><label class="pill-radio"><input type="radio" name="typologie_compteurs_gaz_${j}" value="t3"><span>T3/T4 / +300 MWh</span><small>Industrie, gros volumes</small></label></fieldset>`;
+      }
+      compteursContainer.querySelectorAll('.pill-radio input').forEach(input => {
+        input.addEventListener('change', () => {
+          document.querySelectorAll(`input[name="${input.name}"]`).forEach(i => {
+            i.closest('.pill-radio').classList.toggle('is-active', i.checked);
+          });
+        });
+      });
+    }
+
+    function generateUploadZones(nbElec, nbGaz) {
+      docsContainer.innerHTML = '';
+      for (let i = 1; i <= nbElec; i++) {
+        docsContainer.innerHTML += `<label class="block text-sm font-medium text-slate-700">Factures compteur Électricité ${i}<input type="file" name="facture_elec_${i}[]" multiple accept=".pdf,.jpg,.jpeg,.png" class="mt-2 block w-full rounded-xl border border-dashed border-primary-300 px-4 py-5 text-sm text-slate-600 file:mr-4 file:rounded-lg file:border-0 file:bg-primary-100 file:px-4 file:py-2 file:text-primary-700 hover:file:bg-primary-200"></label>`;
+      }
+      for (let j = 1; j <= nbGaz; j++) {
+        docsContainer.innerHTML += `<label class="block text-sm font-medium text-slate-700">Factures compteur Gaz ${j}<input type="file" name="facture_gaz_${j}[]" multiple accept=".pdf,.jpg,.jpeg,.png" class="mt-2 block w-full rounded-xl border border-dashed border-primary-300 px-4 py-5 text-sm text-slate-600 file:mr-4 file:rounded-lg file:border-0 file:bg-primary-100 file:px-4 file:py-2 file:text-primary-700 hover:file:bg-primary-200"></label>`;
+      }
+    }
+
+    function showStep(step) {
+      currentStep = Math.min(Math.max(step, 0), panels.length - 1);
+      panels.forEach((panel, index) => {
+        panel.classList.toggle('active-step', index === currentStep);
+      });
+      prevBtn.classList.toggle('hidden', currentStep === 0);
+      nextBtn.classList.toggle('hidden', currentStep === panels.length - 1);
+      submitBtn.classList.toggle('hidden', currentStep !== panels.length - 1);
+      updateProgress(currentStep);
+    }
+
+    prevBtn.addEventListener('click', () => showStep(currentStep - 1));
+    nextBtn.addEventListener('click', () => {
+      const nbElec = parseInt(form.nb_compteurs_elec.value || 0);
+      const nbGaz = parseInt(form.nb_compteurs_gaz.value || 0);
+      if (currentStep === 0) generateCompteurs(nbElec, nbGaz);
+      if (currentStep === 1) generateUploadZones(nbElec, nbGaz);
+      showStep(currentStep + 1);
+    });
+
+    form.addEventListener('submit', () => {
+      setTimeout(() => {
+        form.innerHTML = `<div class="text-center space-y-4 py-12 px-8"><div class="inline-flex items-center justify-center rounded-full bg-primary-100 text-primary-700 size-20 mx-auto"><svg viewBox="0 0 24 24" class="size-10" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></div><h3 class="text-2xl font-extrabold text-slate-900">Demande envoyée !</h3><p class="text-slate-500 max-w-md mx-auto">Notre équipe vous recontacte sous 24&nbsp;h pour analyser votre dossier et préparer votre comparatif personnalisé.</p><a href="/" class="inline-flex items-center gap-2 mt-4 rounded-xl bg-primary-600 px-6 py-3 text-white font-semibold hover:bg-primary-700 transition-colors">Retour à l'accueil</a></div>`;
+      }, 300);
+    });
+
+    showStep(0);
+
+    // Swiper
+    window.addEventListener('load', function () {
+      try {
+        new Swiper('.suppliers-swiper', {
+          slidesPerView: 2, spaceBetween: 16, loop: true, loopAdditionalSlides: 12,
+          speed: 9000, autoplay: { delay: 0, disableOnInteraction: false, pauseOnMouseEnter: true },
+          breakpoints: { 640:{slidesPerView:3}, 768:{slidesPerView:4}, 1024:{slidesPerView:6} }
+        });
+        new Swiper('.reviews-swiper', {
+          slidesPerView: 1, spaceBetween: 16, loop: true,
+          autoplay: { delay: 4000, disableOnInteraction: false },
+          navigation: { nextEl: '.reviews-next', prevEl: '.reviews-prev' },
+          breakpoints: { 768:{slidesPerView:2}, 1024:{slidesPerView:3} }
+        });
+        new Swiper('.actu-swiper', {
+          slidesPerView: 1, spaceBetween: 16, loop: true, autoplay: false,
+          navigation: { nextEl: '.actu-next', prevEl: '.actu-prev' },
+          breakpoints: { 768:{slidesPerView:2}, 1024:{slidesPerView:3} }
+        });
+      } catch (e) { console.error('Swiper init error:', e); }
+    });
+  </script>
 </body>
 </html>

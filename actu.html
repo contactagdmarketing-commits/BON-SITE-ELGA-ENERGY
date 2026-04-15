@@ -37,7 +37,6 @@
   </style>
 </head>
 <body class="antialiased text-slate-800 bg-white">
-  </div>
 
   <!-- Header -->
  <header class="sticky top-0 z-50 border-b border-slate-200/60 bg-white/90 glass">
@@ -53,24 +52,25 @@
       <a href="/#avis" class="hover:text-primary-700">Avis</a>
       <a href="/#faq" class="hover:text-primary-700">FAQ</a>
       <a href="/actu.html" class="text-primary-700 font-semibold" aria-current="page">Blog</a>
-      <a href="/#contact" class="hover:text-primary-700">Contact</a>
+      <a href="/#contact" class="hover:text-primary-700 transition-colors">Contact</a>
     </nav>
-    <div class="flex items-center gap-2">
-      <a href="/devis.html" class="inline-flex items-center rounded-xl bg-primary-600 px-4 py-2 text-white text-sm font-medium shadow-soft hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-primary-400">Obtenir un devis</a>
-      <button id="menuBtn" class="md:hidden inline-flex items-center justify-center size-10 rounded-lg border border-slate-300">
-        <span class="sr-only">Ouvrir le menu</span>☰
+    <div class="flex items-center gap-3">
+      <a href="/devis.html" class="inline-flex items-center rounded-xl bg-primary-600 px-4 py-2.5 text-white text-sm font-semibold shadow-soft hover:bg-primary-700 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-400">Obtenir un devis</a>
+      <button id="menuBtn" class="md:hidden inline-flex items-center justify-center size-10 rounded-lg border border-slate-300 hover:border-slate-400 transition-colors" aria-label="Ouvrir le menu" aria-expanded="false">
+        <svg id="menuIconOpen" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+        <svg id="menuIconClose" class="w-5 h-5 hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
       </button>
     </div>
   </div>
   <div id="mobileMenu" class="md:hidden hidden border-t border-slate-200 bg-white">
-    <nav class="container flex flex-col py-3 text-sm">
-      <a href="/#offre" class="py-2">Offre</a>
-      <a href="/#process" class="py-2">Méthode</a>
-      <a href="/#fournisseurs" class="py-2">Fournisseurs</a>
-      <a href="/#avis" class="py-2">Avis</a>
-      <a href="/#faq" class="py-2">FAQ</a>
-      <a href="/actu.html" class="py-2 font-semibold text-primary-700">Blog</a>
-      <a href="/#contact" class="py-2">Contact</a>
+    <nav class="container flex flex-col py-3 gap-0.5 text-sm">
+      <a href="/#offre" class="py-2.5 px-3 rounded-lg hover:bg-slate-50 hover:text-primary-700 transition-colors text-slate-700">Offre</a>
+      <a href="/#process" class="py-2.5 px-3 rounded-lg hover:bg-slate-50 hover:text-primary-700 transition-colors text-slate-700">Méthode</a>
+      <a href="/#fournisseurs" class="py-2.5 px-3 rounded-lg hover:bg-slate-50 hover:text-primary-700 transition-colors text-slate-700">Fournisseurs</a>
+      <a href="/#avis" class="py-2.5 px-3 rounded-lg hover:bg-slate-50 hover:text-primary-700 transition-colors text-slate-700">Avis</a>
+      <a href="/#faq" class="py-2.5 px-3 rounded-lg hover:bg-slate-50 hover:text-primary-700 transition-colors text-slate-700">FAQ</a>
+      <a href="/actu.html" class="py-2.5 px-3 rounded-lg bg-primary-50 text-primary-700 font-semibold">Blog</a>
+      <a href="/#contact" class="py-2.5 px-3 rounded-lg hover:bg-slate-50 hover:text-primary-700 transition-colors text-slate-700">Contact</a>
     </nav>
   </div>
 </header>
@@ -406,15 +406,14 @@
         <ul class="space-y-2 text-sm">
           <li><a class="hover:text-white" href="/#faq">FAQ</a></li>
           <li><a class="hover:text-white" href="/actu.html">Blog</a></li>
-          <li><a class="hover:text-white" href="#">Mentions légales</a></li>
-          <li><a class="hover:text-white" href="#">Politique de confidentialité</a></li>
+          <li><a class="hover:text-white" href="/mentions-legales.html">Mentions légales</a></li>
+          <li><a class="hover:text-white" href="/confidentialite.html">Politique de confidentialité</a></li>
         </ul>
       </div>
     </div>
     <div class="border-t border-white/10">
       <div class="container py-4 text-xs text-slate-400 flex flex-wrap items-center justify-between gap-2">
-        <span>© 2025 Elga Energy</span>
-        <a href="/vide.html" class="hover:text-white underline-offset-2 hover:underline">ici</a>
+        <span>© 2026 Elga Energy — Tous droits réservés</span>
       </div>
     </div>
   </footer>
@@ -422,10 +421,24 @@
   <!-- JS -->
   <script>
     const menuBtn = document.getElementById('menuBtn');
+    const mobileMenu = document.getElementById('mobileMenu');
+    const menuIconOpen = document.getElementById('menuIconOpen');
+    const menuIconClose = document.getElementById('menuIconClose');
     if (menuBtn) {
       menuBtn.addEventListener('click', () => {
-        const mobileMenu = document.getElementById('mobileMenu');
-        if (mobileMenu) mobileMenu.classList.toggle('hidden');
+        const isOpen = !mobileMenu.classList.contains('hidden');
+        mobileMenu.classList.toggle('hidden');
+        menuIconOpen.classList.toggle('hidden', !isOpen);
+        menuIconClose.classList.toggle('hidden', isOpen);
+        menuBtn.setAttribute('aria-expanded', String(!isOpen));
+      });
+      mobileMenu.querySelectorAll('a').forEach(link => {
+        link.addEventListener('click', () => {
+          mobileMenu.classList.add('hidden');
+          menuIconOpen.classList.remove('hidden');
+          menuIconClose.classList.add('hidden');
+          menuBtn.setAttribute('aria-expanded', 'false');
+        });
       });
     }
   </script>
