@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Comparatif — Elga Energy</title>
+<meta name="robots" content="noindex,nofollow"/>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,700;12..96,800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --ink:    #0c0c0e;
+  --ink-2:  #52525b;
+  --ink-3:  #a1a1aa;
+  --surface:#ffffff;
+  --bg:     #f4f4f5;
+  --border: #e4e4e7;
+  --accent: #0b8a4e;
+  --acc-lt: #eaf5ef;
+  --acc-mid:#a8d9bf;
+  --r:      6px;
+  --r2:     12px;
+  --f-display:'Bricolage Grotesque',system-ui,sans-serif;
+  --f-body:'Inter',system-ui,sans-serif;
+}
+html,body{
+  height:100%;
+  font-family:var(--f-body);
+  -webkit-font-smoothing:antialiased;
+  background:var(--bg);
+  color:var(--ink);
+}
+
+/* ── TOPBAR ── */
+.topbar{
+  position:fixed;top:0;left:0;right:0;
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+  padding:.6rem 2.5rem;
+  display:flex;align-items:center;justify-content:space-between;
+  z-index:100;
+}
+.topbar-logo{
+  display:flex;align-items:center;gap:.5rem;
+  text-decoration:none;
+}
+.topbar-logo img{height:32px;width:auto;}
+.topbar-logo-fb{
+  height:32px;padding:.3rem .8rem;
+  background:var(--accent);color:#fff;
+  font-family:var(--f-display);font-size:.78rem;font-weight:800;
+  border-radius:5px;display:flex;align-items:center;
+}
+.topbar-back{
+  font-size:.8rem;font-weight:500;
+  color:var(--ink-2);text-decoration:none;
+  display:flex;align-items:center;gap:.35rem;
+  transition:color .12s;
+}
+.topbar-back:hover{color:var(--ink);}
+
+/* ── LAYOUT ── */
+body{display:flex;flex-direction:column;}
+main{
+  flex:1;
+  display:flex;align-items:center;justify-content:center;
+  padding:5rem 1.5rem 2rem;
+}
+
+/* ── LOGIN CARD ── */
+.card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--r2);
+  padding:3rem 3.5rem;
+  width:100%;max-width:440px;
+  box-shadow:0 4px 32px rgba(0,0,0,.07);
+  display:flex;flex-direction:column;align-items:center;
+}
+.card-logo{
+  font-family:var(--f-display);
+  font-size:1.65rem;font-weight:800;
+  color:var(--ink);letter-spacing:-.035em;
+  margin-bottom:.4rem;
+}
+.card-logo span{color:var(--accent);}
+.card-sub{
+  font-size:.7rem;font-weight:600;
+  text-transform:uppercase;letter-spacing:.1em;
+  color:var(--ink-3);
+  margin-bottom:2.5rem;text-align:center;
+}
+.form{width:100%;display:flex;flex-direction:column;gap:1.1rem;}
+.field{display:flex;flex-direction:column;gap:5px;}
+.field label{
+  font-size:.65rem;font-weight:600;
+  text-transform:uppercase;letter-spacing:.1em;
+  color:var(--ink-3);
+}
+.field input{
+  width:100%;
+  background:var(--bg);
+  border:1px solid var(--border);
+  border-radius:var(--r);
+  color:var(--ink);
+  font-family:var(--f-body);font-size:.9375rem;
+  padding:11px 14px;outline:none;
+  transition:border-color .12s,box-shadow .12s,background .12s;
+}
+.field input:focus{
+  border-color:var(--accent);
+  box-shadow:0 0 0 3px rgba(11,138,78,.1);
+  background:var(--surface);
+}
+.field input::placeholder{color:var(--border);}
+.err{
+  font-size:.78rem;color:#b91c1c;
+  background:#fef2f2;border:1px solid #fbc8c0;
+  border-radius:var(--r);padding:.55rem .85rem;
+  text-align:center;display:none;
+}
+.btn{
+  width:100%;margin-top:.35rem;
+  background:var(--ink);color:#fff;border:none;
+  border-radius:var(--r);
+  font-family:var(--f-display);font-size:.92rem;font-weight:700;
+  letter-spacing:-.01em;
+  padding:.9rem 1.5rem;cursor:pointer;
+  transition:background .15s,transform .1s;
+}
+.btn:hover{background:#1a1a1e;}
+.btn:active{transform:scale(.98);}
+
+/* ── FOOTER ── */
+footer{
+  padding:1.25rem 2.5rem;
+  text-align:center;
+  font-size:.68rem;color:var(--ink-3);
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a href="index.html" class="topbar-logo">
+    <img src="assets/logos/elga-energy-logo.svg" alt="Elga Energy"
+         onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+    <div class="topbar-logo-fb" style="display:none;">ELGA ENERGY</div>
+  </a>
+  <a href="index.html" class="topbar-back">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    Retour au site
+  </a>
+</div>
+
+<main>
+  <div class="card">
+    <div class="card-logo">Elga <span>Energy</span></div>
+    <p class="card-sub">Espace commercial — accès restreint</p>
+    <div class="form">
+      <div class="field">
+        <label>Identifiant</label>
+        <input type="text" id="user" placeholder="Identifiant" autocomplete="off" spellcheck="false"/>
+      </div>
+      <div class="field">
+        <label>Mot de passe</label>
+        <input type="password" id="pass" placeholder="••••••••" autocomplete="off"/>
+      </div>
+      <div class="err" id="err">Identifiant ou mot de passe incorrect.</div>
+      <button class="btn" onclick="tryLogin()">Accéder au comparatif →</button>
+    </div>
+  </div>
+</main>
+
+<footer>Usage interne · Elga Energy &copy; 2026</footer>
+
+<script>
+function tryLogin(){
+  const u=document.getElementById('user').value.trim().toLowerCase();
+  const p=document.getElementById('pass').value.trim().toLowerCase();
+  const err=document.getElementById('err');
+  if(u==='elgaenergy'&&(p==='james'||p==='edhy')){
+    err.style.display='none';
+    window.location.href='RDV.html';
+  }else{
+    err.style.display='block';
+    document.getElementById('pass').value='';
+    document.getElementById('pass').focus();
+  }
+}
+['user','pass'].forEach(id=>{
+  document.getElementById(id).addEventListener('keydown',e=>{
+    if(e.key==='Enter')tryLogin();
+  });
+});
+// Focus auto sur le champ identifiant
+window.addEventListener('load',()=>document.getElementById('user').focus());
+</script>
+</body>
+</html>

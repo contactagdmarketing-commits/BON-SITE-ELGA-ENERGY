@@ -591,12 +591,120 @@ footer .fl{
 }
 footer .fn{font-size:.6rem;color:var(--ink-3);font-weight:400;}
 
+
+/* ── SITE-NAV (barre site au-dessus du header présentation) ── */
+.site-nav{
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+  padding:.55rem 3rem;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:1.5rem;
+  flex-shrink:0;
+  position:sticky;
+  top:0;
+  z-index:150;
+}
+.site-nav-logo{
+  display:flex;
+  align-items:center;
+  gap:.5rem;
+  text-decoration:none;
+  flex-shrink:0;
+}
+.site-nav-logo img{height:36px;width:auto;}
+.site-nav-logo-fb{
+  height:36px;
+  padding:.3rem .8rem;
+  background:var(--accent);
+  color:#fff;
+  font-family:var(--f-display);
+  font-size:.8rem;
+  font-weight:800;
+  border-radius:6px;
+  display:flex;align-items:center;
+}
+.site-nav-links{
+  display:flex;
+  align-items:center;
+  gap:1.75rem;
+}
+.site-nav-links a{
+  font-size:.8125rem;
+  font-weight:500;
+  color:var(--ink-2);
+  text-decoration:none;
+  letter-spacing:.005em;
+  transition:color .12s;
+}
+.site-nav-links a:hover{color:var(--accent);}
+.site-nav-links a.active{color:var(--ink);font-weight:600;}
+.site-nav-right{
+  display:flex;
+  align-items:center;
+  gap:1.25rem;
+  flex-shrink:0;
+}
+.site-nav-phone{
+  font-size:.8rem;
+  font-weight:500;
+  color:var(--ink-2);
+  text-decoration:none;
+  letter-spacing:.005em;
+  transition:color .12s;
+  display:flex;align-items:center;gap:.35rem;
+}
+.site-nav-phone:hover{color:var(--accent);}
+.site-nav-cta{
+  font-family:var(--f-body);
+  font-size:.78rem;
+  font-weight:600;
+  color:#fff;
+  background:var(--accent);
+  border:none;
+  border-radius:var(--r);
+  padding:.45rem 1.1rem;
+  text-decoration:none;
+  cursor:pointer;
+  transition:background .12s;
+  white-space:nowrap;
+}
+.site-nav-cta:hover{background:#0a7a45;}
+
+/* Le nav des onglets se positionne sous la site-nav (environ 49px) */
+nav{top:49px;}
+
 .hide{display:none!important;}
 </style>
 </head>
 <body>
 
-<!-- HEADER -->
+<!-- SITE NAVIGATION -->
+<div class="site-nav">
+  <a href="index.html" class="site-nav-logo">
+    <img src="assets/logos/elga-energy-logo.svg" alt="Elga Energy"
+         onerror="this.style.display='none';this.nextElementSibling.style.display='flex'"/>
+    <div class="site-nav-logo-fb" style="display:none;">ELGA ENERGY</div>
+  </a>
+  <nav class="site-nav-links">
+    <a href="index.html">Accueil</a>
+    <a href="index.html#offre">Offre</a>
+    <a href="index.html#fournisseurs">Fournisseurs</a>
+    <a href="actu.html">Blog</a>
+    <a href="Recrutement.html">Recrutement</a>
+    <a href="RDV.html" class="active">Comparatif</a>
+  </nav>
+  <div class="site-nav-right">
+    <a href="tel:+33678147350" class="site-nav-phone">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.12 1.22 2 2 0 012.1 0h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 14.92z"/></svg>
+      06 78 14 73 50
+    </a>
+    <a href="devis.html" class="site-nav-cta">Obtenir un devis</a>
+  </div>
+</div>
+
+<!-- HEADER PRÉSENTATION -->
 <header>
   <div class="logo">Elga <span>Energy</span></div>
   <span class="header-pill">100% GRATUIT</span>
