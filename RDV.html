@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Elga Energy</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500&display=swap" rel="stylesheet"/>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --g:#1a7a4a; --gs:#5dd49a; --gp:#e8f5ef;
+  --navy:#0d1f3c; --or:#e8630a;
+  --bg:#f6f7f5; --card:#fff;
+  --mut:#6b7b72; --bdr:rgba(26,122,74,.12);
+}
+body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--navy);font-size:14px;-webkit-font-smoothing:antialiased;}
+.syne{font-family:'Syne',sans-serif;}
+
+/* ── HEADER ── */
+header{background:linear-gradient(120deg,#0d1f3c 0%,#0a3220 60%,#1a7a4a 100%);padding:1.4rem 2rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;}
+.logo{font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:800;color:var(--gs);}
+.kpis{display:flex;gap:1.8rem;flex-wrap:wrap;}
+.kpi{text-align:center;}
+.kpi .n{font-family:'Syne',sans-serif;font-size:1.3rem;font-weight:700;color:var(--gs);line-height:1;}
+.kpi .l{font-size:.6rem;color:rgba(255,255,255,.4);text-transform:uppercase;letter-spacing:.08em;}
+
+/* ── NAV TABS ── */
+nav{background:var(--card);border-bottom:1px solid var(--bdr);display:flex;overflow-x:auto;scrollbar-width:none;position:sticky;top:0;z-index:99;}
+nav::-webkit-scrollbar{display:none;}
+.tab{flex:1;min-width:120px;padding:.7rem .8rem;font-size:.75rem;font-weight:500;color:var(--mut);background:none;border:none;border-bottom:2.5px solid transparent;cursor:pointer;white-space:nowrap;transition:color .2s,border-color .2s;display:flex;align-items:center;justify-content:center;gap:6px;}
+.tab .nb{width:18px;height:18px;border-radius:50%;background:var(--bg);border:1px solid var(--bdr);display:flex;align-items:center;justify-content:center;font-size:.6rem;font-weight:700;}
+.tab.on{color:var(--g);border-bottom-color:var(--g);}
+.tab.on .nb{background:var(--g);color:#fff;border-color:var(--g);}
+
+/* ── PANELS ── */
+.panel{display:none;padding:1.4rem 2rem;}
+.panel.on{display:block;}
+.wrap{max-width:1080px;margin:0 auto;}
+
+/* ── SECTION HEADER ── */
+.sh{display:flex;align-items:baseline;gap:.7rem;margin-bottom:1rem;}
+.sh h2{font-family:'Syne',sans-serif;font-size:1.1rem;font-weight:700;color:var(--navy);}
+.sh span{font-size:.75rem;color:var(--mut);}
+
+/* ── INPUTS ROW ── */
+.irow{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:1rem;}
+@media(max-width:640px){.irow{grid-template-columns:1fr 1fr;}}
+.irow label{display:block;font-size:.62rem;text-transform:uppercase;letter-spacing:.1em;color:var(--mut);margin-bottom:4px;}
+.irow input{width:100%;background:var(--bg);border:1.5px solid var(--bdr);border-radius:8px;color:var(--navy);font-family:'DM Sans',sans-serif;font-size:.88rem;padding:8px 10px;outline:none;transition:border-color .18s;}
+.irow input:focus{border-color:var(--g);background:#fff;}
+.irow input::placeholder{color:#bcc8c0;}
+.irow input[type=number]::-webkit-inner-spin-button,
+.irow input[type=number]::-webkit-outer-spin-button{-webkit-appearance:none;}
+.irow input[type=number]{-moz-appearance:textfield;}
+
+/* ── STAT CARDS ── */
+.stats{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:1rem;}
+@media(max-width:560px){.stats{grid-template-columns:1fr 1fr;}}
+.sc{background:var(--bg);border:1px solid var(--bdr);border-radius:9px;padding:.7rem .9rem;text-align:center;}
+.sc.hi{background:var(--g);border-color:var(--g);}
+.sc .sl{font-size:.6rem;text-transform:uppercase;letter-spacing:.09em;color:var(--mut);margin-bottom:3px;}
+.sc.hi .sl{color:rgba(255,255,255,.55);}
+.sc .sv{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;color:var(--navy);}
+.sc.hi .sv{color:#fff;}
+
+/* ── CHARTS GRID ── */
+.cgrid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+@media(max-width:640px){.cgrid{grid-template-columns:1fr;}}
+.cbox{background:var(--card);border:1px solid var(--bdr);border-radius:12px;padding:1rem;}
+.ct{font-family:'Syne',sans-serif;font-size:.78rem;font-weight:700;color:var(--navy);margin-bottom:1px;}
+.cs{font-size:.65rem;color:var(--mut);margin-bottom:.7rem;}
+.cbox canvas{display:block;}
+
+/* ── ALERT BOX ── */
+.abox{background:#fff8f0;border:1px solid #fdddb5;border-left:3px solid var(--or);border-radius:9px;padding:.8rem 1rem;margin-bottom:1rem;font-size:.75rem;color:#7a4d1a;line-height:1.55;display:none;}
+.abox strong{color:#b34600;display:block;margin-bottom:2px;font-size:.78rem;}
+
+/* ── COMPARE (bloc 2) ── */
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+@media(max-width:560px){.cmp{grid-template-columns:1fr;}}
+.col-bad{background:#fff5f5;border:1px solid #ffd0d0;border-radius:12px;padding:1.1rem;}
+.col-ok {background:#f0faf4;border:1px solid #b8e8cc;border-radius:12px;padding:1.1rem;}
+.col-ttl{font-family:'Syne',sans-serif;font-size:.8rem;font-weight:700;margin-bottom:.7rem;}
+.col-bad .col-ttl{color:#c0392b;}
+.col-ok  .col-ttl{color:var(--g);}
+.ci{display:flex;gap:7px;font-size:.73rem;color:var(--mut);line-height:1.4;margin-bottom:.45rem;}
+.ci .d{width:4px;height:4px;border-radius:50%;flex-shrink:0;margin-top:5px;}
+.col-bad .d{background:#e74c3c;}
+.col-ok  .d{background:var(--g);}
+.ci strong{color:var(--navy);font-weight:500;}
+.badge{margin-top:.8rem;padding:.5rem .75rem;border-radius:7px;font-size:.7rem;font-weight:500;}
+.col-bad .badge{background:#fde8e8;color:#c0392b;}
+.col-ok  .badge{background:#d4f5e4;color:#0e4f2f;}
+
+/* ── BLOC 3 FRISE ── */
+.firow{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:1rem;}
+@media(max-width:500px){.firow{grid-template-columns:1fr;}}
+.fresume{display:none;grid-template-columns:repeat(4,1fr);gap:8px;margin-top:.9rem;}
+@media(max-width:560px){.fresume{grid-template-columns:1fr 1fr;}}
+.frc{border-radius:8px;padding:.65rem .8rem;}
+.frc .fl{font-size:.6rem;text-transform:uppercase;letter-spacing:.1em;margin-bottom:2px;}
+.frc .fv{font-family:'Syne',sans-serif;font-size:.82rem;font-weight:700;color:var(--navy);}
+
+/* ── RECAP (bloc 4) ── */
+.rgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;}
+@media(max-width:580px){.rgrid{grid-template-columns:1fr;}}
+.rc{background:var(--card);border:1px solid var(--bdr);border-radius:12px;padding:1.2rem;}
+.rc.dark{background:var(--navy);border-color:var(--navy);}
+.ri{font-size:1.2rem;margin-bottom:.5rem;}
+.rt{font-family:'Syne',sans-serif;font-size:.88rem;font-weight:700;color:var(--navy);margin-bottom:.3rem;}
+.rc.dark .rt{color:var(--gs);}
+.rx{font-size:.72rem;color:var(--mut);line-height:1.55;}
+.rc.dark .rx{color:rgba(255,255,255,.5);}
+.tags{display:flex;flex-wrap:wrap;gap:5px;margin-top:.7rem;}
+.tag{font-size:.62rem;font-weight:500;padding:2px 9px;border-radius:20px;}
+.tag.g{background:var(--gp);color:var(--g);}
+.tag.w{background:rgba(255,255,255,.1);color:rgba(255,255,255,.7);}
+
+/* ── FOOTER ── */
+footer{background:var(--navy);padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.5rem;}
+footer .fl{font-family:'Syne',sans-serif;font-size:1rem;font-weight:700;color:var(--gs);}
+footer .fn{font-size:.65rem;color:rgba(255,255,255,.3);}
+
+.hide{display:none!important;}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">Elga Energy</div>
+  <div class="kpis">
+    <div class="kpi"><div class="n">30+</div><div class="l">Fournisseurs</div></div>
+    <div class="kpi"><div class="n">35h</div><div class="l">Économisées</div></div>
+    <div class="kpi"><div class="n">100%</div><div class="l">Gratuit</div></div>
+  </div>
+</header>
+
+<!-- TABS -->
+<nav>
+  <button class="tab on" onclick="go(0)"><span class="nb">1</span>Économies</button>
+  <button class="tab"    onclick="go(1)"><span class="nb">2</span>Suivi</button>
+  <button class="tab"    onclick="go(2)"><span class="nb">3</span>Anticipation</button>
+  <button class="tab"    onclick="go(3)"><span class="nb">★</span>Récap</button>
+</nav>
+
+<!-- ═══ PANEL 1 — ÉCONOMIES ═══ -->
+<div id="p0" class="panel on">
+<div class="wrap">
+
+  <div class="sh"><h2>Simulation économies</h2><span>Saisissez les données du client</span></div>
+
+  <div class="irow">
+    <div><label>Conso. annuelle (MWh)</label><input type="number" id="conso" placeholder="ex : 45" step="0.1"/></div>
+    <div><label>Tarif actuel (€/MWh)</label><input type="number" id="tarif" placeholder="ex : 180" step="1"/></div>
+    <div><label>Hausse annuelle (%)</label><input type="number" id="taux"  placeholder="ex : 8"   step="1"/></div>
+    <div><label>Prix fixe proposé (€/MWh)</label><input type="number" id="pfix" placeholder="ex : 140" step="1"/></div>
+  </div>
+
+  <div class="stats hide" id="savRow">
+    <div class="sc"><div class="sl">EDF — N+1</div><div class="sv" id="sv1">—</div></div>
+    <div class="sc"><div class="sl">EDF — N+2</div><div class="sv" id="sv2">—</div></div>
+    <div class="sc"><div class="sl">EDF — N+3</div><div class="sv" id="sv3">—</div></div>
+    <div class="sc hi"><div class="sl">Économie 4 ans</div><div class="sv" id="sv4">—</div></div>
+  </div>
+
+  <div class="abox" id="abox">
+    <strong>Prix fixe supérieur au tarif actuel — pourquoi signer quand même ?</strong>
+    Avec <span id="aTaux">—</span> de hausse/an, le TRV EDF dépassera ce prix fixe dès <span id="aYear">—</span>. Sur 4 ans vous êtes gagnant — et surtout <strong style="display:inline;color:#b34600;">protégé contre toute hausse future.</strong>
+  </div>
+
+  <!-- Courbes côte à côte -->
+  <div class="cgrid">
+    <div class="cbox">
+      <div class="ct">TRV EDF — tarif réglementé</div>
+      <div class="cs">Hausse continue depuis 2015 (€/MWh)</div>
+      <div style="height:200px;position:relative;"><canvas id="cTRV" aria-label="TRV EDF 2007-2026 + projection 2030"></canvas></div>
+    </div>
+    <div class="cbox">
+      <div class="ct">Prix de gros EEX — marché</div>
+      <div class="cs">Fluctuations mensuelles 2001–2020 (€/MWh)</div>
+      <div style="height:180px;position:relative;"><canvas id="cEEX" aria-label="EEX mensuel 2001-2020"></canvas></div>
+    </div>
+  </div>
+
+  <!-- Projection -->
+  <div class="cbox hide" id="projCard">
+    <div class="ct">Projection sur 4 ans — TRV EDF vs prix fixe négocié</div>
+    <div class="cs">La zone verte = économies réalisées grâce au prix fixe</div>
+    <div style="height:200px;position:relative;"><canvas id="cProj" aria-label="Projection 4 ans"></canvas></div>
+  </div>
+
+</div>
+</div>
+
+<!-- ═══ PANEL 2 — SUIVI ═══ -->
+<div id="p1" class="panel">
+<div class="wrap">
+  <div class="sh"><h2>Suivi personnalisé</h2><span>Un seul interlocuteur, pour toujours</span></div>
+  <div class="cmp">
+    <div class="col-bad">
+      <div class="col-ttl">✕ Appeler son fournisseur</div>
+      <div class="ci"><span class="d"></span><span>Un conseiller <strong>différent à chaque appel</strong> — aucune mémoire</span></div>
+      <div class="ci"><span class="d"></span><span>Réexpliquer son profil à chaque contact</span></div>
+      <div class="ci"><span class="d"></span><span><strong>Renouvellement subi</strong> — au prix du marché imposé par le fournisseur</span></div>
+      <div class="ci"><span class="d"></span><span>Aucune alerte, aucune optimisation</span></div>
+      <div class="badge">Résultat : vous gérez seul, sans expertise</div>
+    </div>
+    <div class="col-ok">
+      <div class="col-ttl">✓ Avec Elga Energy</div>
+      <div class="ci"><span class="d"></span><span><strong>Toujours le même interlocuteur</strong> — historique complet</span></div>
+      <div class="ci"><span class="d"></span><span>Réponses rapides : facture, puissance, clauses, indexation</span></div>
+      <div class="ci"><span class="d"></span><span><strong>Anticipation du renouvellement</strong> — vous ne subissez rien</span></div>
+      <div class="ci"><span class="d"></span><span>Zéro démarche · Zéro coupure · Zéro paperasse</span></div>
+      <div class="badge">Résultat : tranquillité totale — sans frais supplémentaires</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<!-- ═══ PANEL 3 — ANTICIPATION ═══ -->
+<div id="p2" class="panel">
+<div class="wrap">
+  <div class="sh"><h2>Renégociation anticipée</h2><span>Votre prochain contrat, négocié 18 mois à l'avance</span></div>
+
+  <div style="background:var(--g);border-radius:10px;padding:1rem 1.2rem;color:#fff;margin-bottom:1rem;font-size:.78rem;line-height:1.6;">
+    <strong style="font-family:'Syne',sans-serif;font-size:.88rem;display:block;margin-bottom:.3rem;">Le principe clé</strong>
+    18 mois avant l'échéance, nous remettons votre fournisseur en concurrence. Vous signez votre prochain contrat <strong style="color:var(--gs);">aux prix d'aujourd'hui</strong> — pas aux prix du marché le jour où votre contrat se termine.
+  </div>
+
+  <!-- Inputs frise -->
+  <div class="firow">
+    <div><label style="font-size:.62rem;text-transform:uppercase;letter-spacing:.1em;color:var(--mut);display:block;margin-bottom:4px;">Date du RDV</label>
+    <input type="date" id="fDate" style="width:100%;background:var(--bg);border:1.5px solid var(--bdr);border-radius:8px;color:var(--navy);font-family:'DM Sans',sans-serif;font-size:.85rem;padding:8px 10px;outline:none;"/></div>
+    <div><label style="font-size:.62rem;text-transform:uppercase;letter-spacing:.1em;color:var(--mut);display:block;margin-bottom:4px;">Début du contrat</label>
+    <input type="date" id="fStart" style="width:100%;background:var(--bg);border:1.5px solid var(--bdr);border-radius:8px;color:var(--navy);font-family:'DM Sans',sans-serif;font-size:.85rem;padding:8px 10px;outline:none;"/></div>
+    <div><label style="font-size:.62rem;text-transform:uppercase;letter-spacing:.1em;color:var(--mut);display:block;margin-bottom:4px;">Durée contrat (ans)</label>
+    <input type="number" id="fDur" placeholder="ex : 3" min="1" max="5" style="width:100%;background:var(--bg);border:1.5px solid var(--bdr);border-radius:8px;color:var(--navy);font-family:'DM Sans',sans-serif;font-size:.85rem;padding:8px 10px;outline:none;-moz-appearance:textfield;"/></div>
+  </div>
+
+  <!-- Graphique frise + courbes -->
+  <div class="cbox">
+    <div class="ct">Projection tarifaire & frise chronologique</div>
+    <div class="cs">Zones = phases contractuelles · Courbes = évolution des prix</div>
+    <div style="height:260px;position:relative;"><canvas id="cFrise" aria-label="Frise chronologique avec courbes de prix"></canvas></div>
+  </div>
+
+  <!-- Résumé dates -->
+  <div class="fresume" id="fresume">
+    <div class="frc" style="background:var(--gp);border:1px solid rgba(26,122,74,.18);">
+      <div class="fl" style="color:var(--g);">Début contrat</div><div class="fv" id="frA">—</div>
+    </div>
+    <div class="frc" style="background:#fff8f0;border:1px solid rgba(232,99,10,.18);">
+      <div class="fl" style="color:var(--or);">Renégociation</div><div class="fv" id="frB">—</div>
+    </div>
+    <div class="frc" style="background:#f0faf4;border:1px solid rgba(26,122,74,.18);">
+      <div class="fl" style="color:var(--g);">Fin contrat</div><div class="fv" id="frC">—</div>
+    </div>
+    <div class="frc" style="background:rgba(93,212,154,.1);border:1px solid rgba(93,212,154,.3);">
+      <div class="fl" style="color:#0e6639;">Nouveau contrat</div><div class="fv" id="frD">—</div>
+    </div>
+  </div>
+
+</div>
+</div>
+
+<!-- ═══ PANEL 4 — RÉCAP ═══ -->
+<div id="p3" class="panel">
+<div class="wrap">
+  <div class="sh"><h2>Pourquoi Elga Energy ?</h2><span>L'essentiel en 3 points</span></div>
+  <div class="rgrid">
+    <div class="rc">
+      <div class="ri">⚡</div>
+      <div class="rt">Négociation immédiate</div>
+      <div class="rx">30+ fournisseurs consultés le même jour, même heure, même base. Un comparatif fiable et impartial — impossible à faire seul en moins de 35h.</div>
+      <div class="tags"><span class="tag g">Économie dès la 1re facture</span><span class="tag g">Gratuit</span></div>
+    </div>
+    <div class="rc dark">
+      <div class="ri">🤝</div>
+      <div class="rt">Suivi unique</div>
+      <div class="rx">Un seul interlocuteur qui connaît votre dossier, votre historique, vos besoins. Pas de coupure, pas de démarche, pas de paperasse.</div>
+      <div class="tags"><span class="tag w">Tranquillité</span><span class="tag w">Zéro démarche</span><span class="tag w">Zéro frais</span></div>
+    </div>
+    <div class="rc">
+      <div class="ri">🔄</div>
+      <div class="rt">Renégociation anticipée</div>
+      <div class="rx">18 mois avant l'échéance, on relance le marché. Vous repartez sur les prix d'aujourd'hui — pas ceux du jour où votre contrat se termine.</div>
+      <div class="tags"><span class="tag g">Sécurité long terme</span><span class="tag g">Moins de risque fournisseur</span></div>
+    </div>
+  </div>
+</div>
+</div>
+
+<footer>
+  <div class="fl">Elga Energy</div>
+  <div class="fn">Usage interne — guide de vente conseillers — www.elgaenergy.com</div>
+</footer>
+
+<script>
+/* ── NAVIGATION ── */
+const tabs=document.querySelectorAll('.tab');
+const panels=document.querySelectorAll('.panel');
+function go(i){
+  tabs.forEach((t,j)=>t.classList.toggle('on',i===j));
+  panels.forEach((p,j)=>p.classList.toggle('on',i===j));
+}
+
+/* ── HELPERS ── */
+const $=id=>document.getElementById(id);
+const fmt=v=>Math.round(v).toLocaleString('fr-FR')+'\u202f€';
+function sh(id){$(id).style.display='';$(id).classList.remove('hide');}
+function hi(id){$(id).classList.add('hide');}
+
+/* ── DONNÉES TRV réelles — Source CRE / EDF, option Base, bi-annuel ── */
+// Chaque point = une révision tarifaire officielle (€/MWh TTC, arrondi)
+const TRV_L=[
+  'jan. 2007','jan. 2010','jan. 2011','jan. 2012','jan. 2013','jan. 2014',
+  'jan. 2015','jan. 2016','jan. 2017','jan. 2018','jan. 2019','jan. 2020',
+  'fév. 2021','fév. 2022','fév. 2023','août 2023','fév. 2024',
+  'fév. 2025','août 2025','fév. 2026',
+  // Projection 2026–2030 (sources croisées CRE, Optima, Selectra, Alpiq)
+  'août 2026','fév. 2027','août 2027','fév. 2028','août 2028','fév. 2029','fév. 2030'
+];
+const TRV_D=[
+  106, 112, 119, 130, 136, 140,
+  146, 147, 148, 150, 157, 157,
+  158, 174, 206, 228, 252,
+  214, 195, 194,
+  // Réels s'arrêtent ici — projection commence
+  null, null, null, null, null, null, null
+];
+// Dataset projection séparé — même labels, null sur la partie historique
+const TRV_PROJ=[
+  null,null,null,null,null,null,
+  null,null,null,null,null,null,
+  null,null,null,null,null,
+  null,null,
+  194, // pont avec dernier réel fév. 2026
+  210, // août 2026 : rebond lié fin ARENH + crise gaz actuelle (TTF ~49€, spot ~178€)
+  218, // fév. 2027 : poursuite hausse structurelle (~+4%)
+  223, // août 2027 : légère stabilisation, renouvelables en hausse
+  230, // fév. 2028 : TURPE +2-3%/an + CO₂ en hausse
+  235, // août 2028
+  242, // fév. 2029 : investissements réseau 100Md€ répercutés
+  250  // fév. 2030 : scénario central consensus CRE/RTE/Selectra
+];
+
+/* ── DONNÉES EEX mensuelles 2001-2020 ── */
+const EEX_D=[
+  23,24,24,25,25,24,24,25,26,27,28,30, // 2001
+  23,23,23,24,24,23,23,24,24,25,24,24, // 2002
+  27,28,29,30,31,30,31,32,33,33,34,34, // 2003
+  28,29,30,32,32,33,34,35,36,37,38,40, // 2004
+  43,44,45,46,48,50,52,54,56,57,58,59, // 2005
+  56,58,61,60,59,57,57,58,60,62,62,63, // 2006
+  48,50,52,54,56,58,60,64,68,70,71,72, // 2007
+  68,70,73,76,80,84,88,92,88,75,65,55, // 2008
+  45,44,45,46,48,49,51,52,52,50,49,48, // 2009
+  48,49,50,51,53,54,55,56,54,53,54,55, // 2010
+  54,55,57,57,58,58,58,57,56,55,55,56, // 2011
+  54,52,50,48,47,46,45,44,44,45,44,44, // 2012
+  42,41,41,40,40,40,39,39,39,40,40,41, // 2013
+  38,38,37,37,38,37,37,37,36,36,36,36, // 2014
+  32,31,30,30,30,31,31,30,30,29,28,27, // 2015
+  26,26,26,25,26,26,26,27,28,30,32,32, // 2016
+  34,35,35,35,34,34,33,33,35,37,38,40, // 2017
+  43,44,45,47,49,52,54,54,56,58,60,62, // 2018
+  58,55,52,50,48,46,46,48,50,52,52,51, // 2019
+  48,46,44,42,40,38,38,39,40,40,40,39  // 2020
+];
+const EEX_L=[];
+for(let y=2001;y<=2020;y++){
+  ['jan','fév','mar','avr','mai','jun','jul','aoû','sep','oct','nov','déc']
+    .forEach(m=>EEX_L.push(m+' '+y));
+}
+
+/* ── GRAPHIQUE TRV ── */
+new Chart($('cTRV').getContext('2d'),{
+  type:'line',
+  data:{labels:TRV_L,datasets:[
+    {
+      label:'TRV EDF — données réelles',
+      data:TRV_D,
+      borderColor:'#1a7a4a',
+      backgroundColor:'rgba(26,122,74,0.07)',
+      borderWidth:2,pointRadius:3,pointBackgroundColor:'#1a7a4a',
+      fill:true,tension:0.3,spanGaps:false
+    },
+    {
+      label:'Projection 2026–2030',
+      data:TRV_PROJ,
+      borderColor:'#e8630a',
+      backgroundColor:'rgba(232,99,10,0.07)',
+      borderWidth:2,
+      borderDash:[6,4],
+      pointRadius:3,
+      pointBackgroundColor:'#e8630a',
+      pointStyle:'circle',
+      fill:true,tension:0.3,spanGaps:false
+    }
+  ]},
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{
+      legend:{
+        display:true,
+        position:'top',
+        labels:{
+          font:{size:9,family:'DM Sans'},
+          color:'#6b7b72',
+          boxWidth:16,boxHeight:2,padding:10,
+          generateLabels:chart=>{
+            return[
+              {text:'Données réelles (CRE/EDF)',fillStyle:'#1a7a4a',strokeStyle:'#1a7a4a',lineWidth:2,lineDash:[],hidden:false,datasetIndex:0},
+              {text:'Projection 2026–2030 (scénario central)',fillStyle:'#e8630a',strokeStyle:'#e8630a',lineWidth:2,lineDash:[6,4],hidden:false,datasetIndex:1}
+            ];
+          }
+        }
+      },
+      tooltip:{callbacks:{
+        label:c=>c.parsed.y!==null?c.dataset.label+' : '+c.parsed.y+' €/MWh':null
+      }}
+    },
+    scales:{
+      x:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{size:9},color:'#8a9a8e',maxRotation:45,autoSkip:true,maxTicksLimit:10}},
+      y:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{size:9},color:'#8a9a8e',callback:v=>v+' €'},min:90,max:270}
+    }
+  }
+});
+
+/* ── GRAPHIQUE EEX ── */
+new Chart($('cEEX').getContext('2d'),{
+  type:'line',
+  data:{labels:EEX_L,datasets:[{
+    data:EEX_D,borderColor:'#e8630a',backgroundColor:'transparent',
+    borderWidth:1.5,pointRadius:0,fill:false,tension:0.1
+  }]},
+  options:{
+    responsive:true,maintainAspectRatio:false,
+    plugins:{legend:{display:false},tooltip:{
+      mode:'index',intersect:false,
+      callbacks:{title:i=>i[0].label,label:c=>c.parsed.y+' €/MWh'}
+    }},
+    scales:{
+      x:{grid:{display:false},ticks:{font:{size:9},color:'#8a9a8e',
+        callback(v){const l=this.getLabelForValue(v);return l&&l.startsWith('jan')?l.slice(-4):'';}
+        ,maxRotation:0}},
+      y:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{size:9},color:'#8a9a8e',callback:v=>v+'€'},min:10,max:110}
+    }
+  }
+});
+
+/* ── SIMULATEUR ── */
+let projChart=null;
+function calcSim(){
+  const co=parseFloat($('conso').value)||0;
+  const ta=parseFloat($('tarif').value)||0;
+  const tx=parseFloat($('taux').value)||0;
+  const pf=parseFloat($('pfix').value)||0;
+  if(!co||!ta||!tx||!pf){hi('savRow');hi('projCard');$('abox').style.display='none';return;}
+
+  const base=co*ta, r=tx/100;
+  const edf=[1,2,3,4].map(n=>Math.round(base*Math.pow(1+r,n)));
+  const fix=Math.round(co*pf);
+  const eco=edf.reduce((a,b)=>a+b,0)-fix*4;
+
+  $('sv1').textContent=fmt(edf[0]);
+  $('sv2').textContent=fmt(edf[1]);
+  $('sv3').textContent=fmt(edf[2]);
+  $('sv4').textContent=(eco>=0?'+':'')+fmt(eco);
+  sh('savRow');
+
+  // Alerte prix fixe > tarif actuel
+  const ab=$('abox');
+  if(pf>ta){
+    let yr='la 2e';
+    for(let n=1;n<=4;n++){if(ta*Math.pow(1+r,n)>pf){yr='la '+n+'re';break;}}
+    $('aTaux').textContent=tx+'%';
+    $('aYear').textContent=yr+' année';
+    ab.style.display='block';
+  }else{ab.style.display='none';}
+
+  // Graphique projection
+  sh('projCard');
+  const lp=["Auj.",'N+1','N+2','N+3','N+4'];
+  const es=[base,...edf], fs=[base,fix,fix,fix,fix];
+  if(projChart)projChart.destroy();
+  projChart=new Chart($('cProj').getContext('2d'),{
+    type:'line',
+    data:{labels:lp,datasets:[
+      {label:'TRV EDF',data:es,borderColor:'#e8630a',backgroundColor:'transparent',borderWidth:2.5,pointRadius:4,pointBackgroundColor:'#e8630a',fill:false,tension:0.2},
+      {label:'Prix fixe',data:fs,borderColor:'#1a7a4a',backgroundColor:'rgba(26,122,74,0.08)',borderWidth:2.5,pointRadius:4,pointBackgroundColor:'#1a7a4a',fill:'-1',tension:0}
+    ]},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      plugins:{legend:{display:false},tooltip:{mode:'index',intersect:false,
+        callbacks:{label:c=>c.dataset.label+' : '+Math.round(c.parsed.y).toLocaleString('fr-FR')+' €'}}},
+      scales:{
+        x:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{size:10},color:'#8a9a8e'}},
+        y:{grid:{color:'rgba(0,0,0,0.04)'},ticks:{font:{size:10},color:'#8a9a8e',callback:v=>Math.round(v).toLocaleString('fr-FR')+' €'}}
+      }
+    }
+  });
+
+  // Redessiner la frise si déjà configurée
+  drawFrise();
+}
+['conso','tarif','taux','pfix'].forEach(id=>$(id).addEventListener('input',calcSim));
+
+/* ── FRISE + COURBES (panel 3) ── */
+const today=new Date();
+$('fDate').value=today.toISOString().slice(0,10);
+let friseChart=null;
+
+function am(d,m){const r=new Date(d);r.setMonth(r.getMonth()+m);return r;}
+function fd(d){return d.toLocaleDateString('fr-FR',{month:'short',year:'numeric'});}
+function fds(d){return d.toLocaleDateString('fr-FR',{month:'short',year:'2-digit'});}
+
+const zonesPlugin={
+  id:'zones',
+  beforeDatasetsDraw(chart){
+    const {ctx,chartArea:{top,bottom,left,right},scales:{x}}=chart;
+    const Z=chart._zones||[];
+    ctx.save();
+    Z.forEach(z=>{
+      const x1=Math.max(left,x.getPixelForValue(z.from));
+      const x2=Math.min(right,x.getPixelForValue(z.to));
+      if(x2<=x1)return;
+      ctx.fillStyle=z.bg;
+      ctx.fillRect(x1,top,x2-x1,bottom-top);
+      ctx.strokeStyle=z.col;ctx.lineWidth=1.5;ctx.setLineDash([]);
+      ctx.beginPath();ctx.moveTo(x1,top);ctx.lineTo(x1,bottom);ctx.stroke();
+      const w=x2-x1;
+      if(w>50){
+        ctx.fillStyle=z.col;ctx.font='500 9px DM Sans,sans-serif';
+        ctx.textAlign='center';ctx.textBaseline='top';
+        ctx.fillText(z.label,x1+w/2,top+5);
+      }
+    });
+    // Marqueurs
+    (chart._marks||[]).forEach((m,i)=>{
+      const xp=x.getPixelForValue(m.ts);
+      if(xp<left||xp>right)return;
+      ctx.save();ctx.setLineDash([4,3]);ctx.strokeStyle=m.c;ctx.lineWidth=1.5;ctx.globalAlpha=.6;
+      ctx.beginPath();ctx.moveTo(xp,top);ctx.lineTo(xp,bottom);ctx.stroke();ctx.restore();
+      ctx.fillStyle=m.c;ctx.font='bold 8px DM Sans,sans-serif';ctx.textAlign='center';
+      ctx.textBaseline='bottom';
+      ctx.fillText(m.d,xp,i%2===0?bottom-2:bottom-12);
+    });
+    ctx.restore();
+  }
+};
+
+function drawFrise(){
+  const ds=$('fDate').value, ss=$('fStart').value;
+  const dur=parseInt($('fDur').value)||0;
+  if(!ds||!ss||dur<1){if(friseChart){friseChart.destroy();friseChart=null;}$('fresume').style.display='none';return;}
+
+  const dRdv=new Date(ds), dStart=new Date(ss);
+  const dEnd=am(dStart,dur*12), dReneg=am(dEnd,-18), dNEnd=am(dEnd,dur*12);
+
+  const xMin=dRdv.getTime(), xMax=am(dNEnd,3).getTime();
+
+  // Courbes mensuelles
+  const totalM=Math.ceil((xMax-xMin)/(30.44*24*3600*1e3))+1;
+  const co=parseFloat($('conso').value)||45;
+  const ta=parseFloat($('tarif').value)||180;
+  const tx=parseFloat($('taux').value)||8;
+  const pf=parseFloat($('pfix').value)||140;
+  const base=co*ta, r=tx/100, fix=co*pf;
+
+  const lts=[],edc=[],fc1=[],fc2=[];
+  for(let m=0;m<totalM;m++){
+    const d=am(dRdv,m),ts=d.getTime();
+    lts.push(ts);
+    const msS=(ts-dStart.getTime())/(30.44*24*3600*1e3);
+    if(ts<dStart.getTime()){edc.push(Math.round(base/12));fc1.push(null);fc2.push(null);}
+    else if(ts<=dEnd.getTime()){
+      edc.push(Math.round((base/12)*Math.pow(1+r,msS/12)));
+      fc1.push(Math.round(fix/12));fc2.push(null);
+    } else {
+      edc.push(Math.round((base/12)*Math.pow(1+r,msS/12)));
+      fc1.push(null);
+      const msR=(dReneg.getTime()-dStart.getTime())/(30.44*24*3600*1e3);
+      fc2.push(Math.round((fix/12)*Math.pow(1+r,msR/12)*0.92));
+    }
+  }
+
+  const zones=[
+    {from:dStart.getTime(),to:dReneg.getTime(),bg:'rgba(26,122,74,0.07)',  col:'rgba(26,122,74,0.5)',  label:'Contrat actif'},
+    {from:dReneg.getTime(),to:dEnd.getTime(),  bg:'rgba(232,99,10,0.08)',  col:'rgba(232,99,10,0.55)', label:'Renégociation −18m'},
+    {from:dEnd.getTime(),  to:dNEnd.getTime(), bg:'rgba(93,212,154,0.08)', col:'rgba(93,212,154,0.6)', label:'Nouveau contrat'},
+  ];
+  const marks=[
+    {ts:dRdv.getTime(),  c:'#0d1f3c',d:'RDV'},
+    {ts:dStart.getTime(),c:'#1a7a4a',d:fds(dStart)},
+    {ts:dReneg.getTime(),c:'#e8630a',d:fds(dReneg)},
+    {ts:dEnd.getTime(),  c:'#1a7a4a',d:fds(dEnd)},
+  ];
+
+  if(friseChart)friseChart.destroy();
+  friseChart=new Chart($('cFrise').getContext('2d'),{
+    type:'line',plugins:[zonesPlugin],
+    data:{labels:lts,datasets:[
+      {label:'TRV EDF',data:edc,borderColor:'#e8630a',borderWidth:2,pointRadius:0,fill:false,tension:0.3},
+      {label:'Prix fixe contrat 1',data:fc1,borderColor:'#1a7a4a',borderWidth:2,pointRadius:0,fill:false,tension:0,spanGaps:false},
+      {label:'Nouveau contrat anticipé',data:fc2,borderColor:'#5dd49a',borderWidth:2,borderDash:[5,3],pointRadius:0,fill:false,tension:0,spanGaps:false}
+    ]},
+    options:{
+      responsive:true,maintainAspectRatio:false,
+      layout:{padding:{top:22,bottom:18}},
+      plugins:{legend:{display:false},tooltip:{
+        mode:'index',intersect:false,
+        callbacks:{
+          title:i=>new Date(i[0].parsed.x).toLocaleDateString('fr-FR',{month:'long',year:'numeric'}),
+          label:c=>c.parsed.y===null?null:c.dataset.label+' : '+Math.round(c.parsed.y).toLocaleString('fr-FR')+' €/mois'
+        }
+      }},
+      scales:{
+        x:{type:'linear',min:xMin,max:xMax,
+          grid:{color:'rgba(0,0,0,0.03)'},
+          ticks:{font:{size:9},color:'#8a9a8e',maxRotation:0,autoSkip:false,
+            stepSize:365.25*24*3600*1e3,
+            callback(v){const d=new Date(v);return d.getMonth()===0?d.getFullYear():'';}
+          }
+        },
+        y:{grid:{color:'rgba(0,0,0,0.04)'},
+          ticks:{font:{size:9},color:'#8a9a8e',callback:v=>Math.round(v).toLocaleString('fr-FR')+'€'},
+          title:{display:true,text:'€/mois',font:{size:9},color:'#bbb'}
+        }
+      }
+    }
+  });
+  friseChart._zones=zones;friseChart._marks=marks;friseChart.update('none');
+
+  // Résumé
+  $('frA').textContent=fd(dStart);
+  $('frB').textContent=fd(dReneg)+' (−18 mois)';
+  $('frC').textContent=fd(dEnd);
+  $('frD').textContent=fd(dEnd)+' → '+fd(dNEnd);
+  $('fresume').style.display='grid';
+}
+['fDate','fStart','fDur'].forEach(id=>$(id).addEventListener('input',drawFrise));
+drawFrise();
+</script>
+</body>
+</html>
