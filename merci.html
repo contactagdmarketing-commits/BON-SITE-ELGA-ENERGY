@@ -1,0 +1,99 @@
+<!doctype html>
+<html lang="fr-FR" class="scroll-smooth">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Demande reçue — Elga Energy</title>
+  <meta name="robots" content="noindex" />
+  <link rel="icon" href="/assets/logos/elga-energy-logo.svg" type="image/svg+xml" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: { 50:'#ecfdf5',100:'#d1fae5',500:'#10b981',600:'#0e8a57',700:'#0b6c45' },
+            secondary: { 600:'#0b3d91',700:'#0a357e' }
+          },
+          container: { center: true, padding: '1rem' }
+        }
+      }
+    }
+  </script>
+  <style>.glass{backdrop-filter:saturate(180%) blur(12px);background:rgba(255,255,255,.82)}</style>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-SHXXPV14N7"></script>
+  <script>
+    window.dataLayer=window.dataLayer||[];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js',new Date());
+    gtag('config','G-SHXXPV14N7');
+    gtag('event','conversion',{event_category:'lead',event_label:'devis_soumis'});
+  </script>
+</head>
+<body class="antialiased text-slate-800 bg-slate-50 min-h-screen flex flex-col">
+
+  <header class="sticky top-0 z-50 border-b border-slate-200/60 bg-white/90 glass">
+    <div class="container flex items-center justify-between py-1.5 md:py-2.5 gap-3">
+      <a href="/"><img src="/assets/logos/elga-energy-logo.svg" alt="Elga Energy" class="h-14 md:h-16 w-auto" onerror="this.remove()"/></a>
+      <a href="tel:+33745117867" class="inline-flex items-center gap-2 text-sm font-semibold text-primary-700 hover:text-primary-800">
+        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.12 1.22 2 2 0 012.1 0h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 14.92z"/></svg>
+        07 45 11 78 67
+      </a>
+    </div>
+  </header>
+
+  <main class="flex-1 flex items-center justify-center py-16 px-4">
+    <div class="max-w-lg w-full text-center space-y-8">
+
+      <!-- Icône succès -->
+      <div class="inline-flex items-center justify-center size-24 rounded-full bg-primary-100 text-primary-600 mx-auto">
+        <svg viewBox="0 0 24 24" class="size-12" fill="none" stroke="currentColor" stroke-width="1.8">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+        </svg>
+      </div>
+
+      <div class="space-y-3">
+        <h1 class="text-3xl md:text-4xl font-extrabold text-slate-900">Votre demande est bien reçue !</h1>
+        <p class="text-lg text-slate-600">Nous analysons votre dossier et vous recontactons <strong>sous 24 h</strong> avec votre comparatif personnalisé.</p>
+      </div>
+
+      <!-- Ce qui se passe ensuite -->
+      <div class="bg-white rounded-2xl border border-slate-200 p-6 text-left space-y-4">
+        <h2 class="font-bold text-slate-900">Ce qui se passe maintenant :</h2>
+        <ol class="space-y-3">
+          <li class="flex items-start gap-3">
+            <span class="shrink-0 size-6 rounded-full bg-primary-600 text-white text-xs font-bold grid place-items-center mt-0.5">1</span>
+            <p class="text-sm text-slate-600">Notre équipe analyse votre profil de consommation et vos contrats actuels.</p>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="shrink-0 size-6 rounded-full bg-primary-600 text-white text-xs font-bold grid place-items-center mt-0.5">2</span>
+            <p class="text-sm text-slate-600">Nous consultons 30+ fournisseurs pour obtenir les meilleures offres du marché.</p>
+          </li>
+          <li class="flex items-start gap-3">
+            <span class="shrink-0 size-6 rounded-full bg-primary-600 text-white text-xs font-bold grid place-items-center mt-0.5">3</span>
+            <p class="text-sm text-slate-600">Vous recevez un comparatif clair avec nos recommandations sous 24 h.</p>
+          </li>
+        </ol>
+      </div>
+
+      <!-- CTA si urgent -->
+      <div class="space-y-3">
+        <p class="text-sm text-slate-500">Besoin d'un retour plus rapide ? Appelez-nous directement :</p>
+        <a href="tel:+33745117867" class="inline-flex items-center gap-2 rounded-xl bg-primary-600 px-6 py-3.5 text-white font-bold shadow-md hover:bg-primary-700 transition-colors">
+          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.12 1.22 2 2 0 012.1 0h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 14.92z"/></svg>
+          07 45 11 78 67
+        </a>
+        <div>
+          <a href="/" class="text-sm text-slate-400 hover:text-slate-600 underline underline-offset-2">Retour à l'accueil</a>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <footer class="bg-slate-950 text-slate-400">
+    <div class="container py-4 text-xs text-center">© 2025 Elga Energy — cotations@elgaenergy.fr</div>
+  </footer>
+
+</body>
+</html>

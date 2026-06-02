@@ -83,11 +83,12 @@
           <h2 class="text-2xl font-bold text-slate-900 mb-6">Tunnel devis</h2>
 
           <form id="quote-form" class="mt-6 space-y-8"
-                action="https://formsubmit.co/el/fefevo"
+                action="https://formsubmit.co/cotations@elgaenergy.fr"
                 method="POST" enctype="multipart/form-data">
 
-            <input type="hidden" name="_subject" value="🔔 Nouveau devis Elga Energy via le site">
-            <input type="hidden" name="_next" value="https://elgaenergy.fr/merci.html">
+            <input type="hidden" name="_subject" value="🔔 Nouveau devis Elga Energy — page devis">
+            <input type="hidden" name="_next" value="https://elgaenergy.com/merci.html">
+            <input type="hidden" name="_template" value="table">
             <input type="text" name="_honey" style="display:none">
 
             <!-- ÉTAPE 1 -->
@@ -319,8 +320,33 @@
       submitBtn.classList.toggle('hidden', currentStep !== panels.length - 1);
     }
 
+    function validateCurrentStep() {
+      const panel = panels[currentStep];
+      const required = panel.querySelectorAll('input[required], textarea[required]');
+      let valid = true;
+      required.forEach(el => {
+        if (!el.value.trim()) {
+          el.classList.add('border-red-400', 'ring-2', 'ring-red-100');
+          el.addEventListener('input', () => el.classList.remove('border-red-400', 'ring-2', 'ring-red-100'), { once: true });
+          valid = false;
+        }
+      });
+      if (!valid) {
+        const existing = panel.querySelector('.step-error');
+        if (!existing) {
+          const msg = document.createElement('p');
+          msg.className = 'step-error text-sm text-red-600 mt-3 font-medium';
+          msg.textContent = 'Veuillez renseigner les champs obligatoires avant de continuer.';
+          panel.appendChild(msg);
+          setTimeout(() => msg.remove(), 3000);
+        }
+      }
+      return valid;
+    }
+
     prevBtn.addEventListener('click', () => showStep(currentStep - 1));
     nextBtn.addEventListener('click', () => {
+      if (!validateCurrentStep()) return;
       const nbElec = parseInt(form.nb_compteurs_elec.value || 0);
       const nbGaz = parseInt(form.nb_compteurs_gaz.value || 0);
       if (currentStep === 0) generateCompteurs(nbElec, nbGaz);
