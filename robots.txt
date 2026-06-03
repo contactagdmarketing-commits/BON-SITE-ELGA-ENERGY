@@ -1,9 +1,5 @@
 User-agent: *
 Allow: /
+Disallow: /merci.html
 
-Disallow: /axiom-app/
-Disallow: /ptest.html
-Disallow: /vide.html
-Disallow: /text.html
-
-Sitemap: https://elgaenergy.fr/sitemap.xml
+Sitemap: https://www.elgaenergy.com/sitemap.xml
