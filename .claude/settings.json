@@ -1,0 +1,27 @@
+{
+  "model": "claude-opus-4-5",
+  "permissions": {
+    "allow": [
+      "Bash(git:*)",
+      "Bash(sed:*)",
+      "Bash(grep:*)",
+      "Bash(find:*)",
+      "Bash(ls:*)",
+      "Bash(cat:*)",
+      "Bash(mkdir:*)",
+      "Bash(cp:*)",
+      "Bash(mv:*)"
+    ]
+  },
+  "env": {
+    "PROJECT": "elga-energy",
+    "SITE_URL": "https://www.elgaenergy.com",
+    "GITHUB_REPO": "contactagdmarketing-commits/BON-SITE-ELGA-ENERGY",
+    "GA_ID": "G-SHXXPV14N7",
+    "PHONE_DISPLAY": "07 45 11 78 67",
+    "PHONE_HREF": "+33745117867",
+    "FORMSUBMIT_TOKEN": "cf16add96a7eedf5a12c3c2f738739f0",
+    "PRIMARY_COLOR": "#10b981",
+    "SECONDARY_COLOR": "#0b3d91"
+  }
+}
