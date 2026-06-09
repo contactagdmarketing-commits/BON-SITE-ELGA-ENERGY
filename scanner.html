@@ -584,7 +584,12 @@
       clearInterval(scanInterval);
       showStep('upload');
       console.error('[Elga Scanner] Erreur:', err);
-      showError('Analyse impossible : ' + (err.message || 'erreur inconnue') + '. Vérifiez votre connexion ou réessayez.');
+      let msg = err && err.message ? err.message : null;
+      if (!msg) {
+        // TypeError sans message = échec réseau (offline ou CORS)
+        msg = 'Erreur réseau. Vérifiez votre connexion internet et réessayez.';
+      }
+      showError(msg);
     }
   }
 
@@ -730,13 +735,30 @@
 
   function fileToBase64(file) {
     return new Promise((resolve, reject) => {
+      // Vérification taille (max 10 Mo)
+      if (file.size > 10 * 1024 * 1024) {
+        return reject(new Error('Fichier trop volumineux (max 10 Mo). Compressez le PDF et réessayez.'));
+      }
+      if (file.size === 0) {
+        return reject(new Error('Le fichier semble vide ou inaccessible. S\'il est sur iCloud, téléchargez-le d\'abord.'));
+      }
       const reader = new FileReader();
       reader.onload = () => {
         const result = reader.result;
-        // Remove data URI prefix (data:...;base64,)
-        resolve(result.split(',')[1]);
+        if (!result || typeof result !== 'string') {
+          return reject(new Error('Impossible de lire le fichier.'));
+        }
+        const b64 = result.split(',')[1];
+        if (!b64) return reject(new Error('Format de fichier non reconnu.'));
+        resolve(b64);
       };
-      reader.onerror = reject;
+      reader.onerror = (e) => {
+        // FileReader renvoie un ProgressEvent, pas un Error — on construit le message
+        const code = e.target && e.target.error && e.target.error.code;
+        if (code === 1) reject(new Error('Fichier introuvable. S\'il est sur iCloud, ouvrez-le d\'abord dans Aperçu pour le télécharger.'));
+        else if (code === 2) reject(new Error('Accès refusé au fichier.'));
+        else reject(new Error('Impossible de lire le fichier (erreur ' + (code || '?') + '). Vérifiez qu\'il est bien téléchargé localement.'));
+      };
       reader.readAsDataURL(file);
     });
   }
