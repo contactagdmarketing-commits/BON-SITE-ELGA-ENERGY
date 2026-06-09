@@ -191,82 +191,134 @@ function getDefaultPrices() {
 function calculateSavings(bill, grid) {
   if (!grid) return null;
 
-  const isGas = bill.energy_type === 'gas';
-  const isElec = bill.energy_type === 'electricity' || !isGas;
-
+  const isGas      = bill.energy_type === 'gas';
   const consumptionMwh = bill.annual_consumption_mwh;
-  const avgPct = grid.meta?.average_savings_pct || 15;
+  const clientTTC  = bill.total_ttc_annual;
+  const avgPct     = grid.meta?.average_savings_pct || 15;
 
-  // ─ Cas gaz ─
-  if (isGas && grid.gas) {
-    const segment = bill.segment === 't3' ? 't3' : 't2_p12';
-    const ref = grid.gas[segment];
-    if (!ref || !consumptionMwh) return fallbackSavings(bill.total_ttc_annual, avgPct, segment);
+  if (!clientTTC) return null;
 
-    const totalPrixMwh = (ref.molecule_mwh || 0) + (ref.cee_mwh || 0) + (ref.cpb_mwh || 0) + (ref.acheminement_mwh || 0);
-    const elgaEnergyHT = consumptionMwh * totalPrixMwh;
-    const elgaAboHT    = (ref.abo_monthly || 0) * 12;
-    const elgaCTA      = ref.cta_annual || 0;
-    const elgaAccise   = consumptionMwh * (ref.accise_mwh || 16.39);
-    const tva          = 1 + (ref.tva_pct || 20) / 100;
-    const elgaTTC      = (elgaEnergyHT + elgaAboHT + elgaCTA + elgaAccise) * tva;
-
-    const clientTTC = bill.total_ttc_annual;
-    if (!clientTTC) return fallbackSavings(null, avgPct, segment);
-
-    return buildResult(clientTTC, elgaTTC, avgPct, segment);
-  }
-
-  // ─ Cas électricité ─
-  if (!grid.electricity) return null;
-
-  // Détermination du segment
-  const kva = bill.power_kva;
+  // ─── Détermination du segment ────────────────────────────────────────────
   let seg = bill.segment;
   if (!seg) {
-    if (kva) {
-      if (kva > 250)  seg = 'c4_lu';
-      else if (kva > 36) seg = 'c5_hta';
-      else seg = 'c5_mu4';
+    const kva = bill.power_kva;
+    if (isGas) {
+      seg = consumptionMwh > 200 ? 't3' : 't2_p12';
+    } else if (kva) {
+      seg = kva > 250 ? 'c4_lu' : kva > 36 ? 'c5_hta' : 'c5_mu4';
     } else if (consumptionMwh) {
-      if (consumptionMwh > 300) seg = 'c4_lu';
-      else if (consumptionMwh > 50) seg = 'c5_hta';
-      else seg = 'c5_mu4';
+      seg = consumptionMwh > 300 ? 'c4_lu' : consumptionMwh > 50 ? 'c5_hta' : 'c5_mu4';
     } else {
       seg = 'c5_mu4';
     }
   }
 
-  const ref  = grid.electricity[seg];
-  const taxes = grid.electricity.taxes || {};
+  // ─── Gaz ─────────────────────────────────────────────────────────────────
+  if (isGas && grid.gas) {
+    const ref = grid.gas[seg === 't3' ? 't3' : 't2_p12'];
+    if (!ref || !consumptionMwh) return fallbackSavings(clientTTC, avgPct, seg);
 
-  if (!ref || !consumptionMwh) return fallbackSavings(bill.total_ttc_annual, avgPct, seg);
+    // L'acheminement gaz est réglementé : même coût pour tous les fournisseurs
+    // Les économies portent uniquement sur la molécule + CEE + CPB
+    const clientMoleculeHT = bill.total_ht_annual
+      ? bill.total_ht_annual
+        - (bill.acheminement_annual_ht || consumptionMwh * (ref.acheminement_mwh || 12))
+        - (bill.taxes_annual_ht || 0)
+        - (bill.subscription_monthly_ht || ref.abo_monthly || 0) * 12
+      : null;
 
-  // Prix moyen pondéré selon les plages disponibles
-  // Distribution typique : HPH 30% / HCH 20% / HPB 30% / HCB 20%
-  // Pour C4 avec Pte : Pte 5% / HPH 25% / HCH 15% / HPB 30% / HCB 25%
-  let avgPriceMwh;
-  if (seg === 'c4_lu' && ref.pte) {
-    avgPriceMwh = ref.pte * 0.05 + ref.hph * 0.25 + ref.hch * 0.15 + ref.hpb * 0.30 + ref.hcb * 0.25;
-  } else {
-    avgPriceMwh = (ref.hph || ref.hpb || 0) * 0.60 + (ref.hch || ref.hcb || 0) * 0.40;
+    const elgaMoleculeHT = consumptionMwh * ((ref.molecule_mwh || 0) + (ref.cee_mwh || 0) + (ref.cpb_mwh || 0));
+
+    if (clientMoleculeHT && clientMoleculeHT > elgaMoleculeHT && clientMoleculeHT > 100) {
+      const savingsHT  = clientMoleculeHT - elgaMoleculeHT;
+      const savingsTTC = savingsHT * 1.20;
+      const pct = (savingsTTC / clientTTC) * 100;
+      if (pct >= 1 && pct <= 45) {
+        return makeResult(clientTTC, savingsTTC, pct, seg, false);
+      }
+    }
+    return fallbackSavings(clientTTC, avgPct, seg);
   }
 
-  const cee  = ref.cee  || 0;
-  const capa = ref.capa || 0;
-  const ach  = ref.acheminement_annual || 0;
-  const abo  = (ref.abo_monthly || 0) * 12;
-  const accise = consumptionMwh * (taxes.accise_mwh || 20.50);
-  const cta    = taxes.cta_annual || 50;
-  const tva    = 1 + (taxes.tva_pct || 20) / 100;
+  // ─── Électricité ─────────────────────────────────────────────────────────
+  if (!grid.electricity) return fallbackSavings(clientTTC, avgPct, seg);
 
-  const elgaEnergyHT = consumptionMwh * (avgPriceMwh + cee + capa);
-  const elgaTTC = (elgaEnergyHT + ach + abo + accise + cta) * tva;
+  const ref   = grid.electricity[seg];
+  const taxes = grid.electricity.taxes || {};
+  const tva   = 1 + (taxes.tva_pct || 20) / 100;
 
-  const clientTTC = bill.total_ttc_annual;
-  if (!clientTTC) return fallbackSavings(null, avgPct, seg);
+  if (!ref || !consumptionMwh) return fallbackSavings(clientTTC, avgPct, seg);
 
-  return buildResult(clientTTC, elgaTTC, avgPct, seg);
+  // ── Prix moyen pondéré ELGA (fourniture + CEE + capa) ───────────────────
+  let elgaEnergyMwh;
+  if (seg === 'c4_lu' && ref.pte) {
+    elgaEnergyMwh = ref.pte * 0.05 + ref.hph * 0.25 + ref.hch * 0.15 + ref.hpb * 0.30 + ref.hcb * 0.25;
+  } else {
+    elgaEnergyMwh = (ref.hph || ref.hpb || 0) * 0.55 + (ref.hch || ref.hcb || 0) * 0.45;
+  }
+  elgaEnergyMwh += (ref.cee || 0) + (ref.capa || 0);
+
+  // ── Prix moyen extrait de la facture client ─────────────────────────────
+  // L'acheminement (TURPE) est réglementé : il est identique chez tous les fournisseurs.
+  // Les économies portent uniquement sur la fourniture (énergie + CEE + capa).
+  // On reconstitue le coût énergie client = total HT - acheminement - taxes - abo
+  let clientEnergyMwh = null;
+
+  // Méthode 1 : prix unitaires extraits directement
+  const hp  = bill.price_hph_mwh || bill.price_hpb_mwh;
+  const hc  = bill.price_hch_mwh || bill.price_hcb_mwh;
+  const bas = bill.price_base_mwh;
+
+  if (bas && bas > 30) {
+    clientEnergyMwh = bas;
+  } else if (hp && hc && hp > 30 && hc > 15) {
+    clientEnergyMwh = hp * 0.55 + hc * 0.45;
+  } else if (hp && hp > 30) {
+    clientEnergyMwh = hp;
+  }
+
+  // Méthode 2 : reconstitution depuis le total HT de la facture
+  if (!clientEnergyMwh && bill.total_ht_annual) {
+    const ach  = bill.acheminement_annual_ht || (ref.acheminement_annual || 0);
+    const taxH = bill.taxes_annual_ht        || consumptionMwh * (taxes.accise_mwh || 20.5);
+    const aboH = (bill.subscription_monthly_ht || ref.abo_monthly || 0) * 12;
+    const energyHT = bill.total_ht_annual - ach - taxH - aboH;
+    if (energyHT > 0 && consumptionMwh > 0) {
+      clientEnergyMwh = energyHT / consumptionMwh;
+    }
+  }
+
+  // ── Calcul de l'économie ─────────────────────────────────────────────────
+  if (clientEnergyMwh && clientEnergyMwh > elgaEnergyMwh && clientEnergyMwh > 20) {
+    // Elga est moins cher sur l'énergie → calcul précis
+    const savingsHT  = (clientEnergyMwh - elgaEnergyMwh) * consumptionMwh;
+    const savingsTTC = savingsHT * tva;
+    const pct        = (savingsTTC / clientTTC) * 100;
+    if (pct >= 1 && pct <= 50) {
+      return makeResult(clientTTC, savingsTTC, pct, seg, false);
+    }
+  }
+
+  // Sinon : le client est peut-être déjà sur un bon prix de marché
+  // → économies estimées plus conservatrices (abonnement, CEE, gestion)
+  if (clientEnergyMwh && clientEnergyMwh <= elgaEnergyMwh) {
+    // Client déjà compétitif → estimation conservatrice 5–8%
+    const conservativePct = Math.min(avgPct * 0.45, 8);
+    return fallbackSavings(clientTTC, Math.round(conservativePct), seg);
+  }
+
+  return fallbackSavings(clientTTC, avgPct, seg);
+}
+
+function makeResult(clientTTC, savingsTTC, pct, segment, isEstimate) {
+  return {
+    client_total_annual: Math.round(clientTTC),
+    elga_total_annual:   Math.round(clientTTC - savingsTTC),
+    savings_annual:      Math.round(savingsTTC),
+    savings_pct:         Math.round(pct),
+    segment,
+    is_estimate:         isEstimate,
+  };
 }
 
 function fallbackSavings(clientTTC, avgPct, segment) {
@@ -276,25 +328,9 @@ function fallbackSavings(clientTTC, avgPct, segment) {
     client_total_annual: Math.round(clientTTC),
     elga_total_annual:   Math.round(clientTTC - savings),
     savings_annual:      savings,
-    savings_pct:         avgPct,
+    savings_pct:         Math.round(avgPct),
     segment,
-    is_estimate:         true
-  };
-}
-
-function buildResult(clientTTC, elgaTTC, avgPct, segment) {
-  const rawSavings = clientTTC - elgaTTC;
-  const rawPct     = (rawSavings / clientTTC) * 100;
-  // Si Elga est moins cher : utilise le calcul. Sinon, applique le % moyen (cas edge).
-  const savings = rawPct > 2 ? rawSavings : clientTTC * avgPct / 100;
-  const pct     = rawPct > 2 ? rawPct     : avgPct;
-  return {
-    client_total_annual: Math.round(clientTTC),
-    elga_total_annual:   Math.round(clientTTC - savings),
-    savings_annual:      Math.round(savings),
-    savings_pct:         Math.round(pct),
-    segment,
-    is_estimate:         rawPct <= 2
+    is_estimate:         true,
   };
 }
 
