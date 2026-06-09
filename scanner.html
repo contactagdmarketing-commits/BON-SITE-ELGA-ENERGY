@@ -642,22 +642,27 @@
       document.getElementById('estimateDisclaimer').textContent = 'Données insuffisantes pour un calcul précis — un conseiller vous contacte avec votre bilan';
     }
 
-    // Price details
-    if (e.price_kwh_hp) {
+    // Price details — champs nouveaux (€/MWh) avec fallback anciens (€/kWh)
+    const hph = e.price_hph_mwh || (e.price_kwh_hp ? e.price_kwh_hp * 1000 : null);
+    const hch = e.price_hch_mwh || (e.price_kwh_hc ? e.price_kwh_hc * 1000 : null);
+    const bas = e.price_base_mwh || (e.price_kwh_base ? e.price_kwh_base * 1000 : null);
+    const consoMwh = e.annual_consumption_mwh || (e.annual_consumption_kwh ? e.annual_consumption_kwh / 1000 : null);
+
+    if (hph) {
       document.getElementById('resultPriceHp').classList.remove('hidden');
-      document.getElementById('valPriceHp').textContent = (e.price_kwh_hp * 100).toFixed(2) + ' c€/kWh HT';
+      document.getElementById('valPriceHp').textContent = hph.toFixed(2) + ' €/MWh HT';
     }
-    if (e.price_kwh_hc) {
+    if (hch) {
       document.getElementById('resultPriceHc').classList.remove('hidden');
-      document.getElementById('valPriceHc').textContent = (e.price_kwh_hc * 100).toFixed(2) + ' c€/kWh HT';
+      document.getElementById('valPriceHc').textContent = hch.toFixed(2) + ' €/MWh HT';
     }
-    if (e.price_kwh_base && !e.price_kwh_hp) {
+    if (bas && !hph) {
       document.getElementById('resultPriceBase').classList.remove('hidden');
-      document.getElementById('valPriceBase').textContent = (e.price_kwh_base * 100).toFixed(2) + ' c€/kWh HT';
+      document.getElementById('valPriceBase').textContent = bas.toFixed(2) + ' €/MWh HT';
     }
-    if (e.annual_consumption_kwh) {
+    if (consoMwh) {
       document.getElementById('resultConso').classList.remove('hidden');
-      document.getElementById('valConso').textContent = formatNumber(e.annual_consumption_kwh) + ' kWh/an';
+      document.getElementById('valConso').textContent = consoMwh >= 1 ? formatNumber(Math.round(consoMwh)) + ' MWh/an' : formatNumber(Math.round(consoMwh * 1000)) + ' kWh/an';
     }
 
     // Details panel
@@ -665,11 +670,11 @@
     const fields = [
       { label: 'Fournisseur', value: e.supplier },
       { label: 'Type d\'énergie', value: e.energy_type === 'gas' ? 'Gaz' : e.energy_type === 'both' ? 'Élec. + Gaz' : 'Électricité' },
-      { label: 'Contrat', value: e.contract_type },
+      { label: 'Segment tarifaire', value: e.segment || e.contract_type },
       { label: 'Puissance souscrite', value: e.power_kva ? e.power_kva + ' kVA' : null },
-      { label: 'Conso. annuelle', value: e.annual_consumption_kwh ? formatNumber(e.annual_consumption_kwh) + ' kWh' : null },
-      { label: 'Abonnement annuel HT', value: e.subscription_annual_ht ? formatEuro(e.subscription_annual_ht) : null },
-      { label: 'Fiabilité analyse', value: e.confidence === 'high' ? 'Élevée' : e.confidence === 'medium' ? 'Moyenne' : 'Limitée' },
+      { label: 'Conso. annuelle', value: consoMwh ? (consoMwh >= 1 ? formatNumber(Math.round(consoMwh)) + ' MWh' : formatNumber(Math.round(consoMwh * 1000)) + ' kWh') : null },
+      { label: 'Abonnement', value: e.subscription_monthly_ht ? formatEuro(e.subscription_monthly_ht) + '/mois HT' : (e.subscription_annual_ht ? formatEuro(e.subscription_annual_ht) + '/an HT' : null) },
+      { label: 'Fiabilité analyse', value: e.confidence === 'high' ? '✅ Élevée' : e.confidence === 'medium' ? '⚠️ Moyenne' : '⚡ Estimée' },
     ];
     details.innerHTML = fields.filter(f => f.value).map(f =>
       `<div class="space-y-0.5">
