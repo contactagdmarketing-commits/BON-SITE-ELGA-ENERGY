@@ -2,6 +2,7 @@ name = "elga-scanner"
 main = "worker.js"
 compatibility_date = "2025-01-01"
 compatibility_flags = ["nodejs_compat"]
+workers_dev = true
 
 [[kv_namespaces]]
 binding = "ELGA_KV"
