@@ -6,20 +6,15 @@
   <title>Admin — Grille de prix | Elga Energy</title>
   <meta name="robots" content="noindex, nofollow" />
   <link rel="icon" href="/assets/logos/elga-energy-logo.svg" type="image/svg+xml" sizes="any" />
-
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
       theme: {
         extend: {
           colors: {
-            primary: {
-              50:'#ecfdf5',100:'#d1fae5',200:'#a7f3d0',500:'#10b981',
-              600:'#0e8a57',700:'#0b6c45'
-            },
+            primary: { 50:'#ecfdf5',100:'#d1fae5',200:'#a7f3d0',400:'#34d399',500:'#10b981',600:'#0e8a57',700:'#0b6c45' },
             secondary: { 600:'#0b3d91', 700:'#0a357e' }
-          },
-          container: { center: true, padding: '1rem' }
+          }
         }
       }
     }
@@ -31,572 +26,613 @@
     input[type=number]{-moz-appearance:textfield}
     input[type=number]::-webkit-outer-spin-button,
     input[type=number]::-webkit-inner-spin-button{-webkit-appearance:none;margin:0}
+    .tab-btn.active{background:#10b981;color:#fff;border-color:#10b981}
+    .tab-panel{display:none}
+    .tab-panel.active{display:block}
+    .field-group{display:grid;gap:.5rem}
+    .inp{width:100%;padding:.4rem .6rem;border:1px solid #e2e8f0;border-radius:.5rem;font-size:.85rem;text-align:right;background:#fff}
+    .inp:focus{outline:none;border-color:#10b981;ring:2px #10b981}
+    .seg-title{font-weight:700;font-size:.95rem;color:#0b3d91;border-left:3px solid #10b981;padding-left:.6rem;margin-bottom:.75rem}
+    .col-label{font-size:.7rem;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.04em;text-align:right;padding-right:.25rem}
+    .row-label{font-size:.78rem;font-weight:600;color:#374151;padding-top:.45rem}
+    .unit{font-size:.65rem;color:#94a3b8;display:block;text-align:right}
   </style>
 </head>
 <body class="antialiased text-slate-800 bg-slate-100 min-h-screen">
 
-<!-- ░░ CONFIGURATION ░░ -->
-<script>
-  window.ELGA_WORKER_URL = 'https://elga-scanner.edhy-delaprez.workers.dev';
-</script>
+<script>window.ELGA_WORKER_URL = 'https://elga-scanner.edhy-delaprez.workers.dev';</script>
 
-<!-- ─── Écran de connexion ────────────────────────────────────────────────── -->
+<!-- ─── Login ─────────────────────────────────────────────────────────────── -->
 <div id="loginScreen" class="min-h-screen flex items-center justify-center p-4">
   <div class="w-full max-w-sm bg-white rounded-2xl shadow-soft p-8 space-y-6">
     <div class="text-center">
       <img src="/assets/logos/elga-energy-logo.svg" alt="Elga Energy" class="h-10 w-auto mx-auto mb-4" onerror="this.remove()">
-      <h1 class="text-xl font-bold text-slate-800">Espace administration</h1>
+      <h1 class="text-xl font-bold">Espace administration</h1>
       <p class="text-sm text-slate-500 mt-1">Gestion de la grille de prix scanner</p>
     </div>
-
-    <div id="loginError" class="hidden rounded-xl bg-red-50 border border-red-200 p-3 text-sm text-red-700 text-center"></div>
-
-    <form id="loginForm" class="space-y-4">
+    <div class="space-y-4">
       <div>
-        <label class="block text-sm font-semibold text-slate-700 mb-1.5">Mot de passe admin</label>
-        <input type="password" id="loginPassword" required placeholder="••••••••"
-          class="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" />
+        <label class="block text-sm font-medium text-slate-700 mb-1">Mot de passe</label>
+        <input id="loginPassword" type="password" class="w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 text-sm" placeholder="••••••••••" />
       </div>
-      <button type="submit" id="loginBtn"
-        class="w-full py-3 rounded-xl bg-secondary-600 text-white font-semibold hover:bg-secondary-700 transition-colors focus:outline-none focus:ring-2 focus:ring-secondary-600">
+      <div id="loginError" class="hidden text-sm text-red-600 bg-red-50 px-3 py-2 rounded-lg"></div>
+      <button id="btnLogin" class="w-full bg-primary-500 hover:bg-primary-600 text-white font-semibold py-3 px-4 rounded-xl transition-colors text-sm">
         Se connecter
       </button>
-    </form>
+    </div>
   </div>
 </div>
 
-<!-- ─── Interface admin ───────────────────────────────────────────────────── -->
-<div id="adminScreen" class="hidden fade-in">
+<!-- ─── Admin Panel ────────────────────────────────────────────────────────── -->
+<div id="adminPanel" class="hidden min-h-screen">
 
-  <!-- Header admin -->
-  <header class="bg-secondary-600 text-white px-6 py-4 flex items-center justify-between shadow-soft">
-    <div class="flex items-center gap-3">
-      <img src="/assets/logos/elga-energy-logo.svg" alt="" class="h-8 w-auto" onerror="this.remove()">
-      <div>
-        <p class="font-bold">Administration — Scanner Elga</p>
-        <p class="text-xs text-white/70">Grille de prix de référence</p>
+  <!-- Header -->
+  <header class="bg-white border-b border-slate-200 sticky top-0 z-30">
+    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+      <div class="flex items-center gap-3">
+        <img src="/assets/logos/elga-energy-logo.svg" alt="Elga Energy" class="h-7 w-auto" onerror="this.remove()">
+        <span class="font-bold text-slate-800">Admin — Grille de prix</span>
+        <span id="lastUpdated" class="text-xs text-slate-400 hidden"></span>
       </div>
-    </div>
-    <div class="flex items-center gap-4">
-      <span id="lastUpdated" class="text-xs text-white/60"></span>
-      <a href="/" class="text-sm text-white/80 hover:text-white transition-colors">← Site</a>
-      <button id="btnLogout" class="text-sm text-white/80 hover:text-white transition-colors">Déconnexion</button>
+      <div class="flex items-center gap-3">
+        <button id="btnSave" class="bg-primary-500 hover:bg-primary-600 text-white text-sm font-semibold px-5 py-2 rounded-xl transition-colors">
+          💾 Enregistrer
+        </button>
+        <button id="btnLogout" class="text-sm text-slate-500 hover:text-slate-800 px-3 py-2 rounded-lg hover:bg-slate-100 transition-colors">
+          Déconnexion
+        </button>
+      </div>
     </div>
   </header>
 
-  <main class="container max-w-4xl py-10 space-y-8">
+  <!-- Status banner -->
+  <div class="max-w-6xl mx-auto px-4 pt-4">
+    <div id="statusBanner" class="hidden rounded-xl p-4 text-sm font-medium flex items-center gap-3 mb-4"></div>
+  </div>
 
-    <!-- Bandeau statut -->
-    <div id="statusBanner" class="hidden rounded-xl p-4 text-sm font-medium flex items-center gap-3"></div>
+  <!-- Tabs -->
+  <div class="max-w-6xl mx-auto px-4 pb-2">
+    <div class="flex gap-2 flex-wrap">
+      <button class="tab-btn active px-4 py-2 rounded-lg border border-slate-200 text-sm font-semibold transition-all" data-tab="elec">⚡ Électricité</button>
+      <button class="tab-btn px-4 py-2 rounded-lg border border-slate-200 text-sm font-semibold transition-all bg-white text-slate-700" data-tab="gaz">🔥 Gaz</button>
+      <button class="tab-btn px-4 py-2 rounded-lg border border-slate-200 text-sm font-semibold transition-all bg-white text-slate-700" data-tab="import">📥 Import bilan</button>
+      <button class="tab-btn px-4 py-2 rounded-lg border border-slate-200 text-sm font-semibold transition-all bg-white text-slate-700" data-tab="json">👁 JSON</button>
+    </div>
+  </div>
 
-    <!-- ── Électricité ──────────────────────────────────────────────────── -->
-    <section class="bg-white rounded-2xl shadow-soft overflow-hidden">
-      <div class="px-6 py-4 border-b border-slate-100 flex items-center gap-3">
-        <div class="size-9 rounded-xl bg-yellow-100 flex items-center justify-center text-lg">⚡</div>
-        <div>
-          <h2 class="font-bold text-slate-800">Électricité — Prix de référence Elga</h2>
-          <p class="text-xs text-slate-500">Ces prix sont utilisés pour calculer les économies potentielles lors d'un scan</p>
+  <main class="max-w-6xl mx-auto px-4 pb-12 space-y-6 mt-4">
+
+    <!-- ══════════════════════════════════════════════════════════════════════ -->
+    <!-- TAB: ÉLECTRICITÉ -->
+    <!-- ══════════════════════════════════════════════════════════════════════ -->
+    <div id="tab-elec" class="tab-panel active space-y-6">
+
+      <!-- Note pédagogique -->
+      <div class="bg-blue-50 border border-blue-200 rounded-xl p-4 text-sm text-blue-800">
+        <strong>ℹ️ Rappel :</strong> Tous les prix énergie sont en <strong>€/MWh</strong>. Le mécanisme de capacité et les CEE sont des colonnes séparées, facturées en plus du prix énergie.
+        L'acheminement (TURPE) est en €/an et varie selon la puissance souscrite.
+      </div>
+
+      <!-- ── C4-LU ───────────────────────────────────────────────────────── -->
+      <div class="bg-white rounded-2xl shadow-soft p-6">
+        <div class="seg-title">C4 — Longue Utilisation (36–250 kVA, 5 plages tarifaires)</div>
+        <p class="text-xs text-slate-500 mb-4">Sites industriels/agricoles avec forte utilisation. Options : Pointe · HPH · HCH · HPB · HCB</p>
+
+        <!-- Header colonnes -->
+        <div class="grid grid-cols-7 gap-2 mb-1 pl-[7rem]">
+          <div class="col-label">Pte</div>
+          <div class="col-label">HPH</div>
+          <div class="col-label">HCH</div>
+          <div class="col-label">HPB</div>
+          <div class="col-label">HCB</div>
+          <div class="col-label">CEE</div>
+          <div class="col-label">Méca Capa</div>
+        </div>
+
+        <!-- Ligne Prix énergie -->
+        <div class="grid grid-cols-[7rem_1fr_1fr_1fr_1fr_1fr_1fr_1fr] gap-2 items-center mb-2">
+          <div class="row-label">Prix énergie<span class="unit">€/MWh</span></div>
+          <input class="inp" id="c4lu_pte" type="number" step="0.01" value="121.00" />
+          <input class="inp" id="c4lu_hph" type="number" step="0.01" value="121.00" />
+          <input class="inp" id="c4lu_hch" type="number" step="0.01" value="86.00" />
+          <input class="inp" id="c4lu_hpb" type="number" step="0.01" value="57.00" />
+          <input class="inp" id="c4lu_hcb" type="number" step="0.01" value="45.00" />
+          <input class="inp" id="c4lu_cee" type="number" step="0.01" value="11.00" />
+          <input class="inp" id="c4lu_capa" type="number" step="0.01" value="0.66" />
+        </div>
+
+        <!-- Ligne Acheminement + Abo -->
+        <div class="grid grid-cols-2 gap-4 mt-4 pt-4 border-t border-slate-100">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Acheminement TURPE <span class="font-normal text-slate-400">(€/an — selon puissance souscrite)</span></label>
+            <input class="inp text-left" id="c4lu_ach" type="number" step="1" value="4610" placeholder="4610" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Abonnement fournisseur <span class="font-normal text-slate-400">(€/mois)</span></label>
+            <input class="inp text-left" id="c4lu_abo" type="number" step="0.01" value="0" placeholder="0" />
+          </div>
         </div>
       </div>
 
-      <div class="p-6 space-y-6">
+      <!-- ── C5-MU4 ──────────────────────────────────────────────────────── -->
+      <div class="bg-white rounded-2xl shadow-soft p-6">
+        <div class="seg-title">C5-MU4 — Moyenne Utilisation (≤36 kVA, 4 plages)</div>
+        <p class="text-xs text-slate-500 mb-4">Restaurant, hôtel, commerce, exploitation agricole. Options : HPH · HCH · HPB · HCB</p>
 
-        <!-- C2 — Petit -->
-        <div class="rounded-xl border border-slate-200 p-5 space-y-4">
-          <div class="flex items-center gap-2">
-            <span class="px-2.5 py-0.5 bg-green-100 text-green-700 rounded-full text-xs font-semibold">C2</span>
-            <h3 class="font-semibold text-slate-700">Petit professionnel</h3>
-            <span class="text-xs text-slate-400">≤ 36 kVA</span>
-          </div>
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div>
-              <label class="block text-xs font-semibold text-slate-500 mb-1">Prix HP (€HT/kWh)</label>
-              <input type="number" id="elec_c2_hp" step="0.0001" min="0" max="1" placeholder="0.1450"
-                class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary-400" />
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-slate-500 mb-1">Prix HC (€HT/kWh)</label>
-              <input type="number" id="elec_c2_hc" step="0.0001" min="0" max="1" placeholder="0.0950"
-                class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary-400" />
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-slate-500 mb-1">Prix Base (€HT/kWh)</label>
-              <input type="number" id="elec_c2_base" step="0.0001" min="0" max="1" placeholder="0.1350"
-                class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary-400" />
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-slate-500 mb-1">Abonnement (€/mois)</label>
-              <input type="number" id="elec_c2_sub" step="1" min="0" placeholder="35"
-                class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary-400" />
-            </div>
-          </div>
+        <div class="grid grid-cols-6 gap-2 mb-1 pl-[7rem]">
+          <div class="col-label">HPH</div>
+          <div class="col-label">HCH</div>
+          <div class="col-label">HPB</div>
+          <div class="col-label">HCB</div>
+          <div class="col-label">CEE</div>
+          <div class="col-label">Méca Capa</div>
         </div>
-
-        <!-- C3 — Moyen -->
-        <div class="rounded-xl border border-slate-200 p-5 space-y-4">
-          <div class="flex items-center gap-2">
-            <span class="px-2.5 py-0.5 bg-blue-100 text-blue-700 rounded-full text-xs font-semibold">C3</span>
-            <h3 class="font-semibold text-slate-700">Moyen professionnel</h3>
-            <span class="text-xs text-slate-400">36 – 250 kVA</span>
-          </div>
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div>
-              <label class="block text-xs font-semibold text-slate-500 mb-1">Prix HP (€HT/kWh)</label>
-              <input type="number" id="elec_c3_hp" step="0.0001" min="0" max="1" placeholder="0.1380"
-                class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary-400" />
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-slate-500 mb-1">Prix HC (€HT/kWh)</label>
-              <input type="number" id="elec_c3_hc" step="0.0001" min="0" max="1" placeholder="0.0890"
-                class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary-400" />
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-slate-500 mb-1">Prix Base (€HT/kWh)</label>
-              <input type="number" id="elec_c3_base" step="0.0001" min="0" max="1" placeholder="0.1280"
-                class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary-400" />
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-slate-500 mb-1">Abonnement (€/mois)</label>
-              <input type="number" id="elec_c3_sub" step="1" min="0" placeholder="55"
-                class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary-400" />
-            </div>
-          </div>
+        <div class="grid grid-cols-[7rem_1fr_1fr_1fr_1fr_1fr_1fr] gap-2 items-center mb-2">
+          <div class="row-label">Prix énergie<span class="unit">€/MWh</span></div>
+          <input class="inp" id="c5mu4_hph" type="number" step="0.01" value="87.00" />
+          <input class="inp" id="c5mu4_hch" type="number" step="0.01" value="74.00" />
+          <input class="inp" id="c5mu4_hpb" type="number" step="0.01" value="87.00" />
+          <input class="inp" id="c5mu4_hcb" type="number" step="0.01" value="74.00" />
+          <input class="inp" id="c5mu4_cee" type="number" step="0.01" value="11.15" />
+          <input class="inp" id="c5mu4_capa" type="number" step="0.01" value="0.66" />
         </div>
-
-        <!-- C4 — Grand -->
-        <div class="rounded-xl border border-slate-200 p-5 space-y-4">
-          <div class="flex items-center gap-2">
-            <span class="px-2.5 py-0.5 bg-purple-100 text-purple-700 rounded-full text-xs font-semibold">C4</span>
-            <h3 class="font-semibold text-slate-700">Grand compte</h3>
-            <span class="text-xs text-slate-400">250 kVA – 1 000 kVA</span>
+        <div class="grid grid-cols-2 gap-4 mt-4 pt-4 border-t border-slate-100">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Acheminement TURPE <span class="font-normal text-slate-400">(€/an)</span></label>
+            <input class="inp text-left" id="c5mu4_ach" type="number" step="1" value="1320" />
           </div>
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div>
-              <label class="block text-xs font-semibold text-slate-500 mb-1">Prix HP (€HT/kWh)</label>
-              <input type="number" id="elec_c4_hp" step="0.0001" min="0" max="1" placeholder="0.1320"
-                class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary-400" />
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-slate-500 mb-1">Prix HC (€HT/kWh)</label>
-              <input type="number" id="elec_c4_hc" step="0.0001" min="0" max="1" placeholder="0.0840"
-                class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary-400" />
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-slate-500 mb-1">Prix Base (€HT/kWh)</label>
-              <input type="number" id="elec_c4_base" step="0.0001" min="0" max="1" placeholder="0.1200"
-                class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary-400" />
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-slate-500 mb-1">Abonnement (€/mois)</label>
-              <input type="number" id="elec_c4_sub" step="1" min="0" placeholder="90"
-                class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary-400" />
-            </div>
-          </div>
-        </div>
-
-        <!-- C5 — Industriel -->
-        <div class="rounded-xl border border-slate-200 p-5 space-y-4">
-          <div class="flex items-center gap-2">
-            <span class="px-2.5 py-0.5 bg-rose-100 text-rose-700 rounded-full text-xs font-semibold">C5</span>
-            <h3 class="font-semibold text-slate-700">Industriel / Grand site</h3>
-            <span class="text-xs text-slate-400">&gt; 1 000 kVA — HTA</span>
-          </div>
-          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div>
-              <label class="block text-xs font-semibold text-slate-500 mb-1">Prix HP (€HT/kWh)</label>
-              <input type="number" id="elec_c5_hp" step="0.0001" min="0" max="1" placeholder="0.1180"
-                class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary-400" />
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-slate-500 mb-1">Prix HC (€HT/kWh)</label>
-              <input type="number" id="elec_c5_hc" step="0.0001" min="0" max="1" placeholder="0.0750"
-                class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary-400" />
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-slate-500 mb-1">Prix Base (€HT/kWh)</label>
-              <input type="number" id="elec_c5_base" step="0.0001" min="0" max="1" placeholder="0.1100"
-                class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary-400" />
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-slate-500 mb-1">Abonnement (€/mois)</label>
-              <input type="number" id="elec_c5_sub" step="1" min="0" placeholder="180"
-                class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary-400" />
-            </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Abonnement fournisseur <span class="font-normal text-slate-400">(€/mois)</span></label>
+            <input class="inp text-left" id="c5mu4_abo" type="number" step="0.01" value="10.00" />
           </div>
         </div>
       </div>
-    </section>
 
-    <!-- ── Gaz ──────────────────────────────────────────────────────────── -->
-    <section class="bg-white rounded-2xl shadow-soft overflow-hidden">
-      <div class="px-6 py-4 border-b border-slate-100 flex items-center gap-3">
-        <div class="size-9 rounded-xl bg-orange-100 flex items-center justify-center text-lg">🔥</div>
-        <div>
-          <h2 class="font-bold text-slate-800">Gaz — Prix de référence Elga</h2>
-          <p class="text-xs text-slate-500">Prix en €HT/kWh PCS</p>
+      <!-- ── C5-CU4 ──────────────────────────────────────────────────────── -->
+      <div class="bg-white rounded-2xl shadow-soft p-6">
+        <div class="seg-title">C5-CU4 — Courte Utilisation (≤36 kVA, 4 plages)</div>
+        <p class="text-xs text-slate-500 mb-4">Usage saisonnier, pompage, petit site industriel. Options : HPH · HCH · HPB · HCB</p>
+
+        <div class="grid grid-cols-6 gap-2 mb-1 pl-[7rem]">
+          <div class="col-label">HPH</div><div class="col-label">HCH</div>
+          <div class="col-label">HPB</div><div class="col-label">HCB</div>
+          <div class="col-label">CEE</div><div class="col-label">Méca Capa</div>
         </div>
-      </div>
-
-      <div class="p-6 space-y-4">
-        <!-- T2 -->
-        <div class="rounded-xl border border-slate-200 p-5 space-y-4">
-          <div class="flex items-center gap-2">
-            <span class="px-2.5 py-0.5 bg-orange-100 text-orange-700 rounded-full text-xs font-semibold">T2</span>
-            <h3 class="font-semibold text-slate-700">Petite conso gaz</h3>
-            <span class="text-xs text-slate-400">&lt; 300 MWh/an</span>
-          </div>
-          <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-            <div>
-              <label class="block text-xs font-semibold text-slate-500 mb-1">Prix (€HT/kWh)</label>
-              <input type="number" id="gas_t2_kwh" step="0.0001" min="0" max="1" placeholder="0.0850"
-                class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary-400" />
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-slate-500 mb-1">Abonnement (€/mois)</label>
-              <input type="number" id="gas_t2_sub" step="1" min="0" placeholder="45"
-                class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary-400" />
-            </div>
-          </div>
+        <div class="grid grid-cols-[7rem_1fr_1fr_1fr_1fr_1fr_1fr] gap-2 items-center mb-2">
+          <div class="row-label">Prix énergie<span class="unit">€/MWh</span></div>
+          <input class="inp" id="c5cu4_hph" type="number" step="0.01" value="84.00" />
+          <input class="inp" id="c5cu4_hch" type="number" step="0.01" value="84.00" />
+          <input class="inp" id="c5cu4_hpb" type="number" step="0.01" value="84.00" />
+          <input class="inp" id="c5cu4_hcb" type="number" step="0.01" value="84.00" />
+          <input class="inp" id="c5cu4_cee" type="number" step="0.01" value="11.00" />
+          <input class="inp" id="c5cu4_capa" type="number" step="0.01" value="0.66" />
         </div>
-
-        <!-- T3 -->
-        <div class="rounded-xl border border-slate-200 p-5 space-y-4">
-          <div class="flex items-center gap-2">
-            <span class="px-2.5 py-0.5 bg-red-100 text-red-700 rounded-full text-xs font-semibold">T3</span>
-            <h3 class="font-semibold text-slate-700">Moyenne conso gaz</h3>
-            <span class="text-xs text-slate-400">300 – 5 000 MWh/an</span>
+        <div class="grid grid-cols-2 gap-4 mt-4 pt-4 border-t border-slate-100">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Acheminement TURPE <span class="font-normal text-slate-400">(€/an)</span></label>
+            <input class="inp text-left" id="c5cu4_ach" type="number" step="1" value="1707" />
           </div>
-          <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-            <div>
-              <label class="block text-xs font-semibold text-slate-500 mb-1">Prix (€HT/kWh)</label>
-              <input type="number" id="gas_t3_kwh" step="0.0001" min="0" max="1" placeholder="0.0780"
-                class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary-400" />
-            </div>
-            <div>
-              <label class="block text-xs font-semibold text-slate-500 mb-1">Abonnement (€/mois)</label>
-              <input type="number" id="gas_t3_sub" step="1" min="0" placeholder="75"
-                class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary-400" />
-            </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Abonnement fournisseur <span class="font-normal text-slate-400">(€/mois)</span></label>
+            <input class="inp text-left" id="c5cu4_abo" type="number" step="0.01" value="15.00" />
           </div>
         </div>
       </div>
-    </section>
 
-    <!-- ── Paramètre global ─────────────────────────────────────────────── -->
-    <section class="bg-white rounded-2xl shadow-soft p-6">
-      <h2 class="font-bold text-slate-800 mb-4">Paramètre global</h2>
-      <div class="max-w-sm space-y-2">
-        <label class="block text-xs font-semibold text-slate-500 mb-1">
-          % d'économies moyen constaté (utilisé comme valeur de repli)
-        </label>
-        <div class="flex items-center gap-3">
-          <input type="number" id="avgSavingsPct" step="1" min="1" max="50" placeholder="22"
-            class="w-32 rounded-lg border border-slate-200 px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary-400" />
-          <span class="text-sm text-slate-500">% par an</span>
+      <!-- ── C5-HTA ──────────────────────────────────────────────────────── -->
+      <div class="bg-white rounded-2xl shadow-soft p-6">
+        <div class="seg-title">C5-HTA — Grand site / Industriel (>36 kVA, HTB/HTA)</div>
+        <p class="text-xs text-slate-500 mb-4">Grandes puissances, raccordement HTA. Options : HPH · HCH · HPB · HCB</p>
+
+        <div class="grid grid-cols-6 gap-2 mb-1 pl-[7rem]">
+          <div class="col-label">HPH</div><div class="col-label">HCH</div>
+          <div class="col-label">HPB</div><div class="col-label">HCB</div>
+          <div class="col-label">CEE</div><div class="col-label">Méca Capa</div>
         </div>
-        <p class="text-xs text-slate-400">Affiché quand la facture ne contient pas assez de données pour un calcul précis</p>
-      </div>
-    </section>
-
-    <!-- ── Import bilan comparatif ────────────────────────────────────── -->
-    <section class="bg-white rounded-2xl shadow-soft overflow-hidden">
-      <div class="px-6 py-4 border-b border-slate-100 flex items-center gap-3">
-        <div class="size-9 rounded-xl bg-secondary-600/10 flex items-center justify-center text-lg">📊</div>
-        <div>
-          <h2 class="font-bold text-slate-800">Importer un bilan comparatif</h2>
-          <p class="text-xs text-slate-500">L'IA extrait automatiquement les prix de référence de vos bilans clients</p>
+        <div class="grid grid-cols-[7rem_1fr_1fr_1fr_1fr_1fr_1fr] gap-2 items-center mb-2">
+          <div class="row-label">Prix énergie<span class="unit">€/MWh</span></div>
+          <input class="inp" id="c5hta_hph" type="number" step="0.01" value="82.27" />
+          <input class="inp" id="c5hta_hch" type="number" step="0.01" value="69.38" />
+          <input class="inp" id="c5hta_hpb" type="number" step="0.01" value="82.27" />
+          <input class="inp" id="c5hta_hcb" type="number" step="0.01" value="69.38" />
+          <input class="inp" id="c5hta_cee" type="number" step="0.01" value="11.22" />
+          <input class="inp" id="c5hta_capa" type="number" step="0.01" value="0.66" />
+        </div>
+        <div class="grid grid-cols-2 gap-4 mt-4 pt-4 border-t border-slate-100">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Acheminement TURPE <span class="font-normal text-slate-400">(€/an)</span></label>
+            <input class="inp text-left" id="c5hta_ach" type="number" step="1" value="1530" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Abonnement fournisseur <span class="font-normal text-slate-400">(€/mois)</span></label>
+            <input class="inp text-left" id="c5hta_abo" type="number" step="0.01" value="12.60" />
+          </div>
         </div>
       </div>
-      <div class="p-6 space-y-4">
 
-        <!-- Drop zone bilan -->
+      <!-- ── Taxes communes électricité ─────────────────────────────────── -->
+      <div class="bg-white rounded-2xl shadow-soft p-6">
+        <div class="seg-title">Taxes communes — Électricité</div>
+        <div class="grid grid-cols-3 gap-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Accise (TICFE) <span class="font-normal text-slate-400">€/MWh</span></label>
+            <input class="inp text-left" id="elec_accise" type="number" step="0.01" value="20.50" />
+            <p class="text-xs text-slate-400 mt-1">Variable selon secteur (20,50 standard pro)</p>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">CTA <span class="font-normal text-slate-400">€/an (moyen)</span></label>
+            <input class="inp text-left" id="elec_cta" type="number" step="1" value="50" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">TVA <span class="font-normal text-slate-400">%</span></label>
+            <input class="inp text-left" id="elec_tva" type="number" step="0.1" value="20" />
+          </div>
+        </div>
+      </div>
+    </div><!-- /tab-elec -->
+
+    <!-- ══════════════════════════════════════════════════════════════════════ -->
+    <!-- TAB: GAZ -->
+    <!-- ══════════════════════════════════════════════════════════════════════ -->
+    <div id="tab-gaz" class="tab-panel space-y-6">
+
+      <div class="bg-orange-50 border border-orange-200 rounded-xl p-4 text-sm text-orange-800">
+        <strong>ℹ️ Structure gaz :</strong> Le terme de quantité total = Molécule + CEE + CPB + Acheminement réseau. L'abonnement, la CTA et l'Accise sont facturés séparément.
+      </div>
+
+      <!-- ── T2 — P12 ───────────────────────────────────────────────────── -->
+      <div class="bg-white rounded-2xl shadow-soft p-6">
+        <div class="seg-title">T2 — Profil P12 (≤200 MWh/an)</div>
+        <p class="text-xs text-slate-500 mb-4">Restaurant, café, artisan, PME. Fournisseurs observés : SEFE, ENGIE, Endesa.</p>
+
+        <div class="grid grid-cols-2 gap-x-8 gap-y-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Molécule (prix énergie) <span class="font-normal text-slate-400">€/MWh</span></label>
+            <input class="inp text-left" id="gas_t2_molecule" type="number" step="0.01" value="54.00" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">CEE <span class="font-normal text-slate-400">€/MWh</span></label>
+            <input class="inp text-left" id="gas_t2_cee" type="number" step="0.01" value="12.43" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">CPB (Certificats Production Biogaz) <span class="font-normal text-slate-400">€/MWh</span></label>
+            <input class="inp text-left" id="gas_t2_cpb" type="number" step="0.01" value="0.41" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Acheminement réseau <span class="font-normal text-slate-400">€/MWh</span></label>
+            <input class="inp text-left" id="gas_t2_ach_mwh" type="number" step="0.01" value="12.08" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Abonnement distribution <span class="font-normal text-slate-400">€/mois</span></label>
+            <input class="inp text-left" id="gas_t2_abo" type="number" step="0.01" value="22.06" />
+            <p class="text-xs text-slate-400 mt-1">Varie selon débit (22 à 95 €/mois)</p>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">CTA <span class="font-normal text-slate-400">€/an</span></label>
+            <input class="inp text-left" id="gas_t2_cta" type="number" step="1" value="46" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Accise sur le gaz <span class="font-normal text-slate-400">€/MWh — réglementaire</span></label>
+            <input class="inp text-left" id="gas_t2_accise" type="number" step="0.01" value="16.39" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">TVA <span class="font-normal text-slate-400">%</span></label>
+            <input class="inp text-left" id="gas_t2_tva" type="number" step="0.1" value="20" />
+          </div>
+        </div>
+      </div>
+
+      <!-- ── T3 ─────────────────────────────────────────────────────────── -->
+      <div class="bg-white rounded-2xl shadow-soft p-6">
+        <div class="seg-title">T3 — Profil P12 (200–600 MWh/an)</div>
+        <p class="text-xs text-slate-500 mb-4">Hôtel, clinique, collectivité moyenne consommation.</p>
+
+        <div class="grid grid-cols-2 gap-x-8 gap-y-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Molécule <span class="font-normal text-slate-400">€/MWh</span></label>
+            <input class="inp text-left" id="gas_t3_molecule" type="number" step="0.01" value="52.00" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">CEE <span class="font-normal text-slate-400">€/MWh</span></label>
+            <input class="inp text-left" id="gas_t3_cee" type="number" step="0.01" value="12.00" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">CPB <span class="font-normal text-slate-400">€/MWh</span></label>
+            <input class="inp text-left" id="gas_t3_cpb" type="number" step="0.01" value="0.41" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Acheminement réseau <span class="font-normal text-slate-400">€/MWh</span></label>
+            <input class="inp text-left" id="gas_t3_ach_mwh" type="number" step="0.01" value="9.00" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Abonnement <span class="font-normal text-slate-400">€/mois</span></label>
+            <input class="inp text-left" id="gas_t3_abo" type="number" step="0.01" value="200.00" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">CTA <span class="font-normal text-slate-400">€/an</span></label>
+            <input class="inp text-left" id="gas_t3_cta" type="number" step="1" value="200" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Accise sur le gaz <span class="font-normal text-slate-400">€/MWh</span></label>
+            <input class="inp text-left" id="gas_t3_accise" type="number" step="0.01" value="16.39" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">TVA <span class="font-normal text-slate-400">%</span></label>
+            <input class="inp text-left" id="gas_t3_tva" type="number" step="0.1" value="20" />
+          </div>
+        </div>
+      </div>
+    </div><!-- /tab-gaz -->
+
+    <!-- ══════════════════════════════════════════════════════════════════════ -->
+    <!-- TAB: IMPORT BILAN -->
+    <!-- ══════════════════════════════════════════════════════════════════════ -->
+    <div id="tab-import" class="tab-panel space-y-6">
+      <div class="bg-white rounded-2xl shadow-soft p-6">
+        <div class="seg-title">Importer un bilan comparatif PDF</div>
+        <p class="text-sm text-slate-500 mb-4">Chargez un de vos bilans Elga (PDF ou photo). L'IA extrait les prix et pré-remplit la grille.</p>
+
+        <!-- Drop zone -->
         <div id="bilanDropZone" class="border-2 border-dashed border-slate-200 rounded-xl p-8 text-center cursor-pointer hover:border-primary-400 hover:bg-primary-50 transition-all">
-          <input type="file" id="bilanFileInput" accept=".pdf,image/jpeg,image/png,image/webp" class="sr-only" />
           <div id="bilanDefault">
-            <div class="mx-auto size-12 rounded-xl bg-slate-100 flex items-center justify-center mb-3">
-              <svg class="w-6 h-6 text-slate-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/>
-              </svg>
-            </div>
-            <p class="text-sm font-semibold text-slate-700">Déposez un bilan comparatif ici</p>
-            <p class="text-xs text-slate-400 mt-1">PDF, JPG, PNG — tableau de comparaison fournisseurs</p>
+            <div class="text-3xl mb-3">📄</div>
+            <p class="font-semibold text-slate-700">Glissez votre bilan ici</p>
+            <p class="text-sm text-slate-400 mt-1">ou cliquez pour choisir un fichier</p>
+            <p class="text-xs text-slate-400 mt-2">PDF · JPG · PNG · WEBP — max 15 Mo</p>
           </div>
           <div id="bilanSelected" class="hidden">
-            <p id="bilanFileName" class="text-sm font-semibold text-primary-700 truncate max-w-xs mx-auto"></p>
-            <p class="text-xs text-slate-400 mt-1">Cliquez pour changer de fichier</p>
+            <div class="text-3xl mb-2">✅</div>
+            <p id="bilanFileName" class="font-semibold text-slate-700 text-sm"></p>
+            <p class="text-xs text-slate-400 mt-1">Cliquez sur Analyser pour extraire les prix</p>
           </div>
+          <input id="bilanFileInput" type="file" accept=".pdf,.jpg,.jpeg,.png,.webp" class="hidden" />
         </div>
 
-        <!-- Bouton analyser -->
         <button id="btnAnalyzeBilan" disabled
-          class="w-full py-3 rounded-xl bg-secondary-600 text-white font-semibold hover:bg-secondary-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-secondary-600">
-          Analyser et pré-remplir les prix →
+          class="mt-4 w-full bg-secondary-600 disabled:opacity-40 disabled:cursor-not-allowed hover:bg-secondary-700 text-white text-sm font-semibold py-3 px-4 rounded-xl transition-colors">
+          🤖 Analyser et pré-remplir les prix →
         </button>
 
-        <!-- Résultat extraction -->
-        <div id="bilanResult" class="hidden rounded-xl bg-primary-50 border border-primary-200 p-4 space-y-2">
-          <p class="text-sm font-semibold text-primary-800 flex items-center gap-2">
-            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
-            Prix extraits et pré-remplis dans les champs ci-dessus
-          </p>
-          <p id="bilanNotes" class="text-xs text-primary-700"></p>
-          <p class="text-xs text-slate-500">Vérifiez les valeurs et cliquez sur "Enregistrer" pour les sauvegarder.</p>
+        <div id="bilanError" class="hidden mt-3 text-sm text-red-600 bg-red-50 px-4 py-3 rounded-xl"></div>
+        <div id="bilanResult" class="hidden mt-4 bg-green-50 border border-green-200 rounded-xl p-4">
+          <p class="font-semibold text-green-800 text-sm">✅ Extraction réussie — prix pré-remplis dans la grille</p>
+          <p id="bilanNotes" class="text-xs text-green-700 mt-1"></p>
+          <p class="text-xs text-slate-500 mt-2">Vérifiez les valeurs extraites dans les onglets Électricité et Gaz, puis cliquez sur <strong>Enregistrer</strong>.</p>
         </div>
-
-        <!-- Erreur -->
-        <div id="bilanError" class="hidden rounded-xl bg-red-50 border border-red-200 p-4 text-sm text-red-700"></div>
       </div>
-    </section>
 
-    <!-- ── Boutons action ───────────────────────────────────────────────── -->
-    <div class="flex flex-wrap gap-4">
-      <button id="btnSave"
-        class="flex-1 md:flex-none px-8 py-3.5 rounded-xl bg-primary-600 text-white font-bold hover:bg-primary-700 transition-colors shadow-soft focus:outline-none focus:ring-2 focus:ring-primary-400">
-        Enregistrer la grille de prix
-      </button>
-      <button id="btnLoad"
-        class="flex-1 md:flex-none px-6 py-3.5 rounded-xl bg-white border border-slate-200 text-slate-700 font-semibold hover:bg-slate-50 transition-colors shadow-soft focus:outline-none focus:ring-2 focus:ring-slate-300">
-        Recharger depuis le serveur
-      </button>
-      <a href="/scanner.html" target="_blank"
-        class="flex-1 md:flex-none px-6 py-3.5 rounded-xl bg-white border border-slate-200 text-slate-700 font-semibold hover:bg-slate-50 transition-colors shadow-soft text-center">
-        Tester le scanner →
-      </a>
+      <!-- Paramètres de simulation -->
+      <div class="bg-white rounded-2xl shadow-soft p-6">
+        <div class="seg-title">Paramètres d'affichage scanner</div>
+        <div class="grid grid-cols-2 gap-6">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Économies moyennes affichées <span class="font-normal text-slate-400">%</span></label>
+            <input class="inp text-left" id="avgSavingsPct" type="number" step="1" value="15" min="1" max="50" />
+            <p class="text-xs text-slate-400 mt-1">Valeur affichée sur le scanner si le calcul échoue</p>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Note interne</label>
+            <textarea id="adminNotes" rows="2" class="w-full px-3 py-2 border border-slate-200 rounded-xl text-sm resize-none focus:outline-none focus:ring-2 focus:ring-primary-500" placeholder="Mise à jour du 01/06/2026 — offres Endesa..."></textarea>
+          </div>
+        </div>
+      </div>
+    </div><!-- /tab-import -->
+
+    <!-- ══════════════════════════════════════════════════════════════════════ -->
+    <!-- TAB: JSON -->
+    <!-- ══════════════════════════════════════════════════════════════════════ -->
+    <div id="tab-json" class="tab-panel">
+      <div class="bg-white rounded-2xl shadow-soft p-6">
+        <div class="seg-title">Aperçu JSON (lecture seule)</div>
+        <p class="text-xs text-slate-500 mb-4">Données telles qu'elles seront envoyées au serveur.</p>
+        <pre id="jsonPreview" class="bg-slate-900 text-green-400 text-xs p-4 rounded-xl overflow-auto max-h-[60vh] whitespace-pre-wrap"></pre>
+      </div>
     </div>
 
-    <!-- ── Aperçu JSON ──────────────────────────────────────────────────── -->
-    <section class="bg-white rounded-2xl shadow-soft overflow-hidden">
-      <button id="toggleJson" class="w-full px-6 py-4 flex items-center justify-between text-sm font-semibold text-slate-600 hover:bg-slate-50 transition-colors">
-        <span>Voir le JSON envoyé au serveur</span>
-        <svg id="jsonChevron" class="w-4 h-4 transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
-      </button>
-      <div id="jsonPanel" class="hidden border-t border-slate-100 p-6">
-        <pre id="jsonPreview" class="text-xs font-mono text-slate-600 bg-slate-50 rounded-xl p-4 overflow-auto max-h-96 whitespace-pre-wrap"></pre>
-      </div>
-    </section>
-
   </main>
-</div>
+</div><!-- /adminPanel -->
 
-<!-- ─── JavaScript ─────────────────────────────────────────────────────────── -->
 <script>
-(function () {
-  'use strict';
-
+(function() {
   const WORKER_URL = window.ELGA_WORKER_URL;
-  let adminToken = null;
+  let adminToken = '';
 
-  // ── Login ─────────────────────────────────────────────────────────────────
-  document.getElementById('loginForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const password = document.getElementById('loginPassword').value.trim();
-    const btn = document.getElementById('loginBtn');
-    const errEl = document.getElementById('loginError');
+  // ── Login ──────────────────────────────────────────────────────────────────
+  const loginScreen = document.getElementById('loginScreen');
+  const adminPanel  = document.getElementById('adminPanel');
+  const loginError  = document.getElementById('loginError');
 
-    btn.disabled = true;
-    btn.textContent = 'Vérification…';
-    errEl.classList.add('hidden');
+  document.getElementById('loginPassword').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('btnLogin').click(); });
 
-    // Vérifie le token en tentant de sauvegarder les prix actuels (lecture seule via GET)
+  document.getElementById('btnLogin').addEventListener('click', async () => {
+    const pw = document.getElementById('loginPassword').value.trim();
+    if (!pw) return;
+    const btn = document.getElementById('btnLogin');
+    btn.disabled = true; btn.textContent = 'Vérification…';
+    loginError.classList.add('hidden');
+
     try {
-      // On tente un GET pour charger les prix (ne nécessite pas d'auth)
-      // Puis on stocke le token et on vérifie au premier save
-      const res = await fetch(WORKER_URL + '/api/prices');
-      if (!res.ok) throw new Error('Serveur non disponible');
-
-      // Token stocké en mémoire (jamais en localStorage pour sécurité)
-      adminToken = password;
-
-      document.getElementById('loginScreen').classList.add('hidden');
-      document.getElementById('adminScreen').classList.remove('hidden');
-      loadPrices();
-
+      const res = await fetch(WORKER_URL + '/api/prices', { headers: { 'Authorization': 'Bearer ' + pw } });
+      if (res.status === 401) throw new Error('Mot de passe incorrect');
+      const data = await res.json();
+      adminToken = pw;
+      loginScreen.classList.add('hidden');
+      adminPanel.classList.remove('hidden');
+      populateForm(data);
+      updateJsonPreview();
+      if (data.meta?.updated_at) {
+        const el = document.getElementById('lastUpdated');
+        el.textContent = 'Dernière MàJ : ' + data.meta.updated_at;
+        el.classList.remove('hidden');
+      }
     } catch (err) {
-      errEl.textContent = 'Impossible de joindre le serveur. Vérifiez la configuration du Worker.';
-      errEl.classList.remove('hidden');
-      btn.disabled = false;
-      btn.textContent = 'Se connecter';
+      loginError.textContent = err.message;
+      loginError.classList.remove('hidden');
+    } finally {
+      btn.disabled = false; btn.textContent = 'Se connecter';
     }
   });
 
-  // ── Logout ────────────────────────────────────────────────────────────────
+  // ── Logout ─────────────────────────────────────────────────────────────────
   document.getElementById('btnLogout').addEventListener('click', () => {
-    adminToken = null;
-    document.getElementById('adminScreen').classList.add('hidden');
-    document.getElementById('loginScreen').classList.remove('hidden');
+    adminToken = '';
+    adminPanel.classList.add('hidden');
+    loginScreen.classList.remove('hidden');
     document.getElementById('loginPassword').value = '';
   });
 
-  // ── Load prices from server ───────────────────────────────────────────────
-  document.getElementById('btnLoad').addEventListener('click', loadPrices);
+  // ── Tabs ───────────────────────────────────────────────────────────────────
+  document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.tab-btn').forEach(b => {
+        b.classList.remove('active');
+        b.classList.add('bg-white','text-slate-700');
+      });
+      btn.classList.add('active');
+      btn.classList.remove('bg-white','text-slate-700');
+      document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+      document.getElementById('tab-' + btn.dataset.tab).classList.add('active');
+      if (btn.dataset.tab === 'json') updateJsonPreview();
+    });
+  });
 
-  async function loadPrices() {
-    showStatus('Chargement en cours…', 'info');
-    try {
-      const res = await fetch(WORKER_URL + '/api/prices');
-      if (!res.ok) throw new Error('Erreur ' + res.status);
-      const data = await res.json();
-      populateForm(data);
-      const updated = data.updated_at ? 'Dernière mise à jour : ' + data.updated_at : 'Prix par défaut (non encore enregistrés)';
-      document.getElementById('lastUpdated').textContent = updated;
-      showStatus('Grille chargée depuis le serveur', 'success');
-    } catch (err) {
-      showStatus('Erreur de chargement : ' + err.message, 'error');
-    }
+  // ── Populate form ──────────────────────────────────────────────────────────
+  function populateForm(d) {
+    const e = d.electricity || {};
+    const g = d.gas || {};
+    const m = d.meta || {};
+
+    const f = (id, val) => { if (val !== null && val !== undefined) { const el = document.getElementById(id); if (el) el.value = val; } };
+
+    // C4-LU
+    const c4 = e.c4_lu || {};
+    f('c4lu_pte', c4.pte); f('c4lu_hph', c4.hph); f('c4lu_hch', c4.hch); f('c4lu_hpb', c4.hpb); f('c4lu_hcb', c4.hcb);
+    f('c4lu_cee', c4.cee); f('c4lu_capa', c4.capa);
+    f('c4lu_ach', c4.acheminement_annual); f('c4lu_abo', c4.abo_monthly);
+
+    // C5-MU4
+    const c5m = e.c5_mu4 || {};
+    f('c5mu4_hph', c5m.hph); f('c5mu4_hch', c5m.hch); f('c5mu4_hpb', c5m.hpb); f('c5mu4_hcb', c5m.hcb);
+    f('c5mu4_cee', c5m.cee); f('c5mu4_capa', c5m.capa);
+    f('c5mu4_ach', c5m.acheminement_annual); f('c5mu4_abo', c5m.abo_monthly);
+
+    // C5-CU4
+    const c5c = e.c5_cu4 || {};
+    f('c5cu4_hph', c5c.hph); f('c5cu4_hch', c5c.hch); f('c5cu4_hpb', c5c.hpb); f('c5cu4_hcb', c5c.hcb);
+    f('c5cu4_cee', c5c.cee); f('c5cu4_capa', c5c.capa);
+    f('c5cu4_ach', c5c.acheminement_annual); f('c5cu4_abo', c5c.abo_monthly);
+
+    // C5-HTA
+    const c5h = e.c5_hta || {};
+    f('c5hta_hph', c5h.hph); f('c5hta_hch', c5h.hch); f('c5hta_hpb', c5h.hpb); f('c5hta_hcb', c5h.hcb);
+    f('c5hta_cee', c5h.cee); f('c5hta_capa', c5h.capa);
+    f('c5hta_ach', c5h.acheminement_annual); f('c5hta_abo', c5h.abo_monthly);
+
+    // Taxes élec
+    const tx = e.taxes || {};
+    f('elec_accise', tx.accise_mwh); f('elec_cta', tx.cta_annual); f('elec_tva', tx.tva_pct);
+
+    // T2
+    const t2 = g.t2_p12 || {};
+    f('gas_t2_molecule', t2.molecule_mwh); f('gas_t2_cee', t2.cee_mwh); f('gas_t2_cpb', t2.cpb_mwh);
+    f('gas_t2_ach_mwh', t2.acheminement_mwh); f('gas_t2_abo', t2.abo_monthly);
+    f('gas_t2_cta', t2.cta_annual); f('gas_t2_accise', t2.accise_mwh); f('gas_t2_tva', t2.tva_pct);
+
+    // T3
+    const t3 = g.t3 || {};
+    f('gas_t3_molecule', t3.molecule_mwh); f('gas_t3_cee', t3.cee_mwh); f('gas_t3_cpb', t3.cpb_mwh);
+    f('gas_t3_ach_mwh', t3.acheminement_mwh); f('gas_t3_abo', t3.abo_monthly);
+    f('gas_t3_cta', t3.cta_annual); f('gas_t3_accise', t3.accise_mwh); f('gas_t3_tva', t3.tva_pct);
+
+    // Meta
+    f('avgSavingsPct', m.average_savings_pct);
+    if (m.notes && document.getElementById('adminNotes')) document.getElementById('adminNotes').value = m.notes;
   }
 
-  function populateForm(data) {
-    const el = (id) => document.getElementById(id);
-    const set = (id, val) => { if (val !== null && val !== undefined) el(id).value = val; };
-
-    const e = data.electricity || {};
-    const g = data.gas || {};
-
-    set('elec_c2_hp',   e.c2_small?.kwh_hp);
-    set('elec_c2_hc',   e.c2_small?.kwh_hc);
-    set('elec_c2_base', e.c2_small?.kwh_base);
-    set('elec_c2_sub',  e.c2_small?.subscription_monthly);
-
-    set('elec_c3_hp',   e.c3_medium?.kwh_hp);
-    set('elec_c3_hc',   e.c3_medium?.kwh_hc);
-    set('elec_c3_base', e.c3_medium?.kwh_base);
-    set('elec_c3_sub',  e.c3_medium?.subscription_monthly);
-
-    set('elec_c4_hp',   e.c4_large?.kwh_hp);
-    set('elec_c4_hc',   e.c4_large?.kwh_hc);
-    set('elec_c4_base', e.c4_large?.kwh_base);
-    set('elec_c4_sub',  e.c4_large?.subscription_monthly);
-
-    set('elec_c5_hp',   e.c5_industrial?.kwh_hp);
-    set('elec_c5_hc',   e.c5_industrial?.kwh_hc);
-    set('elec_c5_base', e.c5_industrial?.kwh_base);
-    set('elec_c5_sub',  e.c5_industrial?.subscription_monthly);
-
-    set('gas_t2_kwh', g.t2_small?.kwh);
-    set('gas_t2_sub', g.t2_small?.subscription_monthly);
-    set('gas_t3_kwh', g.t3_medium?.kwh);
-    set('gas_t3_sub', g.t3_medium?.subscription_monthly);
-
-    set('avgSavingsPct', data.average_savings_pct);
-
-    updateJsonPreview();
+  // ── Build grid object from form ────────────────────────────────────────────
+  function buildGrid() {
+    const n = id => parseFloat(document.getElementById(id)?.value) || 0;
+    const s = id => document.getElementById(id)?.value || '';
+    return {
+      electricity: {
+        c4_lu: {
+          pte: n('c4lu_pte'), hph: n('c4lu_hph'), hch: n('c4lu_hch'), hpb: n('c4lu_hpb'), hcb: n('c4lu_hcb'),
+          cee: n('c4lu_cee'), capa: n('c4lu_capa'),
+          acheminement_annual: n('c4lu_ach'), abo_monthly: n('c4lu_abo')
+        },
+        c5_mu4: {
+          hph: n('c5mu4_hph'), hch: n('c5mu4_hch'), hpb: n('c5mu4_hpb'), hcb: n('c5mu4_hcb'),
+          cee: n('c5mu4_cee'), capa: n('c5mu4_capa'),
+          acheminement_annual: n('c5mu4_ach'), abo_monthly: n('c5mu4_abo')
+        },
+        c5_cu4: {
+          hph: n('c5cu4_hph'), hch: n('c5cu4_hch'), hpb: n('c5cu4_hpb'), hcb: n('c5cu4_hcb'),
+          cee: n('c5cu4_cee'), capa: n('c5cu4_capa'),
+          acheminement_annual: n('c5cu4_ach'), abo_monthly: n('c5cu4_abo')
+        },
+        c5_hta: {
+          hph: n('c5hta_hph'), hch: n('c5hta_hch'), hpb: n('c5hta_hpb'), hcb: n('c5hta_hcb'),
+          cee: n('c5hta_cee'), capa: n('c5hta_capa'),
+          acheminement_annual: n('c5hta_ach'), abo_monthly: n('c5hta_abo')
+        },
+        taxes: {
+          accise_mwh: n('elec_accise'), cta_annual: n('elec_cta'), tva_pct: n('elec_tva')
+        }
+      },
+      gas: {
+        t2_p12: {
+          molecule_mwh: n('gas_t2_molecule'), cee_mwh: n('gas_t2_cee'), cpb_mwh: n('gas_t2_cpb'),
+          acheminement_mwh: n('gas_t2_ach_mwh'), abo_monthly: n('gas_t2_abo'),
+          cta_annual: n('gas_t2_cta'), accise_mwh: n('gas_t2_accise'), tva_pct: n('gas_t2_tva')
+        },
+        t3: {
+          molecule_mwh: n('gas_t3_molecule'), cee_mwh: n('gas_t3_cee'), cpb_mwh: n('gas_t3_cpb'),
+          acheminement_mwh: n('gas_t3_ach_mwh'), abo_monthly: n('gas_t3_abo'),
+          cta_annual: n('gas_t3_cta'), accise_mwh: n('gas_t3_accise'), tva_pct: n('gas_t3_tva')
+        }
+      },
+      meta: {
+        updated_at: new Date().toISOString().split('T')[0],
+        average_savings_pct: parseFloat(document.getElementById('avgSavingsPct')?.value) || 15,
+        notes: s('adminNotes')
+      }
+    };
   }
 
-  // ── Save prices ───────────────────────────────────────────────────────────
-  document.getElementById('btnSave').addEventListener('click', savePrices);
+  // ── JSON preview ───────────────────────────────────────────────────────────
+  function updateJsonPreview() {
+    const el = document.getElementById('jsonPreview');
+    if (el) el.textContent = JSON.stringify(buildGrid(), null, 2);
+  }
 
-  async function savePrices() {
-    const grid = buildGridFromForm();
+  document.querySelectorAll('input[type=number], textarea').forEach(inp => {
+    inp.addEventListener('input', () => { if (document.getElementById('tab-json').classList.contains('active')) updateJsonPreview(); });
+  });
+
+  // ── Save ───────────────────────────────────────────────────────────────────
+  document.getElementById('btnSave').addEventListener('click', async () => {
     const btn = document.getElementById('btnSave');
-    btn.disabled = true;
-    btn.textContent = 'Enregistrement…';
-
+    btn.disabled = true; btn.textContent = '⏳ Enregistrement…';
     showStatus('Enregistrement en cours…', 'info');
-
     try {
       const res = await fetch(WORKER_URL + '/api/prices', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + adminToken,
-        },
-        body: JSON.stringify(grid),
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + adminToken },
+        body: JSON.stringify(buildGrid())
       });
-
-      if (res.status === 401) {
-        showStatus('Mot de passe incorrect. Reconnectez-vous.', 'error');
-        return;
-      }
       if (!res.ok) throw new Error('Erreur ' + res.status);
-
-      const data = await res.json();
-      document.getElementById('lastUpdated').textContent = 'Dernière mise à jour : ' + data.updated_at;
-      showStatus('Grille de prix enregistrée avec succès !', 'success');
-
+      showStatus('✅ Grille enregistrée avec succès !', 'success');
+      const el = document.getElementById('lastUpdated');
+      el.textContent = 'Dernière MàJ : ' + new Date().toISOString().split('T')[0];
+      el.classList.remove('hidden');
     } catch (err) {
-      showStatus('Erreur d\'enregistrement : ' + err.message, 'error');
+      showStatus('❌ Erreur : ' + err.message, 'error');
     } finally {
-      btn.disabled = false;
-      btn.textContent = 'Enregistrer la grille de prix';
+      btn.disabled = false; btn.textContent = '💾 Enregistrer';
     }
-  }
-
-  // ── Build grid object from form ───────────────────────────────────────────
-  function buildGridFromForm() {
-    const num = (id) => {
-      const v = parseFloat(document.getElementById(id).value);
-      return isNaN(v) ? null : v;
-    };
-
-    return {
-      electricity: {
-        c2_small: {
-          label: 'Petit professionnel (≤ 36 kVA)',
-          kwh_hp:   num('elec_c2_hp'),
-          kwh_hc:   num('elec_c2_hc'),
-          kwh_base: num('elec_c2_base'),
-          subscription_monthly: num('elec_c2_sub'),
-        },
-        c3_medium: {
-          label: 'Moyen professionnel (36 – 250 kVA)',
-          kwh_hp:   num('elec_c3_hp'),
-          kwh_hc:   num('elec_c3_hc'),
-          kwh_base: num('elec_c3_base'),
-          subscription_monthly: num('elec_c3_sub'),
-        },
-        c4_large: {
-          label: 'Grand compte (250 kVA – 1 000 kVA)',
-          kwh_hp:   num('elec_c4_hp'),
-          kwh_hc:   num('elec_c4_hc'),
-          kwh_base: num('elec_c4_base'),
-          subscription_monthly: num('elec_c4_sub'),
-        },
-        c5_industrial: {
-          label: 'Industriel / Grand site (> 1 000 kVA — HTA)',
-          kwh_hp:   num('elec_c5_hp'),
-          kwh_hc:   num('elec_c5_hc'),
-          kwh_base: num('elec_c5_base'),
-          subscription_monthly: num('elec_c5_sub'),
-        },
-      },
-      gas: {
-        t2_small: {
-          label: 'Petite conso gaz (< 300 MWh/an)',
-          kwh: num('gas_t2_kwh'),
-          subscription_monthly: num('gas_t2_sub'),
-        },
-        t3_medium: {
-          label: 'Moyenne conso gaz (300 – 5 000 MWh/an)',
-          kwh: num('gas_t3_kwh'),
-          subscription_monthly: num('gas_t3_sub'),
-        },
-      },
-      average_savings_pct: num('avgSavingsPct') || 22,
-    };
-  }
-
-  // ── JSON preview ──────────────────────────────────────────────────────────
-  document.getElementById('toggleJson').addEventListener('click', () => {
-    const panel = document.getElementById('jsonPanel');
-    const chevron = document.getElementById('jsonChevron');
-    panel.classList.toggle('hidden');
-    chevron.classList.toggle('rotate-180');
-    updateJsonPreview();
   });
 
-  function updateJsonPreview() {
-    const preview = document.getElementById('jsonPreview');
-    if (preview && !document.getElementById('jsonPanel').classList.contains('hidden')) {
-      preview.textContent = JSON.stringify(buildGridFromForm(), null, 2);
-    }
-  }
-
-  // Mise à jour du preview en temps réel
-  document.querySelectorAll('input[type=number]').forEach(input => {
-    input.addEventListener('input', updateJsonPreview);
-  });
-
-  // ── Bilan comparatif — upload & extraction ───────────────────────────────
+  // ── Bilan comparatif ───────────────────────────────────────────────────────
   const bilanDrop   = document.getElementById('bilanDropZone');
   const bilanInput  = document.getElementById('bilanFileInput');
   const btnBilan    = document.getElementById('btnAnalyzeBilan');
@@ -605,30 +641,29 @@
   let bilanFile = null;
 
   bilanDrop.addEventListener('click', () => bilanInput.click());
-  bilanDrop.addEventListener('dragover', (e) => { e.preventDefault(); bilanDrop.classList.add('border-primary-400','bg-primary-50'); });
+  bilanDrop.addEventListener('dragover', e => { e.preventDefault(); bilanDrop.classList.add('border-primary-400','bg-primary-50'); });
   bilanDrop.addEventListener('dragleave', () => bilanDrop.classList.remove('border-primary-400','bg-primary-50'));
-  bilanDrop.addEventListener('drop', (e) => { e.preventDefault(); bilanDrop.classList.remove('border-primary-400','bg-primary-50'); if (e.dataTransfer.files[0]) selectBilanFile(e.dataTransfer.files[0]); });
+  bilanDrop.addEventListener('drop', e => { e.preventDefault(); bilanDrop.classList.remove('border-primary-400','bg-primary-50'); if (e.dataTransfer.files[0]) selectBilanFile(e.dataTransfer.files[0]); });
   bilanInput.addEventListener('change', () => { if (bilanInput.files[0]) selectBilanFile(bilanInput.files[0]); });
 
   function selectBilanFile(file) {
     const allowed = ['application/pdf','image/jpeg','image/png','image/webp'];
-    if (!allowed.includes(file.type)) { bilanError.textContent = 'Format non supporté (PDF, JPG, PNG, WEBP uniquement).'; bilanError.classList.remove('hidden'); return; }
+    if (!allowed.includes(file.type)) { bilanError.textContent = 'Format non supporté.'; bilanError.classList.remove('hidden'); return; }
     if (file.size > 15 * 1024 * 1024) { bilanError.textContent = 'Fichier trop lourd (max 15 Mo).'; bilanError.classList.remove('hidden'); return; }
-    bilanError.classList.add('hidden');
-    bilanResult.classList.add('hidden');
+    bilanError.classList.add('hidden'); bilanResult.classList.add('hidden');
     bilanFile = file;
-    // update drop zone label
-    bilanDrop.querySelector('p') && (bilanDrop.querySelector('p').textContent = '✅ ' + file.name);
+    document.getElementById('bilanFileName').textContent = file.name;
+    document.getElementById('bilanDefault').classList.add('hidden');
+    document.getElementById('bilanSelected').classList.remove('hidden');
     btnBilan.disabled = false;
   }
 
   btnBilan.addEventListener('click', async () => {
     if (!bilanFile || !adminToken) return;
     btnBilan.disabled = true;
-    const origLabel = btnBilan.textContent;
+    const orig = btnBilan.textContent;
     btnBilan.textContent = '⏳ Analyse en cours…';
-    bilanError.classList.add('hidden');
-    bilanResult.classList.add('hidden');
+    bilanError.classList.add('hidden'); bilanResult.classList.add('hidden');
 
     try {
       const b64 = await new Promise((res, rej) => {
@@ -641,7 +676,7 @@
       const response = await fetch(WORKER_URL + '/api/extract-prices', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + adminToken },
-        body: JSON.stringify({ file_data: b64, file_type: bilanFile.type }),
+        body: JSON.stringify({ file_data: b64, file_type: bilanFile.type })
       });
 
       if (response.status === 401) throw new Error('Token admin invalide — reconnectez-vous.');
@@ -649,22 +684,11 @@
 
       const data = await response.json();
       const ext = data.extracted || {};
-      const e = ext.electricity || {};
-      const g = ext.gas || {};
 
-      const fill = (id, val) => { if (val !== null && val !== undefined) { const el = document.getElementById(id); if (el) { el.value = val; el.classList.add('ring-2','ring-primary-500'); setTimeout(() => el.classList.remove('ring-2','ring-primary-500'), 3000); } } };
-
-      fill('elec_c2_hp', e.c2_small?.kwh_hp);   fill('elec_c2_hc', e.c2_small?.kwh_hc);   fill('elec_c2_base', e.c2_small?.kwh_base);   fill('elec_c2_sub', e.c2_small?.subscription_monthly);
-      fill('elec_c3_hp', e.c3_medium?.kwh_hp);  fill('elec_c3_hc', e.c3_medium?.kwh_hc);  fill('elec_c3_base', e.c3_medium?.kwh_base);  fill('elec_c3_sub', e.c3_medium?.subscription_monthly);
-      fill('elec_c4_hp', e.c4_large?.kwh_hp);   fill('elec_c4_hc', e.c4_large?.kwh_hc);   fill('elec_c4_base', e.c4_large?.kwh_base);   fill('elec_c4_sub', e.c4_large?.subscription_monthly);
-      fill('elec_c5_hp', e.c5_industrial?.kwh_hp); fill('elec_c5_hc', e.c5_industrial?.kwh_hc); fill('elec_c5_base', e.c5_industrial?.kwh_base); fill('elec_c5_sub', e.c5_industrial?.subscription_monthly);
-      fill('gas_t2_kwh', g.t2_small?.kwh);  fill('gas_t2_sub', g.t2_small?.subscription_monthly);
-      fill('gas_t3_kwh', g.t3_medium?.kwh); fill('gas_t3_sub', g.t3_medium?.subscription_monthly);
-      if (ext.average_savings_pct) fill('avgSavingsPct', ext.average_savings_pct);
-
+      populateForm(ext);
       updateJsonPreview();
-      const notesEl = document.getElementById('bilanNotes');
-      if (notesEl) notesEl.textContent = ext.notes || ('Confiance : ' + (ext.confidence || 'non précisée'));
+
+      document.getElementById('bilanNotes').textContent = ext.notes || ('Confiance : ' + (ext.confidence || 'non précisée'));
       bilanResult.classList.remove('hidden');
       showStatus('Prix extraits et pré-remplis ✅ — vérifiez puis cliquez sur "Enregistrer".', 'success');
 
@@ -672,32 +696,23 @@
       bilanError.textContent = '❌ ' + err.message;
       bilanError.classList.remove('hidden');
     } finally {
-      btnBilan.disabled = false;
-      btnBilan.textContent = origLabel;
+      btnBilan.disabled = false; btnBilan.textContent = orig;
     }
   });
 
-  // ── Status banner ─────────────────────────────────────────────────────────
+  // ── Status banner ──────────────────────────────────────────────────────────
   function showStatus(msg, type) {
-    const banner = document.getElementById('statusBanner');
-    const styles = {
-      success: 'bg-green-50 border border-green-200 text-green-700',
-      error:   'bg-red-50 border border-red-200 text-red-700',
-      info:    'bg-blue-50 border border-blue-200 text-blue-700',
-    };
+    const b = document.getElementById('statusBanner');
+    const styles = { success:'bg-green-50 border border-green-200 text-green-700', error:'bg-red-50 border border-red-200 text-red-700', info:'bg-blue-50 border border-blue-200 text-blue-700' };
     const icons = {
       success: '<svg class="w-5 h-5 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>',
       error:   '<svg class="w-5 h-5 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>',
-      info:    '<svg class="w-5 h-5 shrink-0 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/></svg>',
+      info:    '<svg class="w-5 h-5 shrink-0 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"/><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/></svg>'
     };
-
-    banner.className = 'rounded-xl p-4 text-sm font-medium flex items-center gap-3 ' + styles[type];
-    banner.innerHTML = icons[type] + '<span>' + msg + '</span>';
-    banner.classList.remove('hidden');
-
-    if (type === 'success') {
-      setTimeout(() => banner.classList.add('hidden'), 4000);
-    }
+    b.className = 'rounded-xl p-4 text-sm font-medium flex items-center gap-3 mb-4 ' + styles[type];
+    b.innerHTML = icons[type] + '<span>' + msg + '</span>';
+    b.classList.remove('hidden');
+    if (type === 'success') setTimeout(() => b.classList.add('hidden'), 5000);
   }
 
 })();
