@@ -306,9 +306,19 @@ async function handleScan(request, env) {
     return jsonResponse({ error: 'Corps de requête invalide' }, 400);
   }
 
-  const { file_data, file_type } = body;
-  if (!file_data || !file_type) {
-    return jsonResponse({ error: 'file_data et file_type sont requis' }, 400);
+  const { file_data, file_name } = body;
+  // Normalise le type : certains navigateurs envoient un type vide pour les PDF
+  let file_type = body.file_type || '';
+  if (!file_type && file_name && file_name.toLowerCase().endsWith('.pdf')) file_type = 'application/pdf';
+  if (!file_type && file_name && /\.(jpg|jpeg)$/i.test(file_name)) file_type = 'image/jpeg';
+  if (!file_type && file_name && /\.png$/i.test(file_name)) file_type = 'image/png';
+  if (!file_type && file_name && /\.webp$/i.test(file_name)) file_type = 'image/webp';
+
+  if (!file_data) {
+    return jsonResponse({ error: 'file_data est requis' }, 400);
+  }
+  if (!file_type) {
+    return jsonResponse({ error: 'Format non reconnu. Utilisez un PDF, JPG ou PNG.' }, 400);
   }
 
   let priceGrid = getDefaultPrices();
@@ -318,7 +328,7 @@ async function handleScan(request, env) {
   } catch {}
 
   const isImage = file_type.startsWith('image/');
-  const isPdf   = file_type === 'application/pdf';
+  const isPdf   = file_type === 'application/pdf' || file_type === 'application/octet-stream';
   if (!isImage && !isPdf) {
     return jsonResponse({ error: 'Format non supporté. Utilisez PDF, JPG, PNG ou WEBP.' }, 400);
   }

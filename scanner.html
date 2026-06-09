@@ -572,6 +572,7 @@
 
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
+        console.error('[Elga Scanner] Erreur serveur:', res.status, err);
         throw new Error(err.error || 'Erreur serveur (' + res.status + ')');
       }
 
@@ -582,6 +583,7 @@
     } catch (err) {
       clearInterval(scanInterval);
       showStep('upload');
+      console.error('[Elga Scanner] Erreur:', err);
       showError('Analyse impossible : ' + (err.message || 'erreur inconnue') + '. Vérifiez votre connexion ou réessayez.');
     }
   }
