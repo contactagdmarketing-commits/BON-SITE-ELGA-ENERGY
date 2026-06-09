@@ -168,7 +168,7 @@
           <div class="flex items-center gap-2">
             <span class="px-2.5 py-0.5 bg-purple-100 text-purple-700 rounded-full text-xs font-semibold">C4</span>
             <h3 class="font-semibold text-slate-700">Grand compte</h3>
-            <span class="text-xs text-slate-400">&gt; 250 kVA</span>
+            <span class="text-xs text-slate-400">250 kVA – 1 000 kVA</span>
           </div>
           <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
             <div>
@@ -189,6 +189,37 @@
             <div>
               <label class="block text-xs font-semibold text-slate-500 mb-1">Abonnement (€/mois)</label>
               <input type="number" id="elec_c4_sub" step="1" min="0" placeholder="90"
+                class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary-400" />
+            </div>
+          </div>
+        </div>
+
+        <!-- C5 — Industriel -->
+        <div class="rounded-xl border border-slate-200 p-5 space-y-4">
+          <div class="flex items-center gap-2">
+            <span class="px-2.5 py-0.5 bg-rose-100 text-rose-700 rounded-full text-xs font-semibold">C5</span>
+            <h3 class="font-semibold text-slate-700">Industriel / Grand site</h3>
+            <span class="text-xs text-slate-400">&gt; 1 000 kVA — HTA</span>
+          </div>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div>
+              <label class="block text-xs font-semibold text-slate-500 mb-1">Prix HP (€HT/kWh)</label>
+              <input type="number" id="elec_c5_hp" step="0.0001" min="0" max="1" placeholder="0.1180"
+                class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary-400" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-500 mb-1">Prix HC (€HT/kWh)</label>
+              <input type="number" id="elec_c5_hc" step="0.0001" min="0" max="1" placeholder="0.0750"
+                class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary-400" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-500 mb-1">Prix Base (€HT/kWh)</label>
+              <input type="number" id="elec_c5_base" step="0.0001" min="0" max="1" placeholder="0.1100"
+                class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary-400" />
+            </div>
+            <div>
+              <label class="block text-xs font-semibold text-slate-500 mb-1">Abonnement (€/mois)</label>
+              <input type="number" id="elec_c5_sub" step="1" min="0" placeholder="180"
                 class="w-full rounded-lg border border-slate-200 px-3 py-2 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-primary-400" />
             </div>
           </div>
@@ -264,6 +295,56 @@
           <span class="text-sm text-slate-500">% par an</span>
         </div>
         <p class="text-xs text-slate-400">Affiché quand la facture ne contient pas assez de données pour un calcul précis</p>
+      </div>
+    </section>
+
+    <!-- ── Import bilan comparatif ────────────────────────────────────── -->
+    <section class="bg-white rounded-2xl shadow-soft overflow-hidden">
+      <div class="px-6 py-4 border-b border-slate-100 flex items-center gap-3">
+        <div class="size-9 rounded-xl bg-secondary-600/10 flex items-center justify-center text-lg">📊</div>
+        <div>
+          <h2 class="font-bold text-slate-800">Importer un bilan comparatif</h2>
+          <p class="text-xs text-slate-500">L'IA extrait automatiquement les prix de référence de vos bilans clients</p>
+        </div>
+      </div>
+      <div class="p-6 space-y-4">
+
+        <!-- Drop zone bilan -->
+        <div id="bilanDropZone" class="border-2 border-dashed border-slate-200 rounded-xl p-8 text-center cursor-pointer hover:border-primary-400 hover:bg-primary-50 transition-all">
+          <input type="file" id="bilanFileInput" accept=".pdf,image/jpeg,image/png,image/webp" class="sr-only" />
+          <div id="bilanDefault">
+            <div class="mx-auto size-12 rounded-xl bg-slate-100 flex items-center justify-center mb-3">
+              <svg class="w-6 h-6 text-slate-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/>
+              </svg>
+            </div>
+            <p class="text-sm font-semibold text-slate-700">Déposez un bilan comparatif ici</p>
+            <p class="text-xs text-slate-400 mt-1">PDF, JPG, PNG — tableau de comparaison fournisseurs</p>
+          </div>
+          <div id="bilanSelected" class="hidden">
+            <p id="bilanFileName" class="text-sm font-semibold text-primary-700 truncate max-w-xs mx-auto"></p>
+            <p class="text-xs text-slate-400 mt-1">Cliquez pour changer de fichier</p>
+          </div>
+        </div>
+
+        <!-- Bouton analyser -->
+        <button id="btnAnalyzeBilan" disabled
+          class="w-full py-3 rounded-xl bg-secondary-600 text-white font-semibold hover:bg-secondary-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-secondary-600">
+          Analyser et pré-remplir les prix →
+        </button>
+
+        <!-- Résultat extraction -->
+        <div id="bilanResult" class="hidden rounded-xl bg-primary-50 border border-primary-200 p-4 space-y-2">
+          <p class="text-sm font-semibold text-primary-800 flex items-center gap-2">
+            <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+            Prix extraits et pré-remplis dans les champs ci-dessus
+          </p>
+          <p id="bilanNotes" class="text-xs text-primary-700"></p>
+          <p class="text-xs text-slate-500">Vérifiez les valeurs et cliquez sur "Enregistrer" pour les sauvegarder.</p>
+        </div>
+
+        <!-- Erreur -->
+        <div id="bilanError" class="hidden rounded-xl bg-red-50 border border-red-200 p-4 text-sm text-red-700"></div>
       </div>
     </section>
 
@@ -386,6 +467,11 @@
     set('elec_c4_base', e.c4_large?.kwh_base);
     set('elec_c4_sub',  e.c4_large?.subscription_monthly);
 
+    set('elec_c5_hp',   e.c5_industrial?.kwh_hp);
+    set('elec_c5_hc',   e.c5_industrial?.kwh_hc);
+    set('elec_c5_base', e.c5_industrial?.kwh_base);
+    set('elec_c5_sub',  e.c5_industrial?.subscription_monthly);
+
     set('gas_t2_kwh', g.t2_small?.kwh);
     set('gas_t2_sub', g.t2_small?.subscription_monthly);
     set('gas_t3_kwh', g.t3_medium?.kwh);
@@ -459,11 +545,18 @@
           subscription_monthly: num('elec_c3_sub'),
         },
         c4_large: {
-          label: 'Grand compte (> 250 kVA)',
+          label: 'Grand compte (250 kVA – 1 000 kVA)',
           kwh_hp:   num('elec_c4_hp'),
           kwh_hc:   num('elec_c4_hc'),
           kwh_base: num('elec_c4_base'),
           subscription_monthly: num('elec_c4_sub'),
+        },
+        c5_industrial: {
+          label: 'Industriel / Grand site (> 1 000 kVA — HTA)',
+          kwh_hp:   num('elec_c5_hp'),
+          kwh_hc:   num('elec_c5_hc'),
+          kwh_base: num('elec_c5_base'),
+          subscription_monthly: num('elec_c5_sub'),
         },
       },
       gas: {
@@ -501,6 +594,87 @@
   // Mise à jour du preview en temps réel
   document.querySelectorAll('input[type=number]').forEach(input => {
     input.addEventListener('input', updateJsonPreview);
+  });
+
+  // ── Bilan comparatif — upload & extraction ───────────────────────────────
+  const bilanDrop   = document.getElementById('bilanDropZone');
+  const bilanInput  = document.getElementById('bilanFileInput');
+  const btnBilan    = document.getElementById('btnAnalyzeBilan');
+  const bilanResult = document.getElementById('bilanResult');
+  const bilanError  = document.getElementById('bilanError');
+  let bilanFile = null;
+
+  bilanDrop.addEventListener('click', () => bilanInput.click());
+  bilanDrop.addEventListener('dragover', (e) => { e.preventDefault(); bilanDrop.classList.add('border-primary-400','bg-primary-50'); });
+  bilanDrop.addEventListener('dragleave', () => bilanDrop.classList.remove('border-primary-400','bg-primary-50'));
+  bilanDrop.addEventListener('drop', (e) => { e.preventDefault(); bilanDrop.classList.remove('border-primary-400','bg-primary-50'); if (e.dataTransfer.files[0]) selectBilanFile(e.dataTransfer.files[0]); });
+  bilanInput.addEventListener('change', () => { if (bilanInput.files[0]) selectBilanFile(bilanInput.files[0]); });
+
+  function selectBilanFile(file) {
+    const allowed = ['application/pdf','image/jpeg','image/png','image/webp'];
+    if (!allowed.includes(file.type)) { bilanError.textContent = 'Format non supporté (PDF, JPG, PNG, WEBP uniquement).'; bilanError.classList.remove('hidden'); return; }
+    if (file.size > 15 * 1024 * 1024) { bilanError.textContent = 'Fichier trop lourd (max 15 Mo).'; bilanError.classList.remove('hidden'); return; }
+    bilanError.classList.add('hidden');
+    bilanResult.classList.add('hidden');
+    bilanFile = file;
+    // update drop zone label
+    bilanDrop.querySelector('p') && (bilanDrop.querySelector('p').textContent = '✅ ' + file.name);
+    btnBilan.disabled = false;
+  }
+
+  btnBilan.addEventListener('click', async () => {
+    if (!bilanFile || !adminToken) return;
+    btnBilan.disabled = true;
+    const origLabel = btnBilan.textContent;
+    btnBilan.textContent = '⏳ Analyse en cours…';
+    bilanError.classList.add('hidden');
+    bilanResult.classList.add('hidden');
+
+    try {
+      const b64 = await new Promise((res, rej) => {
+        const r = new FileReader();
+        r.onload = () => res(r.result.split(',')[1]);
+        r.onerror = rej;
+        r.readAsDataURL(bilanFile);
+      });
+
+      const response = await fetch(WORKER_URL + '/api/extract-prices', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + adminToken },
+        body: JSON.stringify({ file_data: b64, file_type: bilanFile.type }),
+      });
+
+      if (response.status === 401) throw new Error('Token admin invalide — reconnectez-vous.');
+      if (!response.ok) throw new Error('Erreur serveur ' + response.status);
+
+      const data = await response.json();
+      const ext = data.extracted || {};
+      const e = ext.electricity || {};
+      const g = ext.gas || {};
+
+      const fill = (id, val) => { if (val !== null && val !== undefined) { const el = document.getElementById(id); if (el) { el.value = val; el.classList.add('ring-2','ring-primary-500'); setTimeout(() => el.classList.remove('ring-2','ring-primary-500'), 3000); } } };
+
+      fill('elec_c2_hp', e.c2_small?.kwh_hp);   fill('elec_c2_hc', e.c2_small?.kwh_hc);   fill('elec_c2_base', e.c2_small?.kwh_base);   fill('elec_c2_sub', e.c2_small?.subscription_monthly);
+      fill('elec_c3_hp', e.c3_medium?.kwh_hp);  fill('elec_c3_hc', e.c3_medium?.kwh_hc);  fill('elec_c3_base', e.c3_medium?.kwh_base);  fill('elec_c3_sub', e.c3_medium?.subscription_monthly);
+      fill('elec_c4_hp', e.c4_large?.kwh_hp);   fill('elec_c4_hc', e.c4_large?.kwh_hc);   fill('elec_c4_base', e.c4_large?.kwh_base);   fill('elec_c4_sub', e.c4_large?.subscription_monthly);
+      fill('elec_c5_hp', e.c5_industrial?.kwh_hp); fill('elec_c5_hc', e.c5_industrial?.kwh_hc); fill('elec_c5_base', e.c5_industrial?.kwh_base); fill('elec_c5_sub', e.c5_industrial?.subscription_monthly);
+      fill('gas_t2_kwh', g.t2_small?.kwh);  fill('gas_t2_sub', g.t2_small?.subscription_monthly);
+      fill('gas_t3_kwh', g.t3_medium?.kwh); fill('gas_t3_sub', g.t3_medium?.subscription_monthly);
+      if (ext.average_savings_pct) fill('avgSavingsPct', ext.average_savings_pct);
+
+      updateJsonPreview();
+      const notesEl = document.getElementById('bilanNotes');
+      if (notesEl) notesEl.textContent = ext.notes || ('Confiance : ' + (ext.confidence || 'non précisée'));
+      bilanResult.classList.remove('hidden');
+      showStatus('Prix extraits et pré-remplis ✅ — vérifiez puis cliquez sur "Enregistrer".', 'success');
+
+    } catch (err) {
+      bilanError.textContent = '❌ ' + err.message;
+      bilanError.classList.remove('hidden');
+    } finally {
+      btnBilan.disabled = false;
+      btnBilan.textContent = origLabel;
+    }
   });
 
   // ── Status banner ─────────────────────────────────────────────────────────

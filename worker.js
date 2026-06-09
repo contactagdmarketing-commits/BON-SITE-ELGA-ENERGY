@@ -293,6 +293,13 @@ function getDefaultPrices() {
         kwh_base: 0.1200,
         subscription_monthly: 90,
       },
+      c5_industrial: {
+        label: 'Industriel / Grand site (> 1 000 kVA)',
+        kwh_hp: 0.1180,
+        kwh_hc: 0.0750,
+        kwh_base: 0.1100,
+        subscription_monthly: 180,
+      },
     },
     gas: {
       t2_small: {
@@ -308,6 +315,96 @@ function getDefaultPrices() {
     },
     average_savings_pct: 22,
   };
+}
+
+// ─── Handler : extraction des prix depuis un bilan comparatif ────────────────
+
+const BILAN_EXTRACTION_PROMPT = `Tu es un expert en courtage d'énergie B2B en France. On te fournit un bilan comparatif ou un tableau de comparaison fournisseurs édité par un courtier en énergie.
+
+Extrais les meilleurs prix de référence (les prix les plus compétitifs proposés) pour constituer une grille de référence.
+
+Réponds UNIQUEMENT avec ce JSON valide (null si non trouvé) :
+
+{
+  "electricity": {
+    "c2_small": { "kwh_hp": null, "kwh_hc": null, "kwh_base": null, "subscription_monthly": null },
+    "c3_medium": { "kwh_hp": null, "kwh_hc": null, "kwh_base": null, "subscription_monthly": null },
+    "c4_large": { "kwh_hp": null, "kwh_hc": null, "kwh_base": null, "subscription_monthly": null },
+    "c5_industrial": { "kwh_hp": null, "kwh_hc": null, "kwh_base": null, "subscription_monthly": null }
+  },
+  "gas": {
+    "t2_small": { "kwh": null, "subscription_monthly": null },
+    "t3_medium": { "kwh": null, "subscription_monthly": null }
+  },
+  "average_savings_pct": null,
+  "confidence": "high" ou "medium" ou "low",
+  "notes": "brève explication des données trouvées"
+}
+
+Notes importantes :
+- Prends les prix HT en €/kWh
+- Si tu vois plusieurs offres, prends la moins chère (meilleur prix négocié)
+- C2 = petits pro ≤36 kVA, C3 = moyens 36-250 kVA, C4 = grands >250 kVA, C5 = industriels >1000 kVA
+- average_savings_pct = % d'économie moyen constaté dans le bilan (si visible)`;
+
+async function handleExtractPrices(request, env) {
+  // Vérification admin token
+  const auth = request.headers.get('Authorization') || '';
+  const token = auth.replace('Bearer ', '').trim();
+  if (!token || token !== env.ADMIN_TOKEN) {
+    return jsonResponse({ error: 'Non autorisé' }, 401);
+  }
+
+  let body;
+  try { body = await request.json(); } catch {
+    return jsonResponse({ error: 'JSON invalide' }, 400);
+  }
+
+  const { file_data, file_type } = body;
+  if (!file_data || !file_type) {
+    return jsonResponse({ error: 'file_data et file_type requis' }, 400);
+  }
+
+  const isImage = file_type.startsWith('image/');
+  const isPdf = file_type === 'application/pdf';
+  if (!isImage && !isPdf) {
+    return jsonResponse({ error: 'Format non supporté (PDF, JPG, PNG)' }, 400);
+  }
+
+  const contentBlock = isImage
+    ? { type: 'image', source: { type: 'base64', media_type: file_type, data: file_data } }
+    : { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: file_data } };
+
+  const claudeRes = await fetch(ANTHROPIC_API, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': env.ANTHROPIC_API_KEY,
+      'anthropic-version': '2023-06-01',
+      'anthropic-beta': 'pdfs-2024-09-25',
+    },
+    body: JSON.stringify({
+      model: CLAUDE_MODEL,
+      max_tokens: 1024,
+      messages: [{ role: 'user', content: [contentBlock, { type: 'text', text: BILAN_EXTRACTION_PROMPT }] }],
+    }),
+  });
+
+  if (!claudeRes.ok) {
+    return jsonResponse({ error: 'Erreur IA', detail: await claudeRes.text() }, 502);
+  }
+
+  const claudeData = await claudeRes.json();
+  let extracted;
+  try {
+    const text = claudeData.content[0].text.trim();
+    const match = text.match(/\{[\s\S]*\}/);
+    extracted = JSON.parse(match ? match[0] : text);
+  } catch {
+    return jsonResponse({ error: 'Impossible de parser la réponse IA' }, 502);
+  }
+
+  return jsonResponse({ extracted });
 }
 
 // ─── Point d'entrée ──────────────────────────────────────────────────────────
@@ -328,6 +425,9 @@ export default {
     }
     if (url.pathname === '/api/prices' && request.method === 'POST') {
       return handleSetPrices(request, env);
+    }
+    if (url.pathname === '/api/extract-prices' && request.method === 'POST') {
+      return handleExtractPrices(request, env);
     }
 
     return new Response('Not found', { status: 404 });
