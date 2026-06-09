@@ -37,6 +37,14 @@ Tu sais lire les factures de tous les fournisseurs : EDF, Engie, TotalEnergies, 
 
 Analyse cette facture et extrais les informations ci-dessous en JSON valide. Si une valeur est introuvable, utilise null.
 
+⚠️ RÈGLE CRITIQUE — ANNUALISATION :
+- Identifie la période de facturation (ex : "du 16/03/2026 au 15/04/2026" = 1 mois).
+- Tous les montants monétaires (total HT, total TTC, acheminement, taxes) doivent être des VALEURS ANNUELLES.
+- Si la facture couvre N mois, multiplie les montants par (12/N) pour obtenir l'annuel.
+- Si la facture contient plusieurs périodes (plusieurs mois), calcule d'abord la consommation mensuelle moyenne, puis extrapole sur 12 mois.
+- Pour la consommation : si elle n'est pas explicitement annuelle, extrapole aussi sur 12 mois.
+- N'extrais JAMAIS un montant mensuel ou bimestriel comme si c'était un montant annuel.
+
 Réponds UNIQUEMENT avec le JSON, sans texte avant ou après :
 
 {
@@ -44,32 +52,32 @@ Réponds UNIQUEMENT avec le JSON, sans texte avant ou après :
   "energy_type": "electricity" ou "gas" ou "both",
   "contract_type": "ex: MU4, CU4, C4-LU, T2, T3, Tarif Bleu, HC/HP, Base, etc.",
   "segment": "c5_mu4" ou "c5_cu4" ou "c4_lu" ou "c5_hta" ou "t2_p12" ou "t3" ou null,
-  "power_kva": null,
-  "annual_consumption_mwh": null,
-  "price_hph_mwh": null,
-  "price_hch_mwh": null,
-  "price_hpb_mwh": null,
-  "price_hcb_mwh": null,
-  "price_pte_mwh": null,
-  "price_base_mwh": null,
-  "capa_mwh": null,
-  "cee_mwh": null,
-  "subscription_monthly_ht": null,
-  "acheminement_annual_ht": null,
-  "taxes_annual_ht": null,
-  "total_ht_annual": null,
-  "total_ttc_annual": null,
-  "confidence": "high" ou "medium" ou "low"
+  "power_kva": puissance souscrite en kVA (nombre seul),
+  "billing_months": nombre de mois couverts par la facture (ex: 1, 2, 3, 12),
+  "annual_consumption_mwh": consommation annuelle en MWh (ANNUALISÉE si besoin),
+  "price_hph_mwh": prix fourniture HPH en €/MWh HT (hors CEE et capa si facturés séparément),
+  "price_hch_mwh": prix fourniture HCH en €/MWh HT,
+  "price_hpb_mwh": prix fourniture HPB en €/MWh HT (si différent de HPH),
+  "price_hcb_mwh": prix fourniture HCB en €/MWh HT (si différent de HCH),
+  "price_pte_mwh": prix Pointe en €/MWh HT (tarifs C4 uniquement),
+  "price_base_mwh": prix Base en €/MWh HT (si tarif de base, pas HP/HC),
+  "capa_mwh": coût du mécanisme de capacité en €/MWh (chercher "mécanisme de capacité" ou "capacité"),
+  "cee_mwh": coût des CEE en €/MWh (si facturé séparément, sinon null),
+  "subscription_monthly_ht": abonnement mensuel en € HT,
+  "acheminement_annual_ht": coût annuel d'acheminement/TURPE en € HT (ANNUALISÉ),
+  "taxes_annual_ht": total annuel taxes (Accise/TICFE + CTA) en € HT (ANNUALISÉ, hors TVA),
+  "total_ht_annual": total annuel HT en € (ANNUALISÉ, hors TVA),
+  "total_ttc_annual": total annuel TTC en € (ANNUALISÉ, TVA incluse),
+  "confidence": "high" si prix unitaires + conso + total trouvés, "medium" si partiel, "low" si peu de données
 }
 
 Notes importantes :
-- Les prix énergie sont en €/MWh (HT). Sur les factures EDF, ils peuvent être affichés en centimes/kWh — convertis en divisant par 10.
-- segment : c5_mu4 = ≤36 kVA usage moyen (restaurant, hôtel), c5_cu4 = ≤36 kVA usage court (pompage, saisonnier),
-  c4_lu = 36-250 kVA longue utilisation (industriel, gros agricole), c5_hta = >36 kVA haute tension.
-  Pour le gaz : t2_p12 = ≤200 MWh/an, t3 = 200-600 MWh/an.
-- annual_consumption_mwh : si la facture ne couvre pas 12 mois, extrapoler.
-- total_ht_annual et total_ttc_annual : montant ANNUEL estimé.
-- confidence = high si prix + conso trouvés, medium si partiel, low si peu de données.`;
+- Les prix unitaires (€/MWh) ne s'annualisent PAS — ce sont des prix fixes au contrat.
+- Sur les factures EDF/certains fournisseurs, prix en centimes/kWh → convertir : diviser par 10 pour obtenir €/MWh.
+- segment : c5_mu4 = ≤36 kVA usage moyen, c5_cu4 = ≤36 kVA usage court, c4_lu = 36-250 kVA longue utilisation, c5_hta = >36 kVA HTA. Gaz : t2_p12 = ≤200 MWh/an, t3 = 200-600 MWh/an.
+- capa_mwh : chercher "mécanisme de capacité", souvent entre 0,50 et 15 €/MWh. Chez certains fournisseurs il est inclus dans le prix énergie (mettre null dans ce cas).
+- acheminement = "Utilisation du réseau" ou "TURPE" ou "Coûts d'utilisation du réseau".
+- taxes = TICFE/Accise + CTA (pas la TVA).`;
 
 // ─── Prompt extraction depuis bilan comparatif ───────────────────────────────
 
@@ -277,14 +285,28 @@ function calculateSavings(bill, grid) {
     clientEnergyMwh = hp;
   }
 
+  // Ajouter la capa et CEE si facturés séparément (ex: Vattenfall facture capa hors énergie)
+  // La référence Elga inclut déjà capa+CEE → comparaison juste uniquement si on les ajoute
+  if (clientEnergyMwh) {
+    if (bill.capa_mwh && bill.capa_mwh > 0.1) clientEnergyMwh += bill.capa_mwh;
+    if (bill.cee_mwh  && bill.cee_mwh  > 0.1) clientEnergyMwh += bill.cee_mwh;
+  }
+
   // Méthode 2 : reconstitution depuis le total HT de la facture
-  if (!clientEnergyMwh && bill.total_ht_annual) {
+  // Avantage : capture capa+CEE même si non extraits unitairement
+  // On l'utilise aussi pour VÉRIFIER la méthode 1 (si M2 > M1 : capa/CEE manquants dans M1)
+  if (bill.total_ht_annual && consumptionMwh) {
     const ach  = bill.acheminement_annual_ht || (ref.acheminement_annual || 0);
     const taxH = bill.taxes_annual_ht        || consumptionMwh * (taxes.accise_mwh || 20.5);
     const aboH = (bill.subscription_monthly_ht || ref.abo_monthly || 0) * 12;
-    const energyHT = bill.total_ht_annual - ach - taxH - aboH;
-    if (energyHT > 0 && consumptionMwh > 0) {
-      clientEnergyMwh = energyHT / consumptionMwh;
+    const energyCapaCeeHT = bill.total_ht_annual - ach - taxH;
+    if (energyCapaCeeHT > 0) {
+      const m2 = (energyCapaCeeHT - aboH) / consumptionMwh;
+      if (m2 > 20) {
+        // Si M2 > M1 : la capa/CEE n'étaient pas dans M1 → prendre M2 (plus complet)
+        // Si M1 nul : prendre M2 directement
+        if (!clientEnergyMwh || m2 > clientEnergyMwh) clientEnergyMwh = m2;
+      }
     }
   }
 
