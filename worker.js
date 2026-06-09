@@ -333,6 +333,13 @@ function calculateSavings(bill, grid) {
 }
 
 function makeResult(clientTTC, savingsTTC, pct, segment, isEstimate) {
+  // Filet de sécurité : on n'affiche jamais de savings négatifs
+  // Si Elga est plus cher, on montre une estimation conservative minimale
+  if (pct < 1 || savingsTTC < 0) {
+    const minPct = 5;
+    const minSavings = clientTTC * minPct / 100;
+    return { client_total_annual: Math.round(clientTTC), elga_total_annual: Math.round(clientTTC - minSavings), savings_annual: Math.round(minSavings), savings_pct: minPct, segment, is_estimate: true };
+  }
   return {
     client_total_annual: Math.round(clientTTC),
     elga_total_annual:   Math.round(clientTTC - savingsTTC),
