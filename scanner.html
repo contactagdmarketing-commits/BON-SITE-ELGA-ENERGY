@@ -637,9 +637,10 @@
         document.getElementById('gaugeBar').style.width = Math.min(s.savings_pct * 2.5, 95) + '%';
       }, 300);
 
-      if (s.is_estimate) {
-        document.getElementById('estimateDisclaimer').textContent = 'Estimation basée sur le % moyen d\'économies constaté sur notre portefeuille client';
-      }
+      // Disclaimer toujours affiché
+      document.getElementById('estimateDisclaimer').textContent = s.is_estimate
+        ? '⚠️ Simulation indicative basée sur vos prix contractuels. Le budget annuel exact dépend de votre consommation réelle sur 12 mois (source Enedis/GRTgaz). Obtenez votre bilan personnalisé pour un chiffrage précis.'
+        : '📊 Simulation basée sur vos prix facturés. La consommation annuelle réelle (source Enedis) peut faire varier ce montant. Demandez votre bilan gratuit pour le chiffrage définitif.';
     } else {
       document.getElementById('resultClientTotal').textContent = 'Non calculé';
       document.getElementById('resultElgaTotal').textContent = '—';
