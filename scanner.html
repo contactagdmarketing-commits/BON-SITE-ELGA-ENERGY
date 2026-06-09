@@ -277,28 +277,27 @@
   </div>
 
   <!-- ── ÉTAPE 3 : Résultats ────────────────────────────────────────────── -->
-  <div id="step-results" class="hidden space-y-6">
+  <div id="step-results" class="hidden space-y-5">
 
     <!-- En-tête résultat -->
-    <div class="result-card bg-white rounded-2xl shadow-soft p-6 flex items-center gap-4">
-      <div class="size-12 rounded-xl bg-primary-100 flex items-center justify-center shrink-0">
-        <svg class="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+    <div class="result-card bg-white rounded-2xl shadow-soft p-5 flex items-center gap-4">
+      <div class="size-10 rounded-xl bg-primary-100 flex items-center justify-center shrink-0">
+        <svg class="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
       </div>
       <div>
-        <p class="text-xs text-slate-400 font-medium uppercase tracking-wide">Fournisseur détecté</p>
-        <p id="resultSupplier" class="text-lg font-bold text-slate-800"></p>
-        <p id="resultContract" class="text-sm text-slate-500"></p>
+        <p class="text-xs text-slate-400 font-medium uppercase tracking-wide">Facture analysée</p>
+        <p id="resultSupplier" class="text-base font-bold text-slate-800"></p>
+        <p id="resultContract" class="text-xs text-slate-500"></p>
       </div>
-      <button id="btnRescan" class="ml-auto text-sm text-slate-400 hover:text-slate-600 underline underline-offset-2 shrink-0">
+      <button id="btnRescan" class="ml-auto text-xs text-slate-400 hover:text-slate-600 underline underline-offset-2 shrink-0">
         Nouvelle facture
       </button>
     </div>
 
-    <!-- Comparaison des coûts -->
-    <div class="result-card grid grid-cols-2 gap-4" style="animation-delay:.1s">
-      <!-- Situation actuelle -->
-      <div class="bg-white rounded-2xl shadow-soft p-5 space-y-2">
-        <p class="text-xs font-semibold text-slate-400 uppercase tracking-wide">Votre coût actuel</p>
+    <!-- Budget actuel vs Elga -->
+    <div class="result-card grid grid-cols-2 gap-3" style="animation-delay:.1s">
+      <div class="bg-white rounded-2xl shadow-soft p-4 space-y-1">
+        <p class="text-xs font-semibold text-slate-400 uppercase tracking-wide">Votre budget actuel</p>
         <p id="resultClientTotal" class="text-2xl font-extrabold text-slate-800"></p>
         <p class="text-xs text-slate-400">estimation annuelle TTC</p>
         <div class="pt-2 space-y-1 text-xs text-slate-500">
@@ -308,142 +307,195 @@
           <div id="resultConso" class="hidden flex justify-between"><span>Conso. annuelle</span><span id="valConso" class="font-mono font-semibold"></span></div>
         </div>
       </div>
-      <!-- Avec Elga -->
-      <div class="bg-primary-600 rounded-2xl p-5 space-y-2 text-white">
+      <div class="bg-primary-600 rounded-2xl p-4 space-y-1 text-white">
         <p class="text-xs font-semibold text-primary-200 uppercase tracking-wide">Avec Elga Energy</p>
         <p id="resultElgaTotal" class="text-2xl font-extrabold"></p>
         <p class="text-xs text-primary-200">estimation annuelle TTC</p>
-        <div class="pt-2">
-          <p class="text-xs text-primary-100">30+ fournisseurs comparés</p>
-          <p class="text-xs text-primary-100">Négociation incluse</p>
+        <div class="pt-2 space-y-0.5">
+          <p class="text-xs text-primary-100">✓ 30+ fournisseurs comparés</p>
+          <p class="text-xs text-primary-100">✓ Négociation incluse, sans frais</p>
         </div>
       </div>
     </div>
 
-    <!-- Économies en grand -->
-    <div class="result-card bg-gradient-to-br from-primary-500 to-secondary-600 rounded-2xl shadow-strong p-8 text-white text-center space-y-3" style="animation-delay:.2s">
-      <p class="text-sm font-semibold text-white/80 uppercase tracking-widest">Économies potentielles</p>
+    <!-- Économies fourniture -->
+    <div class="result-card bg-gradient-to-br from-primary-500 to-secondary-600 rounded-2xl shadow-strong p-7 text-white text-center space-y-2" style="animation-delay:.2s">
+      <p class="text-xs font-semibold text-white/70 uppercase tracking-widest">Économies estimées sur la fourniture</p>
       <p id="resultSavings" class="text-5xl md:text-6xl font-extrabold"></p>
-      <p class="text-white/80">par an — soit <span id="resultSavingsPct" class="font-bold text-white"></span> d'économies</p>
-
-      <!-- Jauge visuelle -->
-      <div class="mt-4 bg-white/20 rounded-full h-3 overflow-hidden">
+      <p class="text-white/80 text-sm">par an — soit <span id="resultSavingsPct" class="font-bold text-white text-base"></span> de votre budget énergie</p>
+      <div class="mt-3 bg-white/20 rounded-full h-2.5 overflow-hidden">
         <div id="gaugeBar" class="gauge-fill h-full bg-white rounded-full" style="width:0%"></div>
       </div>
-      <p class="text-xs text-white/60" id="estimateDisclaimer"></p>
     </div>
 
-    <!-- Données extraites (détail) -->
-    <div class="result-card bg-white rounded-2xl shadow-soft p-5" style="animation-delay:.3s">
-      <button id="toggleDetails" class="w-full flex items-center justify-between text-sm font-semibold text-slate-600 hover:text-slate-800">
-        <span>Données extraites de votre facture</span>
-        <svg id="detailsChevron" class="w-4 h-4 transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
-      </button>
-      <div id="detailsPanel" class="hidden mt-4 grid grid-cols-2 gap-3 text-sm">
-        <!-- Populated by JS -->
+    <!-- Les 3 leviers d'économies -->
+    <div class="result-card space-y-3" style="animation-delay:.25s">
+      <p class="text-sm font-bold text-slate-700 px-1">Les 3 leviers d'optimisation sur votre contrat</p>
+
+      <!-- Levier 1 : Fourniture -->
+      <div class="bg-white rounded-xl shadow-soft p-4 flex items-start gap-4">
+        <div class="size-10 rounded-lg bg-primary-100 flex items-center justify-center shrink-0 text-lg">⚡</div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center justify-between gap-2">
+            <p class="text-sm font-bold text-slate-800">Prix de la fourniture</p>
+            <span class="shrink-0 text-xs font-bold text-primary-700 bg-primary-50 rounded-full px-2 py-0.5" id="lever1Badge"></span>
+          </div>
+          <p class="text-xs text-slate-500 mt-0.5">Le prix au kWh négocié auprès des fournisseurs. C'est là que se jouent les plus grandes économies — jusqu'à 30% selon votre contrat actuel.</p>
+        </div>
+      </div>
+
+      <!-- Levier 2 : TURPE -->
+      <div class="bg-white rounded-xl shadow-soft p-4 flex items-start gap-4">
+        <div class="size-10 rounded-lg bg-amber-100 flex items-center justify-center shrink-0 text-lg">🔧</div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center justify-between gap-2">
+            <p class="text-sm font-bold text-slate-800">Acheminement (TURPE)</p>
+            <span class="shrink-0 text-xs font-bold text-amber-700 bg-amber-50 rounded-full px-2 py-0.5">Jusqu'à 35%</span>
+          </div>
+          <p class="text-xs text-slate-500 mt-0.5">La plupart des entreprises ont une puissance souscrite trop élevée par rapport à leur consommation réelle. En l'ajustant, on réduit directement la part fixe du TURPE payé à Enedis.</p>
+        </div>
+      </div>
+
+      <!-- Levier 3 : Taxes -->
+      <div class="bg-white rounded-xl shadow-soft p-4 flex items-start gap-4">
+        <div class="size-10 rounded-lg bg-violet-100 flex items-center justify-center shrink-0 text-lg">💰</div>
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center justify-between gap-2">
+            <p class="text-sm font-bold text-slate-800">Taxes (Accise sur l'énergie)</p>
+            <span class="shrink-0 text-xs font-bold text-violet-700 bg-violet-50 rounded-full px-2 py-0.5">Récupération possible</span>
+          </div>
+          <p class="text-xs text-slate-500 mt-0.5">Selon votre secteur d'activité, il est possible de constituer un dossier de récupération de l'Accise (ex-TICFE/CSPE). Cette démarche, souvent méconnue, peut représenter plusieurs milliers d'euros par an.</p>
+        </div>
       </div>
     </div>
 
-    <!-- CTA vers entonnoir -->
-    <div class="result-card" style="animation-delay:.4s">
-      <button id="btnGetAudit"
-        class="w-full py-4 rounded-2xl bg-secondary-600 text-white font-bold text-lg shadow-strong hover:bg-secondary-700 transition-colors focus:outline-none focus:ring-2 focus:ring-secondary-600">
-        Obtenir mon bilan personnalisé gratuit →
+    <!-- Disclaimer attractif -->
+    <div class="result-card bg-slate-50 border border-slate-200 rounded-2xl p-5 space-y-2" style="animation-delay:.3s">
+      <p class="text-sm font-semibold text-slate-700">📊 À propos de cette simulation</p>
+      <p id="estimateDisclaimer" class="text-xs text-slate-500 leading-relaxed"></p>
+    </div>
+
+    <!-- Données extraites -->
+    <div class="result-card bg-white rounded-2xl shadow-soft p-4" style="animation-delay:.32s">
+      <button id="toggleDetails" class="w-full flex items-center justify-between text-sm font-semibold text-slate-600 hover:text-slate-800">
+        <span>Détail des données extraites</span>
+        <svg id="detailsChevron" class="w-4 h-4 transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
       </button>
-      <p class="text-center text-xs text-slate-400 mt-2">Un expert vous rappelle sous 24h avec un comparatif sur-mesure</p>
+      <div id="detailsPanel" class="hidden mt-4 grid grid-cols-2 gap-3 text-sm"></div>
+    </div>
+
+    <!-- CTA principal -->
+    <div class="result-card space-y-3" style="animation-delay:.35s">
+      <button id="btnGetAudit"
+        class="w-full py-4 rounded-2xl bg-secondary-600 text-white font-bold text-lg shadow-strong hover:bg-secondary-700 transition-all focus:outline-none focus:ring-2 focus:ring-secondary-600">
+        Affiner mes économies — bilan gratuit →
+      </button>
+      <p class="text-center text-xs text-slate-400">Résultat précis sous 24h · Zéro engagement · Zéro frais</p>
     </div>
   </div>
 
-  <!-- ── ÉTAPE 4 : Entonnoir lead ───────────────────────────────────────── -->
-  <div id="step-funnel" class="hidden fade-in">
+  <!-- ── ÉTAPE 4 : Entonnoir — Précision Enedis ─────────────────────────── -->
+  <div id="step-funnel" class="hidden fade-in space-y-5">
+
+    <!-- Accroche Enedis -->
     <div class="bg-white rounded-2xl shadow-strong overflow-hidden">
-
-      <!-- En-tête funnel -->
       <div class="bg-gradient-to-r from-secondary-600 to-primary-600 px-6 py-6 text-white">
-        <h2 class="text-xl font-bold">Votre bilan comparatif personnalisé</h2>
-        <p class="text-sm text-white/80 mt-1">Un conseiller Elga Energy analyse votre profil complet et vous présente les meilleures offres négociées</p>
+        <p class="text-xs font-semibold text-white/70 uppercase tracking-wide mb-1">Étape suivante</p>
+        <h2 class="text-xl font-bold leading-snug">Votre simulation peut être bien plus précise</h2>
+        <p class="text-sm text-white/80 mt-2">Une seule facture ne reflète pas votre consommation annuelle réelle. Voici comment on va affiner le calcul — sans effort de votre part.</p>
       </div>
 
-      <!-- Ce qu'ils vont recevoir -->
-      <div class="px-6 py-5 bg-primary-50 border-b border-primary-100">
-        <p class="text-sm font-semibold text-slate-700 mb-3">Ce que vous recevez — gratuitement :</p>
-        <ul class="space-y-2 text-sm text-slate-600">
-          <li class="flex items-start gap-2">
-            <svg class="w-4 h-4 text-primary-600 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
-            Tableau comparatif de 30+ fournisseurs sur votre profil réel
-          </li>
-          <li class="flex items-start gap-2">
-            <svg class="w-4 h-4 text-primary-600 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
-            Recommandation tarifaire argumentée (fixe vs indexé)
-          </li>
-          <li class="flex items-start gap-2">
-            <svg class="w-4 h-4 text-primary-600 shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
-            Gestion complète du changement si vous décidez de changer
-          </li>
-        </ul>
-      </div>
+      <div class="px-6 py-5 space-y-4">
+        <!-- Explication Enedis -->
+        <div class="bg-blue-50 border border-blue-100 rounded-xl p-4 space-y-3">
+          <p class="text-sm font-bold text-blue-900">🏛️ Enedis, c'est quoi exactement ?</p>
+          <p class="text-sm text-blue-800 leading-relaxed">Enedis est le gestionnaire unique du réseau de distribution électrique en France. Il conserve <strong>l'historique exact de vos 12 derniers mois de consommation</strong>, indépendamment de votre fournisseur.</p>
+          <p class="text-sm text-blue-800 leading-relaxed">En récupérant ces données, nous pouvons calculer votre budget annuel réel — et non une extrapolation d'une seule facture — pour vous proposer le comparatif le plus précis du marché.</p>
+        </div>
 
-      <!-- Formulaire -->
-      <form id="leadForm" action="https://formsubmit.co/cf16add96a7eedf5a12c3c2f738739f0" method="POST" class="px-6 py-6 space-y-4">
+        <!-- Comment ça marche -->
+        <div class="space-y-3">
+          <p class="text-sm font-bold text-slate-700">Comment ça se passe ?</p>
+          <div class="flex items-start gap-3">
+            <div class="size-7 rounded-full bg-primary-600 text-white text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">1</div>
+            <p class="text-sm text-slate-600">Vous nous laissez vos coordonnées ci-dessous</p>
+          </div>
+          <div class="flex items-start gap-3">
+            <div class="size-7 rounded-full bg-primary-600 text-white text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">2</div>
+            <p class="text-sm text-slate-600">Vous recevez un <strong>SMS d'Enedis</strong> pour autoriser la transmission de vos données de consommation</p>
+          </div>
+          <div class="flex items-start gap-3">
+            <div class="size-7 rounded-full bg-primary-600 text-white text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">3</div>
+            <p class="text-sm text-slate-600">Un conseiller Elga Energy vous rappelle avec votre <strong>bilan comparatif personnalisé</strong> sur les 3 leviers d'économies</p>
+          </div>
+        </div>
+
+        <div class="bg-primary-50 rounded-xl p-3 text-xs text-primary-800 font-medium text-center">
+          🔒 Vos données sont utilisées uniquement pour votre bilan. Aucune revente. Conformité RGPD.
+        </div>
+      </div>
+    </div>
+
+    <!-- Formulaire minimaliste -->
+    <div class="bg-white rounded-2xl shadow-soft overflow-hidden">
+      <div class="px-6 pt-5 pb-2">
+        <p class="text-base font-bold text-slate-800">Vos coordonnées</p>
+        <p class="text-xs text-slate-400 mt-0.5">Uniquement pour vous envoyer votre bilan et vous rappeler</p>
+      </div>
+      <form id="leadForm" action="https://formsubmit.co/cf16add96a7eedf5a12c3c2f738739f0" method="POST" class="px-6 pb-6 pt-4 space-y-4">
         <input type="hidden" name="_next" value="https://elgaenergy.com/merci.html" />
-        <input type="hidden" name="_subject" value="Demande bilan — Scan facture" />
+        <input type="hidden" name="_subject" value="Demande bilan précis — Scanner Elga" />
         <input type="hidden" name="_captcha" value="false" />
-        <input type="hidden" name="source" value="scanner-facture" />
+        <input type="hidden" name="source" value="scanner-facture-enedis" />
         <input type="hidden" id="hiddenSavings" name="economies_estimees" value="" />
         <input type="hidden" id="hiddenSupplier" name="fournisseur_actuel" value="" />
 
-        <div class="grid grid-cols-2 gap-4">
+        <div class="grid grid-cols-2 gap-3">
           <div>
-            <label class="block text-sm font-semibold text-slate-700 mb-1.5">Prénom *</label>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Prénom *</label>
             <input type="text" name="prenom" required placeholder="Jean"
-              class="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" />
+              class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" />
           </div>
           <div>
-            <label class="block text-sm font-semibold text-slate-700 mb-1.5">Nom *</label>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Nom *</label>
             <input type="text" name="nom" required placeholder="Dupont"
-              class="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" />
+              class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" />
           </div>
         </div>
 
         <div>
-          <label class="block text-sm font-semibold text-slate-700 mb-1.5">Entreprise *</label>
-          <input type="text" name="entreprise" required placeholder="Nom de votre entreprise ou établissement"
-            class="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" />
-        </div>
-
-        <div class="grid grid-cols-2 gap-4">
-          <div>
-            <label class="block text-sm font-semibold text-slate-700 mb-1.5">Email *</label>
-            <input type="email" name="email" required placeholder="jean@entreprise.fr"
-              class="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" />
-          </div>
-          <div>
-            <label class="block text-sm font-semibold text-slate-700 mb-1.5">Téléphone *</label>
-            <input type="tel" name="telephone" required placeholder="06 00 00 00 00"
-              class="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" />
-          </div>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Téléphone portable * <span class="text-slate-400 font-normal">(pour recevoir le SMS Enedis)</span></label>
+          <input type="tel" name="telephone" required placeholder="06 00 00 00 00"
+            class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" />
         </div>
 
         <div>
-          <label class="block text-sm font-semibold text-slate-700 mb-1.5">Meilleur moment pour vous rappeler</label>
-          <select name="rappel" class="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent bg-white">
-            <option value="">Sans préférence</option>
-            <option value="matin">Matin (9h – 12h)</option>
-            <option value="apres-midi">Après-midi (14h – 18h)</option>
-            <option value="flexible">Je suis flexible</option>
-          </select>
+          <label class="block text-xs font-semibold text-slate-600 mb-1">Email *</label>
+          <input type="email" name="email" required placeholder="jean@entreprise.fr"
+            class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" />
         </div>
 
         <button type="submit"
           class="w-full py-4 rounded-2xl bg-primary-600 text-white font-bold text-base shadow-soft hover:bg-primary-700 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-400">
-          Je veux mon bilan comparatif gratuit →
+          J'autorise la récupération de mes données Enedis →
         </button>
 
+        <div class="flex items-start gap-2 pt-1">
+          <input type="checkbox" name="rappel_consent" id="rappelConsent" value="oui" class="mt-0.5 accent-primary-600" />
+          <label for="rappelConsent" class="text-xs text-slate-500 leading-relaxed cursor-pointer">
+            J'accepte d'être rappelé par un conseiller Elga Energy si besoin pour finaliser mon bilan. Sans engagement, sans frais.
+          </label>
+        </div>
+
         <p class="text-center text-xs text-slate-400">
-          En soumettant ce formulaire, vous acceptez d'être contacté par Elga Energy. Aucun frais, sans engagement.
+          Démarche 100% gratuite · Aucune obligation de changer de fournisseur
         </p>
       </form>
     </div>
+
+    <button id="btnBackToResults" class="w-full text-center text-sm text-slate-400 hover:text-slate-600 underline underline-offset-2">
+      ← Retour aux résultats
+    </button>
   </div>
 
 </main>
@@ -632,6 +684,10 @@
       document.getElementById('resultSavingsPct').textContent = s.savings_pct + '%';
       document.getElementById('hiddenSavings').value = formatEuro(s.savings_annual) + '/an (' + s.savings_pct + '%)';
 
+      // Levier 1 badge
+      const lever1 = document.getElementById('lever1Badge');
+      if (lever1) lever1.textContent = s.savings_pct + '% identifié';
+
       // Animate gauge
       setTimeout(() => {
         document.getElementById('gaugeBar').style.width = Math.min(s.savings_pct * 2.5, 95) + '%';
@@ -647,7 +703,9 @@
       document.getElementById('resultSavings').textContent = 'Contactez-nous';
       document.getElementById('resultSavingsPct').textContent = 'jusqu\'à 30%';
       document.getElementById('gaugeBar').style.width = '60%';
-      document.getElementById('estimateDisclaimer').textContent = 'Données insuffisantes pour un calcul précis — un conseiller vous contacte avec votre bilan';
+      document.getElementById('estimateDisclaimer').textContent = 'Nous n\'avons pas pu extraire suffisamment de données de cette facture pour un calcul automatique. Nos conseillers effectueront l\'analyse complète sur votre profil réel — obtenez votre bilan ci-dessous.';
+      const lever1 = document.getElementById('lever1Badge');
+      if (lever1) lever1.textContent = 'À calculer';
     }
 
     // Price details — champs nouveaux (€/MWh) avec fallback anciens (€/kWh)
@@ -716,6 +774,11 @@
     window.scrollTo({ top: document.getElementById('step-funnel').offsetTop - 80, behavior: 'smooth' });
     gtag('event', 'funnel_start', { event_category: 'scanner' });
   });
+
+  const btnBackToResults = document.getElementById('btnBackToResults');
+  if (btnBackToResults) {
+    btnBackToResults.addEventListener('click', () => showStep('results'));
+  }
 
   // ── Helpers ───────────────────────────────────────────────────────────────
   function showStep(step) {
