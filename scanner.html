@@ -318,19 +318,19 @@
       </div>
     </div>
 
-    <!-- Delta en grand -->
+    <!-- Delta en grand — héros : économies annuelles -->
     <div class="result-card bg-gradient-to-br from-primary-500 to-secondary-600 rounded-2xl shadow-strong p-7 text-white text-center space-y-2" style="animation-delay:.2s">
-      <p class="text-xs font-semibold text-white/70 uppercase tracking-widest">Vous auriez économisé</p>
+      <p class="text-xs font-semibold text-white/70 uppercase tracking-widest">Économies estimées sur 12 mois</p>
       <p id="resultSavings" class="text-5xl md:text-6xl font-extrabold"></p>
       <p class="text-white/80 text-sm" id="resultSavingsSubline"></p>
       <div class="mt-3 bg-white/20 rounded-full h-2.5 overflow-hidden">
         <div id="gaugeBar" class="gauge-fill h-full bg-white rounded-full" style="width:0%"></div>
       </div>
-      <!-- Projection annuelle -->
-      <div id="annualProjectionBlock" class="mt-4 bg-white/10 rounded-xl px-4 py-3 text-left space-y-0.5 hidden">
-        <p class="text-xs text-white/60 font-semibold uppercase tracking-wide">Projection × 12 mois</p>
-        <p class="text-sm font-bold text-white" id="annualProjectionText"></p>
-        <p class="text-xs text-white/60">⚠️ Estimation linéaire — votre vraie CAR peut varier (voir ci-dessous)</p>
+      <!-- Disclaimer estimation -->
+      <p class="text-xs text-white/50 mt-2">* Projection basée sur votre facture de <span id="resultPeriodMonths"></span> — votre consommation réelle peut varier selon les saisons</p>
+      <!-- Détail mensuel -->
+      <div id="annualProjectionBlock" class="mt-3 bg-white/10 rounded-xl px-4 py-2.5 text-center hidden">
+        <p class="text-xs text-white/60">Soit environ <span id="resultSavingsMonthly" class="font-bold text-white/90"></span> par mois sur cette facture</p>
       </div>
     </div>
 
@@ -722,21 +722,26 @@
 
       document.getElementById('resultClientTotal').textContent = formatEuro(clientPeriod);
       document.getElementById('resultElgaTotal').textContent   = formatEuro(elgaPeriod);
-      document.getElementById('resultSavings').textContent     = formatEuro(savingsPeriod);
 
-      // Sous-titre delta
+      // ── Héros : économies ANNUELLES en grand ──────────────────────────────
+      document.getElementById('resultSavings').textContent = formatEuro(s.savings_annual);
+
+      // Sous-titre : % + budget annuel avec Elga
       const subline = document.getElementById('resultSavingsSubline');
-      if (subline) subline.textContent = 'soit ' + s.savings_pct + '% de moins ' + (months === 1 ? 'sur ce mois' : 'sur cette période');
+      if (subline) subline.textContent = 'soit ' + s.savings_pct + '% — budget annuel avec Elga : ' + formatEuro(s.elga_total_annual);
 
-      // Projection annuelle × 12
+      // Disclaimer période (astérisque)
+      const periodMonthsEl = document.getElementById('resultPeriodMonths');
+      if (periodMonthsEl) periodMonthsEl.textContent = months === 1 ? '1 mois' : months + ' mois';
+
+      // Bloc mensuel (secondaire)
       const annualBlock = document.getElementById('annualProjectionBlock');
-      const annualText  = document.getElementById('annualProjectionText');
-      if (annualBlock && annualText) {
+      if (annualBlock) {
         annualBlock.classList.remove('hidden');
-        annualText.textContent = '≈ ' + formatEuro(s.savings_annual) + '/an en économies · budget annuel : ' + formatEuro(s.elga_total_annual) + ' avec Elga';
+        document.getElementById('resultSavingsMonthly').textContent = formatEuro(savingsPeriod);
       }
 
-      document.getElementById('hiddenSavings').value = formatEuro(savingsPeriod) + ' sur ' + months + ' mois (' + s.savings_pct + '%)';
+      document.getElementById('hiddenSavings').value = formatEuro(s.savings_annual) + '/an (' + s.savings_pct + '%)';
 
       // Levier 1 badge
       const lever1 = document.getElementById('lever1Badge');
@@ -754,7 +759,9 @@
       document.getElementById('resultElgaTotal').textContent = '—';
       document.getElementById('resultSavings').textContent = 'Jusqu\'à 30%';
       const subline = document.getElementById('resultSavingsSubline');
-      if (subline) subline.textContent = 'd\'économies potentielles selon votre profil';
+      if (subline) subline.textContent = 'd\'économies potentielles sur votre budget annuel';
+      const pmEl = document.getElementById('resultPeriodMonths');
+      if (pmEl) pmEl.textContent = '1 mois';
       document.getElementById('gaugeBar').style.width = '60%';
       const lever1 = document.getElementById('lever1Badge');
       if (lever1) lever1.textContent = 'À calculer';
