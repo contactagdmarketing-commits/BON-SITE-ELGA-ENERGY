@@ -294,23 +294,23 @@
       </button>
     </div>
 
-    <!-- Budget actuel vs Elga -->
+    <!-- Comparaison sur la période facturée -->
     <div class="result-card grid grid-cols-2 gap-3" style="animation-delay:.1s">
       <div class="bg-white rounded-2xl shadow-soft p-4 space-y-1">
-        <p class="text-xs font-semibold text-slate-400 uppercase tracking-wide">Votre budget actuel</p>
+        <p class="text-xs font-semibold text-slate-400 uppercase tracking-wide">Vous avez payé</p>
         <p id="resultClientTotal" class="text-2xl font-extrabold text-slate-800"></p>
-        <p class="text-xs text-slate-400">estimation annuelle TTC</p>
+        <p id="resultPeriodLabel" class="text-xs text-slate-400">sur cette facture TTC</p>
         <div class="pt-2 space-y-1 text-xs text-slate-500">
           <div id="resultPriceHp" class="hidden flex justify-between"><span>Prix HP</span><span id="valPriceHp" class="font-mono font-semibold"></span></div>
           <div id="resultPriceHc" class="hidden flex justify-between"><span>Prix HC</span><span id="valPriceHc" class="font-mono font-semibold"></span></div>
           <div id="resultPriceBase" class="hidden flex justify-between"><span>Prix base</span><span id="valPriceBase" class="font-mono font-semibold"></span></div>
-          <div id="resultConso" class="hidden flex justify-between"><span>Conso. annuelle</span><span id="valConso" class="font-mono font-semibold"></span></div>
+          <div id="resultConso" class="hidden flex justify-between"><span>Conso. période</span><span id="valConso" class="font-mono font-semibold"></span></div>
         </div>
       </div>
       <div class="bg-primary-600 rounded-2xl p-4 space-y-1 text-white">
         <p class="text-xs font-semibold text-primary-200 uppercase tracking-wide">Avec Elga Energy</p>
         <p id="resultElgaTotal" class="text-2xl font-extrabold"></p>
-        <p class="text-xs text-primary-200">estimation annuelle TTC</p>
+        <p class="text-xs text-primary-200">même période TTC</p>
         <div class="pt-2 space-y-0.5">
           <p class="text-xs text-primary-100">✓ 30+ fournisseurs comparés</p>
           <p class="text-xs text-primary-100">✓ Négociation incluse, sans frais</p>
@@ -318,13 +318,19 @@
       </div>
     </div>
 
-    <!-- Économies fourniture -->
+    <!-- Delta en grand -->
     <div class="result-card bg-gradient-to-br from-primary-500 to-secondary-600 rounded-2xl shadow-strong p-7 text-white text-center space-y-2" style="animation-delay:.2s">
-      <p class="text-xs font-semibold text-white/70 uppercase tracking-widest">Économies estimées sur la fourniture</p>
+      <p class="text-xs font-semibold text-white/70 uppercase tracking-widest">Vous auriez économisé</p>
       <p id="resultSavings" class="text-5xl md:text-6xl font-extrabold"></p>
-      <p class="text-white/80 text-sm">par an — soit <span id="resultSavingsPct" class="font-bold text-white text-base"></span> de votre budget énergie</p>
+      <p class="text-white/80 text-sm" id="resultSavingsSubline"></p>
       <div class="mt-3 bg-white/20 rounded-full h-2.5 overflow-hidden">
         <div id="gaugeBar" class="gauge-fill h-full bg-white rounded-full" style="width:0%"></div>
+      </div>
+      <!-- Projection annuelle -->
+      <div id="annualProjectionBlock" class="mt-4 bg-white/10 rounded-xl px-4 py-3 text-left space-y-0.5 hidden">
+        <p class="text-xs text-white/60 font-semibold uppercase tracking-wide">Projection × 12 mois</p>
+        <p class="text-sm font-bold text-white" id="annualProjectionText"></p>
+        <p class="text-xs text-white/60">⚠️ Estimation linéaire — votre vraie CAR peut varier (voir ci-dessous)</p>
       </div>
     </div>
 
@@ -369,10 +375,34 @@
       </div>
     </div>
 
-    <!-- Disclaimer attractif -->
-    <div class="result-card bg-slate-50 border border-slate-200 rounded-2xl p-5 space-y-2" style="animation-delay:.3s">
-      <p class="text-sm font-semibold text-slate-700">📊 À propos de cette simulation</p>
-      <p id="estimateDisclaimer" class="text-xs text-slate-500 leading-relaxed"></p>
+    <!-- Carte CAR : pourquoi ×12 ≠ budget réel -->
+    <div class="result-card bg-amber-50 border border-amber-200 rounded-2xl p-5 space-y-3" style="animation-delay:.3s">
+      <div class="flex items-start gap-3">
+        <span class="text-xl shrink-0 mt-0.5">📐</span>
+        <div>
+          <p class="text-sm font-bold text-amber-900">Pourquoi votre budget annuel réel est différent</p>
+          <p class="text-xs text-amber-800 leading-relaxed mt-1.5">
+            On pourrait multiplier votre facture par 12 — mais ce serait inexact. <strong>Votre consommation d'énergie n'est pas linéaire :</strong> chauffage en hiver, climatisation en été, périodes creuses... Une seule facture ne reflète qu'un instant T.
+          </p>
+          <p class="text-xs text-amber-800 leading-relaxed mt-1.5">
+            La <strong>Consommation Annuelle de Référence (CAR)</strong>, c'est vos 12 derniers mois de consommation réelle, tels qu'ils sont enregistrés par Enedis. C'est la seule base fiable pour calculer un vrai budget annuel et comparer les offres fournisseurs.
+          </p>
+          <div class="mt-3 bg-amber-100 rounded-lg px-3 py-2 text-xs font-semibold text-amber-900">
+            👉 Pour connaître votre vraie CAR et calculer vos économies réelles, cliquez sur le bouton ci-dessous.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Bandeau urgence marché -->
+    <div class="result-card bg-red-50 border border-red-200 rounded-xl p-4 flex items-start gap-3" style="animation-delay:.32s">
+      <span class="text-lg shrink-0 mt-0.5">⏱️</span>
+      <div>
+        <p class="text-sm font-bold text-red-800">Ces tarifs peuvent changer d'une semaine à l'autre</p>
+        <p class="text-xs text-red-700 leading-relaxed mt-1">
+          Les prix affichés sont basés sur nos <strong>dernières négociations en cours</strong> avec les fournisseurs. Les marchés de l'énergie fluctuent en permanence : les offres compétitives d'aujourd'hui ne seront peut-être plus disponibles dans quelques semaines. Plus vous attendez, moins vous avez de garantie de bénéficier de ces conditions.
+        </p>
+      </div>
     </div>
 
     <!-- Données extraites -->
@@ -678,11 +708,35 @@
     document.getElementById('hiddenSupplier').value = e.supplier || '';
 
     if (s) {
-      document.getElementById('resultClientTotal').textContent = formatEuro(s.client_total_annual) + '/an';
-      document.getElementById('resultElgaTotal').textContent = formatEuro(s.elga_total_annual) + '/an';
-      document.getElementById('resultSavings').textContent = formatEuro(s.savings_annual);
-      document.getElementById('resultSavingsPct').textContent = s.savings_pct + '%';
-      document.getElementById('hiddenSavings').value = formatEuro(s.savings_annual) + '/an (' + s.savings_pct + '%)';
+      // ── Calcul sur la période facturée (pas annualisé) ───────────────────
+      const months = e.billing_months || 1;
+      const clientPeriod  = Math.round(s.client_total_annual / 12 * months);
+      const elgaPeriod    = Math.round(s.elga_total_annual   / 12 * months);
+      const savingsPeriod = Math.round(s.savings_annual      / 12 * months);
+
+      // Label période
+      const periodLabel = months === 1 ? 'sur 1 mois TTC'
+                        : months === 2 ? 'sur 2 mois TTC'
+                        : 'sur ' + months + ' mois TTC';
+      document.getElementById('resultPeriodLabel').textContent = periodLabel;
+
+      document.getElementById('resultClientTotal').textContent = formatEuro(clientPeriod);
+      document.getElementById('resultElgaTotal').textContent   = formatEuro(elgaPeriod);
+      document.getElementById('resultSavings').textContent     = formatEuro(savingsPeriod);
+
+      // Sous-titre delta
+      const subline = document.getElementById('resultSavingsSubline');
+      if (subline) subline.textContent = 'soit ' + s.savings_pct + '% de moins ' + (months === 1 ? 'sur ce mois' : 'sur cette période');
+
+      // Projection annuelle × 12
+      const annualBlock = document.getElementById('annualProjectionBlock');
+      const annualText  = document.getElementById('annualProjectionText');
+      if (annualBlock && annualText) {
+        annualBlock.classList.remove('hidden');
+        annualText.textContent = '≈ ' + formatEuro(s.savings_annual) + '/an en économies · budget annuel : ' + formatEuro(s.elga_total_annual) + ' avec Elga';
+      }
+
+      document.getElementById('hiddenSavings').value = formatEuro(savingsPeriod) + ' sur ' + months + ' mois (' + s.savings_pct + '%)';
 
       // Levier 1 badge
       const lever1 = document.getElementById('lever1Badge');
@@ -693,17 +747,15 @@
         document.getElementById('gaugeBar').style.width = Math.min(s.savings_pct * 2.5, 95) + '%';
       }, 300);
 
-      // Disclaimer toujours affiché
-      document.getElementById('estimateDisclaimer').textContent = s.is_estimate
-        ? '⚠️ Simulation indicative basée sur vos prix contractuels. Le budget annuel exact dépend de votre consommation réelle sur 12 mois (source Enedis/GRTgaz). Obtenez votre bilan personnalisé pour un chiffrage précis.'
-        : '📊 Simulation basée sur vos prix facturés. La consommation annuelle réelle (source Enedis) peut faire varier ce montant. Demandez votre bilan gratuit pour le chiffrage définitif.';
     } else {
+      // Calcul impossible
+      document.getElementById('resultPeriodLabel').textContent = 'sur cette facture TTC';
       document.getElementById('resultClientTotal').textContent = 'Non calculé';
       document.getElementById('resultElgaTotal').textContent = '—';
-      document.getElementById('resultSavings').textContent = 'Contactez-nous';
-      document.getElementById('resultSavingsPct').textContent = 'jusqu\'à 30%';
+      document.getElementById('resultSavings').textContent = 'Jusqu\'à 30%';
+      const subline = document.getElementById('resultSavingsSubline');
+      if (subline) subline.textContent = 'd\'économies potentielles selon votre profil';
       document.getElementById('gaugeBar').style.width = '60%';
-      document.getElementById('estimateDisclaimer').textContent = 'Nous n\'avons pas pu extraire suffisamment de données de cette facture pour un calcul automatique. Nos conseillers effectueront l\'analyse complète sur votre profil réel — obtenez votre bilan ci-dessous.';
       const lever1 = document.getElementById('lever1Badge');
       if (lever1) lever1.textContent = 'À calculer';
     }
@@ -727,8 +779,12 @@
       document.getElementById('valPriceBase').textContent = bas.toFixed(2) + ' €/MWh HT';
     }
     if (consoMwh) {
+      const months2 = e.billing_months || 1;
+      const consoPeriod = consoMwh / 12 * months2;
       document.getElementById('resultConso').classList.remove('hidden');
-      document.getElementById('valConso').textContent = consoMwh >= 1 ? formatNumber(Math.round(consoMwh)) + ' MWh/an' : formatNumber(Math.round(consoMwh * 1000)) + ' kWh/an';
+      document.getElementById('valConso').textContent = consoPeriod >= 1
+        ? formatNumber(Math.round(consoPeriod)) + ' MWh'
+        : formatNumber(Math.round(consoPeriod * 1000)) + ' kWh';
     }
 
     // Details panel
