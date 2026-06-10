@@ -1,0 +1,779 @@
+<!doctype html>
+<html lang="fr-FR" class="scroll-smooth">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Analysez votre facture d'énergie — Elga Energy</title>
+  <meta name="description" content="Déposez votre facture d'électricité ou de gaz. Notre analyse identifie vos prix actuels et les compare aux meilleures offres du marché professionnel." />
+  <link rel="canonical" href="https://elgaenergy.com/scanner.html" />
+  <link rel="icon" href="/assets/logos/elga-energy-logo.svg" type="image/svg+xml" sizes="any" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            elga: { DEFAULT: '#0b3d91', light: '#1a52b8' }
+          },
+          fontFamily: {
+            sans: ['Inter', 'system-ui', 'sans-serif'],
+            mono: ['JetBrains Mono', 'Menlo', 'monospace']
+          },
+          container: { center: true, padding: '1.5rem', screens: { lg: '860px' } }
+        }
+      }
+    }
+  </script>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet" />
+
+  <style>
+    body { font-family: 'Inter', sans-serif; }
+
+    /* Drop zone */
+    .drop-zone {
+      border: 1.5px dashed #cbd5e1;
+      transition: border-color .15s, background .15s;
+    }
+    .drop-zone:hover, .drop-zone.drag-over {
+      border-color: #0b3d91;
+      background: #f8faff;
+    }
+
+    /* Progress line */
+    .progress-line { transition: width 1s ease; }
+
+    /* Scan step */
+    .scan-step { opacity: .3; transition: opacity .3s; }
+    .scan-step.active { opacity: 1; }
+    .scan-step.done { opacity: .6; }
+
+    /* Savings bar */
+    .savings-fill { transition: width 1.4s cubic-bezier(.16,1,.3,1); }
+
+    /* Fade up */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(12px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .fade-up { animation: fadeUp .4s ease both; }
+    .fade-up-1 { animation: fadeUp .4s .08s ease both; }
+    .fade-up-2 { animation: fadeUp .4s .16s ease both; }
+    .fade-up-3 { animation: fadeUp .4s .24s ease both; }
+    .fade-up-4 { animation: fadeUp .4s .32s ease both; }
+
+    /* Spin */
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .spin { animation: spin 1s linear infinite; }
+
+    /* Gauge fill */
+    .gauge-fill { transition: width 1.2s cubic-bezier(.34,1.56,.64,1); }
+
+    /* Tabular numbers */
+    .nums { font-variant-numeric: tabular-nums; font-feature-settings: "tnum"; }
+  </style>
+
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-SHXXPV14N7"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){ dataLayer.push(arguments); }
+    gtag('js', new Date());
+    gtag('config', 'G-SHXXPV14N7');
+  </script>
+</head>
+<body class="antialiased bg-white text-slate-900">
+
+<script>
+  window.ELGA_WORKER_URL = 'https://elga-scanner.edhy-delaprez.workers.dev';
+</script>
+
+<!-- ─── Navigation ─────────────────────────────────────────────────────────── -->
+<header class="border-b border-slate-100 bg-white sticky top-0 z-50">
+  <div class="container flex items-center justify-between py-3">
+    <a href="/" class="flex items-center gap-2.5">
+      <img src="/assets/logos/elga-energy-logo.svg" alt="Elga Energy" class="h-8 w-auto" onerror="this.remove()" />
+    </a>
+    <nav class="hidden md:flex items-center gap-8 text-sm text-slate-500 font-medium">
+      <a href="/#offre"    class="hover:text-slate-900 transition-colors">Offre</a>
+      <a href="/#secteurs" class="hover:text-slate-900 transition-colors">Secteurs</a>
+      <a href="/actu.html" class="hover:text-slate-900 transition-colors">Blog</a>
+      <a href="/scanner.html" class="text-elga font-semibold" aria-current="page">Scanner ma facture</a>
+    </nav>
+    <div class="flex items-center gap-3">
+      <a href="tel:+33745117867" class="hidden md:block text-sm text-slate-500 hover:text-slate-900 transition-colors">
+        07 45 11 78 67
+      </a>
+      <a href="/devis.html"
+         class="text-sm font-semibold bg-elga text-white px-4 py-2 rounded-lg hover:bg-elga-light transition-colors">
+        Devis gratuit
+      </a>
+    </div>
+  </div>
+</header>
+
+<!-- ─── En-tête page ────────────────────────────────────────────────────────── -->
+<div class="border-b border-slate-100 bg-slate-50">
+  <div class="container py-10 max-w-2xl">
+    <p class="text-xs font-medium text-slate-400 uppercase tracking-widest mb-3">Analyse de facture</p>
+    <h1 class="text-2xl font-semibold text-slate-900 leading-snug">
+      Comparez votre contrat énergie<br class="hidden sm:block" /> aux meilleures offres du marché
+    </h1>
+    <p class="mt-2 text-sm text-slate-500 max-w-lg">
+      Déposez une facture d'électricité ou de gaz. Notre analyse identifie vos prix actuels et calcule l'écart avec les offres négociées auprès de 30+ fournisseurs.
+    </p>
+  </div>
+</div>
+
+<!-- ─── Zone principale ─────────────────────────────────────────────────────── -->
+<main class="container py-10 max-w-2xl">
+
+  <!-- Message d'erreur -->
+  <div id="errorMsg" class="hidden mb-6 flex items-start gap-3 bg-red-50 border border-red-200 rounded-lg px-4 py-3">
+    <svg class="w-4 h-4 text-red-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/>
+    </svg>
+    <p id="errorText" class="text-sm text-red-700"></p>
+  </div>
+
+  <!-- ── ÉTAPE 1 : Upload ────────────────────────────────────────────────────── -->
+  <div id="step-upload" class="space-y-6">
+
+    <!-- Zone de dépôt -->
+    <div id="dropZone" class="drop-zone rounded-xl p-12 text-center cursor-pointer select-none">
+      <input type="file" id="fileInput" class="hidden" accept=".pdf,image/jpeg,image/png,image/webp" />
+
+      <div id="dropDefault">
+        <div class="flex justify-center mb-5">
+          <div class="size-14 rounded-xl bg-slate-100 flex items-center justify-center">
+            <svg class="w-7 h-7 text-slate-400" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/>
+            </svg>
+          </div>
+        </div>
+        <p class="text-sm font-medium text-slate-700">Déposez votre facture ici</p>
+        <p class="text-xs text-slate-400 mt-1">ou cliquez pour sélectionner un fichier</p>
+        <p class="text-xs text-slate-300 mt-4">PDF · JPG · PNG · WEBP — 10 Mo max</p>
+      </div>
+
+      <div id="dropSelected" class="hidden">
+        <div class="flex justify-center mb-4">
+          <div class="size-14 rounded-xl bg-emerald-50 border border-emerald-200 flex items-center justify-center">
+            <svg class="w-7 h-7 text-emerald-600" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m2.25 0H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/>
+            </svg>
+          </div>
+        </div>
+        <p id="selectedFileName" class="text-sm font-medium text-slate-800 truncate max-w-xs mx-auto"></p>
+        <p class="text-xs text-slate-400 mt-1">Fichier prêt à analyser</p>
+      </div>
+    </div>
+
+    <!-- Bouton analyse -->
+    <button id="btnAnalyze" disabled
+      class="w-full py-3.5 rounded-lg bg-elga text-white text-sm font-semibold
+             disabled:opacity-30 disabled:cursor-not-allowed
+             hover:bg-elga-light transition-colors focus:outline-none focus:ring-2 focus:ring-elga focus:ring-offset-2">
+      Lancer l'analyse
+    </button>
+
+    <!-- Réassurance -->
+    <div class="flex items-center justify-center gap-6 text-xs text-slate-400">
+      <span class="flex items-center gap-1.5">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 10-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 002.25-2.25v-6.75a2.25 2.25 0 00-2.25-2.25H6.75a2.25 2.25 0 00-2.25 2.25v6.75a2.25 2.25 0 002.25 2.25z"/>
+        </svg>
+        Données sécurisées
+      </span>
+      <span class="flex items-center gap-1.5">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        Résultat en 30 secondes
+      </span>
+      <span class="flex items-center gap-1.5">
+        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19 7.5v3m0 0v3m0-3h3m-3 0h-3m-2.25-4.125a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zM4 19.235v-.11a6.375 6.375 0 0112.75 0v.109A12.318 12.318 0 0110.374 21c-2.331 0-4.512-.645-6.374-1.766z"/>
+        </svg>
+        Sans engagement
+      </span>
+    </div>
+  </div>
+
+  <!-- ── ÉTAPE 2 : Analyse en cours ─────────────────────────────────────────── -->
+  <div id="step-scanning" class="hidden py-8 space-y-10">
+
+    <!-- Barre de progression -->
+    <div>
+      <div class="flex justify-between text-xs text-slate-400 mb-2">
+        <span>Analyse en cours</span>
+        <span id="scanPct" class="nums">0%</span>
+      </div>
+      <div class="h-0.5 bg-slate-100 rounded-full overflow-hidden">
+        <div id="progressLine" class="progress-line h-full bg-elga rounded-full" style="width:0%"></div>
+      </div>
+    </div>
+
+    <!-- Étapes texte -->
+    <div class="space-y-4">
+      <div id="scanStep1" class="scan-step flex items-center gap-3 text-sm">
+        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m6.75 12H9m1.5-12H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"/>
+        </svg>
+        Lecture du document
+      </div>
+      <div id="scanStep2" class="scan-step flex items-center gap-3 text-sm">
+        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3.75v4.5m0-4.5h4.5m-4.5 0L9 9M3.75 20.25v-4.5m0 4.5h4.5m-4.5 0L9 15M20.25 3.75h-4.5m4.5 0v4.5m0-4.5L15 9m5.25 11.25h-4.5m4.5 0v-4.5m0 4.5L15 15"/>
+        </svg>
+        Extraction des données tarifaires
+      </div>
+      <div id="scanStep3" class="scan-step flex items-center gap-3 text-sm">
+        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M7.5 14.25v2.25m3-4.5v4.5m3-6.75v6.75m3-9v9M6 20.25h12A2.25 2.25 0 0020.25 18V6A2.25 2.25 0 0018 3.75H6A2.25 2.25 0 003.75 6v12A2.25 2.25 0 006 20.25z"/>
+        </svg>
+        Comparaison avec les offres du marché
+      </div>
+      <div id="scanStep4" class="scan-step flex items-center gap-3 text-sm">
+        <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        Calcul des économies potentielles
+      </div>
+    </div>
+  </div>
+
+  <!-- ── ÉTAPE 3 : Résultats ─────────────────────────────────────────────────── -->
+  <div id="step-results" class="hidden space-y-0">
+
+    <!-- En-tête contrat détecté -->
+    <div class="fade-up flex items-center justify-between py-4 border-b border-slate-100">
+      <div>
+        <p class="text-xs text-slate-400 uppercase tracking-widest font-medium mb-0.5">Contrat analysé</p>
+        <p id="resultSupplier" class="text-sm font-semibold text-slate-800"></p>
+        <p id="resultContract" class="text-xs text-slate-500 mt-0.5"></p>
+      </div>
+      <button id="btnRescan" class="text-xs text-slate-400 hover:text-slate-600 underline underline-offset-2">
+        Nouvelle facture
+      </button>
+    </div>
+
+    <!-- Économies — chiffre central -->
+    <div class="fade-up-1 py-10 text-center border-b border-slate-100">
+      <p class="text-xs text-slate-400 uppercase tracking-widest font-medium mb-4">Économies estimées sur 12 mois</p>
+      <p id="resultSavings" class="nums text-6xl font-bold text-emerald-600 tracking-tight leading-none"></p>
+      <p id="resultSavingsSubline" class="text-sm text-slate-500 mt-3"></p>
+      <!-- Barre de ratio -->
+      <div class="mt-6 max-w-xs mx-auto">
+        <div class="h-1 bg-slate-100 rounded-full overflow-hidden">
+          <div id="gaugeBar" class="gauge-fill h-full bg-emerald-500 rounded-full" style="width:0%"></div>
+        </div>
+      </div>
+      <!-- Projection et disclaimer -->
+      <div id="annualProjectionBlock" class="hidden mt-5 text-xs text-slate-400 space-y-1">
+        <p id="resultSavingsMonthly"></p>
+        <p class="text-slate-300">* Projection × 12 mois basée sur votre facture de <span id="resultPeriodMonths"></span></p>
+      </div>
+    </div>
+
+    <!-- Tableau de comparaison -->
+    <div class="fade-up-2 py-6 border-b border-slate-100">
+      <p class="text-xs text-slate-400 uppercase tracking-widest font-medium mb-4">Détail de la facture analysée</p>
+      <table class="w-full text-sm">
+        <thead>
+          <tr class="text-xs text-slate-400 uppercase tracking-wide">
+            <th class="text-left font-medium pb-3 w-1/2"></th>
+            <th class="text-right font-medium pb-3">Votre contrat actuel</th>
+            <th class="text-right font-medium pb-3 text-elga">Avec Elga Energy</th>
+          </tr>
+        </thead>
+        <tbody class="divide-y divide-slate-50">
+          <tr>
+            <td class="py-2.5 text-slate-600" id="resultPeriodLabel">Cette facture</td>
+            <td id="resultClientTotal" class="py-2.5 text-right font-semibold nums text-slate-800"></td>
+            <td id="resultElgaTotal" class="py-2.5 text-right font-semibold nums text-elga"></td>
+          </tr>
+          <tr id="resultPriceHpRow" class="hidden">
+            <td class="py-2 text-slate-400 text-xs">Prix HP</td>
+            <td id="valPriceHp" class="py-2 text-right text-xs nums text-slate-500"></td>
+            <td class="py-2 text-right text-xs text-slate-300">—</td>
+          </tr>
+          <tr id="resultPriceHcRow" class="hidden">
+            <td class="py-2 text-slate-400 text-xs">Prix HC</td>
+            <td id="valPriceHc" class="py-2 text-right text-xs nums text-slate-500"></td>
+            <td class="py-2 text-right text-xs text-slate-300">—</td>
+          </tr>
+          <tr id="resultPriceBaseRow" class="hidden">
+            <td class="py-2 text-slate-400 text-xs">Prix base</td>
+            <td id="valPriceBase" class="py-2 text-right text-xs nums text-slate-500"></td>
+            <td class="py-2 text-right text-xs text-slate-300">—</td>
+          </tr>
+          <tr id="resultConsoRow" class="hidden">
+            <td class="py-2 text-slate-400 text-xs">Consommation période</td>
+            <td id="valConso" class="py-2 text-right text-xs nums text-slate-500"></td>
+            <td class="py-2 text-right text-xs text-slate-300">—</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Les 3 leviers — liste typographique, pas de cards -->
+    <div class="fade-up-3 py-6 border-b border-slate-100">
+      <p class="text-xs text-slate-400 uppercase tracking-widest font-medium mb-5">Les 3 leviers d'optimisation</p>
+      <div class="space-y-5">
+
+        <!-- Levier 1 -->
+        <div class="flex items-start gap-4">
+          <div class="flex-shrink-0 w-7 h-7 rounded border border-slate-200 flex items-center justify-center mt-0.5">
+            <svg class="w-3.5 h-3.5 text-elga" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"/>
+            </svg>
+          </div>
+          <div class="flex-1">
+            <div class="flex items-baseline justify-between gap-2">
+              <p class="text-sm font-semibold text-slate-800">Prix de la fourniture</p>
+              <span id="lever1Badge" class="text-xs font-mono font-semibold text-emerald-600 nums shrink-0"></span>
+            </div>
+            <p class="text-xs text-slate-500 mt-1 leading-relaxed">Le prix au kWh négocié auprès des fournisseurs. C'est ici que se jouent les économies les plus directes — jusqu'à 30 % selon votre contrat actuel.</p>
+          </div>
+        </div>
+
+        <!-- Séparateur -->
+        <div class="border-t border-slate-50"></div>
+
+        <!-- Levier 2 -->
+        <div class="flex items-start gap-4">
+          <div class="flex-shrink-0 w-7 h-7 rounded border border-slate-200 flex items-center justify-center mt-0.5">
+            <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75"/>
+            </svg>
+          </div>
+          <div class="flex-1">
+            <div class="flex items-baseline justify-between gap-2">
+              <p class="text-sm font-semibold text-slate-800">Acheminement (TURPE)</p>
+              <span class="text-xs font-mono font-semibold text-amber-600 shrink-0">jusqu'à 35 %</span>
+            </div>
+            <p class="text-xs text-slate-500 mt-1 leading-relaxed">La puissance souscrite est souvent surdimensionnée par rapport à l'usage réel. Un ajustement réduit directement la part fixe du TURPE réglé à Enedis, sans changer de fournisseur.</p>
+          </div>
+        </div>
+
+        <!-- Séparateur -->
+        <div class="border-t border-slate-50"></div>
+
+        <!-- Levier 3 -->
+        <div class="flex items-start gap-4">
+          <div class="flex-shrink-0 w-7 h-7 rounded border border-slate-200 flex items-center justify-center mt-0.5">
+            <svg class="w-3.5 h-3.5 text-slate-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 0H5.625c-.621 0-1.125-.504-1.125-1.125v-17.25c0-.621.504-1.125 1.125-1.125h12.75c.621 0 1.125.504 1.125 1.125v4.5"/>
+            </svg>
+          </div>
+          <div class="flex-1">
+            <div class="flex items-baseline justify-between gap-2">
+              <p class="text-sm font-semibold text-slate-800">Taxes — Accise sur l'énergie</p>
+              <span class="text-xs font-semibold text-violet-600 shrink-0">Récupération possible</span>
+            </div>
+            <p class="text-xs text-slate-500 mt-1 leading-relaxed">Selon votre secteur, un dossier de récupération de l'Accise (ex-TICFE/CSPE) peut représenter plusieurs milliers d'euros. Démarche méconnue, souvent négligée par les fournisseurs.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Encadré CAR + urgence -->
+    <div class="fade-up-4 py-6 space-y-4 border-b border-slate-100">
+
+      <!-- CAR -->
+      <div class="bg-amber-50 border border-amber-100 rounded-lg px-4 py-4">
+        <p class="text-xs font-semibold text-amber-800 uppercase tracking-wide mb-1.5">Précision de cette estimation</p>
+        <p class="text-xs text-amber-700 leading-relaxed">
+          Cette simulation s'appuie sur une seule facture. Or votre consommation n'est pas linéaire sur l'année (pic en hiver, creux en été). La <strong>Consommation Annuelle de Référence (CAR)</strong> — vos 12 mois exacts enregistrés par Enedis — est la seule base fiable pour un chiffrage précis. Récupérez-la gratuitement via notre accompagnement.
+        </p>
+      </div>
+
+      <!-- Urgence -->
+      <div class="flex items-start gap-3 px-1">
+        <svg class="w-4 h-4 text-red-400 shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        </svg>
+        <p class="text-xs text-slate-500 leading-relaxed">
+          Ces tarifs sont issus de nos <strong>dernières négociations en cours</strong>. Les prix de marché évoluent chaque semaine — les conditions actuelles ne sont pas garanties au-delà de quelques semaines.
+        </p>
+      </div>
+    </div>
+
+    <!-- Données techniques (accordéon) -->
+    <div class="py-4 border-b border-slate-100">
+      <button id="toggleDetails" class="w-full flex items-center justify-between text-xs text-slate-400 hover:text-slate-600 py-1">
+        <span class="uppercase tracking-widest font-medium">Données extraites</span>
+        <svg id="detailsChevron" class="w-3.5 h-3.5 transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/>
+        </svg>
+      </button>
+      <div id="detailsPanel" class="hidden mt-3 grid grid-cols-2 gap-x-8 gap-y-2 text-xs"></div>
+    </div>
+
+    <!-- CTA -->
+    <div class="pt-6">
+      <button id="btnGetAudit"
+        class="w-full py-3.5 rounded-lg bg-elga text-white text-sm font-semibold hover:bg-elga-light transition-colors focus:outline-none focus:ring-2 focus:ring-elga focus:ring-offset-2">
+        Affiner mes économies avec ma CAR Enedis →
+      </button>
+      <p class="text-center text-xs text-slate-400 mt-2">Gratuit · Sans engagement · Résultat précis sous 24h</p>
+    </div>
+  </div>
+
+  <!-- ── ÉTAPE 4 : Entonnoir Enedis ─────────────────────────────────────────── -->
+  <div id="step-funnel" class="hidden space-y-8">
+
+    <!-- Titre -->
+    <div class="fade-up border-b border-slate-100 pb-6">
+      <p class="text-xs text-slate-400 uppercase tracking-widest font-medium mb-2">Étape suivante</p>
+      <h2 class="text-xl font-semibold text-slate-900">Récupérez votre consommation réelle</h2>
+      <p class="text-sm text-slate-500 mt-1.5 max-w-md">Pour un chiffrage précis, nous avons besoin de vos 12 derniers mois de consommation — conservés par Enedis, le gestionnaire unique du réseau de distribution en France.</p>
+    </div>
+
+    <!-- Processus 3 étapes — liste sobre -->
+    <div class="fade-up-1 space-y-0 border border-slate-100 rounded-xl overflow-hidden">
+      <div class="flex items-start gap-4 px-5 py-4 border-b border-slate-100">
+        <span class="font-mono text-xs font-semibold text-elga shrink-0 mt-0.5 w-4">01</span>
+        <div>
+          <p class="text-sm font-medium text-slate-800">Vous laissez vos coordonnées</p>
+          <p class="text-xs text-slate-500 mt-0.5">Prénom, nom, téléphone portable, email — c'est tout.</p>
+        </div>
+      </div>
+      <div class="flex items-start gap-4 px-5 py-4 border-b border-slate-100">
+        <span class="font-mono text-xs font-semibold text-elga shrink-0 mt-0.5 w-4">02</span>
+        <div>
+          <p class="text-sm font-medium text-slate-800">Enedis vous envoie un SMS d'autorisation</p>
+          <p class="text-xs text-slate-500 mt-0.5">Vous donnez l'accord pour que vos données de consommation nous soient transmises. Démarche sécurisée, conforme RGPD.</p>
+        </div>
+      </div>
+      <div class="flex items-start gap-4 px-5 py-4">
+        <span class="font-mono text-xs font-semibold text-elga shrink-0 mt-0.5 w-4">03</span>
+        <div>
+          <p class="text-sm font-medium text-slate-800">Nous vous rappelons avec votre bilan complet</p>
+          <p class="text-xs text-slate-500 mt-0.5">Comparatif sur vos 3 leviers d'économies, chiffré sur votre consommation réelle. Sous 24h.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Formulaire minimaliste -->
+    <div class="fade-up-2">
+      <form id="leadForm" action="https://formsubmit.co/cf16add96a7eedf5a12c3c2f738739f0" method="POST" class="space-y-4">
+        <input type="hidden" name="_next"     value="https://elgaenergy.com/merci.html" />
+        <input type="hidden" name="_subject"  value="Demande bilan CAR Enedis — Scanner" />
+        <input type="hidden" name="_captcha"  value="false" />
+        <input type="hidden" name="source"    value="scanner-enedis-v2" />
+        <input type="hidden" id="hiddenSavings"  name="economies_estimees" value="" />
+        <input type="hidden" id="hiddenSupplier" name="fournisseur_actuel" value="" />
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-medium text-slate-600 mb-1.5">Prénom</label>
+            <input type="text" name="prenom" required placeholder="Jean"
+              class="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm text-slate-900 placeholder:text-slate-300 focus:outline-none focus:ring-1 focus:ring-elga focus:border-elga transition-colors" />
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-600 mb-1.5">Nom</label>
+            <input type="text" name="nom" required placeholder="Dupont"
+              class="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm text-slate-900 placeholder:text-slate-300 focus:outline-none focus:ring-1 focus:ring-elga focus:border-elga transition-colors" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-slate-600 mb-1.5">
+            Téléphone portable
+            <span class="text-slate-400 font-normal">(pour le SMS Enedis)</span>
+          </label>
+          <input type="tel" name="telephone" required placeholder="06 00 00 00 00"
+            class="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm text-slate-900 placeholder:text-slate-300 focus:outline-none focus:ring-1 focus:ring-elga focus:border-elga transition-colors" />
+        </div>
+
+        <div>
+          <label class="block text-xs font-medium text-slate-600 mb-1.5">Email</label>
+          <input type="email" name="email" required placeholder="jean@entreprise.fr"
+            class="w-full rounded-lg border border-slate-200 px-3 py-2.5 text-sm text-slate-900 placeholder:text-slate-300 focus:outline-none focus:ring-1 focus:ring-elga focus:border-elga transition-colors" />
+        </div>
+
+        <button type="submit"
+          class="w-full py-3.5 rounded-lg bg-elga text-white text-sm font-semibold hover:bg-elga-light transition-colors focus:outline-none focus:ring-2 focus:ring-elga focus:ring-offset-2">
+          J'autorise la récupération de mes données Enedis →
+        </button>
+
+        <div class="flex items-start gap-2.5 pt-1">
+          <input type="checkbox" name="rappel_consent" id="rappelConsent" value="oui"
+            class="mt-0.5 w-3.5 h-3.5 rounded border-slate-300 text-elga focus:ring-elga cursor-pointer" />
+          <label for="rappelConsent" class="text-xs text-slate-400 leading-relaxed cursor-pointer">
+            J'accepte d'être rappelé par un conseiller Elga Energy si besoin. Sans engagement, sans frais.
+          </label>
+        </div>
+
+        <p class="text-xs text-center text-slate-300">100 % gratuit — aucune obligation de changer de fournisseur</p>
+      </form>
+    </div>
+
+    <button id="btnBackToResults" class="w-full text-xs text-center text-slate-400 hover:text-slate-600 underline underline-offset-2 pb-2">
+      ← Retour aux résultats
+    </button>
+  </div>
+
+</main>
+
+<!-- ─── Footer ─────────────────────────────────────────────────────────────── -->
+<footer class="border-t border-slate-100 mt-16">
+  <div class="container py-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-6 text-xs text-slate-400">
+    <div>
+      <img src="/assets/logos/elga-energy-logo.svg" alt="Elga Energy" class="h-7 w-auto mb-2" onerror="this.remove()">
+      <p>Courtage &amp; conseil en achats d'énergie professionnelle</p>
+    </div>
+    <div class="flex gap-6">
+      <a href="mailto:cotations@elgaenergy.fr" class="hover:text-slate-700 transition-colors">cotations@elgaenergy.fr</a>
+      <a href="tel:+33745117867" class="hover:text-slate-700 transition-colors">07 45 11 78 67</a>
+      <a href="/mentions-legales.html" class="hover:text-slate-700 transition-colors">Mentions légales</a>
+    </div>
+  </div>
+</footer>
+
+<!-- ─── JavaScript (logique identique, IDs compatibles) ───────────────────── -->
+<script>
+(function () {
+  'use strict';
+
+  const dropZone     = document.getElementById('dropZone');
+  const fileInput    = document.getElementById('fileInput');
+  const dropDefault  = document.getElementById('dropDefault');
+  const dropSelected = document.getElementById('dropSelected');
+  const selectedName = document.getElementById('selectedFileName');
+  const btnAnalyze   = document.getElementById('btnAnalyze');
+  const btnRescan    = document.getElementById('btnRescan');
+  const btnGetAudit  = document.getElementById('btnGetAudit');
+  const errorMsg     = document.getElementById('errorMsg');
+  const errorText    = document.getElementById('errorText');
+
+  const stepUpload   = document.getElementById('step-upload');
+  const stepScanning = document.getElementById('step-scanning');
+  const stepResults  = document.getElementById('step-results');
+  const stepFunnel   = document.getElementById('step-funnel');
+
+  const scanSteps = [1,2,3,4].map(n => document.getElementById('scanStep' + n));
+
+  let selectedFile = null;
+  let scanInterval = null;
+
+  // ── File selection ──────────────────────────────────────────────────────────
+  dropZone.addEventListener('click', () => fileInput.click());
+  dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+  dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+  dropZone.addEventListener('drop', e => {
+    e.preventDefault(); dropZone.classList.remove('drag-over');
+    if (e.dataTransfer.files[0]) handleFileSelect(e.dataTransfer.files[0]);
+  });
+  fileInput.addEventListener('change', () => {
+    if (fileInput.files[0]) handleFileSelect(fileInput.files[0]);
+  });
+
+  function handleFileSelect(file) {
+    const allowed = ['application/pdf','image/jpeg','image/png','image/webp'];
+    if (!allowed.includes(file.type)) { showError('Format non supporté. PDF, JPG, PNG ou WEBP uniquement.'); return; }
+    if (file.size > 10 * 1024 * 1024) { showError('Fichier trop volumineux (max 10 Mo).'); return; }
+    hideError();
+    selectedFile = file;
+    selectedName.textContent = file.name;
+    dropDefault.classList.add('hidden');
+    dropSelected.classList.remove('hidden');
+    btnAnalyze.disabled = false;
+  }
+
+  // ── Analyze ─────────────────────────────────────────────────────────────────
+  btnAnalyze.addEventListener('click', startAnalysis);
+
+  async function startAnalysis() {
+    if (!selectedFile) return;
+    const workerUrl = window.ELGA_WORKER_URL;
+    if (!workerUrl || workerUrl.includes('VOTRE_SUBDOMAIN')) {
+      showError('Service non configuré. Contactez-nous au 07 45 11 78 67.');
+      return;
+    }
+    hideError();
+    showStep('scanning');
+    animateScanSteps();
+    try {
+      const fileData = await fileToBase64(selectedFile);
+      const res = await fetch(workerUrl + '/api/scan', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ file_data: fileData, file_type: selectedFile.type, file_name: selectedFile.name }),
+      });
+      clearInterval(scanInterval);
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || 'Erreur serveur (' + res.status + ')');
+      }
+      const data = await res.json();
+      displayResults(data);
+      showStep('results');
+    } catch (err) {
+      clearInterval(scanInterval);
+      showStep('upload');
+      showError(err && err.message ? err.message : 'Erreur réseau. Vérifiez votre connexion et réessayez.');
+    }
+  }
+
+  // ── Scan animation ───────────────────────────────────────────────────────────
+  function animateScanSteps() {
+    let current = 0;
+    const progressLine = document.getElementById('progressLine');
+    const scanPct = document.getElementById('scanPct');
+    const pcts = [15, 40, 70, 95];
+    scanSteps.forEach(s => s.classList.remove('active','done'));
+    function activate(i) {
+      if (i > 0) { scanSteps[i-1].classList.remove('active'); scanSteps[i-1].classList.add('done'); }
+      if (scanSteps[i]) scanSteps[i].classList.add('active');
+      if (progressLine) progressLine.style.width = pcts[i] + '%';
+      if (scanPct) scanPct.textContent = pcts[i] + '%';
+    }
+    activate(0);
+    scanInterval = setInterval(() => {
+      current++;
+      if (current < scanSteps.length) activate(current);
+      else clearInterval(scanInterval);
+    }, 1500);
+  }
+
+  // ── Display results ──────────────────────────────────────────────────────────
+  function displayResults(data) {
+    const { extracted: e, savings: s } = data;
+
+    document.getElementById('resultSupplier').textContent = e.supplier || 'Fournisseur non identifié';
+    document.getElementById('resultContract').textContent = [e.contract_type, e.energy_type === 'gas' ? 'Gaz' : 'Électricité'].filter(Boolean).join(' · ');
+    document.getElementById('hiddenSupplier').value = e.supplier || '';
+
+    if (s) {
+      const months       = e.billing_months || 1;
+      const clientPeriod = Math.round(s.client_total_annual / 12 * months);
+      const elgaPeriod   = Math.round(s.elga_total_annual   / 12 * months);
+      const savingsPeriod= Math.round(s.savings_annual      / 12 * months);
+
+      document.getElementById('resultPeriodLabel').textContent = months === 1 ? 'Cette facture (1 mois)' : 'Cette facture (' + months + ' mois)';
+      document.getElementById('resultClientTotal').textContent = formatEuro(clientPeriod);
+      document.getElementById('resultElgaTotal').textContent   = formatEuro(elgaPeriod);
+      document.getElementById('resultSavings').textContent     = formatEuro(s.savings_annual);
+      document.getElementById('resultSavingsSubline').textContent = 'soit ' + s.savings_pct + '% d\'économies — budget annuel avec Elga : ' + formatEuro(s.elga_total_annual);
+      document.getElementById('hiddenSavings').value = formatEuro(s.savings_annual) + '/an (' + s.savings_pct + '%)';
+
+      const lever1 = document.getElementById('lever1Badge');
+      if (lever1) lever1.textContent = s.savings_pct + '%';
+
+      const ab = document.getElementById('annualProjectionBlock');
+      if (ab) {
+        ab.classList.remove('hidden');
+        document.getElementById('resultSavingsMonthly').textContent = 'Soit environ ' + formatEuro(savingsPeriod) + ' sur cette facture';
+        document.getElementById('resultPeriodMonths').textContent = months === 1 ? '1 mois' : months + ' mois';
+      }
+
+      setTimeout(() => {
+        document.getElementById('gaugeBar').style.width = Math.min(s.savings_pct * 2.5, 95) + '%';
+      }, 400);
+    } else {
+      document.getElementById('resultPeriodLabel').textContent = 'Cette facture';
+      document.getElementById('resultClientTotal').textContent = '—';
+      document.getElementById('resultElgaTotal').textContent = '—';
+      document.getElementById('resultSavings').textContent = 'Jusqu\'à 30 %';
+      document.getElementById('resultSavingsSubline').textContent = 'd\'économies potentielles selon votre profil';
+      document.getElementById('gaugeBar').style.width = '50%';
+      const l = document.getElementById('lever1Badge');
+      if (l) l.textContent = 'à calculer';
+    }
+
+    // Prix détail
+    const hph = e.price_hph_mwh || (e.price_kwh_hp ? e.price_kwh_hp * 1000 : null);
+    const hch = e.price_hch_mwh || (e.price_kwh_hc ? e.price_kwh_hc * 1000 : null);
+    const bas = e.price_base_mwh || (e.price_kwh_base ? e.price_kwh_base * 1000 : null);
+    const consoMwh = e.annual_consumption_mwh || (e.annual_consumption_kwh ? e.annual_consumption_kwh / 1000 : null);
+    const months2 = e.billing_months || 1;
+
+    if (hph) { document.getElementById('resultPriceHpRow').classList.remove('hidden'); document.getElementById('valPriceHp').textContent = hph.toFixed(2) + ' €/MWh'; }
+    if (hch) { document.getElementById('resultPriceHcRow').classList.remove('hidden'); document.getElementById('valPriceHc').textContent = hch.toFixed(2) + ' €/MWh'; }
+    if (bas && !hph) { document.getElementById('resultPriceBaseRow').classList.remove('hidden'); document.getElementById('valPriceBase').textContent = bas.toFixed(2) + ' €/MWh'; }
+    if (consoMwh) {
+      const p = consoMwh / 12 * months2;
+      document.getElementById('resultConsoRow').classList.remove('hidden');
+      document.getElementById('valConso').textContent = p >= 1 ? Math.round(p) + ' MWh' : Math.round(p * 1000) + ' kWh';
+    }
+
+    // Détail panel
+    const details = document.getElementById('detailsPanel');
+    const fields = [
+      { l: 'Fournisseur',       v: e.supplier },
+      { l: 'Énergie',           v: e.energy_type === 'gas' ? 'Gaz' : 'Électricité' },
+      { l: 'Segment',           v: e.segment || e.contract_type },
+      { l: 'Puissance',         v: e.power_kva ? e.power_kva + ' kVA' : null },
+      { l: 'Fiabilité analyse', v: e.confidence === 'high' ? 'Élevée' : e.confidence === 'medium' ? 'Moyenne' : 'Estimée' },
+    ];
+    details.innerHTML = fields.filter(f => f.v).map(f =>
+      `<div><p class="text-slate-400">${f.l}</p><p class="font-medium text-slate-700 mt-0.5">${f.v}</p></div>`
+    ).join('');
+  }
+
+  // ── Details toggle ───────────────────────────────────────────────────────────
+  document.getElementById('toggleDetails').addEventListener('click', () => {
+    document.getElementById('detailsPanel').classList.toggle('hidden');
+    document.getElementById('detailsChevron').classList.toggle('rotate-180');
+  });
+
+  // ── Navigation ───────────────────────────────────────────────────────────────
+  btnRescan.addEventListener('click', () => {
+    selectedFile = null; fileInput.value = '';
+    dropDefault.classList.remove('hidden'); dropSelected.classList.add('hidden');
+    btnAnalyze.disabled = true; hideError(); showStep('upload');
+  });
+
+  btnGetAudit.addEventListener('click', () => {
+    showStep('funnel');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    gtag('event', 'funnel_start', { event_category: 'scanner' });
+  });
+
+  const btnBack = document.getElementById('btnBackToResults');
+  if (btnBack) btnBack.addEventListener('click', () => showStep('results'));
+
+  function showStep(step) {
+    stepUpload.classList.toggle('hidden', step !== 'upload');
+    stepScanning.classList.toggle('hidden', step !== 'scanning');
+    stepResults.classList.toggle('hidden', step !== 'results');
+    stepFunnel.classList.toggle('hidden', step !== 'funnel');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function showError(msg) { errorText.textContent = msg; errorMsg.classList.remove('hidden'); }
+  function hideError() { errorMsg.classList.add('hidden'); }
+
+  function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+      if (file.size > 10 * 1024 * 1024) return reject(new Error('Fichier trop volumineux (max 10 Mo).'));
+      if (file.size === 0) return reject(new Error('Fichier vide ou inaccessible. S\'il est sur iCloud, téléchargez-le d\'abord.'));
+      const reader = new FileReader();
+      reader.onload = () => {
+        const b64 = (reader.result || '').split(',')[1];
+        if (!b64) return reject(new Error('Format non reconnu.'));
+        resolve(b64);
+      };
+      reader.onerror = e => {
+        const code = e.target && e.target.error && e.target.error.code;
+        if (code === 1) reject(new Error('Fichier introuvable. S\'il est sur iCloud, ouvrez-le d\'abord dans Aperçu.'));
+        else reject(new Error('Impossible de lire le fichier (erreur ' + (code || '?') + ').'));
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  function formatEuro(n) {
+    if (!n && n !== 0) return '—';
+    return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(n);
+  }
+
+})();
+</script>
+
+</body>
+</html>
