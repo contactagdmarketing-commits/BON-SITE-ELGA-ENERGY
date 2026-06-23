@@ -125,7 +125,7 @@
 </header>
 
 <!-- ─── Hero ──────────────────────────────────────────────────────────────── -->
-<section class="bg-primary-700 text-white py-14 md:py-20">
+<section class="bg-gradient-to-br from-secondary-600 to-primary-600 text-white py-14 md:py-20">
   <div class="container text-center max-w-3xl mx-auto space-y-5">
     <div class="inline-flex items-center gap-2 rounded-full bg-white/15 border border-white/25 px-4 py-1.5 text-sm font-medium">
       <span class="size-2 rounded-full bg-primary-300 pulse shrink-0"></span>
@@ -317,7 +317,7 @@
     </div>
 
     <!-- Delta en grand — héros : économies annuelles -->
-    <div class="result-card bg-primary-600 rounded-2xl shadow-strong p-7 text-white text-center space-y-2" style="animation-delay:.2s">
+    <div class="result-card bg-gradient-to-br from-primary-500 to-secondary-600 rounded-2xl shadow-strong p-7 text-white text-center space-y-2" style="animation-delay:.2s">
       <p class="text-xs font-semibold text-white/70 uppercase tracking-widest">Économies estimées sur 12 mois</p>
       <p id="resultSavings" class="text-5xl md:text-6xl font-extrabold"></p>
       <p class="text-white/80 text-sm" id="resultSavingsSubline"></p>
@@ -350,11 +350,11 @@
 
       <!-- Levier 2 : TURPE -->
       <div class="bg-white rounded-xl shadow-soft p-4 flex items-start gap-4">
-        <div class="size-10 rounded-lg bg-primary-100 flex items-center justify-center shrink-0 text-lg">🔧</div>
+        <div class="size-10 rounded-lg bg-amber-100 flex items-center justify-center shrink-0 text-lg">🔧</div>
         <div class="flex-1 min-w-0">
           <div class="flex items-center justify-between gap-2">
             <p class="text-sm font-bold text-slate-800">Acheminement (TURPE)</p>
-            <span class="shrink-0 text-xs font-bold text-primary-700 bg-primary-50 rounded-full px-2 py-0.5">Jusqu'à 35%</span>
+            <span class="shrink-0 text-xs font-bold text-amber-700 bg-amber-50 rounded-full px-2 py-0.5">Jusqu'à 35%</span>
           </div>
           <p class="text-xs text-slate-500 mt-0.5">La plupart des entreprises ont une puissance souscrite trop élevée par rapport à leur consommation réelle. En l'ajustant, on réduit directement la part fixe du TURPE payé à Enedis.</p>
         </div>
@@ -362,11 +362,11 @@
 
       <!-- Levier 3 : Taxes -->
       <div class="bg-white rounded-xl shadow-soft p-4 flex items-start gap-4">
-        <div class="size-10 rounded-lg bg-primary-100 flex items-center justify-center shrink-0 text-lg">💰</div>
+        <div class="size-10 rounded-lg bg-violet-100 flex items-center justify-center shrink-0 text-lg">💰</div>
         <div class="flex-1 min-w-0">
           <div class="flex items-center justify-between gap-2">
             <p class="text-sm font-bold text-slate-800">Taxes (Accise sur l'énergie)</p>
-            <span class="shrink-0 text-xs font-bold text-primary-700 bg-primary-50 rounded-full px-2 py-0.5">Récupération possible</span>
+            <span class="shrink-0 text-xs font-bold text-violet-700 bg-violet-50 rounded-full px-2 py-0.5">Récupération possible</span>
           </div>
           <p class="text-xs text-slate-500 mt-0.5">Selon votre secteur d'activité, il est possible de constituer un dossier de récupération de l'Accise (ex-TICFE/CSPE). Cette démarche, souvent méconnue, peut représenter plusieurs milliers d'euros par an.</p>
         </div>
@@ -389,6 +389,17 @@
             👉 Pour connaître votre vraie CAR et calculer vos économies réelles, cliquez sur le bouton ci-dessous.
           </div>
         </div>
+      </div>
+    </div>
+
+    <!-- Bandeau urgence marché -->
+    <div class="result-card bg-red-50 border border-red-200 rounded-xl p-4 flex items-start gap-3" style="animation-delay:.32s">
+      <span class="text-lg shrink-0 mt-0.5">⏱️</span>
+      <div>
+        <p class="text-sm font-bold text-red-800">Ces tarifs peuvent changer d'une semaine à l'autre</p>
+        <p class="text-xs text-red-700 leading-relaxed mt-1">
+          Les prix affichés sont basés sur nos <strong>dernières négociations en cours</strong> avec les fournisseurs. Les marchés de l'énergie fluctuent en permanence : les offres compétitives d'aujourd'hui ne seront peut-être plus disponibles dans quelques semaines. Plus vous attendez, moins vous avez de garantie de bénéficier de ces conditions.
+        </p>
       </div>
     </div>
 
@@ -416,7 +427,7 @@
 
     <!-- Accroche Enedis -->
     <div class="bg-white rounded-2xl shadow-strong overflow-hidden">
-      <div class="bg-primary-700 px-6 py-6 text-white">
+      <div class="bg-gradient-to-r from-secondary-600 to-primary-600 px-6 py-6 text-white">
         <p class="text-xs font-semibold text-white/70 uppercase tracking-wide mb-1">Étape suivante</p>
         <h2 class="text-xl font-bold leading-snug">Votre simulation peut être bien plus précise</h2>
         <p class="text-sm text-white/80 mt-2">Une seule facture ne reflète pas votre consommation annuelle réelle. Voici comment on va affiner le calcul — sans effort de votre part.</p>
