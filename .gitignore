@@ -1,0 +1,6 @@
+.DS_Store
+*.log
+.manus-logs/
+.env
+.env.local
+node_modules/
