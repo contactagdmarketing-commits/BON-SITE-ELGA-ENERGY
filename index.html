@@ -120,6 +120,12 @@
     .scan-zone.z3{animation-delay:1.1s}
     @keyframes zonePulse{0%,15%,100%{background:transparent}30%,45%{background:#ecfdf5}}
     @media (prefers-reduced-motion: reduce){.scan-line{display:none}.scan-zone{animation:none;background:#ecfdf5}}
+    /* Hover.css (extraits Grow + Icon Forward) — effets boutons, relus & inline */
+    .hvr-grow{transform:perspective(1px) translateZ(0);transition-property:transform,background-color,border-color,color;transition-duration:.25s}
+    .hvr-grow:hover,.hvr-grow:focus{transform:scale(1.05)}
+    .hvr-icon-forward .hvr-icon{transition:transform .15s ease-out}
+    .hvr-icon-forward:hover .hvr-icon,.hvr-icon-forward:focus .hvr-icon{transform:translateX(4px)}
+    @media (prefers-reduced-motion: reduce){.hvr-grow:hover{transform:none}.hvr-icon-forward:hover .hvr-icon{transform:none}}
     /* Cards hover */
     .service-card{transition:transform .2s ease,box-shadow .2s ease}
     .service-card:hover{transform:translateY(-4px);box-shadow:0 20px 40px rgba(2,6,12,.12)}
@@ -205,11 +211,11 @@
         </h1>
         <p class="text-slate-600 text-lg max-w-xl">Depuis que le marché a flambé, la plupart des pros paient un tarif qu'ils n'ont jamais revérifié. Scannez votre facture&nbsp;: on la lit, on la compare à 30+&nbsp;fournisseurs et on vous dit clairement si vous payez trop cher. Jusqu'à 30&nbsp;% d'écart sur certains contrats. Gratuit, sans engagement.</p>
         <div class="flex flex-wrap gap-3">
-          <a href="/scanner.html" class="inline-flex items-center gap-2 rounded-xl bg-primary-600 px-6 py-3.5 text-white font-bold shadow-soft hover:bg-primary-700 transition-colors">
+          <a href="/scanner.html" class="hvr-grow hvr-icon-forward inline-flex items-center gap-2 rounded-xl bg-primary-600 px-6 py-3.5 text-white font-bold shadow-soft hover:bg-primary-700 transition-colors">
             ⚡ Scanner ma facture maintenant
-            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5-5 5M6 12h12"/></svg>
+            <svg class="hvr-icon w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5-5 5M6 12h12"/></svg>
           </a>
-          <a href="#devis" class="inline-flex items-center rounded-xl border border-slate-300 px-6 py-3.5 font-semibold text-slate-700 hover:border-primary-400 hover:text-primary-700 transition-colors">Parler à un conseiller</a>
+          <a href="#devis" class="hvr-grow inline-flex items-center rounded-xl border border-slate-300 px-6 py-3.5 font-semibold text-slate-700 hover:border-primary-400 hover:text-primary-700 transition-colors">Parler à un conseiller</a>
         </div>
         <p class="text-sm text-slate-500 flex items-center gap-1.5">
           <svg class="w-4 h-4 text-primary-600 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
