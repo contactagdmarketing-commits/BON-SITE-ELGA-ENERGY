@@ -181,11 +181,15 @@
     .logos-track{display:flex;width:max-content;align-items:center;gap:4rem;animation:logoScroll 32s linear infinite}
     .logos-marquee:hover .logos-track{animation-play-state:paused}
     @keyframes logoScroll{to{transform:translateX(-50%)}}
-    .logos-track img{height:30px;width:auto;flex:none;filter:grayscale(1);opacity:.55;transition:filter .3s ease,opacity .3s ease}
-    .logos-track img:hover{filter:none;opacity:1}
+    .logos-track img{height:30px;width:auto;flex:none;opacity:.9;transition:opacity .3s ease}
+    .logos-track img:hover{opacity:1}
     /* Bouton CTA premium */
     .btn-cta{background-image:linear-gradient(180deg,#10b981,#0b6c45)!important;box-shadow:0 8px 22px -6px rgba(14,138,87,.55),inset 0 1px 0 rgba(255,255,255,.25)}
     .btn-cta:hover{background-image:linear-gradient(180deg,#13c08d,#0a5f3c)!important;box-shadow:0 14px 32px -7px rgba(14,138,87,.7),inset 0 1px 0 rgba(255,255,255,.3)}
+    /* Carrousel horizontal */
+    .hscroll{display:flex;gap:1.25rem;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;-ms-overflow-style:none;padding:.25rem .25rem 1rem}
+    .hscroll::-webkit-scrollbar{display:none}
+    .hscroll>*{scroll-snap-align:start;flex:0 0 320px;max-width:84vw}
     /* Cube 3D secteurs */
     .cube-stage{--cs:300px;width:var(--cs);height:var(--cs);margin:0 auto;perspective:1100px}
     @media(max-width:640px){.cube-stage{--cs:240px}}
@@ -231,8 +235,8 @@
   <!-- Header -->
   <header class="sticky top-0 z-50 border-b border-slate-200/60 bg-white/90 glass">
     <div class="container flex items-center justify-between py-2 md:py-2.5 gap-3">
-      <a href="/" class="flex items-center gap-2" aria-label="Elga Energy — accueil">
-        <img src="/assets/logos/elga-energy-logo.svg" alt="" class="h-12 md:h-14 w-auto" onerror="this.replaceWith(document.getElementById('logo-fallback').content.cloneNode(true))" />
+      <a href="/" class="flex items-center gap-2.5" aria-label="Elga Energy — Conseil et optimisation énergies">
+        <img src="/assets/logos/elga-energy-logo.svg" alt="Elga Energy" class="h-11 md:h-14 w-auto" onerror="this.replaceWith(document.getElementById('logo-fallback').content.cloneNode(true))" />
       </a>
       <nav class="hidden md:flex items-center gap-6 text-sm font-medium text-slate-600">
         <a href="#offre" class="nav-link hover:text-primary-700 transition-colors">Offre</a>
@@ -334,6 +338,19 @@
     </div>
   </section>
 
+  <!-- Fournisseurs (marquee continu) -->
+  <section id="fournisseurs" class="bg-white pt-14 md:pt-16 pb-2">
+    <div class="container">
+      <div data-reveal class="text-center mb-8">
+        <p class="text-slate-400 text-xs font-semibold uppercase tracking-widest mb-2">Réseau de fournisseurs</p>
+        <h2 class="text-2xl md:text-3xl font-bold text-slate-900">Nous mettons les grands fournisseurs en concurrence</h2>
+      </div>
+      <div data-reveal class="logos-marquee">
+        <div class="logos-track"><img src="/assets/fournisseurs/totalenergies.svg" alt="TotalEnergies" loading="lazy"><img src="/assets/fournisseurs/eni.svg" alt="Eni" loading="lazy"><img src="/assets/fournisseurs/vattenfall.svg" alt="Vattenfall" loading="lazy"><img src="/assets/fournisseurs/edf.svg" alt="EDF" loading="lazy"><img src="/assets/fournisseurs/engie.svg" alt="Engie" loading="lazy"><img src="/assets/fournisseurs/endesa-grupo.svg" alt="Endesa" loading="lazy"><img src="/assets/fournisseurs/totalenergies.svg" alt="TotalEnergies" loading="lazy"><img src="/assets/fournisseurs/eni.svg" alt="Eni" loading="lazy"><img src="/assets/fournisseurs/vattenfall.svg" alt="Vattenfall" loading="lazy"><img src="/assets/fournisseurs/edf.svg" alt="EDF" loading="lazy"><img src="/assets/fournisseurs/engie.svg" alt="Engie" loading="lazy"><img src="/assets/fournisseurs/endesa-grupo.svg" alt="Endesa" loading="lazy"></div>
+      </div>
+    </div>
+  </section>
+
   <!-- Offre -->
   <section id="offre" class="bg-white py-16 md:py-20">
     <div class="container">
@@ -342,7 +359,7 @@
         <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900">Ce qu'on fait pour faire baisser votre facture</h2>
         <p class="mt-3 text-slate-500">De la collecte de votre facture à la signature du contrat, nous prenons en charge l'intégralité du processus. La décision finale vous revient.</p>
       </div>
-      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div class="hscroll" data-reveal>
         <div data-reveal style="--rd:0ms" class="service-card lift rounded-2xl border border-slate-100 bg-slate-50 p-6 space-y-3">
           <div class="card-ico size-12 rounded-xl bg-slate-100 grid place-items-center text-primary-700">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
@@ -392,60 +409,60 @@
     </div>
   </section>
 
-  <!-- Fournisseurs (marquee continu) -->
-  <section id="fournisseurs" class="bg-white pt-14 md:pt-16 pb-2">
-    <div class="container">
-      <div data-reveal class="text-center mb-8">
-        <p class="text-slate-400 text-xs font-semibold uppercase tracking-widest mb-2">Réseau de fournisseurs</p>
-        <h2 class="text-2xl md:text-3xl font-bold text-slate-900">Nous mettons les grands fournisseurs en concurrence</h2>
-      </div>
-      <div data-reveal class="logos-marquee">
-        <div class="logos-track"><img src="/assets/fournisseurs/totalenergies.svg" alt="TotalEnergies" loading="lazy"><img src="/assets/fournisseurs/eni.svg" alt="Eni" loading="lazy"><img src="/assets/fournisseurs/vattenfall.svg" alt="Vattenfall" loading="lazy"><img src="/assets/fournisseurs/edf.svg" alt="EDF" loading="lazy"><img src="/assets/fournisseurs/engie.svg" alt="Engie" loading="lazy"><img src="/assets/fournisseurs/endesa-grupo.svg" alt="Endesa" loading="lazy"><img src="/assets/fournisseurs/totalenergies.svg" alt="TotalEnergies" loading="lazy"><img src="/assets/fournisseurs/eni.svg" alt="Eni" loading="lazy"><img src="/assets/fournisseurs/vattenfall.svg" alt="Vattenfall" loading="lazy"><img src="/assets/fournisseurs/edf.svg" alt="EDF" loading="lazy"><img src="/assets/fournisseurs/engie.svg" alt="Engie" loading="lazy"><img src="/assets/fournisseurs/endesa-grupo.svg" alt="Endesa" loading="lazy"></div>
-      </div>
-    </div>
-  </section>
-
   <!-- Secteurs -->
   <section id="secteurs" class="bg-white py-12 md:py-16">
     <div class="container">
       <h2 data-reveal class="text-2xl md:text-3xl font-bold text-center mb-3 text-slate-900">On connaît les contraintes de votre métier</h2>
       <p data-reveal style="--rd:80ms" class="text-center text-slate-600 mb-10 max-w-2xl mx-auto">Une chambre froide, un hôtel à moitié vide l'hiver, 80 compteurs de copropriété : chaque secteur a ses contraintes. On les connaît.</p>
-      <div data-reveal class="py-4">
-        <div class="cube-stage">
-          <div class="cube" id="cube">
-          <a href="/restauration.html" class="cube-face f-front" aria-label="Restauration CHR">
-            <span class="ci"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" class="w-7 h-7"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg></span>
-            <h3>Restauration CHR</h3>
-            <span class="cgo">Voir le secteur →</span>
-          </a>
-          <a href="/hotellerie.html" class="cube-face f-right" aria-label="Hôtellerie">
-            <span class="ci"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" class="w-7 h-7"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></span>
-            <h3>Hôtellerie</h3>
-            <span class="cgo">Voir le secteur →</span>
-          </a>
-          <a href="/syndics.html" class="cube-face f-back" aria-label="Syndics & Copropriétés">
-            <span class="ci"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" class="w-7 h-7"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></span>
-            <h3>Syndics & Copropriétés</h3>
-            <span class="cgo">Voir le secteur →</span>
-          </a>
-          <a href="/sante.html" class="cube-face f-left" aria-label="Santé & EHPAD">
-            <span class="ci"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" class="w-7 h-7"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></span>
-            <h3>Santé & EHPAD</h3>
-            <span class="cgo">Voir le secteur →</span>
-          </a>
-          <a href="/collectivites.html" class="cube-face f-top" aria-label="Collectivités & HLM">
-            <span class="ci"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" class="w-7 h-7"><path d="M12 22V12m0 0L4 6m8 6l8-6M4 6V4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2"/></svg></span>
-            <h3>Collectivités & HLM</h3>
-            <span class="cgo">Voir le secteur →</span>
-          </a>
-          <a href="/industrie.html" class="cube-face f-bottom" aria-label="Industrie & Entrepôts">
-            <span class="ci"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" class="w-7 h-7"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg></span>
-            <h3>Industrie & Entrepôts</h3>
-            <span class="cgo">Voir le secteur →</span>
-          </a>
+      <div class="grid md:grid-cols-3 gap-6">
+        <a href="/restauration.html" data-reveal style="--rd:0ms" class="group lift rounded-2xl border border-slate-200 bg-white shadow-sm p-6 hover:border-primary-400 hover:shadow-soft transition-all">
+          <div class="size-12 rounded-xl bg-slate-100 text-primary-700 grid place-items-center mb-4">
+            <svg viewBox="0 0 24 24" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg>
           </div>
-        </div>
-        <p class="text-center text-sm text-slate-400 mt-8">Le cube tourne tout seul · survolez pour mettre en pause, cliquez une face pour ouvrir votre secteur.</p>
+          <h3 class="font-semibold text-slate-900 mb-2 group-hover:text-primary-700">Restauration CHR</h3>
+          <p class="text-sm text-slate-600">Fours, frigos, chambres froides qui tournent en continu : on cale le contrat sur votre vrai rythme et votre puissance souscrite.</p>
+          <span class="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-primary-700 bg-primary-50 rounded-full px-3.5 py-1.5">En savoir plus <span class="icon-go">→</span></span>
+        </a>
+        <a href="/hotellerie.html" data-reveal style="--rd:60ms" class="group lift rounded-2xl border border-slate-200 bg-white shadow-sm p-6 hover:border-primary-400 hover:shadow-soft transition-all">
+          <div class="size-12 rounded-xl bg-slate-100 text-primary-700 grid place-items-center mb-4">
+            <svg viewBox="0 0 24 24" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+          </div>
+          <h3 class="font-semibold text-slate-900 mb-2 group-hover:text-primary-700">Hôtellerie</h3>
+          <p class="text-sm text-slate-600">Multi-compteurs, saisons creuses, climatisation : autant de postes où il y a souvent beaucoup à récupérer.</p>
+          <span class="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-primary-700 bg-primary-50 rounded-full px-3.5 py-1.5">En savoir plus <span class="icon-go">→</span></span>
+        </a>
+        <a href="/syndics.html" data-reveal style="--rd:120ms" class="group lift rounded-2xl border border-slate-200 bg-white shadow-sm p-6 hover:border-primary-400 hover:shadow-soft transition-all">
+          <div class="size-12 rounded-xl bg-slate-100 text-primary-700 grid place-items-center mb-4">
+            <svg viewBox="0 0 24 24" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+          </div>
+          <h3 class="font-semibold text-slate-900 mb-2 group-hover:text-primary-700">Syndics & Copropriétés</h3>
+          <p class="text-sm text-slate-600">Un syndic, c'est vite 40 à 120 contrats. On allège les charges des parties communes, sans passer par un vote en AG.</p>
+          <span class="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-primary-700 bg-primary-50 rounded-full px-3.5 py-1.5">En savoir plus <span class="icon-go">→</span></span>
+        </a>
+        <a href="/sante.html" data-reveal style="--rd:180ms" class="group lift rounded-2xl border border-slate-200 bg-white shadow-sm p-6 hover:border-primary-400 hover:shadow-soft transition-all">
+          <div class="size-12 rounded-xl bg-slate-100 text-primary-700 grid place-items-center mb-4">
+            <svg viewBox="0 0 24 24" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+          </div>
+          <h3 class="font-semibold text-slate-900 mb-2 group-hover:text-primary-700">Santé & EHPAD</h3>
+          <p class="text-sm text-slate-600">Décret tertiaire, fonctionnement 24h/24 : un interlocuteur qui comprend les établissements médico-sociaux.</p>
+          <span class="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-primary-700 bg-primary-50 rounded-full px-3.5 py-1.5">En savoir plus <span class="icon-go">→</span></span>
+        </a>
+        <a href="/collectivites.html" data-reveal style="--rd:240ms" class="group lift rounded-2xl border border-slate-200 bg-white shadow-sm p-6 hover:border-primary-400 hover:shadow-soft transition-all">
+          <div class="size-12 rounded-xl bg-slate-100 text-primary-700 grid place-items-center mb-4">
+            <svg viewBox="0 0 24 24" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22V12m0 0L4 6m8 6l8-6M4 6V4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2"/></svg>
+          </div>
+          <h3 class="font-semibold text-slate-900 mb-2 group-hover:text-primary-700">Collectivités & HLM</h3>
+          <p class="text-sm text-slate-600">Appels d'offres conformes, groupements de commandes, décret tertiaire : pour les mairies et les offices HLM.</p>
+          <span class="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-primary-700 bg-primary-50 rounded-full px-3.5 py-1.5">En savoir plus <span class="icon-go">→</span></span>
+        </a>
+        <a href="/industrie.html" data-reveal style="--rd:300ms" class="group lift rounded-2xl border border-slate-200 bg-white shadow-sm p-6 hover:border-primary-400 hover:shadow-soft transition-all">
+          <div class="size-12 rounded-xl bg-slate-100 text-primary-700 grid place-items-center mb-4">
+            <svg viewBox="0 0 24 24" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>
+          </div>
+          <h3 class="font-semibold text-slate-900 mb-2 group-hover:text-primary-700">Industrie & Entrepôts</h3>
+          <p class="text-sm text-slate-600">Tarif HTA, effacement, puissance souscrite : c'est là que se cachent les plus gros gisements d'économies.</p>
+          <span class="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-primary-700 bg-primary-50 rounded-full px-3.5 py-1.5">En savoir plus <span class="icon-go">→</span></span>
+        </a>
       </div>
       <div class="mt-6 flex flex-wrap gap-3 justify-center">
         <a href="/immobilier.html" class="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-primary-600 border border-slate-200 hover:border-primary-300 rounded-full px-4 py-1.5 transition-colors"><svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.9" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="1"/><path d="M9 7h.01M15 7h.01M9 11h.01M15 11h.01M10 21v-4h4v4"/></svg> Immobilier tertiaire</a>
@@ -727,7 +744,8 @@
   <footer class="bg-slate-950 text-slate-300">
     <div class="container py-12 grid md:grid-cols-4 gap-8">
       <div class="md:col-span-1">
-        <img src="/assets/logos/elga-energy-logo.svg" alt="Elga Energy" class="h-10 w-auto mb-4" loading="lazy" style="filter:brightness(0) invert(1)" onerror="this.remove()">
+        <img src="/assets/logos/elga-energy-logo.svg" alt="Elga Energy" class="h-12 w-auto mb-2" loading="lazy" style="filter:brightness(0) invert(1)" onerror="this.remove()">
+        <p class="text-xs font-semibold tracking-wide text-primary-400 mb-3">Conseil &amp; optimisation énergies</p>
         <p class="text-sm text-slate-400 leading-relaxed">Courtage & conseil en achats d'énergie pour entreprises et collectivités.</p>
         <div class="flex items-center gap-3 mt-5">
           <a href="https://www.linkedin.com/company/elga-energy" target="_blank" rel="noopener noreferrer" class="size-9 rounded-lg bg-slate-800 hover:bg-primary-700 grid place-items-center transition-colors" aria-label="LinkedIn Elga Energy">
