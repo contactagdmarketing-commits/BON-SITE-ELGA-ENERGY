@@ -176,6 +176,10 @@
     .hero-light-bg{background:radial-gradient(58% 52% at 16% -8%, rgba(16,185,129,.16) 0, transparent 60%),radial-gradient(52% 46% at 90% -2%, rgba(11,61,145,.12) 0, transparent 60%),linear-gradient(180deg,#ffffff 0%,#f7faf9 100%)}
     .sweep-ink{background:linear-gradient(110deg,#0e8a57,#10b981 30%,#0b3d91 62%,#0e8a57);background-size:200% auto;-webkit-background-clip:text;background-clip:text;color:transparent;animation:sweep 5s linear infinite}
     .rotator{display:inline-block;transition:opacity .25s ease,transform .25s ease}
+    /* Soulignement accent facon Postulea (se trace a l'arrivee) */
+    .ul-pen{position:relative;white-space:nowrap;font-weight:700;color:#0b3d91}
+    .ul-pen::after{content:"";position:absolute;left:0;right:0;bottom:-3px;height:3px;border-radius:99px;background:linear-gradient(90deg,#10b981,#0e8a57);transform:scaleX(0);transform-origin:left;animation:ulDraw .85s cubic-bezier(.16,1,.3,1) .55s forwards}
+    @keyframes ulDraw{to{transform:scaleX(1)}}
     /* Marquee fournisseurs continu */
     .logos-marquee{overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent);mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent)}
     .logos-track{display:flex;width:max-content;align-items:center;gap:4rem;animation:logoScroll 32s linear infinite}
@@ -215,6 +219,7 @@
       .text-sweep,.sweep-ink{animation:none!important;background-position:0 center}
       .logos-track{animation:none!important}
       .rotator{transition:none!important}
+      .ul-pen::after{animation:none!important;transform:scaleX(1)}
       .reveal-load{animation:none!important}
       .floaty,.hero-orb{animation:none!important}
       .hero-bg{animation:none!important}
@@ -293,11 +298,11 @@
   <!-- Hero -->
   <section class="relative overflow-hidden">
     <div class="absolute inset-0 hero-light-bg"></div>
-    <div class="relative container py-16 md:py-24">
-      <div class="max-w-3xl mx-auto text-center space-y-6">
+    <div class="relative container py-20 md:py-28">
+      <div class="max-w-3xl mx-auto text-center space-y-8">
         <div style="--rd:0ms" class="reveal-load">
-          <img src="/assets/logos/elga-energy-logo.svg" alt="Elga Energy" class="h-28 md:h-36 w-auto mx-auto" loading="eager">
-          <p class="mt-4 text-base md:text-lg font-medium text-slate-500">Votre énergie, notre expertise — ensemble, économisons demain.</p>
+          <img src="/assets/logos/elga-energy-logo.svg" alt="Elga Energy" class="h-28 sm:h-36 md:h-44 w-auto mx-auto" loading="eager">
+          <p class="mt-2 text-sm md:text-base font-medium tracking-wide text-slate-500">Votre énergie, notre expertise — ensemble, économisons demain.</p>
         </div>
         <div style="--rd:80ms" class="reveal-load inline-flex items-center gap-2 rounded-full bg-white border border-slate-200 shadow-sm px-4 py-1.5 text-sm font-medium text-slate-600">
           <span class="size-2 rounded-full bg-primary-500 animate-pulse shrink-0"></span>
@@ -306,7 +311,7 @@
         <h1 style="--rd:90ms" class="reveal-load text-3xl sm:text-4xl md:text-5xl font-extrabold leading-tight tracking-tight text-slate-900">
           Vos factures d'énergie sont <span class="rotator sweep-ink" id="rotator">trop chères</span>&nbsp;?
         </h1>
-        <p style="--rd:170ms" class="reveal-load text-lg text-slate-600 max-w-xl mx-auto">Scannez votre facture en 15 secondes, gratuitement. On vous dit s'il y a de l'argent à récupérer.</p>
+        <p style="--rd:170ms" class="reveal-load text-lg md:text-xl text-slate-600 max-w-xl mx-auto">Ne vous posez plus la question : scannez-la directement, gratuitement.<br class="hidden sm:block"> Résultat en <span class="ul-pen">moins de 15 secondes</span>.</p>
         <div style="--rd:250ms" class="reveal-load flex flex-col sm:flex-row items-center justify-center gap-3">
           <a href="/scanner.html" class="btn-grow btn-shine inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl btn-cta bg-primary-600 px-7 py-4 text-white font-bold shadow-soft hover:bg-primary-700 transition-colors">
             <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M21 17v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2M3 12h18"/></svg>
