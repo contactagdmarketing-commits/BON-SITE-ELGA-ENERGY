@@ -135,6 +135,8 @@
     .btn-shine{position:relative;overflow:hidden}
     .btn-shine::after{content:"";position:absolute;top:0;left:-130%;width:55%;height:100%;background:linear-gradient(120deg,transparent,rgba(255,255,255,.5),transparent);transform:skewX(-20deg);transition:left .65s ease;pointer-events:none}
     .btn-shine:hover::after{left:150%}
+    .btn-shine.bg-primary-600{box-shadow:0 10px 24px -8px rgba(14,138,87,.5)}
+    .btn-shine.bg-primary-600:hover{box-shadow:0 14px 32px -8px rgba(14,138,87,.68)}
     /* Flèche qui glisse */
     .icon-go{transition:transform .25s ease}
     .group:hover .icon-go,.btn-grow:hover .icon-go,a:hover>.icon-go{transform:translateX(4px)}
@@ -151,12 +153,12 @@
     .nav-link:hover::after{width:100%}
     /* ===== Hero : fond "mesh" moderne (sans photo), couleurs de marque vert/navy ===== */
     .hero-bg{background:
-      radial-gradient(60% 70% at 16% 20%, rgba(16,185,129,.55) 0, transparent 60%),
+      radial-gradient(65% 75% at 12% 10%, rgba(16,185,129,.30) 0, transparent 58%),
       radial-gradient(55% 65% at 84% 10%, rgba(11,61,145,.62) 0, transparent 55%),
-      radial-gradient(52% 60% at 72% 88%, rgba(14,138,87,.55) 0, transparent 55%),
-      linear-gradient(135deg,#083f2a 0%,#0a2540 100%);
+      radial-gradient(55% 62% at 78% 90%, rgba(11,61,145,.45) 0, transparent 58%),
+      linear-gradient(140deg,#0a2e24 0%,#0a2540 55%,#0a1f38 100%);
       background-size:170% 170%;animation:hueShift 26s ease-in-out infinite}
-    .hero-orb{position:absolute;border-radius:9999px;filter:blur(72px);opacity:.5;pointer-events:none}
+    .hero-orb{position:absolute;border-radius:9999px;filter:blur(72px);opacity:.32;pointer-events:none}
     .hero-orb--1{width:40vw;height:40vw;max-width:520px;max-height:520px;left:-6%;top:6%;background:#10b981;animation:floaty 12s ease-in-out infinite}
     .hero-orb--2{width:32vw;height:32vw;max-width:440px;max-height:440px;right:-5%;bottom:-8%;background:#3b5bdb;animation:floaty 15s ease-in-out infinite reverse}
     .hero-grid{background-image:linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px);background-size:46px 46px;-webkit-mask-image:radial-gradient(125% 92% at 50% 0%,#000 32%,transparent 76%);mask-image:radial-gradient(125% 92% at 50% 0%,#000 32%,transparent 76%)}
@@ -171,41 +173,14 @@
     /* Texte qui brille : dégradé animé qui balaie (titres importants) */
     @keyframes sweep{to{background-position:200% center}}
     .text-sweep{background:linear-gradient(110deg,#6ee7b7,#34d399 25%,#a5b4fc 50%,#34d399 75%,#6ee7b7);background-size:200% auto;-webkit-background-clip:text;background-clip:text;color:transparent;animation:sweep 5s linear infinite}
-    .text-sweep-title{background:linear-gradient(110deg,#0e8a57,#10b981 25%,#0b3d91 50%,#10b981 75%,#0e8a57);background-size:200% auto;-webkit-background-clip:text;background-clip:text;color:transparent;animation:sweep 6.5s linear infinite}
     /* Voile de contraste sur le hero (lisibilité du texte blanc, surtout zone bleutée) */
     .hero-scrim{background:linear-gradient(100deg,rgba(4,28,20,.55) 0%,rgba(6,26,34,.18) 48%,rgba(8,32,64,.55) 100%)}
     /* Carte secteur : "En savoir plus" en mini-bouton + affordance cliquable */
-    .sector-link{display:inline-flex;align-items:center;gap:.35rem;margin-top:1rem;padding:.4rem .85rem;border-radius:9999px;font-size:.8rem;font-weight:600;color:#0b6c45;background:#d1fae5;transition:background .25s ease,gap .25s ease}
-    .group:hover .sector-link{background:#a7f3d0;gap:.6rem}
-    /* ===== Comparateur avant/après (curseur à glisser + balayage auto) ===== */
-    @property --pos{syntax:'<percentage>';inherits:true;initial-value:50%}
-    .ba{position:relative;--pos:50%;border-radius:1.25rem;overflow:hidden;box-shadow:0 24px 60px rgba(2,6,12,.14);user-select:none;touch-action:none;background:#fff}
-    .ba-before{position:absolute;inset:0;clip-path:inset(0 calc(100% - var(--pos)) 0 0);will-change:clip-path}
-    .ba-handle{position:absolute;top:0;bottom:0;left:var(--pos);width:3px;background:#fff;transform:translateX(-1.5px);z-index:3;box-shadow:0 0 0 1px rgba(2,6,12,.08)}
-    .ba-grab{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:46px;height:46px;border-radius:9999px;background:#fff;box-shadow:0 6px 20px rgba(2,6,12,.28);display:grid;place-items:center;color:#0e8a57;cursor:ew-resize}
-    .ba-grab:focus-visible{outline:2px solid #0e8a57;outline-offset:3px}
-    .ba-tag{position:absolute;top:14px;z-index:4;font-size:.7rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:.32rem .7rem;border-radius:9999px}
-    .ba-tag--before{left:14px;background:rgba(15,23,42,.78);color:#fff}
-    .ba-tag--after{right:14px;background:rgba(14,138,87,.95);color:#fff}
-    .ba-bill{min-height:320px;display:flex;align-items:center;padding:2rem 2.2rem}
-    .ba-before .ba-bill{justify-content:flex-start;text-align:left;background:linear-gradient(180deg,#ffffff,#fff6f6)}
-    .ba-after .ba-bill{justify-content:flex-end;text-align:right;background:linear-gradient(180deg,#ffffff,#f0fdf4)}
-    .ba-side{display:flex;flex-direction:column;gap:.45rem;max-width:48%}
-    .ba-after .ba-side{align-items:flex-end}
-    .ba-sup{font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.05em;color:#64748b}
-    .ba-after .ba-sup{color:#0b6c45}
-    .ba-amt{font-size:clamp(1.7rem,6vw,2.6rem);font-weight:900;line-height:1;font-variant-numeric:tabular-nums}
-    .ba-amt small{font-size:.9rem;font-weight:700;color:#94a3b8}
-    .ba-before .ba-amt{color:#dc2626}
-    .ba-after .ba-amt{color:#0e8a57}
-    .ba-note{font-size:.8rem;color:#64748b;line-height:1.35}
-    .ba-save{margin-top:.3rem;display:inline-flex;align-items:center;gap:.35rem;background:#0e8a57;color:#fff;font-weight:800;font-size:.85rem;padding:.35rem .8rem;border-radius:9999px}
-    .ba-intro{animation:baIntro 2.6s cubic-bezier(.16,1,.3,1) .6s both}
-    @keyframes baIntro{0%{--pos:85%}55%{--pos:34%}100%{--pos:50%}}
+    .sector-link{display:inline-flex;align-items:center;gap:.35rem;margin-top:1rem;padding:.4rem .85rem;border-radius:9999px;font-size:.8rem;font-weight:600;color:#334155;background:#f1f5f9;transition:background .25s ease,gap .25s ease}
+    .group:hover .sector-link{background:#e2e8f0;gap:.6rem}
     @media (prefers-reduced-motion: reduce){
       .js [data-reveal]{opacity:1!important;transform:none!important;transition:none!important}
-      .text-sweep,.text-sweep-title{animation:none!important;background-position:0 center}
-      .ba-intro{animation:none!important}
+      .text-sweep{animation:none!important;background-position:0 center}
       .reveal-load{animation:none!important}
       .floaty,.hero-orb{animation:none!important}
       .hero-bg{animation:none!important}
@@ -240,7 +215,7 @@
         <a href="#faq" class="nav-link hover:text-primary-700 transition-colors">FAQ</a>
         <a href="/actu.html" class="nav-link hover:text-primary-700 transition-colors">Blog</a>
         <a href="/Recrutement.html" class="nav-link hover:text-primary-700 transition-colors">Recrutement</a>
-        <a href="/login.html" class="inline-flex items-center gap-1 hover:text-primary-700 transition-colors font-semibold text-primary-600">🔒 Espace client</a>
+        <a href="/login.html" class="inline-flex items-center gap-1 hover:text-primary-700 transition-colors font-semibold text-primary-600"><svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg> Espace client</a>
       </nav>
       <div class="flex items-center gap-3">
         <a href="tel:+33745117867" class="hidden md:flex items-center gap-1.5 text-sm text-slate-600 hover:text-primary-700 transition-colors font-medium">
@@ -269,7 +244,7 @@
         <a href="/Recrutement.html" class="py-2.5 px-3 rounded-lg hover:bg-slate-50 hover:text-primary-700 transition-colors text-slate-700">Recrutement</a>
         <a href="/scanner.html" class="py-2.5 px-3 rounded-lg bg-primary-600 text-white font-semibold text-center">⚡ Scanner ma facture · 15 s</a>
         <a href="#devis" class="py-2.5 px-3 rounded-lg hover:bg-slate-50 hover:text-primary-700 transition-colors text-slate-700">Recevoir un comparatif détaillé</a>
-        <a href="/login.html" class="py-2.5 px-3 rounded-lg bg-primary-50 text-primary-700 font-semibold">🔒 Espace client</a>
+        <a href="/login.html" class="py-2.5 px-3 rounded-lg bg-primary-50 text-primary-700 font-semibold"><svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg> Espace client</a>
         <div class="pt-2 mt-1 border-t border-slate-100">
           <a href="tel:+33745117867" class="flex items-center gap-2 py-2.5 px-3 text-primary-700 font-semibold">
             <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.12 1.22 2 2 0 012.1 0h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 14.92z"/></svg>
@@ -292,7 +267,7 @@
       <div class="space-y-6">
         <div style="--rd:0ms" class="reveal-load inline-flex items-center gap-2 rounded-full bg-white/15 border border-white/25 px-4 py-1.5 text-sm font-medium">
           <span class="size-2 rounded-full bg-primary-300 animate-pulse shrink-0"></span>
-          Courtier en énergie indépendant · <strong class="font-semibold text-white">📍 Toulouse</strong>
+          Courtier en énergie indépendant · <strong class="font-semibold text-white"><svg class="w-4 h-4 shrink-0 inline-block align-[-3px]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 21s-6-5.3-6-10a6 6 0 1112 0c0 4.7-6 10-6 10z"/><circle cx="12" cy="11" r="2"/></svg> Toulouse</strong>
         </div>
         <h1 style="--rd:90ms;text-wrap:balance" class="reveal-load text-4xl md:text-5xl font-extrabold leading-tight tracking-tight">
           Payez-vous votre énergie <span class="text-sweep">trop cher</span>&nbsp;? <span class="block mt-1 text-white/90 text-2xl md:text-3xl font-bold">Vous le saurez en 15 secondes.</span>
@@ -352,88 +327,45 @@
     </div>
   </section>
 
-  <!-- La différence, elle se voit (comparateur avant/après) -->
-  <section id="comparatif" class="bg-slate-50 py-16 md:py-20">
-    <div class="container">
-      <div data-reveal class="text-center max-w-2xl mx-auto mb-10">
-        <h2 class="text-3xl md:text-4xl font-extrabold text-sweep-title">La différence, elle se voit</h2>
-        <p class="mt-3 text-slate-600">La même facture d'électricité, avant et après notre négociation. <strong class="text-slate-800">Glissez le curseur.</strong></p>
-      </div>
-      <div data-reveal style="--rd:120ms" class="max-w-3xl mx-auto">
-        <div id="ba" class="ba ba-intro">
-          <span class="ba-tag ba-tag--before">Avant</span>
-          <span class="ba-tag ba-tag--after">Avec Elga</span>
-          <div class="ba-after">
-            <div class="ba-bill">
-              <div class="ba-side">
-                <span class="ba-sup">Avec Elga</span>
-                <span class="ba-amt">12 300 €<small>/an</small></span>
-                <span class="ba-save">↓ −3 200 €/an · −21 %</span>
-                <span class="ba-note">Énergie renégociée · électricité 55 kVA · 76 MWh/an</span>
-              </div>
-            </div>
-          </div>
-          <div class="ba-before">
-            <div class="ba-bill">
-              <div class="ba-side">
-                <span class="ba-sup">Fournisseur actuel</span>
-                <span class="ba-amt">15 500 €<small>/an</small></span>
-                <span class="ba-note">Énergie au prix fort · électricité 55 kVA · 76 MWh/an</span>
-              </div>
-            </div>
-          </div>
-          <div class="ba-handle"><span class="ba-grab" id="baGrab" tabindex="0" role="slider" aria-label="Glisser pour comparer avant et après" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 7l-4 5 4 5M16 7l4 5-4 5"/></svg></span></div>
-        </div>
-        <p class="text-center text-xs text-slate-400 mt-4">Exemple — facture reconstituée à titre illustratif. Vos économies dépendent de votre contrat actuel.</p>
-        <div class="text-center mt-7">
-          <a href="/scanner.html" class="btn-grow btn-shine inline-flex items-center justify-center gap-2 rounded-xl bg-primary-600 px-7 py-4 text-white font-bold shadow-soft hover:bg-primary-700 transition-colors">
-            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M21 17v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2M3 12h18"/></svg>
-            Voir ma différence à moi <span class="opacity-80 font-semibold">· 15 s</span>
-          </a>
-        </div>
-      </div>
-    </div>
-  </section>
-
   <!-- Offre -->
   <section id="offre" class="bg-white py-16 md:py-20">
     <div class="container">
       <div data-reveal class="text-center max-w-2xl mx-auto mb-12">
         <span class="inline-block rounded-full bg-primary-100 text-primary-700 text-xs font-semibold uppercase tracking-widest px-3 py-1 mb-3">Ce qu'on fait</span>
-        <h2 class="text-3xl md:text-4xl font-extrabold text-sweep-title">Ce qu'on fait pour faire baisser votre facture</h2>
-        <p class="mt-3 text-slate-500">De votre première facture jusqu'à la signature, on prend tout en charge. Vous, vous n'avez qu'à dire oui — ou non.</p>
+        <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900">Ce qu'on fait pour faire baisser votre facture</h2>
+        <p class="mt-3 text-slate-500">De votre première facture jusqu'à la signature, on prend tout en charge. Vous gardez la décision finale, en toute liberté.</p>
       </div>
       <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         <div data-reveal style="--rd:0ms" class="service-card lift rounded-2xl border border-slate-100 bg-slate-50 p-6 space-y-3">
-          <div class="card-ico size-12 rounded-xl bg-primary-100 grid place-items-center text-primary-700">
+          <div class="card-ico size-12 rounded-xl bg-slate-100 grid place-items-center text-primary-700">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
           </div>
           <h3 class="font-bold text-slate-900">On compare tout le marché</h3>
           <p class="text-sm text-slate-500">On met <strong class="text-slate-700">30+ fournisseurs en concurrence</strong> en même temps. Vous voyez noir sur blanc qui est le moins cher pour <em>votre</em> consommation.</p>
         </div>
         <div data-reveal style="--rd:60ms" class="service-card lift rounded-2xl border border-slate-100 bg-slate-50 p-6 space-y-3">
-          <div class="card-ico size-12 rounded-xl bg-secondary-100 grid place-items-center text-secondary-700">
+          <div class="card-ico size-12 rounded-xl bg-slate-100 grid place-items-center text-secondary-700">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
           </div>
           <h3 class="font-bold text-slate-900">On lit les petites lignes</h3>
           <p class="text-sm text-slate-500">Indexation, durée, pénalités de sortie… c'est souvent là que ça se joue. On <strong class="text-slate-700">négocie pour vous</strong>, pas pour le fournisseur.</p>
         </div>
         <div data-reveal style="--rd:120ms" class="service-card lift rounded-2xl border border-slate-100 bg-slate-50 p-6 space-y-3">
-          <div class="card-ico size-12 rounded-xl bg-primary-100 grid place-items-center text-primary-700">
+          <div class="card-ico size-12 rounded-xl bg-slate-100 grid place-items-center text-primary-700">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
           </div>
           <h3 class="font-bold text-slate-900">On vous dit la vérité</h3>
           <p class="text-sm text-slate-500">On est <strong class="text-slate-700">indépendants</strong>. Si votre contrat actuel est déjà bon, on vous le dit — et on ne vous fait pas changer pour rien.</p>
         </div>
         <div data-reveal style="--rd:180ms" class="service-card lift rounded-2xl border border-slate-100 bg-slate-50 p-6 space-y-3">
-          <div class="card-ico size-12 rounded-xl bg-secondary-100 grid place-items-center text-secondary-700">
+          <div class="card-ico size-12 rounded-xl bg-slate-100 grid place-items-center text-secondary-700">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
           </div>
-          <h3 class="font-bold text-slate-900">On gère la paperasse</h3>
+          <h3 class="font-bold text-slate-900">On gère l'administratif</h3>
           <p class="text-sm text-slate-500">Souscription, résiliation, changement de fournisseur : on s'occupe des <strong class="text-slate-700">démarches administratives</strong> à votre place.</p>
         </div>
         <div data-reveal style="--rd:240ms" class="service-card lift rounded-2xl border border-slate-100 bg-slate-50 p-6 space-y-3">
-          <div class="card-ico size-12 rounded-xl bg-primary-100 grid place-items-center text-primary-700">
+          <div class="card-ico size-12 rounded-xl bg-slate-100 grid place-items-center text-primary-700">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
           </div>
           <h3 class="font-bold text-slate-900">On reste là après</h3>
@@ -457,11 +389,11 @@
   <!-- Secteurs -->
   <section id="secteurs" class="bg-white py-12 md:py-16">
     <div class="container">
-      <h2 data-reveal class="text-2xl md:text-3xl font-bold text-center mb-3 text-sweep-title">On connaît les contraintes de votre métier</h2>
-      <p data-reveal style="--rd:80ms" class="text-center text-slate-600 mb-10 max-w-2xl mx-auto">Une chambre froide, un hôtel à moitié vide l'hiver, 80 compteurs de copropriété : chaque secteur a ses pièges. On parle votre langage.</p>
+      <h2 data-reveal class="text-2xl md:text-3xl font-bold text-center mb-3 text-slate-900">On connaît les contraintes de votre métier</h2>
+      <p data-reveal style="--rd:80ms" class="text-center text-slate-600 mb-10 max-w-2xl mx-auto">Une chambre froide, un hôtel à moitié vide l'hiver, 80 compteurs de copropriété : chaque secteur a ses contraintes. On les connaît.</p>
       <div class="grid md:grid-cols-3 gap-6">
         <a href="/restauration.html" data-reveal style="--rd:0ms" class="group lift rounded-2xl border border-slate-200 bg-white shadow-sm p-6 hover:border-primary-400 hover:shadow-soft transition-all">
-          <div class="size-12 rounded-xl bg-primary-100 text-primary-700 grid place-items-center mb-4">
+          <div class="size-12 rounded-xl bg-slate-100 text-primary-700 grid place-items-center mb-4">
             <svg viewBox="0 0 24 24" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg>
           </div>
           <h3 class="font-semibold text-slate-900 mb-2 group-hover:text-primary-700">Restauration CHR</h3>
@@ -469,7 +401,7 @@
           <span class="sector-link">En savoir plus <span class="icon-go">→</span></span>
         </a>
         <a href="/hotellerie.html" data-reveal style="--rd:60ms" class="group lift rounded-2xl border border-slate-200 bg-white shadow-sm p-6 hover:border-primary-400 hover:shadow-soft transition-all">
-          <div class="size-12 rounded-xl bg-primary-100 text-primary-700 grid place-items-center mb-4">
+          <div class="size-12 rounded-xl bg-slate-100 text-primary-700 grid place-items-center mb-4">
             <svg viewBox="0 0 24 24" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
           </div>
           <h3 class="font-semibold text-slate-900 mb-2 group-hover:text-primary-700">Hôtellerie</h3>
@@ -477,7 +409,7 @@
           <span class="sector-link">En savoir plus <span class="icon-go">→</span></span>
         </a>
         <a href="/syndics.html" data-reveal style="--rd:120ms" class="group lift rounded-2xl border border-slate-200 bg-white shadow-sm p-6 hover:border-primary-400 hover:shadow-soft transition-all">
-          <div class="size-12 rounded-xl bg-primary-100 text-primary-700 grid place-items-center mb-4">
+          <div class="size-12 rounded-xl bg-slate-100 text-primary-700 grid place-items-center mb-4">
             <svg viewBox="0 0 24 24" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
           </div>
           <h3 class="font-semibold text-slate-900 mb-2 group-hover:text-primary-700">Syndics & Copropriétés</h3>
@@ -485,7 +417,7 @@
           <span class="sector-link">En savoir plus <span class="icon-go">→</span></span>
         </a>
         <a href="/sante.html" data-reveal style="--rd:180ms" class="group lift rounded-2xl border border-slate-200 bg-white shadow-sm p-6 hover:border-primary-400 hover:shadow-soft transition-all">
-          <div class="size-12 rounded-xl bg-primary-100 text-primary-700 grid place-items-center mb-4">
+          <div class="size-12 rounded-xl bg-slate-100 text-primary-700 grid place-items-center mb-4">
             <svg viewBox="0 0 24 24" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
           </div>
           <h3 class="font-semibold text-slate-900 mb-2 group-hover:text-primary-700">Santé & EHPAD</h3>
@@ -493,7 +425,7 @@
           <span class="sector-link">En savoir plus <span class="icon-go">→</span></span>
         </a>
         <a href="/collectivites.html" data-reveal style="--rd:240ms" class="group lift rounded-2xl border border-slate-200 bg-white shadow-sm p-6 hover:border-primary-400 hover:shadow-soft transition-all">
-          <div class="size-12 rounded-xl bg-primary-100 text-primary-700 grid place-items-center mb-4">
+          <div class="size-12 rounded-xl bg-slate-100 text-primary-700 grid place-items-center mb-4">
             <svg viewBox="0 0 24 24" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22V12m0 0L4 6m8 6l8-6M4 6V4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2"/></svg>
           </div>
           <h3 class="font-semibold text-slate-900 mb-2 group-hover:text-primary-700">Collectivités & HLM</h3>
@@ -501,7 +433,7 @@
           <span class="sector-link">En savoir plus <span class="icon-go">→</span></span>
         </a>
         <a href="/industrie.html" data-reveal style="--rd:300ms" class="group lift rounded-2xl border border-slate-200 bg-white shadow-sm p-6 hover:border-primary-400 hover:shadow-soft transition-all">
-          <div class="size-12 rounded-xl bg-primary-100 text-primary-700 grid place-items-center mb-4">
+          <div class="size-12 rounded-xl bg-slate-100 text-primary-700 grid place-items-center mb-4">
             <svg viewBox="0 0 24 24" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>
           </div>
           <h3 class="font-semibold text-slate-900 mb-2 group-hover:text-primary-700">Industrie & Entrepôts</h3>
@@ -510,8 +442,8 @@
         </a>
       </div>
       <div class="mt-6 flex flex-wrap gap-3 justify-center">
-        <a href="/immobilier.html" class="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-primary-600 border border-slate-200 hover:border-primary-300 rounded-full px-4 py-1.5 transition-colors">🏢 Immobilier tertiaire</a>
-        <a href="/transport.html" class="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-primary-600 border border-slate-200 hover:border-primary-300 rounded-full px-4 py-1.5 transition-colors">🚗 Transport & Garages</a>
+        <a href="/immobilier.html" class="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-primary-600 border border-slate-200 hover:border-primary-300 rounded-full px-4 py-1.5 transition-colors"><svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.9" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="1"/><path d="M9 7h.01M15 7h.01M9 11h.01M15 11h.01M10 21v-4h4v4"/></svg> Immobilier tertiaire</a>
+        <a href="/transport.html" class="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-primary-600 border border-slate-200 hover:border-primary-300 rounded-full px-4 py-1.5 transition-colors"><svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.9" viewBox="0 0 24 24"><path d="M3 6h11v9H3zM14 9h4l3 3v3h-7z"/><circle cx="7" cy="18" r="1.6"/><circle cx="17" cy="18" r="1.6"/></svg> Transport &amp; Garages</a>
       </div>
     </div>
   </section>
@@ -521,7 +453,7 @@
     <div class="container">
       <div data-reveal class="text-center max-w-2xl mx-auto mb-14">
         <span class="inline-block rounded-full bg-secondary-100 text-secondary-700 text-xs font-semibold uppercase tracking-widest px-3 py-1 mb-3">Notre méthode</span>
-        <h2 class="text-3xl md:text-4xl font-extrabold text-sweep-title">Comment ça se passe, concrètement</h2>
+        <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900">Comment ça se passe, concrètement</h2>
         <p class="mt-3 text-slate-500">Cinq étapes — et la plupart du temps, vous n'avez qu'à nous transmettre une facture. On s'occupe du reste.</p>
       </div>
       <div data-reveal style="--rd:100ms" class="relative">
@@ -728,33 +660,33 @@
     <div class="container">
       <div data-reveal class="text-center max-w-2xl mx-auto mb-10">
         <span class="inline-block rounded-full bg-primary-100 text-primary-700 text-xs font-semibold uppercase tracking-widest px-3 py-1 mb-3">En toute transparence</span>
-        <h2 class="text-2xl md:text-3xl font-bold text-sweep-title">Pourquoi nous faire confiance</h2>
+        <h2 class="text-2xl md:text-3xl font-bold text-slate-900">Pourquoi nous faire confiance</h2>
         <p class="mt-3 text-slate-500">On est une structure jeune : on ne va pas vous inventer des centaines d'avis. À la place, voilà nos engagements — et on s'y tient.</p>
       </div>
       <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <div data-reveal style="--rd:0ms" class="lift rounded-2xl bg-white border border-slate-100 p-6 shadow-soft">
-          <div class="card-ico size-12 rounded-xl bg-primary-100 text-primary-700 grid place-items-center mb-4">
+          <div class="card-ico size-12 rounded-xl bg-slate-100 text-primary-700 grid place-items-center mb-4">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
           </div>
           <h3 class="font-bold text-slate-900 mb-1.5">Indépendants, vraiment</h3>
           <p class="text-sm text-slate-500">On n'appartient à aucun fournisseur. Notre seul camp, c'est le vôtre.</p>
         </div>
         <div data-reveal style="--rd:90ms" class="lift rounded-2xl bg-white border border-slate-100 p-6 shadow-soft">
-          <div class="card-ico size-12 rounded-xl bg-primary-100 text-primary-700 grid place-items-center mb-4">
+          <div class="card-ico size-12 rounded-xl bg-slate-100 text-primary-700 grid place-items-center mb-4">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
           </div>
           <h3 class="font-bold text-slate-900 mb-1.5">Gratuit, sans engagement</h3>
           <p class="text-sm text-slate-500">L'analyse ne vous coûte rien et ne vous engage à rien. Vous décidez, point.</p>
         </div>
         <div data-reveal style="--rd:180ms" class="lift rounded-2xl bg-white border border-slate-100 p-6 shadow-soft">
-          <div class="card-ico size-12 rounded-xl bg-primary-100 text-primary-700 grid place-items-center mb-4">
+          <div class="card-ico size-12 rounded-xl bg-slate-100 text-primary-700 grid place-items-center mb-4">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
           </div>
           <h3 class="font-bold text-slate-900 mb-1.5">Cartes sur table</h3>
           <p class="text-sm text-slate-500">On vous montre toutes les offres — y compris quand la meilleure, c'est de ne rien changer.</p>
         </div>
         <div data-reveal style="--rd:270ms" class="lift rounded-2xl bg-white border border-slate-100 p-6 shadow-soft">
-          <div class="card-ico size-12 rounded-xl bg-primary-100 text-primary-700 grid place-items-center mb-4">
+          <div class="card-ico size-12 rounded-xl bg-slate-100 text-primary-700 grid place-items-center mb-4">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
           </div>
           <h3 class="font-bold text-slate-900 mb-1.5">Vos données protégées</h3>
@@ -768,7 +700,7 @@
   <section id="faq" class="bg-white py-16 md:py-20">
     <div class="container max-w-3xl">
       <div data-reveal class="text-center mb-12">
-        <h2 class="text-3xl md:text-4xl font-extrabold text-sweep-title">Les questions qu'on nous pose souvent</h2>
+        <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900">Les questions qu'on nous pose souvent</h2>
         <p class="mt-3 text-slate-500">Si la vôtre n'y est pas, appelez-nous — on répond sans langue de bois.</p>
       </div>
       <div class="space-y-3">
@@ -1184,34 +1116,6 @@
       nums.forEach(n => io.observe(n));
     })();
 
-    // ===== Comparateur avant/après (curseur) =====
-    (function () {
-      var ba = document.getElementById('ba');
-      if (!ba) return;
-      var grab = document.getElementById('baGrab');
-      var dragging = false;
-      function setPos(x) {
-        var r = ba.getBoundingClientRect();
-        var p = Math.min(Math.max((x - r.left) / r.width, 0), 1) * 100;
-        ba.classList.remove('ba-intro');
-        ba.style.setProperty('--pos', p + '%');
-        if (grab) grab.setAttribute('aria-valuenow', Math.round(p));
-      }
-      ba.addEventListener('pointerdown', function (e) {
-        dragging = true;
-        if (ba.setPointerCapture) { try { ba.setPointerCapture(e.pointerId); } catch (err) {} }
-        setPos(e.clientX);
-      });
-      ba.addEventListener('pointermove', function (e) { if (dragging) setPos(e.clientX); });
-      window.addEventListener('pointerup', function () { dragging = false; });
-      if (grab) {
-        grab.addEventListener('keydown', function (e) {
-          var cur = parseFloat(getComputedStyle(ba).getPropertyValue('--pos')) || 50;
-          if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') { e.preventDefault(); ba.classList.remove('ba-intro'); var n = Math.max(cur - 5, 0); ba.style.setProperty('--pos', n + '%'); grab.setAttribute('aria-valuenow', Math.round(n)); }
-          if (e.key === 'ArrowRight' || e.key === 'ArrowUp') { e.preventDefault(); ba.classList.remove('ba-intro'); var m = Math.min(cur + 5, 100); ba.style.setProperty('--pos', m + '%'); grab.setAttribute('aria-valuenow', Math.round(m)); }
-        });
-      }
-    })();
   </script>
 
   <!-- Entonnoir mobile : barre fixe "Scanner ma facture" -->
