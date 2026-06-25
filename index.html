@@ -190,6 +190,13 @@
     .hscroll{display:flex;gap:1.25rem;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;-ms-overflow-style:none;padding:.25rem .25rem 1rem}
     .hscroll::-webkit-scrollbar{display:none}
     .hscroll>*{scroll-snap-align:start;flex:0 0 320px;max-width:84vw}
+    /* Carrousel auto (defilement continu) */
+    .cards-marquee{overflow:hidden;padding:.5rem .25rem 1.25rem}
+    .cards-track{display:flex;gap:1.5rem;width:max-content;animation:cardScroll 48s linear infinite}
+    .cards-marquee:hover .cards-track{animation-play-state:paused}
+    @keyframes cardScroll{from{transform:translateX(-50%)}to{transform:translateX(0)}}
+    .cards-track>*{flex:0 0 340px;max-width:84vw}
+    @media(prefers-reduced-motion:reduce){.cards-track{animation:none}.cards-marquee{overflow-x:auto}}
     /* Carte secteurs (image + pins) */
     .secteur-map{position:relative;border-radius:1.25rem;overflow:hidden;box-shadow:0 20px 50px rgba(2,6,12,.12)}
     .secteur-map>img{display:block;width:100%}
@@ -231,7 +238,7 @@
   <header class="sticky top-0 z-50 border-b border-slate-200/60 bg-white/90 glass">
     <div class="container flex items-center justify-between py-2 md:py-2.5 gap-3">
       <a href="/" class="flex flex-col items-start leading-none" aria-label="Elga Energy — Votre énergie, notre expertise">
-        <img src="/assets/logos/elga-energy-logo.svg" alt="Elga Energy" class="h-10 md:h-12 w-auto" onerror="this.replaceWith(document.getElementById('logo-fallback').content.cloneNode(true))" />
+        <img src="/assets/logos/elga-energy-logo.svg" alt="Elga Energy" class="h-11 md:h-14 w-auto" onerror="this.replaceWith(document.getElementById('logo-fallback').content.cloneNode(true))" />
         <span class="hidden xl:block text-[10px] font-medium text-slate-400 mt-1 pl-0.5">Votre énergie, notre expertise</span>
       </a>
       <nav class="hidden md:flex items-center gap-6 text-sm font-medium text-slate-600">
@@ -289,7 +296,7 @@
     <div class="relative container py-16 md:py-24">
       <div class="max-w-3xl mx-auto text-center space-y-6">
         <div style="--rd:0ms" class="reveal-load">
-          <img src="/assets/logos/elga-energy-logo.svg" alt="Elga Energy" class="h-12 md:h-16 w-auto mx-auto" loading="eager">
+          <img src="/assets/logos/elga-energy-logo.svg" alt="Elga Energy" class="h-16 md:h-20 w-auto mx-auto" loading="eager">
           <p class="mt-3 text-base md:text-lg font-medium text-slate-500">Votre énergie, notre expertise — ensemble, économisons demain.</p>
         </div>
         <div style="--rd:80ms" class="reveal-load inline-flex items-center gap-2 rounded-full bg-white border border-slate-200 shadow-sm px-4 py-1.5 text-sm font-medium text-slate-600">
@@ -359,41 +366,78 @@
         <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900">Ce qu'on fait pour faire baisser votre facture</h2>
         <p class="mt-3 text-slate-500">De la collecte de votre facture à la signature du contrat, nous prenons en charge l'intégralité du processus. La décision finale vous revient.</p>
       </div>
-      <div class="hscroll" data-reveal>
-        <div data-reveal style="--rd:0ms" class="service-card lift rounded-2xl border border-slate-100 bg-slate-50 p-6 space-y-3">
+      <div class="cards-marquee" data-reveal>
+        <div class="cards-track">
+        <div class="service-card lift rounded-2xl border border-slate-100 bg-slate-50 p-6 space-y-3">
           <div class="card-ico size-12 rounded-xl bg-slate-100 grid place-items-center text-primary-700">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
           </div>
           <h3 class="font-bold text-slate-900">Comparaison de tout le marché</h3>
           <p class="text-sm text-slate-500">Nous mettons <strong class="text-slate-700">plus de 30 fournisseurs en concurrence</strong> pour identifier l'offre la mieux adaptée à votre profil de consommation.</p>
         </div>
-        <div data-reveal style="--rd:60ms" class="service-card lift rounded-2xl border border-slate-100 bg-slate-50 p-6 space-y-3">
+        <div class="service-card lift rounded-2xl border border-slate-100 bg-slate-50 p-6 space-y-3">
           <div class="card-ico size-12 rounded-xl bg-slate-100 grid place-items-center text-secondary-700">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
           </div>
           <h3 class="font-bold text-slate-900">Analyse des clauses</h3>
           <p class="text-sm text-slate-500">Indexation, durée, garanties, pénalités de sortie : <strong class="text-slate-700">chaque clause est examinée et négociée</strong> dans votre intérêt.</p>
         </div>
-        <div data-reveal style="--rd:120ms" class="service-card lift rounded-2xl border border-slate-100 bg-slate-50 p-6 space-y-3">
+        <div class="service-card lift rounded-2xl border border-slate-100 bg-slate-50 p-6 space-y-3">
           <div class="card-ico size-12 rounded-xl bg-slate-100 grid place-items-center text-primary-700">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
           </div>
           <h3 class="font-bold text-slate-900">Conseil indépendant</h3>
           <p class="text-sm text-slate-500">Aucun lien avec les fournisseurs. Si votre contrat actuel est déjà <strong class="text-slate-700">compétitif</strong>, nous vous le disons clairement.</p>
         </div>
-        <div data-reveal style="--rd:180ms" class="service-card lift rounded-2xl border border-slate-100 bg-slate-50 p-6 space-y-3">
+        <div class="service-card lift rounded-2xl border border-slate-100 bg-slate-50 p-6 space-y-3">
           <div class="card-ico size-12 rounded-xl bg-slate-100 grid place-items-center text-secondary-700">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
           </div>
           <h3 class="font-bold text-slate-900">Prise en charge administrative</h3>
           <p class="text-sm text-slate-500">Souscription, résiliation, changement de fournisseur : nous gérons <strong class="text-slate-700">l'ensemble des démarches</strong> à votre place.</p>
         </div>
-        <div data-reveal style="--rd:240ms" class="service-card lift rounded-2xl border border-slate-100 bg-slate-50 p-6 space-y-3">
+        <div class="service-card lift rounded-2xl border border-slate-100 bg-slate-50 p-6 space-y-3">
           <div class="card-ico size-12 rounded-xl bg-slate-100 grid place-items-center text-primary-700">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
           </div>
           <h3 class="font-bold text-slate-900">Suivi dans la durée</h3>
           <p class="text-sm text-slate-500">Contrôle des factures, <strong class="text-slate-700">veille tarifaire</strong> et ajustement des puissances souscrites tout au long du contrat.</p>
+        </div>
+        <div class="service-card lift rounded-2xl border border-slate-100 bg-slate-50 p-6 space-y-3">
+          <div class="card-ico size-12 rounded-xl bg-slate-100 grid place-items-center text-primary-700">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
+          </div>
+          <h3 class="font-bold text-slate-900">Comparaison de tout le marché</h3>
+          <p class="text-sm text-slate-500">Nous mettons <strong class="text-slate-700">plus de 30 fournisseurs en concurrence</strong> pour identifier l'offre la mieux adaptée à votre profil de consommation.</p>
+        </div>
+        <div class="service-card lift rounded-2xl border border-slate-100 bg-slate-50 p-6 space-y-3">
+          <div class="card-ico size-12 rounded-xl bg-slate-100 grid place-items-center text-secondary-700">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+          </div>
+          <h3 class="font-bold text-slate-900">Analyse des clauses</h3>
+          <p class="text-sm text-slate-500">Indexation, durée, garanties, pénalités de sortie : <strong class="text-slate-700">chaque clause est examinée et négociée</strong> dans votre intérêt.</p>
+        </div>
+        <div class="service-card lift rounded-2xl border border-slate-100 bg-slate-50 p-6 space-y-3">
+          <div class="card-ico size-12 rounded-xl bg-slate-100 grid place-items-center text-primary-700">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+          </div>
+          <h3 class="font-bold text-slate-900">Conseil indépendant</h3>
+          <p class="text-sm text-slate-500">Aucun lien avec les fournisseurs. Si votre contrat actuel est déjà <strong class="text-slate-700">compétitif</strong>, nous vous le disons clairement.</p>
+        </div>
+        <div class="service-card lift rounded-2xl border border-slate-100 bg-slate-50 p-6 space-y-3">
+          <div class="card-ico size-12 rounded-xl bg-slate-100 grid place-items-center text-secondary-700">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
+          </div>
+          <h3 class="font-bold text-slate-900">Prise en charge administrative</h3>
+          <p class="text-sm text-slate-500">Souscription, résiliation, changement de fournisseur : nous gérons <strong class="text-slate-700">l'ensemble des démarches</strong> à votre place.</p>
+        </div>
+        <div class="service-card lift rounded-2xl border border-slate-100 bg-slate-50 p-6 space-y-3">
+          <div class="card-ico size-12 rounded-xl bg-slate-100 grid place-items-center text-primary-700">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+          </div>
+          <h3 class="font-bold text-slate-900">Suivi dans la durée</h3>
+          <p class="text-sm text-slate-500">Contrôle des factures, <strong class="text-slate-700">veille tarifaire</strong> et ajustement des puissances souscrites tout au long du contrat.</p>
+        </div>
         </div>
       </div>
       <div data-reveal class="mt-8 rounded-2xl bg-gradient-to-br from-primary-700 to-secondary-800 p-7 md:p-9 text-white flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
@@ -423,6 +467,8 @@
         <a href="/restauration.html" class="map-pin" style="left:22%;top:61%" aria-label="Restauration CHR"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg><span class="pin-label">Restauration CHR</span></a>
         <a href="/hotellerie.html" class="map-pin" style="left:46%;top:60%" aria-label="Hôtellerie"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span class="pin-label">Hôtellerie</span></a>
         <a href="/collectivites.html" class="map-pin" style="left:64%;top:46%" aria-label="Collectivités & HLM"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22V12m0 0L4 6m8 6l8-6M4 6V4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2"/></svg><span class="pin-label">Collectivités & HLM</span></a>
+        <a href="/immobilier.html" class="map-pin" style="left:13%;top:49%" aria-label="Commerces & tertiaire"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l1.5-5h15L21 9M4 9v11h16V9M9 20v-6h6v6M3 9h18"/></svg><span class="pin-label">Commerces & tertiaire</span></a>
+        <a href="/transport.html" class="map-pin" style="left:85%;top:60%" aria-label="Transport & Garages"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M5 17a2 2 0 104 0M15 17a2 2 0 104 0"/><path d="M3 13l2-6h12l3 6M3 13h18v4H3z"/></svg><span class="pin-label">Transport &amp; Garages</span></a>
         </div>
       </div>
       <div data-reveal class="mt-7 flex flex-wrap gap-2.5 justify-center max-w-3xl mx-auto">
@@ -960,7 +1006,7 @@
       var el = document.getElementById('rotator');
       if (!el) return;
       if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-      var words = ['trop chères', 'pas optimisées', 'sur-dimensionnées', 'pas protégées'];
+      var words = ['trop chères', 'pas optimisées', 'sur-dimensionnées', 'pas protégées', 'parfaites'];
       var i = 0;
       setInterval(function () {
         el.style.opacity = '0';
@@ -971,7 +1017,7 @@
           el.style.opacity = '1';
           el.style.transform = 'none';
         }, 250);
-      }, 1600);
+      }, 1200);
     })();
 
   </script>
