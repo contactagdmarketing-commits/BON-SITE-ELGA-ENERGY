@@ -17,16 +17,70 @@
 const CLAUDE_MODEL   = 'claude-haiku-4-5-20251001';
 const ANTHROPIC_API  = 'https://api.anthropic.com/v1/messages';
 
-const CORS_HEADERS = {
-  'Access-Control-Allow-Origin':  '*',
-  'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
-  'Access-Control-Allow-Headers': 'Content-Type, Authorization',
-};
+// Domaines autorisés à appeler l'API depuis un navigateur (CORS).
+// Tout autre site verra l'origine canonique → le navigateur bloque la réponse.
+const ALLOWED_ORIGINS = [
+  'https://www.elgaenergy.com',
+  'https://elgaenergy.com',
+  'http://localhost:8788',
+  'http://localhost:8799',
+  'http://127.0.0.1:8788',
+  'http://127.0.0.1:8799',
+];
+
+function corsHeaders(request) {
+  const origin = request && request.headers.get('Origin');
+  const allow  = origin && ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGINS[0];
+  return {
+    'Access-Control-Allow-Origin':  allow,
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
+    'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+    'Vary': 'Origin',
+  };
+}
+
+// ─── Anti-abus : limites par IP + plafond global (protège le budget Anthropic) ─
+// Compteurs stockés en KV avec TTL. ⚠️ Fail-open : si le binding KV est ABSENT ou
+// en ERREUR, AUCUNE limite ne s'applique (ni par IP, ni globale, car le plafond
+// global passe lui aussi par KV) → on logge bruyamment pour le voir dans les logs.
+// Choix assumé : ne pas punir un utilisateur légitime pour un glitch KV. Si le
+// budget devient critique → migrer le compteur global sur un Durable Object (atomique).
+const SCAN_LIMITS  = { maxHour: 8,  maxDay: 20, maxGlobalDay: 500 };
+const ADMIN_LIMITS = { maxHour: 15, maxDay: 60, maxGlobalDay: 200 };
+
+async function checkRateLimit(request, env, scope, limits) {
+  if (!env.ELGA_KV) { console.error('checkRateLimit: binding ELGA_KV absent → aucune limite appliquée'); return null; }
+  const ip  = request.headers.get('CF-Connecting-IP') || 'unknown';
+  const iso = new Date().toISOString();
+  const hKey = `rl:${scope}:h:${ip}:${iso.slice(0, 13).replace(/[-T:]/g, '')}`;
+  const dKey = `rl:${scope}:d:${ip}:${iso.slice(0, 10).replace(/-/g, '')}`;
+  const gKey = `rl:${scope}:g:${iso.slice(0, 10).replace(/-/g, '')}`;
+  try {
+    const [hRaw, dRaw, gRaw] = await Promise.all([
+      env.ELGA_KV.get(hKey), env.ELGA_KV.get(dKey), env.ELGA_KV.get(gKey),
+    ]);
+    const h = parseInt(hRaw || '0', 10);
+    const d = parseInt(dRaw || '0', 10);
+    const g = parseInt(gRaw || '0', 10);
+    if (h >= limits.maxHour)      return 3600;
+    if (d >= limits.maxDay)       return 86400;
+    if (g >= limits.maxGlobalDay) return 86400;
+    await Promise.all([
+      env.ELGA_KV.put(hKey, String(h + 1), { expirationTtl: 3600 }),
+      env.ELGA_KV.put(dKey, String(d + 1), { expirationTtl: 86400 }),
+      env.ELGA_KV.put(gKey, String(g + 1), { expirationTtl: 86400 }),
+    ]);
+    return null;
+  } catch (e) {
+    console.error('checkRateLimit: erreur KV → fail-open', e && e.message);
+    return null;
+  }
+}
 
 function jsonResponse(data, status = 200) {
   return new Response(JSON.stringify(data), {
     status,
-    headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json' },
   });
 }
 
@@ -366,12 +420,21 @@ function fallbackSavings(clientTTC, avgPct, segment) {
 // ─── Handler : scan de facture ────────────────────────────────────────────────
 
 async function handleScan(request, env) {
+  const retry = await checkRateLimit(request, env, 'scan', SCAN_LIMITS);
+  if (retry) {
+    return jsonResponse({ error: 'Trop de scans pour le moment. Réessayez un peu plus tard.' }, 429);
+  }
+
   let body;
   try { body = await request.json(); } catch {
     return jsonResponse({ error: 'Corps de requête invalide' }, 400);
   }
 
   const { file_data, file_name } = body;
+  // Garde-fou taille : base64 de ~10 Mo ≈ 13,6 M caractères.
+  if (typeof file_data === 'string' && file_data.length > 14_000_000) {
+    return jsonResponse({ error: 'Fichier trop volumineux (max ~10 Mo).' }, 413);
+  }
   // Normalise le type : certains navigateurs envoient un type vide pour les PDF
   let file_type = body.file_type || '';
   if (!file_type && file_name && file_name.toLowerCase().endsWith('.pdf')) file_type = 'application/pdf';
@@ -451,6 +514,9 @@ async function handleGetPrices(request, env) {
 // ─── Handler : mise à jour de la grille de prix ───────────────────────────────
 
 async function handleSetPrices(request, env) {
+  const retry = await checkRateLimit(request, env, 'admin', ADMIN_LIMITS);
+  if (retry) return jsonResponse({ error: 'Trop de tentatives. Réessayez plus tard.' }, 429);
+
   const auth  = request.headers.get('Authorization') || '';
   const token = auth.replace('Bearer ', '').trim();
   if (!token || token !== env.ADMIN_TOKEN) {
@@ -471,6 +537,9 @@ async function handleSetPrices(request, env) {
 // ─── Handler : extraction prix depuis un bilan comparatif ─────────────────────
 
 async function handleExtractPrices(request, env) {
+  const retry = await checkRateLimit(request, env, 'admin', ADMIN_LIMITS);
+  if (retry) return jsonResponse({ error: 'Trop de tentatives. Réessayez plus tard.' }, 429);
+
   const auth  = request.headers.get('Authorization') || '';
   const token = auth.replace('Bearer ', '').trim();
   if (!token || token !== env.ADMIN_TOKEN) {
@@ -485,6 +554,9 @@ async function handleExtractPrices(request, env) {
   const { file_data, file_type } = body;
   if (!file_data || !file_type) {
     return jsonResponse({ error: 'file_data et file_type requis' }, 400);
+  }
+  if (typeof file_data === 'string' && file_data.length > 14_000_000) {
+    return jsonResponse({ error: 'Fichier trop volumineux (max ~10 Mo).' }, 413);
   }
 
   const isImage = file_type.startsWith('image/');
@@ -536,27 +608,28 @@ export default {
   async fetch(request, env) {
     const { pathname } = new URL(request.url);
     const method = request.method;
+    const cors   = corsHeaders(request);
 
     if (method === 'OPTIONS') {
-      return new Response(null, { headers: CORS_HEADERS });
+      return new Response(null, { headers: cors });
     }
 
+    let res;
     if (pathname === '/api/scan' && method === 'POST') {
-      return handleScan(request, env);
+      res = await handleScan(request, env);
+    } else if (pathname === '/api/prices' && method === 'GET') {
+      res = await handleGetPrices(request, env);
+    } else if (pathname === '/api/prices' && method === 'POST') {
+      res = await handleSetPrices(request, env);
+    } else if (pathname === '/api/extract-prices' && method === 'POST') {
+      res = await handleExtractPrices(request, env);
+    } else {
+      res = jsonResponse({ error: 'Route non trouvée', version: '2.1' }, 404);
     }
 
-    if (pathname === '/api/prices' && method === 'GET') {
-      return handleGetPrices(request, env);
-    }
-
-    if (pathname === '/api/prices' && method === 'POST') {
-      return handleSetPrices(request, env);
-    }
-
-    if (pathname === '/api/extract-prices' && method === 'POST') {
-      return handleExtractPrices(request, env);
-    }
-
-    return jsonResponse({ error: 'Route non trouvée', version: '2.0' }, 404);
+    // Applique le CORS par origine à toute réponse (centralisé ici).
+    const out = new Response(res.body, res);
+    for (const [k, v] of Object.entries(cors)) out.headers.set(k, v);
+    return out;
   },
 };
