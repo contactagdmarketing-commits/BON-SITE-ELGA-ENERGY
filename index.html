@@ -94,7 +94,6 @@
     .glass{backdrop-filter:saturate(180%) blur(12px);background:rgba(255,255,255,.82)}
     .shadow-soft{box-shadow:0 10px 30px rgba(2,6,12,.08)}
     .picture-cover{object-fit:cover;object-position:center}
-    .suppliers-swiper .swiper-wrapper{transition-timing-function:linear!important}
     /* Pill radio */
     .pill-radio{display:flex;align-items:flex-start;gap:.75rem;padding:.75rem 1rem;border-radius:.875rem;border:1.5px solid #e2e8f0;cursor:pointer;transition:border-color .15s,background .15s}
     .pill-radio:hover{border-color:#10b981;background:#ecfdf5}
@@ -177,6 +176,16 @@
     .hero-light-bg{background:radial-gradient(58% 52% at 16% -8%, rgba(16,185,129,.16) 0, transparent 60%),radial-gradient(52% 46% at 90% -2%, rgba(11,61,145,.12) 0, transparent 60%),linear-gradient(180deg,#ffffff 0%,#f7faf9 100%)}
     .sweep-ink{background:linear-gradient(110deg,#0e8a57,#10b981 30%,#0b3d91 62%,#0e8a57);background-size:200% auto;-webkit-background-clip:text;background-clip:text;color:transparent;animation:sweep 5s linear infinite}
     .rotator{display:inline-block;transition:opacity .25s ease,transform .25s ease}
+    /* Marquee fournisseurs continu */
+    .logos-marquee{overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent);mask-image:linear-gradient(90deg,transparent,#000 7%,#000 93%,transparent)}
+    .logos-track{display:flex;width:max-content;align-items:center;gap:4rem;animation:logoScroll 32s linear infinite}
+    .logos-marquee:hover .logos-track{animation-play-state:paused}
+    @keyframes logoScroll{to{transform:translateX(-50%)}}
+    .logos-track img{height:30px;width:auto;flex:none;filter:grayscale(1);opacity:.55;transition:filter .3s ease,opacity .3s ease}
+    .logos-track img:hover{filter:none;opacity:1}
+    /* Bouton CTA premium */
+    .btn-cta{background-image:linear-gradient(180deg,#10b981,#0b6c45)!important;box-shadow:0 8px 22px -6px rgba(14,138,87,.55),inset 0 1px 0 rgba(255,255,255,.25)}
+    .btn-cta:hover{background-image:linear-gradient(180deg,#13c08d,#0a5f3c)!important;box-shadow:0 14px 32px -7px rgba(14,138,87,.7),inset 0 1px 0 rgba(255,255,255,.3)}
     /* Voile de contraste sur le hero (lisibilité du texte blanc, surtout zone bleutée) */
     .hero-scrim{background:linear-gradient(100deg,rgba(4,28,20,.55) 0%,rgba(6,26,34,.18) 48%,rgba(8,32,64,.55) 100%)}
     /* Carte secteur : "En savoir plus" en mini-bouton + affordance cliquable */
@@ -185,6 +194,7 @@
     @media (prefers-reduced-motion: reduce){
       .js [data-reveal]{opacity:1!important;transform:none!important;transition:none!important}
       .text-sweep,.sweep-ink{animation:none!important;background-position:0 center}
+      .logos-track{animation:none!important}
       .rotator{transition:none!important}
       .reveal-load{animation:none!important}
       .floaty,.hero-orb{animation:none!important}
@@ -227,7 +237,7 @@
           <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.12 1.22 2 2 0 012.1 0h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 14.92z"/></svg>
           07 45 11 78 67
         </a>
-        <a href="/scanner.html" class="btn-grow btn-shine inline-flex items-center gap-1.5 rounded-xl bg-primary-600 px-4 py-2.5 text-white text-sm font-semibold shadow-soft hover:bg-primary-700 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-400">
+        <a href="/scanner.html" class="btn-grow btn-shine inline-flex items-center gap-1.5 rounded-xl btn-cta bg-primary-600 px-4 py-2.5 text-white text-sm font-semibold shadow-soft hover:bg-primary-700 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-400">
           <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M21 17v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2M3 12h18"/></svg>
           Scanner ma facture
         </a>
@@ -248,7 +258,6 @@
         <a href="/actu.html" class="py-2.5 px-3 rounded-lg hover:bg-slate-50 hover:text-primary-700 transition-colors text-slate-700">Blog</a>
         <a href="/Recrutement.html" class="py-2.5 px-3 rounded-lg hover:bg-slate-50 hover:text-primary-700 transition-colors text-slate-700">Recrutement</a>
         <a href="/scanner.html" class="py-2.5 px-3 rounded-lg bg-primary-600 text-white font-semibold text-center">⚡ Scanner ma facture · 15 s</a>
-        <a href="#devis" class="py-2.5 px-3 rounded-lg hover:bg-slate-50 hover:text-primary-700 transition-colors text-slate-700">Recevoir un comparatif détaillé</a>
         <a href="/login.html" class="py-2.5 px-3 rounded-lg bg-primary-50 text-primary-700 font-semibold"><svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/></svg> Espace client</a>
         <div class="pt-2 mt-1 border-t border-slate-100">
           <a href="tel:+33745117867" class="flex items-center gap-2 py-2.5 px-3 text-primary-700 font-semibold">
@@ -275,7 +284,7 @@
         </h1>
         <p style="--rd:170ms" class="reveal-load text-lg text-slate-600 max-w-xl mx-auto">Scannez votre facture en 15 secondes, gratuitement. On vous dit s'il y a de l'argent à récupérer.</p>
         <div style="--rd:250ms" class="reveal-load flex flex-col sm:flex-row items-center justify-center gap-3">
-          <a href="/scanner.html" class="btn-grow btn-shine inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl bg-primary-600 px-7 py-4 text-white font-bold shadow-soft hover:bg-primary-700 transition-colors">
+          <a href="/scanner.html" class="btn-grow btn-shine inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl btn-cta bg-primary-600 px-7 py-4 text-white font-bold shadow-soft hover:bg-primary-700 transition-colors">
             <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M21 17v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2M3 12h18"/></svg>
             Scanner ma facture <span class="opacity-80 font-semibold">· 15 s</span>
           </a>
@@ -316,57 +325,69 @@
   <section id="offre" class="bg-white py-16 md:py-20">
     <div class="container">
       <div data-reveal class="text-center max-w-2xl mx-auto mb-12">
-        <span class="inline-block rounded-full bg-primary-100 text-primary-700 text-xs font-semibold uppercase tracking-widest px-3 py-1 mb-3">Ce qu'on fait</span>
+        <span class="inline-block rounded-full bg-primary-100 text-primary-700 text-xs font-semibold uppercase tracking-widest px-3 py-1 mb-3">Notre accompagnement</span>
         <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900">Ce qu'on fait pour faire baisser votre facture</h2>
-        <p class="mt-3 text-slate-500">De votre première facture jusqu'à la signature, on prend tout en charge. Vous gardez la décision finale, en toute liberté.</p>
+        <p class="mt-3 text-slate-500">De la collecte de votre facture à la signature du contrat, nous prenons en charge l'intégralité du processus. La décision finale vous revient.</p>
       </div>
       <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
         <div data-reveal style="--rd:0ms" class="service-card lift rounded-2xl border border-slate-100 bg-slate-50 p-6 space-y-3">
           <div class="card-ico size-12 rounded-xl bg-slate-100 grid place-items-center text-primary-700">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
           </div>
-          <h3 class="font-bold text-slate-900">On compare tout le marché</h3>
-          <p class="text-sm text-slate-500">On met <strong class="text-slate-700">30+ fournisseurs en concurrence</strong> en même temps. Vous voyez noir sur blanc qui est le moins cher pour <em>votre</em> consommation.</p>
+          <h3 class="font-bold text-slate-900">Comparaison de tout le marché</h3>
+          <p class="text-sm text-slate-500">Nous mettons <strong class="text-slate-700">plus de 30 fournisseurs en concurrence</strong> pour identifier l'offre la mieux adaptée à votre profil de consommation.</p>
         </div>
         <div data-reveal style="--rd:60ms" class="service-card lift rounded-2xl border border-slate-100 bg-slate-50 p-6 space-y-3">
           <div class="card-ico size-12 rounded-xl bg-slate-100 grid place-items-center text-secondary-700">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
           </div>
-          <h3 class="font-bold text-slate-900">On lit les petites lignes</h3>
-          <p class="text-sm text-slate-500">Indexation, durée, pénalités de sortie… c'est souvent là que ça se joue. On <strong class="text-slate-700">négocie pour vous</strong>, pas pour le fournisseur.</p>
+          <h3 class="font-bold text-slate-900">Analyse des clauses</h3>
+          <p class="text-sm text-slate-500">Indexation, durée, garanties, pénalités de sortie : <strong class="text-slate-700">chaque clause est examinée et négociée</strong> dans votre intérêt.</p>
         </div>
         <div data-reveal style="--rd:120ms" class="service-card lift rounded-2xl border border-slate-100 bg-slate-50 p-6 space-y-3">
           <div class="card-ico size-12 rounded-xl bg-slate-100 grid place-items-center text-primary-700">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
           </div>
-          <h3 class="font-bold text-slate-900">On vous dit la vérité</h3>
-          <p class="text-sm text-slate-500">On est <strong class="text-slate-700">indépendants</strong>. Si votre contrat actuel est déjà bon, on vous le dit — et on ne vous fait pas changer pour rien.</p>
+          <h3 class="font-bold text-slate-900">Conseil indépendant</h3>
+          <p class="text-sm text-slate-500">Aucun lien avec les fournisseurs. Si votre contrat actuel est déjà <strong class="text-slate-700">compétitif</strong>, nous vous le disons clairement.</p>
         </div>
         <div data-reveal style="--rd:180ms" class="service-card lift rounded-2xl border border-slate-100 bg-slate-50 p-6 space-y-3">
           <div class="card-ico size-12 rounded-xl bg-slate-100 grid place-items-center text-secondary-700">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
           </div>
-          <h3 class="font-bold text-slate-900">On gère l'administratif</h3>
-          <p class="text-sm text-slate-500">Souscription, résiliation, changement de fournisseur : on s'occupe des <strong class="text-slate-700">démarches administratives</strong> à votre place.</p>
+          <h3 class="font-bold text-slate-900">Prise en charge administrative</h3>
+          <p class="text-sm text-slate-500">Souscription, résiliation, changement de fournisseur : nous gérons <strong class="text-slate-700">l'ensemble des démarches</strong> à votre place.</p>
         </div>
         <div data-reveal style="--rd:240ms" class="service-card lift rounded-2xl border border-slate-100 bg-slate-50 p-6 space-y-3">
           <div class="card-ico size-12 rounded-xl bg-slate-100 grid place-items-center text-primary-700">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
           </div>
-          <h3 class="font-bold text-slate-900">On reste là après</h3>
-          <p class="text-sm text-slate-500">Contrôle des factures, <strong class="text-slate-700">alerte quand les prix bougent</strong>, ajustement des puissances. On ne disparaît pas après la signature.</p>
+          <h3 class="font-bold text-slate-900">Suivi dans la durée</h3>
+          <p class="text-sm text-slate-500">Contrôle des factures, <strong class="text-slate-700">veille tarifaire</strong> et ajustement des puissances souscrites tout au long du contrat.</p>
         </div>
-        <div data-reveal style="--rd:300ms" class="service-card lift btn-shine rounded-2xl bg-gradient-to-br from-primary-600 to-secondary-700 p-6 space-y-3 text-white">
-          <div class="card-ico size-12 rounded-xl bg-white/20 grid place-items-center">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-          </div>
-          <h3 class="font-bold">Et tout ça, c'est gratuit</h3>
-          <p class="text-sm text-white/85">On est payés par les fournisseurs, pas par vous. Donc <strong>aucune facture de notre côté</strong> — et aucune raison de vous pousser vers le mauvais contrat.</p>
-          <a href="/scanner.html" class="btn-grow inline-flex items-center gap-1.5 text-sm font-semibold border border-white/40 rounded-lg px-4 py-2 hover:bg-white/15 transition-colors mt-1">
-            Scanner ma facture
-            <svg class="icon-go w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5-5 5M6 12h12"/></svg>
-          </a>
+      </div>
+      <div data-reveal class="mt-8 rounded-2xl bg-gradient-to-br from-primary-700 to-secondary-800 p-7 md:p-9 text-white flex flex-col md:flex-row items-center justify-between gap-6 text-center md:text-left">
+        <div>
+          <h3 class="text-xl md:text-2xl font-bold">Et tout cela ne vous coûte rien.</h3>
+          <p class="text-white/85 mt-2 max-w-2xl">Notre rémunération est versée par les fournisseurs retenus : aucun honoraire à votre charge, et un conseil qui reste totalement indépendant.</p>
         </div>
+        <a href="/scanner.html" class="btn-cta btn-grow btn-shine shrink-0 inline-flex w-full md:w-auto items-center justify-center gap-2 rounded-xl px-7 py-4 text-white font-bold">
+          <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M21 17v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2M3 12h18"/></svg>
+          Scanner ma facture
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Fournisseurs (marquee continu) -->
+  <section id="fournisseurs" class="bg-white pt-14 md:pt-16 pb-2">
+    <div class="container">
+      <div data-reveal class="text-center mb-8">
+        <p class="text-slate-400 text-xs font-semibold uppercase tracking-widest mb-2">Réseau de fournisseurs</p>
+        <h2 class="text-2xl md:text-3xl font-bold text-slate-900">Nous mettons les grands fournisseurs en concurrence</h2>
+      </div>
+      <div data-reveal class="logos-marquee">
+        <div class="logos-track"><img src="/assets/fournisseurs/totalenergies.svg" alt="TotalEnergies" loading="lazy"><img src="/assets/fournisseurs/eni.svg" alt="Eni" loading="lazy"><img src="/assets/fournisseurs/vattenfall.svg" alt="Vattenfall" loading="lazy"><img src="/assets/fournisseurs/edf.svg" alt="EDF" loading="lazy"><img src="/assets/fournisseurs/engie.svg" alt="Engie" loading="lazy"><img src="/assets/fournisseurs/endesa-grupo.svg" alt="Endesa" loading="lazy"><img src="/assets/fournisseurs/totalenergies.svg" alt="TotalEnergies" loading="lazy"><img src="/assets/fournisseurs/eni.svg" alt="Eni" loading="lazy"><img src="/assets/fournisseurs/vattenfall.svg" alt="Vattenfall" loading="lazy"><img src="/assets/fournisseurs/edf.svg" alt="EDF" loading="lazy"><img src="/assets/fournisseurs/engie.svg" alt="Engie" loading="lazy"><img src="/assets/fournisseurs/endesa-grupo.svg" alt="Endesa" loading="lazy"></div>
       </div>
     </div>
   </section>
@@ -482,160 +503,11 @@
         </div>
       </div>
       <div data-reveal class="mt-12 text-center">
-        <a href="/scanner.html" class="btn-grow btn-shine inline-flex items-center justify-center gap-2 rounded-xl bg-primary-600 px-7 py-4 text-white font-bold shadow-soft hover:bg-primary-700 transition-colors">
+        <a href="/scanner.html" class="btn-grow btn-shine inline-flex items-center justify-center gap-2 rounded-xl btn-cta bg-primary-600 px-7 py-4 text-white font-bold shadow-soft hover:bg-primary-700 transition-colors">
           <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M21 17v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2M3 12h18"/></svg>
           Scanner ma facture <span class="opacity-80 font-semibold">· 15 s, gratuit</span>
         </a>
         <p class="mt-3 text-sm text-slate-500">Le plus simple : envoyez-nous une facture, on s'occupe du reste.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- Tunnel de Devis -->
-  <section id="devis" class="bg-gradient-to-br from-secondary-900 via-slate-900 to-primary-900 text-white py-16 md:py-20">
-    <div class="container">
-      <div data-reveal class="text-center mb-10">
-        <span class="inline-block rounded-full bg-white/15 border border-white/20 text-white text-xs font-semibold uppercase tracking-widest px-3 py-1 mb-3">Audit gratuit</span>
-        <h2 class="text-3xl md:text-4xl font-extrabold">Votre comparatif énergie, sur mesure</h2>
-        <p class="mt-3 text-white/75 text-lg">Six questions rapides, moins de 3 minutes, et zéro engagement. Promis.</p>
-      </div>
-
-      <div class="bg-slate-50 text-slate-800 rounded-3xl shadow-soft max-w-4xl mx-auto overflow-hidden">
-        <!-- Barre de progression -->
-        <div class="bg-white border-b border-slate-100 px-8 py-4">
-          <div class="flex items-center justify-between text-xs mb-2">
-            <span id="step-label" class="font-semibold text-slate-700">Étape 1 sur 6</span>
-            <span id="step-percent" class="font-semibold text-primary-600">17 %</span>
-          </div>
-          <div class="w-full bg-slate-200 rounded-full h-2">
-            <div id="step-progress-bar" class="step-progress-bar h-2 rounded-full bg-primary-600" style="width:17%"></div>
-          </div>
-        </div>
-
-        <form id="quote-form" class="p-8 md:p-10"
-              action="https://formsubmit.co/cf16add96a7eedf5a12c3c2f738739f0"
-              method="POST" enctype="multipart/form-data">
-
-          <input type="hidden" name="_subject" value="🔔 Nouveau devis Elga Energy — page d'accueil">
-          <input type="hidden" name="_next" value="https://elgaenergy.com/merci.html">
-          <input type="hidden" name="_template" value="table">
-          <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
-
-          <!-- ÉTAPE 1 -->
-          <div class="field-card active-step" data-step="0">
-            <h3 class="text-xl font-bold text-slate-900 mb-6">Combien de compteurs souhaitez-vous renseigner&nbsp;?</h3>
-            <div class="grid md:grid-cols-2 gap-4">
-              <label class="text-sm font-medium text-slate-700">
-                Compteurs <span class="font-bold text-primary-700">Électricité</span>
-                <input type="number" min="0" max="20" name="nb_compteurs_elec" required
-                       class="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 focus:border-primary-400 focus:ring-2 focus:ring-primary-100 outline-none transition"
-                       placeholder="ex. 3">
-              </label>
-              <label class="text-sm font-medium text-slate-700">
-                Compteurs <span class="font-bold text-primary-700">Gaz</span>
-                <input type="number" min="0" max="20" name="nb_compteurs_gaz" required
-                       class="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 focus:border-primary-400 focus:ring-2 focus:ring-primary-100 outline-none transition"
-                       placeholder="ex. 1">
-              </label>
-            </div>
-          </div>
-
-          <!-- ÉTAPE 2 -->
-          <div class="field-card" data-step="1" id="step-compteurs">
-            <h3 class="text-xl font-bold text-slate-900 mb-6">Caractéristiques de vos compteurs</h3>
-            <div id="compteurs-container" class="space-y-6"></div>
-          </div>
-
-          <!-- ÉTAPE 3 -->
-          <div class="field-card" data-step="2">
-            <h3 class="text-xl font-bold text-slate-900 mb-6">Informations sur vos sites</h3>
-            <div class="grid gap-4 md:grid-cols-2">
-              <label class="text-sm font-medium text-slate-700">
-                Adresse du siège social
-                <input type="text" name="adresse_siege" required
-                       class="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 focus:border-primary-400 focus:ring-2 focus:ring-primary-100 outline-none transition"
-                       placeholder="ex. 15 rue Victor Hugo, Paris">
-              </label>
-              <label class="text-sm font-medium text-slate-700">
-                Nombre d'établissements
-                <input type="number" min="1" name="nb_etablissements"
-                       class="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 focus:border-primary-400 focus:ring-2 focus:ring-primary-100 outline-none transition"
-                       placeholder="ex. 4">
-              </label>
-            </div>
-          </div>
-
-          <!-- ÉTAPE 4 -->
-          <div class="field-card" data-step="3">
-            <h3 class="text-xl font-bold text-slate-900 mb-6">Vos coordonnées</h3>
-            <div class="grid md:grid-cols-2 gap-4">
-              <label class="text-sm font-medium text-slate-700">Raison sociale *<input type="text" name="raison_sociale" required class="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 focus:border-primary-400 focus:ring-2 focus:ring-primary-100 outline-none transition"></label>
-              <label class="text-sm font-medium text-slate-700">SIRET<input type="text" name="siret" class="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 focus:border-primary-400 focus:ring-2 focus:ring-primary-100 outline-none transition"></label>
-              <label class="text-sm font-medium text-slate-700">Nom *<input type="text" name="nom_prospect" required class="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 focus:border-primary-400 focus:ring-2 focus:ring-primary-100 outline-none transition"></label>
-              <label class="text-sm font-medium text-slate-700">Prénom *<input type="text" name="prenom_prospect" required class="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 focus:border-primary-400 focus:ring-2 focus:ring-primary-100 outline-none transition"></label>
-              <label class="text-sm font-medium text-slate-700">Téléphone *<input type="tel" name="telephone" required class="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 focus:border-primary-400 focus:ring-2 focus:ring-primary-100 outline-none transition"></label>
-              <label class="text-sm font-medium text-slate-700">Email *<input type="email" name="email" required class="mt-2 w-full rounded-xl border border-slate-200 px-4 py-3 focus:border-primary-400 focus:ring-2 focus:ring-primary-100 outline-none transition"></label>
-            </div>
-          </div>
-
-          <!-- ÉTAPE 5 -->
-          <div class="field-card" data-step="4" id="step-docs">
-            <h3 class="text-xl font-bold text-slate-900 mb-2">Ajoutez vos documents</h3>
-            <p class="text-sm text-slate-500 mb-6">Formats PDF, JPG, PNG — facultatif mais accélère l'analyse.</p>
-            <div id="docs-container" class="space-y-6"></div>
-          </div>
-
-          <!-- ÉTAPE 6 -->
-          <div class="field-card" data-step="5">
-            <h3 class="text-xl font-bold text-slate-900 mb-2">Votre besoin en quelques mots</h3>
-            <p class="text-sm text-slate-500 mb-4">Précisez vos attentes, échéances ou remarques particulières.</p>
-            <textarea name="message" rows="5"
-                      class="w-full rounded-2xl border border-slate-200 px-5 py-4 focus:border-primary-400 focus:ring-2 focus:ring-primary-100 outline-none transition"
-                      placeholder="Ex. renégociation anticipée, bilan multi-sites, contrat arrivant à échéance…"></textarea>
-            <label class="flex items-start gap-3 text-sm text-slate-500 mt-4">
-              <input type="checkbox" required class="mt-1 size-4 rounded border-slate-300 text-primary-600 focus:ring-primary-500">
-              J'accepte que mes données soient utilisées pour étudier mon dossier et être recontacté par Elga Energy.
-            </label>
-          </div>
-
-          <!-- Navigation -->
-          <div class="flex flex-wrap items-center justify-between gap-4 mt-8 pt-6 border-t border-slate-100">
-            <button type="button" id="step-prev"
-                    class="hidden rounded-xl border border-slate-300 px-5 py-2.5 text-sm font-semibold text-slate-600 hover:border-primary-400 hover:text-primary-700 transition-colors">
-              ← Précédent
-            </button>
-            <div class="ml-auto flex gap-3">
-              <button type="button" id="step-next"
-                      class="rounded-xl bg-secondary-600 px-7 py-2.5 text-sm font-bold text-white hover:bg-secondary-500 transition-colors shadow-soft">
-                Suivant →
-              </button>
-              <button type="submit" id="step-submit"
-                      class="hidden rounded-xl bg-primary-600 px-7 py-2.5 text-sm font-bold text-white hover:bg-primary-500 transition-colors shadow-soft">
-                Envoyer ma demande
-              </button>
-            </div>
-          </div>
-        </form>
-      </div>
-    </div>
-  </section>
-
-  <!-- Carrousel fournisseurs -->
-  <section id="fournisseurs" class="bg-white py-12 md:py-16">
-    <div class="container">
-      <div data-reveal class="text-center mb-8">
-        <p class="text-slate-400 text-xs font-semibold uppercase tracking-widest mb-2">Réseau de fournisseurs</p>
-        <h2 class="text-2xl md:text-3xl font-bold text-slate-900">On met les grands fournisseurs en concurrence</h2>
-      </div>
-      <div class="swiper suppliers-swiper">
-        <div class="swiper-wrapper items-center">
-          <div class="swiper-slide"><div class="h-20 grid place-items-center border border-slate-100 rounded-2xl p-4 bg-slate-50 hover:border-primary-200 transition-colors mx-1"><img src="/assets/fournisseurs/totalenergies.svg" alt="TotalEnergies" class="max-h-10 w-auto" loading="lazy" onerror="this.parentElement.innerHTML='<span class=\'text-sm font-medium text-slate-600\'>TotalEnergies</span>'"></div></div>
-          <div class="swiper-slide"><div class="h-20 grid place-items-center border border-slate-100 rounded-2xl p-4 bg-slate-50 hover:border-primary-200 transition-colors mx-1"><img src="/assets/fournisseurs/eni.svg" alt="Eni" class="max-h-10 w-auto" loading="lazy" onerror="this.parentElement.innerHTML='<span class=\'text-sm font-medium text-slate-600\'>Eni</span>'"></div></div>
-          <div class="swiper-slide"><div class="h-20 grid place-items-center border border-slate-100 rounded-2xl p-4 bg-slate-50 hover:border-primary-200 transition-colors mx-1"><img src="/assets/fournisseurs/vattenfall.svg" alt="Vattenfall" class="max-h-10 w-auto" loading="lazy" onerror="this.parentElement.innerHTML='<span class=\'text-sm font-medium text-slate-600\'>Vattenfall</span>'"></div></div>
-          <div class="swiper-slide"><div class="h-20 grid place-items-center border border-slate-100 rounded-2xl p-4 bg-slate-50 hover:border-primary-200 transition-colors mx-1"><img src="/assets/fournisseurs/edf.svg" alt="EDF" class="max-h-10 w-auto" loading="lazy" onerror="this.parentElement.innerHTML='<span class=\'text-sm font-medium text-slate-600\'>EDF</span>'"></div></div>
-          <div class="swiper-slide"><div class="h-20 grid place-items-center border border-slate-100 rounded-2xl p-4 bg-slate-50 hover:border-primary-200 transition-colors mx-1"><img src="/assets/fournisseurs/engie.svg" alt="Engie" class="max-h-10 w-auto" loading="lazy" onerror="this.parentElement.innerHTML='<span class=\'text-sm font-medium text-slate-600\'>Engie</span>'"></div></div>
-          <div class="swiper-slide"><div class="h-20 grid place-items-center border border-slate-100 rounded-2xl p-4 bg-slate-50 hover:border-primary-200 transition-colors mx-1"><img src="/assets/fournisseurs/endesa-grupo.svg" alt="Endesa" class="max-h-10 w-auto" loading="lazy" onerror="this.parentElement.innerHTML='<span class=\'text-sm font-medium text-slate-600\'>Endesa</span>'"></div></div>
-        </div>
       </div>
     </div>
   </section>
@@ -646,7 +518,7 @@
       <div data-reveal class="text-center max-w-2xl mx-auto mb-10">
         <span class="inline-block rounded-full bg-primary-100 text-primary-700 text-xs font-semibold uppercase tracking-widest px-3 py-1 mb-3">En toute transparence</span>
         <h2 class="text-2xl md:text-3xl font-bold text-slate-900">Pourquoi nous faire confiance</h2>
-        <p class="mt-3 text-slate-500">On est une structure jeune : on ne va pas vous inventer des centaines d'avis. À la place, voilà nos engagements — et on s'y tient.</p>
+        <p class="mt-3 text-slate-500">Structure jeune et indépendante, nous préférons des engagements clairs à des avis fabriqués. Voici les nôtres — et nous nous y tenons.</p>
       </div>
       <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
         <div data-reveal style="--rd:0ms" class="lift rounded-2xl bg-white border border-slate-100 p-6 shadow-soft">
@@ -733,7 +605,7 @@
         </div>
       </div>
       <div data-reveal class="mt-10 text-center">
-        <a href="/scanner.html" class="btn-grow btn-shine inline-flex items-center justify-center gap-2 rounded-xl bg-primary-600 px-7 py-4 text-white font-bold shadow-soft hover:bg-primary-700 transition-colors">
+        <a href="/scanner.html" class="btn-grow btn-shine inline-flex items-center justify-center gap-2 rounded-xl btn-cta bg-primary-600 px-7 py-4 text-white font-bold shadow-soft hover:bg-primary-700 transition-colors">
           <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M21 17v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2M3 12h18"/></svg>
           Convaincu ? Scanner ma facture
         </a>
@@ -943,6 +815,7 @@
 
     // Formulaire multi-étapes
     const form = document.getElementById('quote-form');
+    if (form) {
     const panels = Array.from(form.querySelectorAll('[data-step]'));
     const prevBtn = document.getElementById('step-prev');
     const nextBtn = document.getElementById('step-next');
@@ -1037,20 +910,16 @@
 
     form.addEventListener('submit', () => {
       setTimeout(() => {
-        form.innerHTML = `<div class="text-center space-y-4 py-12 px-8"><div class="inline-flex items-center justify-center rounded-full bg-primary-100 text-primary-700 size-20 mx-auto"><svg viewBox="0 0 24 24" class="size-10" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></div><h3 class="text-2xl font-extrabold text-slate-900">Demande envoyée !</h3><p class="text-slate-500 max-w-md mx-auto">Notre équipe vous recontacte sous 24&nbsp;h pour analyser votre dossier et préparer votre comparatif personnalisé.</p><a href="/" class="inline-flex items-center gap-2 mt-4 rounded-xl bg-primary-600 px-6 py-3 text-white font-semibold hover:bg-primary-700 transition-colors">Retour à l'accueil</a></div>`;
+        form.innerHTML = `<div class="text-center space-y-4 py-12 px-8"><div class="inline-flex items-center justify-center rounded-full bg-primary-100 text-primary-700 size-20 mx-auto"><svg viewBox="0 0 24 24" class="size-10" fill="none" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg></div><h3 class="text-2xl font-extrabold text-slate-900">Demande envoyée !</h3><p class="text-slate-500 max-w-md mx-auto">Notre équipe vous recontacte sous 24&nbsp;h pour analyser votre dossier et préparer votre comparatif personnalisé.</p><a href="/" class="inline-flex items-center gap-2 mt-4 rounded-xl btn-cta bg-primary-600 px-6 py-3 text-white font-semibold hover:bg-primary-700 transition-colors">Retour à l'accueil</a></div>`;
       }, 300);
     });
 
     showStep(0);
+    }
 
     // Swiper
     window.addEventListener('load', function () {
       try {
-        new Swiper('.suppliers-swiper', {
-          slidesPerView: 2, spaceBetween: 16, loop: true, loopAdditionalSlides: 12,
-          speed: 9000, autoplay: (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) ? false : { delay: 0, disableOnInteraction: false, pauseOnMouseEnter: true },
-          breakpoints: { 640:{slidesPerView:3}, 768:{slidesPerView:4}, 1024:{slidesPerView:6} }
-        });
         new Swiper('.actu-swiper', {
           slidesPerView: 1, spaceBetween: 16, loop: true, autoplay: false,
           navigation: { nextEl: '.actu-next', prevEl: '.actu-prev' },
@@ -1124,7 +993,7 @@
 
   <!-- Entonnoir mobile : barre fixe "Scanner ma facture" -->
   <div id="scanBar" class="scan-bar md:hidden fixed inset-x-0 bottom-0 z-40 px-3 pt-3 bg-white/90 backdrop-blur border-t border-slate-200" style="padding-bottom:calc(0.75rem + env(safe-area-inset-bottom))">
-    <a href="/scanner.html" class="btn-shine flex items-center justify-center gap-2 w-full rounded-xl bg-primary-600 px-5 py-3.5 text-white font-bold shadow-soft">
+    <a href="/scanner.html" class="btn-shine flex items-center justify-center gap-2 w-full rounded-xl btn-cta bg-primary-600 px-5 py-3.5 text-white font-bold shadow-soft">
       <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M21 17v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2M3 12h18"/></svg>
       Scanner ma facture <span class="opacity-80 font-semibold">· 15 s, gratuit</span>
     </a>
