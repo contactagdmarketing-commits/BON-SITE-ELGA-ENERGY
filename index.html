@@ -5,13 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Elga Energy — Courtier en énergie B2B pour entreprises et collectivités</title>
   <meta name="description" content="Elga Energy compare et négocie vos contrats d'électricité et de gaz auprès de 30+ fournisseurs. Audit gratuit, sans engagement. Restauration, syndics, EHPAD, industrie." />
-  <link rel="canonical" href="https://www.elgaenergy.com/" />
+  <link rel="canonical" href="https://elgaenergy.com/" />
   <meta property="og:title" content="Elga Energy — Courtier en énergie B2B" />
-  <meta property="og:description" content="Comparez et négociez vos contrats énergie avec un courtier indépendant. Audit gratuit, économies concrètes, sans engagement." />
+  <meta property="og:description" content="Comparez et négociez vos contrats énergie avec un courtier indépendant. Audit gratuit, sans engagement." />
   <meta property="og:type" content="website" />
-  <meta property="og:image" content="https://www.elgaenergy.com/assets/images/image_fond.jpg" />
+  <meta property="og:image" content="https://elgaenergy.com/assets/images/image_fond.jpg" />
   <meta property="og:locale" content="fr_FR" />
-  <meta property="og:url" content="https://www.elgaenergy.com/" />
+  <meta property="og:url" content="https://elgaenergy.com/" />
   <meta name="theme-color" content="#0e8a57" />
   <link rel="icon" href="/assets/logos/elga-energy-logo.svg" type="image/svg+xml" sizes="any" />
   <link rel="apple-touch-icon" href="/assets/logos/elga-energy-logo.svg" />
@@ -25,8 +25,8 @@
     "@type": "LocalBusiness",
     "name": "Elga Energy",
     "description": "Courtier en énergie B2B — comparaison et négociation de contrats électricité et gaz pour entreprises et collectivités.",
-    "url": "https://www.elgaenergy.com",
-    "logo": "https://www.elgaenergy.com/assets/logos/elga-energy-logo.svg",
+    "url": "https://elgaenergy.com",
+    "logo": "https://elgaenergy.com/assets/logos/elga-energy-logo.svg",
     "telephone": "+33745117867",
     "email": "cotations@elgaenergy.fr",
     "address": {
@@ -57,7 +57,7 @@
     "mainEntity": [
       {"@type":"Question","name":"Faut-il acheter le gaz et l'électricité auprès du même fournisseur ?","acceptedAnswer":{"@type":"Answer","text":"Ce n'est pas nécessaire. Si un meilleur prix est trouvé pour l'un des deux, nous traitons les contrats séparément et gérons l'administratif pour vous."}},
       {"@type":"Question","name":"Est-ce que j'obtiens un prix fixe ou variable ?","acceptedAnswer":{"@type":"Answer","text":"Nous suivons de près le marché et recommandons l'option (fixe ou indexée) la plus pertinente au moment de l'analyse."}},
-      {"@type":"Question","name":"Combien vais-je économiser ?","acceptedAnswer":{"@type":"Answer","text":"En moyenne, nos clients économisent entre 10 et 30%. Cela dépend de votre situation initiale."}},
+      {"@type":"Question","name":"Combien vais-je économiser ?","acceptedAnswer":{"@type":"Answer","text":"Honnêtement, ça dépend : de votre contrat actuel, de votre consommation et du marché au moment de l'analyse. On ne promet pas de pourcentage à l'aveugle — on regarde votre facture et on vous dit, chiffres à l'appui, ce qu'il y a à gagner. Ou pas."}},
       {"@type":"Question","name":"Dois-je changer de fournisseur ?","acceptedAnswer":{"@type":"Answer","text":"Notre audit est gratuit et sans engagement. La décision vous appartient — on vous donne une recommandation claire et documentée."}},
       {"@type":"Question","name":"Y a-t-il des frais d'annulation si je quitte mon fournisseur actuel ?","acceptedAnswer":{"@type":"Answer","text":"Dans la plupart des cas non. Un préavis peut toutefois s'appliquer. Nous vérifions tout pour vous."}},
       {"@type":"Question","name":"Puis-je profiter du meilleur prix si je suis déjà client du fournisseur proposé ?","acceptedAnswer":{"@type":"Answer","text":"Oui. Si votre fournisseur actuel l'emporte, nous faisons appliquer le nouveau tarif sans démarches de votre part."}}
@@ -93,7 +93,7 @@
     .glass{backdrop-filter:saturate(180%) blur(12px);background:rgba(255,255,255,.82)}
     .shadow-soft{box-shadow:0 10px 30px rgba(2,6,12,.08)}
     .picture-cover{object-fit:cover;object-position:center}
-    .hero-overlay{background:linear-gradient(120deg,rgba(14,138,87,.9),rgba(11,61,145,.88))}
+    .hero-overlay{background:linear-gradient(120deg,rgba(14,138,87,.92),rgba(11,61,145,.9),rgba(14,138,87,.92));background-size:220% 220%;animation:hueShift 20s ease-in-out infinite}
     .suppliers-swiper .swiper-wrapper{transition-timing-function:linear!important}
     /* Pill radio */
     .pill-radio{display:flex;align-items:flex-start;gap:.75rem;padding:.75rem 1rem;border-radius:.875rem;border:1.5px solid #e2e8f0;cursor:pointer;transition:border-color .15s,background .15s}
@@ -111,36 +111,47 @@
     .field-card{display:none}
     .field-card.active-step{display:block;animation:fadeIn .3s ease}
     @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-    /* Hero : animation de scan de facture */
-    .scan-doc{position:relative;overflow:hidden}
-    .scan-line{position:absolute;left:0;right:0;height:46px;pointer-events:none;background:linear-gradient(180deg,rgba(16,185,129,0),rgba(16,185,129,.28),rgba(16,185,129,0));box-shadow:0 0 22px rgba(16,185,129,.45);animation:scanMove 3.4s ease-in-out infinite}
-    @keyframes scanMove{0%{top:-46px}55%{top:100%}100%{top:-46px}}
-    .scan-zone{border-radius:.6rem;animation:zonePulse 3.4s ease-in-out infinite}
-    .scan-zone.z2{animation-delay:.55s}
-    .scan-zone.z3{animation-delay:1.1s}
-    @keyframes zonePulse{0%,15%,100%{background:transparent}30%,45%{background:#ecfdf5}}
-    @media (prefers-reduced-motion: reduce){.scan-line{display:none}.scan-zone{animation:none;background:#ecfdf5}}
-    /* Hover.css (extraits Grow + Icon Forward) — effets boutons, relus & inline */
-    .hvr-grow{transform:perspective(1px) translateZ(0);transition-property:transform,background-color,border-color,color;transition-duration:.25s}
-    .hvr-grow:hover,.hvr-grow:focus{transform:scale(1.05)}
-    .hvr-icon-forward .hvr-icon{transition:transform .15s ease-out}
-    .hvr-icon-forward:hover .hvr-icon,.hvr-icon-forward:focus .hvr-icon{transform:translateX(4px)}
-    @media (prefers-reduced-motion: reduce){.hvr-grow:hover{transform:none}.hvr-icon-forward:hover .hvr-icon{transform:none}}
-    /* Scroll reveal (IntersectionObserver maison) */
-    [data-reveal]{opacity:0;transform:translateY(24px);transition:opacity .7s ease,transform .7s ease}
-    [data-reveal].is-visible{opacity:1;transform:none}
-    @media (prefers-reduced-motion: reduce){[data-reveal]{opacity:1;transform:none;transition:none}}
-    /* Marquee bandeau avantages */
-    .marquee{overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent)}
-    .marquee__track{display:flex;width:max-content;animation:elgaMarquee 34s linear infinite}
-    .marquee:hover .marquee__track{animation-play-state:paused}
-    @keyframes elgaMarquee{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-    @media (prefers-reduced-motion: reduce){.marquee__track{animation:none;flex-wrap:wrap;justify-content:center}}
     /* Cards hover */
     .service-card{transition:transform .2s ease,box-shadow .2s ease}
     .service-card:hover{transform:translateY(-4px);box-shadow:0 20px 40px rgba(2,6,12,.12)}
     /* Step progress */
     .step-progress-bar{transition:width .4s ease}
+
+    /* ===== Motion design — 0 dépendance, respect de prefers-reduced-motion ===== */
+    /* Apparition au scroll (avec délai d'enchaînement via --rd) */
+    [data-reveal]{opacity:0;transform:translateY(26px);transition:opacity .8s cubic-bezier(.16,1,.3,1),transform .8s cubic-bezier(.16,1,.3,1);transition-delay:var(--rd,0ms);will-change:opacity,transform}
+    [data-reveal].in-view{opacity:1;transform:none}
+    /* Soulèvement doux au survol */
+    .lift{transition:transform .35s cubic-bezier(.16,1,.3,1),box-shadow .35s ease}
+    .lift:hover{transform:translateY(-6px)}
+    /* Boutons : léger zoom + brillance qui balaie */
+    .btn-grow{transition:transform .25s ease,box-shadow .25s ease}
+    .btn-grow:hover{transform:translateY(-2px) scale(1.02)}
+    .btn-shine{position:relative;overflow:hidden}
+    .btn-shine::after{content:"";position:absolute;top:0;left:-130%;width:55%;height:100%;background:linear-gradient(120deg,transparent,rgba(255,255,255,.5),transparent);transform:skewX(-20deg);transition:left .65s ease;pointer-events:none}
+    .btn-shine:hover::after{left:150%}
+    /* Flèche qui glisse */
+    .icon-go{transition:transform .25s ease}
+    .group:hover .icon-go,.btn-grow:hover .icon-go,a:hover>.icon-go{transform:translateX(4px)}
+    /* Texte en dégradé de marque */
+    .text-gradient{background:linear-gradient(90deg,#34d399,#10b981 55%,#a5b4fc);-webkit-background-clip:text;background-clip:text;color:transparent}
+    /* Flottement doux (carte hero) */
+    @keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+    .floaty{animation:floaty 7s ease-in-out infinite}
+    @keyframes hueShift{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+    /* Icône réactive dans les cartes Offre */
+    .service-card .card-ico{transition:transform .35s cubic-bezier(.16,1,.3,1)}
+    .service-card:hover .card-ico{transform:translateY(-3px) rotate(-5deg) scale(1.07)}
+    /* Soulignement animé des liens de nav */
+    .nav-link{position:relative}
+    .nav-link::after{content:"";position:absolute;left:0;bottom:-4px;width:0;height:2px;background:currentColor;border-radius:2px;transition:width .3s ease}
+    .nav-link:hover::after{width:100%}
+    @media (prefers-reduced-motion: reduce){
+      [data-reveal]{opacity:1!important;transform:none!important;transition:none!important}
+      .floaty{animation:none!important}
+      .hero-overlay{animation:none!important}
+      .btn-shine::after{display:none}
+    }
   </style>
 
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-SHXXPV14N7"></script>
@@ -162,23 +173,23 @@
         <span class="sr-only">Elga Energy</span>
       </a>
       <nav class="hidden md:flex items-center gap-6 text-sm font-medium text-slate-600">
-        <a href="#offre" class="hover:text-primary-700 transition-colors">Offre</a>
-        <a href="#secteurs" class="hover:text-primary-700 transition-colors">Secteurs</a>
-        <a href="#process" class="hover:text-primary-700 transition-colors">Méthode</a>
-        <a href="#fournisseurs" class="hover:text-primary-700 transition-colors">Fournisseurs</a>
-        <a href="#avis" class="hover:text-primary-700 transition-colors">Pourquoi nous</a>
-        <a href="#faq" class="hover:text-primary-700 transition-colors">FAQ</a>
-        <a href="/actu.html" class="hover:text-primary-700 transition-colors">Blog</a>
-        <a href="/Recrutement.html" class="hover:text-primary-700 transition-colors">Recrutement</a>
-        <a href="/scanner.html" class="inline-flex items-center gap-1.5 rounded-lg bg-primary-50 px-3 py-1.5 text-primary-700 font-semibold hover:bg-primary-100 transition-colors text-sm">Scanner ma facture</a>
-        <a href="/login.html" class="inline-flex items-center gap-1 hover:text-primary-700 transition-colors font-semibold text-primary-600">🔒 Espace client</a>
+        <a href="#offre" class="nav-link hover:text-primary-700 transition-colors">Offre</a>
+        <a href="#secteurs" class="nav-link hover:text-primary-700 transition-colors">Secteurs</a>
+        <a href="#process" class="nav-link hover:text-primary-700 transition-colors">Méthode</a>
+        <a href="#fournisseurs" class="nav-link hover:text-primary-700 transition-colors">Fournisseurs</a>
+        <a href="#avis" class="nav-link hover:text-primary-700 transition-colors">Confiance</a>
+        <a href="#faq" class="nav-link hover:text-primary-700 transition-colors">FAQ</a>
+        <a href="/actu.html" class="nav-link hover:text-primary-700 transition-colors">Blog</a>
+        <a href="/Recrutement.html" class="nav-link hover:text-primary-700 transition-colors">Recrutement</a>
+        <a href="/scanner.html" class="btn-grow inline-flex items-center gap-1.5 rounded-lg bg-primary-50 px-3 py-1.5 text-primary-700 font-semibold hover:bg-primary-100 transition-colors text-sm">⚡ Scanner ma facture</a>
+        <a href="/login.html" class="inline-flex items-center gap-1 hover:text-primary-700 transition-colors font-semibold text-primary-600">🔒 Comparatif</a>
       </nav>
       <div class="flex items-center gap-3">
         <a href="tel:+33745117867" class="hidden md:flex items-center gap-1.5 text-sm text-slate-600 hover:text-primary-700 transition-colors font-medium">
           <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.12 1.22 2 2 0 012.1 0h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 14.92z"/></svg>
           07 45 11 78 67
         </a>
-        <a href="/scanner.html" class="hvr-grow inline-flex items-center rounded-xl bg-primary-600 px-4 py-2.5 text-white text-sm font-semibold shadow-soft hover:bg-primary-700 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-400">Vérifier ma facture</a>
+        <a href="#devis" class="btn-grow btn-shine inline-flex items-center rounded-xl bg-primary-600 px-4 py-2.5 text-white text-sm font-semibold shadow-soft hover:bg-primary-700 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-400">Obtenir un devis</a>
         <button id="menuBtn" class="md:hidden inline-flex items-center justify-center size-10 rounded-lg border border-slate-300 hover:border-slate-400 transition-colors" aria-label="Ouvrir le menu" aria-expanded="false">
           <svg id="menuIconOpen" class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
           <svg id="menuIconClose" class="w-5 h-5 hidden" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12"/></svg>
@@ -188,14 +199,15 @@
     <div id="mobileMenu" class="md:hidden hidden border-t border-slate-200 bg-white">
       <nav class="container flex flex-col py-3 gap-0.5 text-sm">
         <a href="#offre" class="py-2.5 px-3 rounded-lg hover:bg-slate-50 hover:text-primary-700 transition-colors text-slate-700">Offre</a>
+        <a href="#secteurs" class="py-2.5 px-3 rounded-lg hover:bg-slate-50 hover:text-primary-700 transition-colors text-slate-700">Secteurs</a>
         <a href="#process" class="py-2.5 px-3 rounded-lg hover:bg-slate-50 hover:text-primary-700 transition-colors text-slate-700">Méthode</a>
         <a href="#fournisseurs" class="py-2.5 px-3 rounded-lg hover:bg-slate-50 hover:text-primary-700 transition-colors text-slate-700">Fournisseurs</a>
-        <a href="#avis" class="py-2.5 px-3 rounded-lg hover:bg-slate-50 hover:text-primary-700 transition-colors text-slate-700">Pourquoi nous</a>
+        <a href="#avis" class="py-2.5 px-3 rounded-lg hover:bg-slate-50 hover:text-primary-700 transition-colors text-slate-700">Confiance</a>
         <a href="#faq" class="py-2.5 px-3 rounded-lg hover:bg-slate-50 hover:text-primary-700 transition-colors text-slate-700">FAQ</a>
         <a href="/actu.html" class="py-2.5 px-3 rounded-lg hover:bg-slate-50 hover:text-primary-700 transition-colors text-slate-700">Blog</a>
         <a href="/Recrutement.html" class="py-2.5 px-3 rounded-lg hover:bg-slate-50 hover:text-primary-700 transition-colors text-slate-700">Recrutement</a>
-        <a href="/scanner.html" class="py-2.5 px-3 rounded-lg bg-primary-50 text-primary-700 font-semibold">Scanner ma facture</a>
-        <a href="/login.html" class="py-2.5 px-3 rounded-lg hover:bg-slate-50 text-primary-600 font-semibold">🔒 Espace client</a>
+        <a href="/scanner.html" class="py-2.5 px-3 rounded-lg bg-primary-50 text-primary-700 font-semibold">⚡ Scanner ma facture</a>
+        <a href="/login.html" class="py-2.5 px-3 rounded-lg bg-primary-50 text-primary-700 font-semibold">🔒 Comparatif</a>
         <div class="pt-2 mt-1 border-t border-slate-100">
           <a href="tel:+33745117867" class="flex items-center gap-2 py-2.5 px-3 text-primary-700 font-semibold">
             <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.12 1.22 2 2 0 012.1 0h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 14.92z"/></svg>
@@ -208,206 +220,123 @@
   <template id="logo-fallback"><div class="h-10 px-3 py-1.5 rounded-lg bg-primary-600 text-white font-bold text-sm flex items-center">ELGA ENERGY</div></template>
 
   <!-- Hero -->
-  <section class="relative bg-white overflow-hidden">
-    <div class="absolute -top-32 -right-24 w-[28rem] h-[28rem] bg-primary-50 rounded-full blur-3xl opacity-70"></div>
-    <div class="relative container grid gap-12 lg:grid-cols-2 py-16 md:py-24 items-center">
+  <section class="relative overflow-hidden">
+    <div class="absolute inset-0 hero-overlay"></div>
+    <div class="absolute inset-0">
+      <img src="/assets/images/image_fond.jpg" alt="" class="w-full h-full picture-cover opacity-15" loading="eager" />
+    </div>
+    <div class="relative container grid gap-10 md:grid-cols-2 py-20 md:py-28 items-center text-white">
       <div class="space-y-6">
-        <span class="inline-flex items-center gap-2 rounded-full bg-primary-50 border border-primary-100 px-4 py-1.5 text-sm font-semibold text-primary-700">
-          <span class="size-2 rounded-full bg-primary-500 animate-pulse shrink-0"></span>
-          Courtier en énergie B2B · indépendant des fournisseurs
-        </span>
-        <h1 class="text-4xl md:text-5xl font-extrabold leading-tight text-slate-900">
-          Payez-vous trop cher votre énergie&nbsp;?<br class="hidden md:block"/> Vous allez le savoir en <span class="text-primary-600">15&nbsp;secondes.</span>
-        </h1>
-        <p class="text-slate-600 text-lg max-w-xl">Depuis que le marché a flambé, la plupart des pros paient un tarif qu'ils n'ont jamais revérifié. Scannez votre facture&nbsp;: on la lit, on la compare à 30+&nbsp;fournisseurs et on vous dit clairement si vous payez trop cher. Jusqu'à 30&nbsp;% d'écart sur certains contrats. Gratuit, sans engagement.</p>
-        <div class="flex flex-wrap gap-3">
-          <a href="/scanner.html" class="hvr-grow hvr-icon-forward inline-flex items-center gap-2 rounded-xl bg-primary-600 px-6 py-3.5 text-white font-bold shadow-soft hover:bg-primary-700 transition-colors">
-            Scanner ma facture maintenant
-            <svg class="hvr-icon w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5-5 5M6 12h12"/></svg>
-          </a>
-          <a href="#devis" class="hvr-grow inline-flex items-center rounded-xl border border-slate-300 px-6 py-3.5 font-semibold text-slate-700 hover:border-primary-400 hover:text-primary-700 transition-colors">Parler à un conseiller</a>
+        <div data-reveal style="--rd:0ms" class="inline-flex items-center gap-2 rounded-full bg-white/15 border border-white/25 px-4 py-1.5 text-sm font-medium">
+          <span class="size-2 rounded-full bg-primary-300 animate-pulse shrink-0"></span>
+          Courtier en énergie indépendant · basé à Toulouse
         </div>
-        <p class="text-sm text-slate-500 flex items-center gap-1.5">
-          <svg class="w-4 h-4 text-primary-600 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
-          15 secondes · gratuit · aucun compte à créer pour voir votre résultat.
+        <h1 data-reveal style="--rd:90ms" class="text-4xl md:text-5xl font-extrabold leading-tight">
+          Et si vous arrêtiez de <span class="text-gradient">payer votre énergie trop cher</span>&nbsp;?
+        </h1>
+        <p data-reveal style="--rd:170ms" class="text-white/90 text-lg max-w-lg">On compare et on négocie vos contrats d'électricité et de gaz auprès de 30+ fournisseurs. Vous gardez la main sur la décision&nbsp;; nous, on s'occupe du reste — et ça ne vous coûte rien.</p>
+        <div data-reveal style="--rd:250ms" class="flex flex-wrap gap-3">
+          <a href="#devis" class="btn-grow btn-shine inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3.5 text-slate-900 font-bold shadow-soft hover:bg-primary-50 transition-colors">
+            Obtenir mon comparatif gratuit
+            <svg class="icon-go w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5-5 5M6 12h12"/></svg>
+          </a>
+          <a href="#offre" class="btn-grow inline-flex items-center rounded-xl border border-white/60 px-6 py-3.5 font-semibold hover:bg-white/10 transition-colors">Comment ça marche</a>
+        </div>
+        <p data-reveal style="--rd:330ms" class="text-sm text-white/70 flex items-center gap-1.5">
+          <svg class="w-4 h-4 text-primary-300 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+          Gratuit, sans engagement — et on vous rappelle sous 24&nbsp;h.
         </p>
       </div>
-      <!-- Maquette : résultat de scan (exemple) -->
-      <div class="relative">
-        <div class="rounded-3xl bg-white border border-slate-200 shadow-soft p-6 md:p-7 max-w-md mx-auto">
-          <div class="flex items-center justify-between mb-4">
-            <span class="inline-flex items-center gap-1.5 text-xs font-semibold text-primary-700 bg-primary-50 rounded-full px-3 py-1"><span class="size-1.5 rounded-full bg-primary-500 animate-pulse"></span> Analyse en cours…</span>
-            <span class="text-xs text-slate-400">Exemple</span>
-          </div>
-          <!-- Facture scannée (animation) -->
-          <div class="scan-doc rounded-2xl border border-slate-200 bg-slate-50/70 p-4">
-            <div class="scan-line"></div>
-            <div class="flex items-center justify-between text-[11px] text-slate-400 uppercase tracking-wide border-b border-slate-200 pb-2 mb-2.5">
-              <span>Facture d'électricité</span><span>déc. 2025</span>
+      <!-- Carte repères hero (desktop) -->
+      <div data-reveal style="--rd:200ms" class="hidden md:block">
+        <div class="floaty rounded-3xl bg-white/10 backdrop-blur border border-white/20 p-8 space-y-5 shadow-soft">
+          <p class="text-white/60 text-xs font-semibold uppercase tracking-widest">En bref</p>
+          <div class="grid grid-cols-2 gap-4">
+            <div class="rounded-2xl bg-white/10 border border-white/15 p-5">
+              <p class="text-3xl font-extrabold"><span data-count="15" data-suffix=" s">15&nbsp;s</span></p>
+              <p class="text-white/70 text-sm mt-1">Pour analyser votre facture</p>
             </div>
-            <div class="scan-zone z1 px-2 py-2 flex items-center justify-between text-sm">
-              <span class="text-slate-600">Prix du kWh</span>
-              <span class="font-semibold text-slate-900">à renégocier</span>
+            <div class="rounded-2xl bg-white/10 border border-white/15 p-5">
+              <p class="text-3xl font-extrabold"><span data-count="30" data-suffix="+">30+</span></p>
+              <p class="text-white/70 text-sm mt-1">Fournisseurs comparés</p>
             </div>
-            <div class="scan-zone z2 px-2 py-2 flex items-center justify-between text-sm">
-              <span class="text-slate-600">Taxes &amp; contributions</span>
-              <span class="font-semibold text-primary-700">récupérables ✓</span>
+            <div class="rounded-2xl bg-white/10 border border-white/15 p-5">
+              <p class="text-3xl font-extrabold"><span data-count="0" data-suffix=" €">0&nbsp;€</span></p>
+              <p class="text-white/70 text-sm mt-1">Pour vous, toujours</p>
             </div>
-            <div class="scan-zone z3 px-2 py-2 flex items-center justify-between text-sm">
-              <span class="text-slate-600">Acheminement (TURPE)</span>
-              <span class="font-semibold text-primary-700">optimisable ✓</span>
+            <div class="rounded-2xl bg-white/10 border border-white/15 p-5">
+              <p class="text-3xl font-extrabold"><span data-count="24" data-suffix=" h">24&nbsp;h</span></p>
+              <p class="text-white/70 text-sm mt-1">Pour qu'on vous rappelle</p>
             </div>
           </div>
-          <div class="mt-4 rounded-2xl bg-primary-50 border border-primary-100 p-4 flex items-center justify-between">
-            <span class="text-sm font-semibold text-primary-800">Économie estimée</span>
-            <span class="text-2xl font-extrabold text-primary-700">jusqu'à −20&nbsp;%</span>
-          </div>
-          <p class="text-[11px] leading-snug text-slate-400 text-center mt-3">Exemple — on analyse 3 leviers : le prix du kWh, les taxes récupérables et l'acheminement. Votre résultat dépend de votre vraie facture.</p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- Bandeau avantages (défilement horizontal) -->
-  <section class="bg-slate-50 border-y border-slate-100 py-5">
-    <div class="marquee">
-      <div class="marquee__track">
-        <!-- Série 1 -->
-        <span class="inline-flex items-center gap-2 px-6"><span class="size-1.5 rounded-full bg-primary-500 shrink-0"></span><span class="text-slate-700 font-semibold whitespace-nowrap">Analyse de facture en 15 s</span></span>
-        <span class="inline-flex items-center gap-2 px-6"><span class="size-1.5 rounded-full bg-primary-500 shrink-0"></span><span class="text-slate-700 font-semibold whitespace-nowrap">30+ fournisseurs comparés</span></span>
-        <span class="inline-flex items-center gap-2 px-6"><span class="size-1.5 rounded-full bg-primary-500 shrink-0"></span><span class="text-slate-700 font-semibold whitespace-nowrap">Taxes récupérables détectées</span></span>
-        <span class="inline-flex items-center gap-2 px-6"><span class="size-1.5 rounded-full bg-primary-500 shrink-0"></span><span class="text-slate-700 font-semibold whitespace-nowrap">Acheminement (TURPE) optimisé</span></span>
-        <span class="inline-flex items-center gap-2 px-6"><span class="size-1.5 rounded-full bg-primary-500 shrink-0"></span><span class="text-slate-700 font-semibold whitespace-nowrap">0 € — gratuit</span></span>
-        <span class="inline-flex items-center gap-2 px-6"><span class="size-1.5 rounded-full bg-primary-500 shrink-0"></span><span class="text-slate-700 font-semibold whitespace-nowrap">Sans engagement</span></span>
-        <span class="inline-flex items-center gap-2 px-6"><span class="size-1.5 rounded-full bg-primary-500 shrink-0"></span><span class="text-slate-700 font-semibold whitespace-nowrap">Indépendant des fournisseurs</span></span>
-        <span class="inline-flex items-center gap-2 px-6"><span class="size-1.5 rounded-full bg-primary-500 shrink-0"></span><span class="text-slate-700 font-semibold whitespace-nowrap">Accompagnement administratif</span></span>
-        <span class="inline-flex items-center gap-2 px-6"><span class="size-1.5 rounded-full bg-primary-500 shrink-0"></span><span class="text-slate-700 font-semibold whitespace-nowrap">Alertes prix &amp; échéances</span></span>
-        <span class="inline-flex items-center gap-2 px-6"><span class="size-1.5 rounded-full bg-primary-500 shrink-0"></span><span class="text-slate-700 font-semibold whitespace-nowrap">Réponse sous 24 h</span></span>
-        <!-- Série 2 (copie identique pour boucle fluide) -->
-        <span class="inline-flex items-center gap-2 px-6" aria-hidden="true"><span class="size-1.5 rounded-full bg-primary-500 shrink-0"></span><span class="text-slate-700 font-semibold whitespace-nowrap">Analyse de facture en 15 s</span></span>
-        <span class="inline-flex items-center gap-2 px-6" aria-hidden="true"><span class="size-1.5 rounded-full bg-primary-500 shrink-0"></span><span class="text-slate-700 font-semibold whitespace-nowrap">30+ fournisseurs comparés</span></span>
-        <span class="inline-flex items-center gap-2 px-6" aria-hidden="true"><span class="size-1.5 rounded-full bg-primary-500 shrink-0"></span><span class="text-slate-700 font-semibold whitespace-nowrap">Taxes récupérables détectées</span></span>
-        <span class="inline-flex items-center gap-2 px-6" aria-hidden="true"><span class="size-1.5 rounded-full bg-primary-500 shrink-0"></span><span class="text-slate-700 font-semibold whitespace-nowrap">Acheminement (TURPE) optimisé</span></span>
-        <span class="inline-flex items-center gap-2 px-6" aria-hidden="true"><span class="size-1.5 rounded-full bg-primary-500 shrink-0"></span><span class="text-slate-700 font-semibold whitespace-nowrap">0 € — gratuit</span></span>
-        <span class="inline-flex items-center gap-2 px-6" aria-hidden="true"><span class="size-1.5 rounded-full bg-primary-500 shrink-0"></span><span class="text-slate-700 font-semibold whitespace-nowrap">Sans engagement</span></span>
-        <span class="inline-flex items-center gap-2 px-6" aria-hidden="true"><span class="size-1.5 rounded-full bg-primary-500 shrink-0"></span><span class="text-slate-700 font-semibold whitespace-nowrap">Indépendant des fournisseurs</span></span>
-        <span class="inline-flex items-center gap-2 px-6" aria-hidden="true"><span class="size-1.5 rounded-full bg-primary-500 shrink-0"></span><span class="text-slate-700 font-semibold whitespace-nowrap">Accompagnement administratif</span></span>
-        <span class="inline-flex items-center gap-2 px-6" aria-hidden="true"><span class="size-1.5 rounded-full bg-primary-500 shrink-0"></span><span class="text-slate-700 font-semibold whitespace-nowrap">Alertes prix &amp; échéances</span></span>
-        <span class="inline-flex items-center gap-2 px-6" aria-hidden="true"><span class="size-1.5 rounded-full bg-primary-500 shrink-0"></span><span class="text-slate-700 font-semibold whitespace-nowrap">Réponse sous 24 h</span></span>
-      </div>
-    </div>
-  </section>
-
-  <!-- Comment ça marche en 3 étapes -->
-  <section id="comment-ca-marche" class="bg-slate-50 py-16 md:py-20 border-t border-slate-100">
-    <div class="container" data-reveal>
-      <div class="text-center max-w-2xl mx-auto mb-12">
-        <span class="text-primary-600 text-xs font-bold uppercase tracking-widest">Simple, gratuit, sans engagement</span>
-        <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900 mt-2">Vos économies en 3 étapes</h2>
-        <p class="mt-3 text-slate-500">Pas de blabla : vous déposez votre facture, on s'occupe du reste.</p>
-      </div>
-      <div class="grid md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-        <div class="rounded-2xl bg-white border border-slate-100 p-7 shadow-soft">
-          <div class="size-11 rounded-xl bg-primary-600 text-white font-extrabold grid place-items-center text-lg mb-4">1</div>
-          <h3 class="text-lg font-bold text-slate-900">Scannez votre facture</h3>
-          <p class="mt-2 text-slate-600 text-sm">Une photo ou un PDF. Notre outil l'analyse en 15 secondes et détecte si vous payez trop cher.</p>
-        </div>
-        <div class="rounded-2xl bg-white border border-slate-100 p-7 shadow-soft">
-          <div class="size-11 rounded-xl bg-primary-600 text-white font-extrabold grid place-items-center text-lg mb-4">2</div>
-          <h3 class="text-lg font-bold text-slate-900">On compare 30+ fournisseurs</h3>
-          <p class="mt-2 text-slate-600 text-sm">On met le marché en concurrence pour trouver le meilleur tarif adapté à votre profil de consommation.</p>
-        </div>
-        <div class="rounded-2xl bg-white border border-slate-100 p-7 shadow-soft">
-          <div class="size-11 rounded-xl bg-primary-600 text-white font-extrabold grid place-items-center text-lg mb-4">3</div>
-          <h3 class="text-lg font-bold text-slate-900">On vous rappelle avec le chiffre</h3>
-          <p class="mt-2 text-slate-600 text-sm">Un conseiller vous présente vos économies concrètes. Vous décidez ensuite, en toute liberté.</p>
-        </div>
-      </div>
-      <div class="text-center mt-10">
-        <a href="/scanner.html" class="hvr-grow hvr-icon-forward inline-flex items-center gap-2 rounded-xl bg-primary-600 px-7 py-3.5 text-white font-bold shadow-soft hover:bg-primary-700 transition-colors">
-          Scanner ma facture en 15 secondes
-          <svg class="hvr-icon w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5-5 5M6 12h12"/></svg>
-        </a>
-        <p class="mt-3 text-xs text-slate-400">Gratuit · sans engagement · résultat immédiat</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- Storytelling : pourquoi maintenant -->
-  <section id="pourquoi" class="bg-white py-16 md:py-20 border-t border-slate-100">
-    <div class="container max-w-3xl" data-reveal>
-      <span class="text-primary-600 text-xs font-bold uppercase tracking-widest">Pourquoi maintenant</span>
-      <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900 mt-2 leading-tight">
-        Le marché a changé. Votre contrat, lui, est resté le même.
-      </h2>
-      <div class="mt-6 space-y-4 text-slate-600 text-lg leading-relaxed">
-        <p>Ces dernières années, le prix de l'énergie a flambé, puis s'est calmé, puis a rebougé. Les fournisseurs ont ajusté leurs grilles plusieurs fois. La plupart des entreprises, elles, n'ont rien revérifié — par manque de temps, parce que le contrat est opaque, ou parce que personne ne leur a jamais dit s'ils payaient trop cher.</p>
-        <p>C'est exactement là qu'on intervient. <span class="font-semibold text-slate-900">On ne vous promet rien : on vous montre.</span> Vous scannez votre facture, on la compare à 30+ fournisseurs, et vous voyez l'écart en clair. Gratuit. Sans engagement. Et si vous ne voulez pas qu'on vous rappelle, on ne vous rappelle pas.</p>
-        <p class="text-slate-900 font-medium">Chaque mois sans vérifier, c'est peut-être de l'argent qui dort sur votre facture. Le scan prend 15 secondes — autant savoir.</p>
-      </div>
-      <div class="mt-8">
-        <a href="/scanner.html" class="hvr-grow hvr-icon-forward inline-flex items-center gap-2 rounded-xl bg-primary-600 px-7 py-3.5 text-white font-bold shadow-soft hover:bg-primary-700 transition-colors">
-          Vérifier ma facture maintenant
-          <svg class="hvr-icon w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5-5 5M6 12h12"/></svg>
-        </a>
-        <p class="mt-3 text-xs text-slate-400">Gratuit · sans engagement · vous décidez librement ensuite</p>
-      </div>
+  <!-- Stats mobile -->
+  <section class="md:hidden bg-gradient-to-r from-primary-700 to-secondary-700 text-white">
+    <div class="container py-8 grid grid-cols-2 gap-4">
+      <div class="text-center"><p class="text-2xl font-extrabold">15&nbsp;s</p><p class="text-white/75 text-xs mt-0.5">Pour analyser votre facture</p></div>
+      <div class="text-center"><p class="text-2xl font-extrabold">30+</p><p class="text-white/75 text-xs mt-0.5">Fournisseurs comparés</p></div>
+      <div class="text-center"><p class="text-2xl font-extrabold">0&nbsp;€</p><p class="text-white/75 text-xs mt-0.5">Pour vous, toujours</p></div>
+      <div class="text-center"><p class="text-2xl font-extrabold">24&nbsp;h</p><p class="text-white/75 text-xs mt-0.5">Pour qu'on vous rappelle</p></div>
     </div>
   </section>
 
   <!-- Offre -->
   <section id="offre" class="bg-white py-16 md:py-20">
-    <div class="container" data-reveal>
-      <div class="text-center max-w-2xl mx-auto mb-12">
-        <span class="inline-block rounded-full bg-primary-100 text-primary-700 text-xs font-semibold uppercase tracking-widest px-3 py-1 mb-3">Ce que nous faisons</span>
-        <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900">Une offre claire, pensée pour les pros</h2>
-        <p class="mt-3 text-slate-500">De la collecte de vos factures à la signature du contrat, nous gérons tout.</p>
+    <div class="container">
+      <div data-reveal class="text-center max-w-2xl mx-auto mb-12">
+        <span class="inline-block rounded-full bg-primary-100 text-primary-700 text-xs font-semibold uppercase tracking-widest px-3 py-1 mb-3">Ce qu'on fait</span>
+        <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900">Concrètement, voilà ce qu'on fait pour vous</h2>
+        <p class="mt-3 text-slate-500">De votre première facture jusqu'à la signature, on prend tout en charge. Vous, vous n'avez qu'à dire oui — ou non.</p>
       </div>
       <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div class="service-card rounded-2xl border border-slate-100 bg-slate-50 p-6 space-y-3">
-          <div class="size-12 rounded-xl bg-primary-100 grid place-items-center text-primary-700">
+        <div data-reveal style="--rd:0ms" class="service-card lift rounded-2xl border border-slate-100 bg-slate-50 p-6 space-y-3">
+          <div class="card-ico size-12 rounded-xl bg-primary-100 grid place-items-center text-primary-700">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/></svg>
           </div>
-          <h3 class="font-bold text-slate-900">Comparaison en temps réel</h3>
-          <p class="text-sm text-slate-500">Analyse des grilles tarifaires électricité & gaz de plus de 30 fournisseurs simultanément.</p>
+          <h3 class="font-bold text-slate-900">On compare tout le marché</h3>
+          <p class="text-sm text-slate-500">On met <strong class="text-slate-700">30+ fournisseurs en concurrence</strong> en même temps. Vous voyez noir sur blanc qui est le moins cher pour <em>votre</em> consommation.</p>
         </div>
-        <div class="service-card rounded-2xl border border-slate-100 bg-slate-50 p-6 space-y-3">
-          <div class="size-12 rounded-xl bg-secondary-100 grid place-items-center text-secondary-700">
+        <div data-reveal style="--rd:60ms" class="service-card lift rounded-2xl border border-slate-100 bg-slate-50 p-6 space-y-3">
+          <div class="card-ico size-12 rounded-xl bg-secondary-100 grid place-items-center text-secondary-700">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
           </div>
-          <h3 class="font-bold text-slate-900">Négociation des clauses</h3>
-          <p class="text-sm text-slate-500">Indexation, durée, garanties, pénalités — nous défendons vos intérêts contractuels.</p>
+          <h3 class="font-bold text-slate-900">On lit les petites lignes</h3>
+          <p class="text-sm text-slate-500">Indexation, durée, pénalités de sortie… c'est souvent là que ça se joue. On <strong class="text-slate-700">négocie pour vous</strong>, pas pour le fournisseur.</p>
         </div>
-        <div class="service-card rounded-2xl border border-slate-100 bg-slate-50 p-6 space-y-3">
-          <div class="size-12 rounded-xl bg-primary-100 grid place-items-center text-primary-700">
+        <div data-reveal style="--rd:120ms" class="service-card lift rounded-2xl border border-slate-100 bg-slate-50 p-6 space-y-3">
+          <div class="card-ico size-12 rounded-xl bg-primary-100 grid place-items-center text-primary-700">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
           </div>
-          <h3 class="font-bold text-slate-900">Recommandation objective</h3>
-          <p class="text-sm text-slate-500">Conseil indépendant selon vos profils de consommation réels, sans conflit d'intérêts.</p>
+          <h3 class="font-bold text-slate-900">On vous dit les choses</h3>
+          <p class="text-sm text-slate-500">On est <strong class="text-slate-700">indépendants</strong>. Si votre contrat actuel est déjà bon, on vous le dit — et on ne vous fait pas changer pour rien.</p>
         </div>
-        <div class="service-card rounded-2xl border border-slate-100 bg-slate-50 p-6 space-y-3">
-          <div class="size-12 rounded-xl bg-secondary-100 grid place-items-center text-secondary-700">
+        <div data-reveal style="--rd:180ms" class="service-card lift rounded-2xl border border-slate-100 bg-slate-50 p-6 space-y-3">
+          <div class="card-ico size-12 rounded-xl bg-secondary-100 grid place-items-center text-secondary-700">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
           </div>
-          <h3 class="font-bold text-slate-900">Accompagnement complet</h3>
-          <p class="text-sm text-slate-500">Prise en charge administrative de la souscription et du changement de fournisseur.</p>
+          <h3 class="font-bold text-slate-900">On gère la paperasse</h3>
+          <p class="text-sm text-slate-500">Souscription, résiliation, changement de fournisseur : on s'occupe des <strong class="text-slate-700">démarches administratives</strong> à votre place.</p>
         </div>
-        <div class="service-card rounded-2xl border border-slate-100 bg-slate-50 p-6 space-y-3">
-          <div class="size-12 rounded-xl bg-primary-100 grid place-items-center text-primary-700">
+        <div data-reveal style="--rd:240ms" class="service-card lift rounded-2xl border border-slate-100 bg-slate-50 p-6 space-y-3">
+          <div class="card-ico size-12 rounded-xl bg-primary-100 grid place-items-center text-primary-700">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
           </div>
-          <h3 class="font-bold text-slate-900">Suivi post-signature</h3>
-          <p class="text-sm text-slate-500">Contrôle de factures, alertes prix, optimisation des puissances souscrites.</p>
+          <h3 class="font-bold text-slate-900">On reste là après</h3>
+          <p class="text-sm text-slate-500">Contrôle des factures, <strong class="text-slate-700">alerte quand les prix bougent</strong>, ajustement des puissances. On ne disparaît pas après la signature.</p>
         </div>
-        <div class="service-card rounded-2xl bg-primary-700 p-6 space-y-3 text-white">
-          <div class="size-12 rounded-xl bg-white/20 grid place-items-center">
+        <div data-reveal style="--rd:300ms" class="service-card lift btn-shine rounded-2xl bg-gradient-to-br from-primary-600 to-secondary-700 p-6 space-y-3 text-white">
+          <div class="card-ico size-12 rounded-xl bg-white/20 grid place-items-center">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
           </div>
-          <h3 class="font-bold">100% gratuit pour vous</h3>
-          <p class="text-sm text-white/85">Notre rémunération est assurée par les fournisseurs. Zéro frais pour vous, zéro conflit d'intérêts.</p>
-          <a href="#devis" class="hvr-grow hvr-icon-forward inline-flex items-center gap-1.5 text-sm font-semibold border border-white/40 rounded-lg px-4 py-2 hover:bg-white/15 transition-colors mt-1">
-            Démarrer gratuitement
-            <svg class="hvr-icon w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5-5 5M6 12h12"/></svg>
+          <h3 class="font-bold">Et tout ça, c'est gratuit</h3>
+          <p class="text-sm text-white/85">On est payés par les fournisseurs, pas par vous. Donc <strong>aucune facture de notre côté</strong> — et aucune raison de vous pousser vers le mauvais contrat.</p>
+          <a href="#devis" class="btn-grow inline-flex items-center gap-1.5 text-sm font-semibold border border-white/40 rounded-lg px-4 py-2 hover:bg-white/15 transition-colors mt-1">
+            Commencer (c'est gratuit)
+            <svg class="icon-go w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5-5 5M6 12h12"/></svg>
           </a>
         </div>
       </div>
@@ -416,57 +345,57 @@
 
   <!-- Secteurs -->
   <section id="secteurs" class="bg-white py-12 md:py-16">
-    <div class="container" data-reveal>
-      <h2 class="text-2xl md:text-3xl font-bold text-center mb-3">Nous intervenons dans votre secteur</h2>
-      <p class="text-center text-slate-600 mb-10 max-w-2xl mx-auto">Chaque secteur a ses propres contraintes de consommation, de saisonnalité et de réglementation. Nos experts connaissent les spécificités de votre métier.</p>
+    <div class="container">
+      <h2 data-reveal class="text-2xl md:text-3xl font-bold text-center mb-3">On connaît les contraintes de votre métier</h2>
+      <p data-reveal style="--rd:80ms" class="text-center text-slate-600 mb-10 max-w-2xl mx-auto">Une chambre froide, un hôtel à moitié vide l'hiver, 80 compteurs de copropriété : chaque secteur a ses pièges. On parle votre langage.</p>
       <div class="grid md:grid-cols-3 gap-6">
-        <a href="/restauration.html" class="group rounded-2xl border border-slate-200 p-6 hover:border-primary-400 hover:shadow-soft transition-all">
+        <a href="/restauration.html" data-reveal style="--rd:0ms" class="group lift rounded-2xl border border-slate-200 p-6 hover:border-primary-400 hover:shadow-soft transition-all">
           <div class="size-12 rounded-xl bg-primary-100 text-primary-700 grid place-items-center mb-4">
             <svg viewBox="0 0 24 24" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg>
           </div>
           <h3 class="font-semibold text-slate-900 mb-2 group-hover:text-primary-700">Restauration CHR</h3>
-          <p class="text-sm text-slate-600">Fours, frigos, chambres froides : optimisez vos contrats selon votre profil CHR et votre puissance souscrite.</p>
-          <span class="mt-4 inline-block text-sm font-medium text-primary-700">En savoir plus →</span>
+          <p class="text-sm text-slate-600">Fours, frigos, chambres froides qui tournent en continu : on cale le contrat sur votre vrai rythme et votre puissance souscrite.</p>
+          <span class="mt-4 inline-flex items-center gap-1 text-sm font-medium text-primary-700">En savoir plus <span class="icon-go">→</span></span>
         </a>
-        <a href="/hotellerie.html" class="group rounded-2xl border border-slate-200 p-6 hover:border-primary-400 hover:shadow-soft transition-all">
+        <a href="/hotellerie.html" data-reveal style="--rd:60ms" class="group lift rounded-2xl border border-slate-200 p-6 hover:border-primary-400 hover:shadow-soft transition-all">
           <div class="size-12 rounded-xl bg-primary-100 text-primary-700 grid place-items-center mb-4">
             <svg viewBox="0 0 24 24" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
           </div>
           <h3 class="font-semibold text-slate-900 mb-2 group-hover:text-primary-700">Hôtellerie</h3>
-          <p class="text-sm text-slate-600">Multi-compteurs, saisonnalité, climatisation : économies moyennes -22% sur vos contrats hôteliers.</p>
-          <span class="mt-4 inline-block text-sm font-medium text-primary-700">En savoir plus →</span>
+          <p class="text-sm text-slate-600">Multi-compteurs, saisons creuses, climatisation : autant de postes où il y a souvent beaucoup à récupérer.</p>
+          <span class="mt-4 inline-flex items-center gap-1 text-sm font-medium text-primary-700">En savoir plus <span class="icon-go">→</span></span>
         </a>
-        <a href="/syndics.html" class="group rounded-2xl border border-slate-200 p-6 hover:border-primary-400 hover:shadow-soft transition-all">
+        <a href="/syndics.html" data-reveal style="--rd:120ms" class="group lift rounded-2xl border border-slate-200 p-6 hover:border-primary-400 hover:shadow-soft transition-all">
           <div class="size-12 rounded-xl bg-primary-100 text-primary-700 grid place-items-center mb-4">
             <svg viewBox="0 0 24 24" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
           </div>
           <h3 class="font-semibold text-slate-900 mb-2 group-hover:text-primary-700">Syndics & Copropriétés</h3>
-          <p class="text-sm text-slate-600">1 syndic = 40 à 120 contrats. Réduisez les charges des parties communes sans vote en AG.</p>
-          <span class="mt-4 inline-block text-sm font-medium text-primary-700">En savoir plus →</span>
+          <p class="text-sm text-slate-600">Un syndic, c'est vite 40 à 120 contrats. On allège les charges des parties communes, sans passer par un vote en AG.</p>
+          <span class="mt-4 inline-flex items-center gap-1 text-sm font-medium text-primary-700">En savoir plus <span class="icon-go">→</span></span>
         </a>
-        <a href="/sante.html" class="group rounded-2xl border border-slate-200 p-6 hover:border-primary-400 hover:shadow-soft transition-all">
+        <a href="/sante.html" data-reveal style="--rd:180ms" class="group lift rounded-2xl border border-slate-200 p-6 hover:border-primary-400 hover:shadow-soft transition-all">
           <div class="size-12 rounded-xl bg-primary-100 text-primary-700 grid place-items-center mb-4">
             <svg viewBox="0 0 24 24" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
           </div>
           <h3 class="font-semibold text-slate-900 mb-2 group-hover:text-primary-700">Santé & EHPAD</h3>
-          <p class="text-sm text-slate-600">Décret tertiaire, continuité 24h/24 : un expert dédié aux établissements médico-sociaux.</p>
-          <span class="mt-4 inline-block text-sm font-medium text-primary-700">En savoir plus →</span>
+          <p class="text-sm text-slate-600">Décret tertiaire, fonctionnement 24h/24 : un interlocuteur qui comprend les établissements médico-sociaux.</p>
+          <span class="mt-4 inline-flex items-center gap-1 text-sm font-medium text-primary-700">En savoir plus <span class="icon-go">→</span></span>
         </a>
-        <a href="/collectivites.html" class="group rounded-2xl border border-slate-200 p-6 hover:border-primary-400 hover:shadow-soft transition-all">
+        <a href="/collectivites.html" data-reveal style="--rd:240ms" class="group lift rounded-2xl border border-slate-200 p-6 hover:border-primary-400 hover:shadow-soft transition-all">
           <div class="size-12 rounded-xl bg-primary-100 text-primary-700 grid place-items-center mb-4">
             <svg viewBox="0 0 24 24" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22V12m0 0L4 6m8 6l8-6M4 6V4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2"/></svg>
           </div>
           <h3 class="font-semibold text-slate-900 mb-2 group-hover:text-primary-700">Collectivités & HLM</h3>
-          <p class="text-sm text-slate-600">Appels d'offres conformes, groupements de commandes, décret tertiaire pour mairies et offices HLM.</p>
-          <span class="mt-4 inline-block text-sm font-medium text-primary-700">En savoir plus →</span>
+          <p class="text-sm text-slate-600">Appels d'offres conformes, groupements de commandes, décret tertiaire : pour les mairies et les offices HLM.</p>
+          <span class="mt-4 inline-flex items-center gap-1 text-sm font-medium text-primary-700">En savoir plus <span class="icon-go">→</span></span>
         </a>
-        <a href="/industrie.html" class="group rounded-2xl border border-slate-200 p-6 hover:border-primary-400 hover:shadow-soft transition-all">
+        <a href="/industrie.html" data-reveal style="--rd:300ms" class="group lift rounded-2xl border border-slate-200 p-6 hover:border-primary-400 hover:shadow-soft transition-all">
           <div class="size-12 rounded-xl bg-primary-100 text-primary-700 grid place-items-center mb-4">
             <svg viewBox="0 0 24 24" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>
           </div>
           <h3 class="font-semibold text-slate-900 mb-2 group-hover:text-primary-700">Industrie & Entrepôts</h3>
-          <p class="text-sm text-slate-600">Tarif HTA, effacement, puissance souscrite : jusqu'à -35% sur vos contrats industriels.</p>
-          <span class="mt-4 inline-block text-sm font-medium text-primary-700">En savoir plus →</span>
+          <p class="text-sm text-slate-600">Tarif HTA, effacement, puissance souscrite : c'est là que se cachent les plus gros gisements d'économies.</p>
+          <span class="mt-4 inline-flex items-center gap-1 text-sm font-medium text-primary-700">En savoir plus <span class="icon-go">→</span></span>
         </a>
       </div>
       <div class="mt-6 flex flex-wrap gap-3 justify-center">
@@ -478,13 +407,13 @@
 
   <!-- Processus 5 étapes -->
   <section id="process" class="bg-slate-50 py-16 md:py-20">
-    <div class="container" data-reveal>
-      <div class="text-center max-w-2xl mx-auto mb-14">
+    <div class="container">
+      <div data-reveal class="text-center max-w-2xl mx-auto mb-14">
         <span class="inline-block rounded-full bg-secondary-100 text-secondary-700 text-xs font-semibold uppercase tracking-widest px-3 py-1 mb-3">Notre méthode</span>
-        <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900">Un processus rodé, de A à Z</h2>
-        <p class="mt-3 text-slate-500">5 étapes claires, une équipe dédiée, des résultats mesurables.</p>
+        <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900">Comment ça se passe, concrètement</h2>
+        <p class="mt-3 text-slate-500">Cinq étapes — et la plupart du temps, vous n'avez qu'à nous transmettre une facture. On s'occupe du reste.</p>
       </div>
-      <div class="relative">
+      <div data-reveal style="--rd:100ms" class="relative">
         <div class="hidden lg:block absolute top-10 left-[calc(10%+2.5rem)] right-[calc(10%+2.5rem)] h-px bg-gradient-to-r from-primary-200 via-secondary-200 to-primary-200"></div>
         <div class="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-5 gap-8">
           <div class="flex flex-col items-center text-center gap-4">
@@ -530,10 +459,10 @@
   <!-- Tunnel de Devis -->
   <section id="devis" class="bg-gradient-to-br from-secondary-900 via-slate-900 to-primary-900 text-white py-16 md:py-20">
     <div class="container">
-      <div class="text-center mb-10">
+      <div data-reveal class="text-center mb-10">
         <span class="inline-block rounded-full bg-white/15 border border-white/20 text-white text-xs font-semibold uppercase tracking-widest px-3 py-1 mb-3">Audit gratuit</span>
-        <h2 class="text-3xl md:text-4xl font-extrabold">Mon comparatif d'énergie sur-mesure</h2>
-        <p class="mt-3 text-white/75 text-lg">6 étapes simples — moins de 3 minutes — zéro engagement.</p>
+        <h2 class="text-3xl md:text-4xl font-extrabold">Votre comparatif énergie, sur mesure</h2>
+        <p class="mt-3 text-white/75 text-lg">Six questions rapides, moins de 3 minutes, et zéro engagement. Promis.</p>
       </div>
 
       <div class="bg-slate-50 text-slate-800 rounded-3xl shadow-soft max-w-4xl mx-auto overflow-hidden">
@@ -552,8 +481,8 @@
               action="https://formsubmit.co/cf16add96a7eedf5a12c3c2f738739f0"
               method="POST" enctype="multipart/form-data">
 
-          <input type="hidden" name="_subject" value="Nouveau devis Elga Energy — page d'accueil">
-          <input type="hidden" name="_next" value="https://www.elgaenergy.com/merci.html">
+          <input type="hidden" name="_subject" value="🔔 Nouveau devis Elga Energy — page d'accueil">
+          <input type="hidden" name="_next" value="https://elgaenergy.com/merci.html">
           <input type="hidden" name="_template" value="table">
           <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
 
@@ -642,7 +571,7 @@
             </button>
             <div class="ml-auto flex gap-3">
               <button type="button" id="step-next"
-                      class="rounded-xl bg-primary-600 px-7 py-2.5 text-sm font-bold text-white hover:bg-primary-700 transition-colors shadow-soft">
+                      class="rounded-xl bg-secondary-600 px-7 py-2.5 text-sm font-bold text-white hover:bg-secondary-500 transition-colors shadow-soft">
                 Suivant →
               </button>
               <button type="submit" id="step-submit"
@@ -659,9 +588,9 @@
   <!-- Carrousel fournisseurs -->
   <section id="fournisseurs" class="bg-white py-12 md:py-16">
     <div class="container">
-      <div class="text-center mb-8">
+      <div data-reveal class="text-center mb-8">
         <p class="text-slate-400 text-xs font-semibold uppercase tracking-widest mb-2">Réseau de fournisseurs</p>
-        <h2 class="text-2xl md:text-3xl font-bold text-slate-900">Nous négocions auprès des grands acteurs</h2>
+        <h2 class="text-2xl md:text-3xl font-bold text-slate-900">On met les grands fournisseurs en concurrence</h2>
       </div>
       <div class="swiper suppliers-swiper">
         <div class="swiper-wrapper items-center">
@@ -676,35 +605,42 @@
     </div>
   </section>
 
-  <!-- Avis clients -->
-  <!-- Pourquoi nous faire confiance (remplace les faux temoignages) -->
+  <!-- Confiance / transparence (remplace les faux témoignages) -->
   <section id="avis" class="bg-slate-50 py-12 md:py-16">
-    <div class="container" data-reveal>
-      <div class="text-center max-w-2xl mx-auto mb-10">
-        <span class="text-primary-600 text-xs font-bold uppercase tracking-widest">Pourquoi Elga</span>
-        <h2 class="text-2xl md:text-3xl font-extrabold text-slate-900 mt-2">Un courtier qui joue franc-jeu</h2>
-        <p class="mt-3 text-slate-500">Pas de promesse en l'air : on vous montre les chiffres réels de votre facture, et vous décidez librement.</p>
+    <div class="container">
+      <div data-reveal class="text-center max-w-2xl mx-auto mb-10">
+        <span class="inline-block rounded-full bg-primary-100 text-primary-700 text-xs font-semibold uppercase tracking-widest px-3 py-1 mb-3">En toute transparence</span>
+        <h2 class="text-2xl md:text-3xl font-bold text-slate-900">Pourquoi nous faire confiance</h2>
+        <p class="mt-3 text-slate-500">On est une structure jeune : on ne va pas vous inventer des centaines d'avis. À la place, voilà nos engagements — et on s'y tient.</p>
       </div>
-      <div class="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <div class="rounded-2xl bg-white border border-slate-100 p-6 shadow-soft">
-          <div class="size-11 rounded-xl bg-primary-50 grid place-items-center mb-4"><svg class="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3l7 4v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V7l7-4z"/></svg></div>
-          <h3 class="font-bold text-slate-900">Indépendant</h3>
-          <p class="mt-2 text-sm text-slate-600">On met 30+ fournisseurs en concurrence, sans favoritisme. On est rémunérés par le fournisseur que vous choisissez, jamais par vous.</p>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div data-reveal style="--rd:0ms" class="lift rounded-2xl bg-white border border-slate-100 p-6 shadow-soft">
+          <div class="card-ico size-12 rounded-xl bg-primary-100 text-primary-700 grid place-items-center mb-4">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+          <h3 class="font-bold text-slate-900 mb-1.5">Indépendants, vraiment</h3>
+          <p class="text-sm text-slate-500">On n'appartient à aucun fournisseur. Notre seul camp, c'est le vôtre.</p>
         </div>
-        <div class="rounded-2xl bg-white border border-slate-100 p-6 shadow-soft">
-          <div class="size-11 rounded-xl bg-primary-50 grid place-items-center mb-4"><svg class="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 1v22M17 5H9.5a3.5 3.5 0 000 7h5a3.5 3.5 0 010 7H6"/></svg></div>
-          <h3 class="font-bold text-slate-900">Gratuit, sans engagement</h3>
-          <p class="mt-2 text-sm text-slate-600">L'analyse de votre facture et le comparatif sont 100 % gratuits. Vous ne payez rien et restez libre de votre décision.</p>
+        <div data-reveal style="--rd:90ms" class="lift rounded-2xl bg-white border border-slate-100 p-6 shadow-soft">
+          <div class="card-ico size-12 rounded-xl bg-primary-100 text-primary-700 grid place-items-center mb-4">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </div>
+          <h3 class="font-bold text-slate-900 mb-1.5">Gratuit, sans engagement</h3>
+          <p class="text-sm text-slate-500">L'analyse ne vous coûte rien et ne vous engage à rien. Vous décidez, point.</p>
         </div>
-        <div class="rounded-2xl bg-white border border-slate-100 p-6 shadow-soft">
-          <div class="size-11 rounded-xl bg-primary-50 grid place-items-center mb-4"><svg class="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg></div>
-          <h3 class="font-bold text-slate-900">Transparent</h3>
-          <p class="mt-2 text-sm text-slate-600">On compare votre facture aux grilles tarifaires réelles du marché. Des chiffres concrets sur VOTRE situation, pas des estimations marketing.</p>
+        <div data-reveal style="--rd:180ms" class="lift rounded-2xl bg-white border border-slate-100 p-6 shadow-soft">
+          <div class="card-ico size-12 rounded-xl bg-primary-100 text-primary-700 grid place-items-center mb-4">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+          </div>
+          <h3 class="font-bold text-slate-900 mb-1.5">Cartes sur table</h3>
+          <p class="text-sm text-slate-500">On vous montre toutes les offres — y compris quand la meilleure, c'est de ne rien changer.</p>
         </div>
-        <div class="rounded-2xl bg-white border border-slate-100 p-6 shadow-soft">
-          <div class="size-11 rounded-xl bg-primary-50 grid place-items-center mb-4"><svg class="w-6 h-6 text-primary-600" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path stroke-linecap="round" stroke-linejoin="round" d="M8 11V8a4 4 0 018 0v3"/></svg></div>
-          <h3 class="font-bold text-slate-900">Vos données protégées</h3>
-          <p class="mt-2 text-sm text-slate-600">Votre facture sert uniquement à votre analyse. Vos données ne sont ni revendues, ni partagées.</p>
+        <div data-reveal style="--rd:270ms" class="lift rounded-2xl bg-white border border-slate-100 p-6 shadow-soft">
+          <div class="card-ico size-12 rounded-xl bg-primary-100 text-primary-700 grid place-items-center mb-4">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+          </div>
+          <h3 class="font-bold text-slate-900 mb-1.5">Vos données protégées</h3>
+          <p class="text-sm text-slate-500">Votre facture sert à vous faire économiser. Elle n'est ni vendue, ni partagée.</p>
         </div>
       </div>
     </div>
@@ -712,11 +648,11 @@
 
   <!-- FAQ Accordéon -->
   <section id="faq" class="bg-white py-16 md:py-20">
-    <div class="container max-w-3xl" data-reveal>
-      <div class="text-center mb-12">
+    <div class="container max-w-3xl">
+      <div data-reveal class="text-center mb-12">
         <span class="inline-block rounded-full bg-secondary-100 text-secondary-700 text-xs font-semibold uppercase tracking-widest px-3 py-1 mb-3">FAQ</span>
-        <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900">Questions fréquentes</h2>
-        <p class="mt-3 text-slate-500">Tout ce que vous voulez savoir avant de nous contacter.</p>
+        <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900">Les questions qu'on nous pose souvent</h2>
+        <p class="mt-3 text-slate-500">Si la vôtre n'y est pas, appelez-nous — on répond sans langue de bois.</p>
       </div>
       <div class="space-y-3">
         <div class="faq-item rounded-2xl border border-slate-200 overflow-hidden">
@@ -738,7 +674,7 @@
             <span>Combien vais-je économiser&nbsp;?</span>
             <svg class="faq-icon shrink-0 w-5 h-5 text-primary-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
           </button>
-          <div class="faq-answer px-6 text-slate-600 text-sm"><p class="pb-5">En moyenne, nos clients économisent entre 10 et 30%. Cela dépend de votre situation initiale. Au-delà du tarif, nous conseillons aussi sur la consommation pour amplifier les économies.</p></div>
+          <div class="faq-answer px-6 text-slate-600 text-sm"><p class="pb-5">Honnêtement, ça dépend : de votre contrat actuel, de votre consommation et du marché au moment de l'analyse. On ne vous promet pas de pourcentage à l'aveugle — on regarde votre facture et on vous dit, <strong>chiffres à l'appui</strong>, ce qu'il y a à gagner. Ou pas, si vous êtes déjà bien placé.</p></div>
         </div>
         <div class="faq-item rounded-2xl border border-slate-200 overflow-hidden">
           <button class="faq-trigger w-full flex items-center justify-between gap-4 px-6 py-5 text-left font-semibold text-slate-900 hover:bg-slate-50 transition-colors">
@@ -768,7 +704,7 @@
   <!-- Blog -->
   <section id="blog" class="bg-slate-50 py-12 md:py-16">
     <div class="container">
-      <div class="flex items-center justify-between mb-8">
+      <div data-reveal class="flex items-center justify-between mb-8">
         <div>
           <span class="inline-block rounded-full bg-primary-100 text-primary-700 text-xs font-semibold uppercase tracking-widest px-3 py-1 mb-2">Blog</span>
           <h2 class="text-2xl md:text-3xl font-bold text-slate-900">Actualités énergie</h2>
@@ -797,7 +733,7 @@
               <div class="p-5 flex flex-col gap-2 grow">
                 <div class="flex items-center gap-2"><span class="rounded-full bg-secondary-100 text-secondary-700 text-xs font-medium px-2.5 py-0.5">Conseils</span><span class="text-xs text-slate-400">28 sept. 2025</span></div>
                 <h3 class="font-bold text-slate-900"><a href="/actu.html" class="hover:text-primary-700 transition-colors">Comment réduire sa facture d'électricité pro en 2025</a></h3>
-                <p class="text-sm text-slate-500">Nos experts partagent les meilleures stratégies pour limiter la hausse tarifaire.</p>
+                <p class="text-sm text-slate-500">Les leviers concrets, sans jargon, pour limiter la hausse sur vos contrats pro.</p>
                 <div class="mt-auto pt-2"><a href="/actu.html" class="text-primary-700 text-sm font-semibold hover:text-primary-800 transition-colors">Lire l'article →</a></div>
               </div>
             </article>
@@ -855,27 +791,23 @@
     </div>
   </section>
 
-  <!-- CTA final -->
-  <section id="contact" class="bg-primary-700 text-white">
-    <div class="container py-16 md:py-20 text-center max-w-2xl mx-auto" data-reveal>
-      <h2 class="text-3xl md:text-4xl font-extrabold leading-tight">Avant de fermer cette page : vérifiez votre facture.</h2>
-      <p class="text-white/85 mt-4 text-lg">Ça prend 15 secondes et ça ne coûte rien. Au pire, vous saurez que votre contrat est bon. Au mieux, vous découvrez l'argent qui dort dessus chaque mois.</p>
-      <div class="flex flex-wrap gap-3 justify-center mt-8">
-        <a href="/scanner.html" class="hvr-grow hvr-icon-forward inline-flex items-center gap-2 rounded-xl bg-white px-7 py-4 text-slate-900 font-bold shadow-soft hover:bg-primary-50 transition-colors">
-          Scanner ma facture maintenant
-          <svg class="hvr-icon w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5-5 5M6 12h12"/></svg>
+  <!-- CTA -->
+  <section id="contact" class="bg-gradient-to-r from-primary-600 to-secondary-700 text-white">
+    <div class="container py-14 md:py-16 flex flex-col md:flex-row items-center justify-between gap-6">
+      <div data-reveal class="max-w-xl">
+        <h2 class="text-2xl md:text-3xl font-extrabold">On regarde votre facture ensemble&nbsp;?</h2>
+        <p class="text-white/85 mt-2">Vous nous envoyez une facture, on vous rappelle sous 24&nbsp;h avec un comparatif clair. C'est tout — et ça ne vous engage à rien.</p>
+      </div>
+      <div data-reveal style="--rd:120ms" class="flex flex-wrap gap-3 shrink-0">
+        <a href="#devis" class="btn-grow btn-shine inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3.5 text-slate-900 font-bold shadow-soft hover:bg-primary-50 transition-colors">
+          Démarrer l'audit
+          <svg class="icon-go w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5-5 5M6 12h12"/></svg>
         </a>
-        <a href="tel:+33745117867" class="hvr-grow inline-flex items-center gap-2 rounded-xl border border-white/50 px-7 py-4 font-semibold hover:bg-white/10 transition-colors">
+        <a href="tel:+33745117867" class="btn-grow inline-flex items-center gap-2 rounded-xl border border-white/50 px-6 py-3.5 font-semibold hover:bg-white/10 transition-colors">
           <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.12 1.22 2 2 0 012.1 0h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 14.92z"/></svg>
-          Préférer un appel
+          Appeler directement
         </a>
       </div>
-      <p class="text-sm text-white/70 mt-6 flex flex-wrap items-center justify-center gap-x-2 gap-y-1">
-        <span>Gratuit</span><span class="text-white/40">·</span>
-        <span>15 secondes</span><span class="text-white/40">·</span>
-        <span>sans engagement</span><span class="text-white/40">·</span>
-        <span>aucun rappel si vous ne le souhaitez pas</span>
-      </p>
     </div>
   </section>
 
@@ -1080,18 +1012,42 @@
         });
       } catch (e) { console.error('Swiper init error:', e); }
     });
+
+    // ===== Apparition au scroll (IntersectionObserver maison, 0 dépendance) =====
+    (function () {
+      const els = document.querySelectorAll('[data-reveal]');
+      if (!els.length) return;
+      if (!('IntersectionObserver' in window)) { els.forEach(e => e.classList.add('in-view')); return; }
+      const io = new IntersectionObserver((entries) => {
+        entries.forEach(en => { if (en.isIntersecting) { en.target.classList.add('in-view'); io.unobserve(en.target); } });
+      }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+      els.forEach(e => io.observe(e));
+    })();
+
+    // ===== Compteurs animés (repères du hero) =====
+    (function () {
+      const reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const nums = document.querySelectorAll('[data-count]');
+      if (!nums.length) return;
+      const run = (el) => {
+        const target = parseFloat(el.getAttribute('data-count')) || 0;
+        const suffix = el.getAttribute('data-suffix') || '';
+        if (reduce || target === 0) { el.textContent = target + suffix; return; }
+        const dur = 1100, start = performance.now();
+        const step = (now) => {
+          const p = Math.min((now - start) / dur, 1);
+          const e = 1 - Math.pow(1 - p, 3);
+          el.textContent = Math.round(target * e) + suffix;
+          if (p < 1) requestAnimationFrame(step);
+        };
+        requestAnimationFrame(step);
+      };
+      if (!('IntersectionObserver' in window)) { nums.forEach(run); return; }
+      const io = new IntersectionObserver((ents) => {
+        ents.forEach(en => { if (en.isIntersecting) { run(en.target); io.unobserve(en.target); } });
+      }, { threshold: 0.5 });
+      nums.forEach(n => io.observe(n));
+    })();
   </script>
-<script>
-  /* Scroll reveal maison — aucune librairie externe */
-  (function(){
-    var els = document.querySelectorAll('[data-reveal]');
-    if(!els.length) return;
-    if(!('IntersectionObserver' in window)){ els.forEach(function(e){e.classList.add('is-visible')}); return; }
-    var io = new IntersectionObserver(function(entries){
-      entries.forEach(function(en){ if(en.isIntersecting){ en.target.classList.add('is-visible'); io.unobserve(en.target); } });
-    }, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
-    els.forEach(function(e){ io.observe(e); });
-  })();
-</script>
 </body>
 </html>
