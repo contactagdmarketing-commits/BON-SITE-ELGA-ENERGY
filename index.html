@@ -57,11 +57,11 @@
     "@type": "FAQPage",
     "mainEntity": [
       {"@type":"Question","name":"Faut-il acheter le gaz et l'électricité auprès du même fournisseur ?","acceptedAnswer":{"@type":"Answer","text":"Ce n'est pas nécessaire. Si un meilleur prix est trouvé pour l'un des deux, nous traitons les contrats séparément et gérons l'administratif pour vous."}},
-      {"@type":"Question","name":"Est-ce que j'obtiens un prix fixe ou variable ?","acceptedAnswer":{"@type":"Answer","text":"Nous suivons de près le marché et recommandons l'option (fixe ou indexée) la plus pertinente au moment de l'analyse."}},
-      {"@type":"Question","name":"Combien vais-je économiser ?","acceptedAnswer":{"@type":"Answer","text":"Honnêtement, ça dépend : de votre contrat actuel, de votre consommation et du marché au moment de l'analyse. On ne promet pas de pourcentage à l'aveugle — on regarde votre facture et on vous dit, chiffres à l'appui, ce qu'il y a à gagner. Ou pas."}},
-      {"@type":"Question","name":"Dois-je changer de fournisseur ?","acceptedAnswer":{"@type":"Answer","text":"Notre audit est gratuit et sans engagement. La décision vous appartient — on vous donne une recommandation claire et documentée."}},
-      {"@type":"Question","name":"Y a-t-il des frais d'annulation si je quitte mon fournisseur actuel ?","acceptedAnswer":{"@type":"Answer","text":"Dans la plupart des cas non. Un préavis peut toutefois s'appliquer. Nous vérifions tout pour vous."}},
-      {"@type":"Question","name":"Puis-je profiter du meilleur prix si je suis déjà client du fournisseur proposé ?","acceptedAnswer":{"@type":"Answer","text":"Oui. Si votre fournisseur actuel l'emporte, nous faisons appliquer le nouveau tarif sans démarches de votre part."}}
+      {"@type":"Question","name":"Est-ce que j'obtiens un prix fixe ou variable ?","acceptedAnswer":{"@type":"Answer","text":"Nous suivons de près le marché de l'énergie et recommandons l'option (fixe ou indexée) la plus pertinente au moment de l'analyse de votre dossier."}},
+      {"@type":"Question","name":"Combien vais-je économiser ?","acceptedAnswer":{"@type":"Answer","text":"Honnêtement, ça dépend : de votre contrat actuel, de votre consommation et du marché au moment de l'analyse. On ne vous promet pas de pourcentage à l'aveugle — on regarde votre facture et on vous dit, chiffres à l'appui, ce qu'il y a à gagner. Ou pas, si vous êtes déjà bien placé."}},
+      {"@type":"Question","name":"Dois-je changer de fournisseur ?","acceptedAnswer":{"@type":"Answer","text":"Notre audit est gratuit et sans engagement. La décision vous appartient — on vous donne une recommandation claire et documentée, sans aucune pression."}},
+      {"@type":"Question","name":"Y a-t-il des frais d'annulation si je quitte mon fournisseur actuel ?","acceptedAnswer":{"@type":"Answer","text":"Dans la plupart des cas non. Un préavis peut toutefois s'appliquer selon le type de contrat et la réglementation locale. Nous vérifions tout pour vous avant toute décision."}},
+      {"@type":"Question","name":"Puis-je profiter du meilleur prix si je suis déjà client du fournisseur proposé ?","acceptedAnswer":{"@type":"Answer","text":"Oui. Si, à l'issue de la négociation, votre fournisseur actuel l'emporte et propose mieux, nous faisons appliquer le nouveau tarif, sans démarches de votre part."}}
     ]
   }
   </script>
@@ -116,10 +116,12 @@
     .service-card:hover{transform:translateY(-4px);box-shadow:0 20px 40px rgba(2,6,12,.12)}
     /* Step progress */
     .step-progress-bar{transition:width .4s ease}
+    /* Focus clavier visible partout (accessibilité) */
+    :focus-visible{outline:2px solid #0e8a57;outline-offset:2px;border-radius:6px}
 
     /* ===== Motion design — 0 dépendance, respect de prefers-reduced-motion ===== */
     /* Apparition au scroll — gatée .js : sans JS, le contenu reste visible (SEO/headless safe) */
-    .js [data-reveal]{opacity:0;transform:translateY(26px);transition:opacity .7s cubic-bezier(.16,1,.3,1),transform .7s cubic-bezier(.16,1,.3,1);transition-delay:var(--rd,0ms);will-change:opacity,transform}
+    .js [data-reveal]{opacity:0;transform:translateY(26px);transition:opacity .7s cubic-bezier(.16,1,.3,1),transform .7s cubic-bezier(.16,1,.3,1);transition-delay:var(--rd,0ms)}
     .js [data-reveal].in-view{opacity:1;transform:none}
     /* Entrée du hero : animation CSS pure (sans JS, sans attendre 'load') → toujours visible */
     @keyframes revealUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
@@ -190,9 +192,8 @@
   <!-- Header -->
   <header class="sticky top-0 z-50 border-b border-slate-200/60 bg-white/90 glass">
     <div class="container flex items-center justify-between py-2 md:py-2.5 gap-3">
-      <a href="/" class="flex items-center gap-2">
-        <img src="/assets/logos/elga-energy-logo.svg" alt="Elga Energy" class="h-12 md:h-14 w-auto" onerror="this.replaceWith(document.getElementById('logo-fallback').content.cloneNode(true))" />
-        <span class="sr-only">Elga Energy</span>
+      <a href="/" class="flex items-center gap-2" aria-label="Elga Energy — accueil">
+        <img src="/assets/logos/elga-energy-logo.svg" alt="" class="h-12 md:h-14 w-auto" onerror="this.replaceWith(document.getElementById('logo-fallback').content.cloneNode(true))" />
       </a>
       <nav class="hidden md:flex items-center gap-6 text-sm font-medium text-slate-600">
         <a href="#offre" class="nav-link hover:text-primary-700 transition-colors">Offre</a>
@@ -203,7 +204,7 @@
         <a href="#faq" class="nav-link hover:text-primary-700 transition-colors">FAQ</a>
         <a href="/actu.html" class="nav-link hover:text-primary-700 transition-colors">Blog</a>
         <a href="/Recrutement.html" class="nav-link hover:text-primary-700 transition-colors">Recrutement</a>
-        <a href="/login.html" class="inline-flex items-center gap-1 hover:text-primary-700 transition-colors font-semibold text-primary-600">🔒 Comparatif</a>
+        <a href="/login.html" class="inline-flex items-center gap-1 hover:text-primary-700 transition-colors font-semibold text-primary-600">🔒 Espace client</a>
       </nav>
       <div class="flex items-center gap-3">
         <a href="tel:+33745117867" class="hidden md:flex items-center gap-1.5 text-sm text-slate-600 hover:text-primary-700 transition-colors font-medium">
@@ -232,7 +233,7 @@
         <a href="/Recrutement.html" class="py-2.5 px-3 rounded-lg hover:bg-slate-50 hover:text-primary-700 transition-colors text-slate-700">Recrutement</a>
         <a href="/scanner.html" class="py-2.5 px-3 rounded-lg bg-primary-600 text-white font-semibold text-center">⚡ Scanner ma facture · 15 s</a>
         <a href="#devis" class="py-2.5 px-3 rounded-lg hover:bg-slate-50 hover:text-primary-700 transition-colors text-slate-700">Recevoir un comparatif détaillé</a>
-        <a href="/login.html" class="py-2.5 px-3 rounded-lg bg-primary-50 text-primary-700 font-semibold">🔒 Comparatif</a>
+        <a href="/login.html" class="py-2.5 px-3 rounded-lg bg-primary-50 text-primary-700 font-semibold">🔒 Espace client</a>
         <div class="pt-2 mt-1 border-t border-slate-100">
           <a href="tel:+33745117867" class="flex items-center gap-2 py-2.5 px-3 text-primary-700 font-semibold">
             <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.12 1.22 2 2 0 012.1 0h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 14.92z"/></svg>
@@ -268,7 +269,7 @@
           </a>
           <a href="#process" class="btn-grow inline-flex items-center justify-center rounded-xl border border-white/60 px-6 py-4 font-semibold hover:bg-white/10 transition-colors">Comment ça marche</a>
         </div>
-        <p style="--rd:330ms" class="reveal-load text-sm text-white/80 flex items-center gap-1.5">
+        <p style="--rd:330ms" class="reveal-load text-sm text-white/90 flex items-center gap-1.5">
           <svg class="w-4 h-4 text-primary-300 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
           Gratuit, sans engagement. On vous rappelle sous 24&nbsp;h.
         </p>
@@ -276,27 +277,27 @@
       <!-- Carte repères hero (desktop) -->
       <div style="--rd:200ms" class="reveal-load hidden md:block">
         <div class="floaty rounded-3xl bg-white/10 backdrop-blur border border-white/20 p-8 space-y-5 shadow-soft">
-          <p class="text-white/60 text-xs font-semibold uppercase tracking-widest">En bref</p>
+          <p class="text-white/75 text-xs font-semibold uppercase tracking-widest">En bref</p>
           <div class="grid grid-cols-2 gap-4">
             <div class="stat-case rounded-2xl bg-white/10 border border-white/15 p-5">
               <svg class="stat-ico w-6 h-6 text-primary-300 mb-2" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4l2.5 2.5M9 2h6"/></svg>
               <p class="text-3xl font-extrabold"><span data-count="15" data-suffix=" s">15&nbsp;s</span></p>
-              <p class="text-white/70 text-sm mt-1">Pour analyser votre facture</p>
+              <p class="text-white/85 text-sm mt-1">Pour analyser votre facture</p>
             </div>
             <div class="stat-case rounded-2xl bg-white/10 border border-white/15 p-5">
               <svg class="stat-ico w-6 h-6 text-primary-300 mb-2" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12h4l3 8 4-16 3 8h4"/></svg>
               <p class="text-3xl font-extrabold"><span data-count="30" data-suffix="+">30+</span></p>
-              <p class="text-white/70 text-sm mt-1">Fournisseurs comparés</p>
+              <p class="text-white/85 text-sm mt-1">Fournisseurs comparés</p>
             </div>
             <div class="stat-case rounded-2xl bg-white/10 border border-white/15 p-5">
               <svg class="stat-ico w-6 h-6 text-primary-300 mb-2" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path stroke-linecap="round" stroke-linejoin="round" d="M14.5 9.5c-.8-.8-3.5-1.3-4.5.5-.7 1.3.5 2 2 2.2 1.5.2 2.7.9 2 2.3-1 1.8-3.7 1.3-4.5.5M12 7v1.5M12 15.5V17"/></svg>
               <p class="text-3xl font-extrabold"><span data-count="0" data-suffix=" €">0&nbsp;€</span></p>
-              <p class="text-white/70 text-sm mt-1">Pour vous, toujours</p>
+              <p class="text-white/85 text-sm mt-1">Pour vous, toujours</p>
             </div>
             <div class="stat-case rounded-2xl bg-white/10 border border-white/15 p-5">
               <svg class="stat-ico w-6 h-6 text-primary-300 mb-2" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.63A2 2 0 014.11 2h3a2 2 0 012 1.72c.13.96.36 1.9.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.91.34 1.85.57 2.81.7A2 2 0 0122 16.92z"/></svg>
               <p class="text-3xl font-extrabold"><span data-count="24" data-suffix=" h">24&nbsp;h</span></p>
-              <p class="text-white/70 text-sm mt-1">Pour qu'on vous rappelle</p>
+              <p class="text-white/85 text-sm mt-1">Avant qu'on vous rappelle</p>
             </div>
           </div>
         </div>
@@ -307,10 +308,10 @@
   <!-- Stats mobile -->
   <section class="md:hidden bg-gradient-to-r from-primary-700 to-secondary-700 text-white">
     <div class="container py-8 grid grid-cols-2 gap-4">
-      <div class="text-center"><p class="text-2xl font-extrabold">15&nbsp;s</p><p class="text-white/75 text-xs mt-0.5">Pour analyser votre facture</p></div>
-      <div class="text-center"><p class="text-2xl font-extrabold">30+</p><p class="text-white/75 text-xs mt-0.5">Fournisseurs comparés</p></div>
-      <div class="text-center"><p class="text-2xl font-extrabold">0&nbsp;€</p><p class="text-white/75 text-xs mt-0.5">Pour vous, toujours</p></div>
-      <div class="text-center"><p class="text-2xl font-extrabold">24&nbsp;h</p><p class="text-white/75 text-xs mt-0.5">Pour qu'on vous rappelle</p></div>
+      <div class="text-center"><p class="text-2xl font-extrabold">15&nbsp;s</p><p class="text-white/85 text-xs mt-0.5">Pour analyser votre facture</p></div>
+      <div class="text-center"><p class="text-2xl font-extrabold">30+</p><p class="text-white/85 text-xs mt-0.5">Fournisseurs comparés</p></div>
+      <div class="text-center"><p class="text-2xl font-extrabold">0&nbsp;€</p><p class="text-white/85 text-xs mt-0.5">Pour vous, toujours</p></div>
+      <div class="text-center"><p class="text-2xl font-extrabold">24&nbsp;h</p><p class="text-white/85 text-xs mt-0.5">Avant qu'on vous rappelle</p></div>
     </div>
   </section>
 
@@ -364,8 +365,8 @@
           </div>
           <h3 class="font-bold">Et tout ça, c'est gratuit</h3>
           <p class="text-sm text-white/85">On est payés par les fournisseurs, pas par vous. Donc <strong>aucune facture de notre côté</strong> — et aucune raison de vous pousser vers le mauvais contrat.</p>
-          <a href="#devis" class="btn-grow inline-flex items-center gap-1.5 text-sm font-semibold border border-white/40 rounded-lg px-4 py-2 hover:bg-white/15 transition-colors mt-1">
-            Commencer (c'est gratuit)
+          <a href="/scanner.html" class="btn-grow inline-flex items-center gap-1.5 text-sm font-semibold border border-white/40 rounded-lg px-4 py-2 hover:bg-white/15 transition-colors mt-1">
+            Scanner ma facture
             <svg class="icon-go w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5-5 5M6 12h12"/></svg>
           </a>
         </div>
@@ -451,37 +452,44 @@
               <svg class="w-8 h-8 text-primary-600" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
               <span class="absolute -top-2.5 -right-2.5 size-6 rounded-full bg-primary-600 text-white text-xs font-bold grid place-items-center">1</span>
             </div>
-            <div><h3 class="font-bold text-slate-900">Collecte & Analyse</h3><p class="text-sm text-slate-500 mt-1">Nous étudions vos factures et profils de consommation.</p></div>
+            <div><h3 class="font-bold text-slate-900">On lit vos factures</h3><p class="text-sm text-slate-500 mt-1">Vous nous en envoyez une, on l'épluche : prix du kWh, abonnement, taxes, puissance. On repère où ça coince.</p></div>
           </div>
           <div class="flex flex-col items-center text-center gap-4">
             <div class="relative z-10 size-20 rounded-2xl bg-white border-2 border-secondary-200 grid place-items-center shadow-soft">
               <svg class="w-8 h-8 text-secondary-600" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
               <span class="absolute -top-2.5 -right-2.5 size-6 rounded-full bg-secondary-600 text-white text-xs font-bold grid place-items-center">2</span>
             </div>
-            <div><h3 class="font-bold text-slate-900">Négociation</h3><p class="text-sm text-slate-500 mt-1">Nous consultons et négocions les meilleurs tarifs auprès des fournisseurs.</p></div>
+            <div><h3 class="font-bold text-slate-900">On fait jouer la concurrence</h3><p class="text-sm text-slate-500 mt-1">On met 30+ fournisseurs face à face et on négocie le meilleur tarif pour votre profil de conso.</p></div>
           </div>
           <div class="flex flex-col items-center text-center gap-4">
             <div class="relative z-10 size-20 rounded-2xl bg-white border-2 border-primary-200 grid place-items-center shadow-soft">
               <svg class="w-8 h-8 text-primary-600" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
               <span class="absolute -top-2.5 -right-2.5 size-6 rounded-full bg-primary-600 text-white text-xs font-bold grid place-items-center">3</span>
             </div>
-            <div><h3 class="font-bold text-slate-900">Comparatif client</h3><p class="text-sm text-slate-500 mt-1">Présentation claire et documentée de toutes les offres.</p></div>
+            <div><h3 class="font-bold text-slate-900">On vous montre tout</h3><p class="text-sm text-slate-500 mt-1">Un comparatif clair, sans jargon. Vous voyez noir sur blanc ce que ça change pour vous.</p></div>
           </div>
           <div class="flex flex-col items-center text-center gap-4">
             <div class="relative z-10 size-20 rounded-2xl bg-white border-2 border-secondary-200 grid place-items-center shadow-soft">
               <svg class="w-8 h-8 text-secondary-600" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
               <span class="absolute -top-2.5 -right-2.5 size-6 rounded-full bg-secondary-600 text-white text-xs font-bold grid place-items-center">4</span>
             </div>
-            <div><h3 class="font-bold text-slate-900">Signature & Bascule</h3><p class="text-sm text-slate-500 mt-1">Nous gérons toutes les démarches administratives à votre place.</p></div>
+            <div><h3 class="font-bold text-slate-900">On gère la bascule</h3><p class="text-sm text-slate-500 mt-1">Vous signez, on s'occupe du reste : résiliation, changement de fournisseur, paperasse.</p></div>
           </div>
           <div class="flex flex-col items-center text-center gap-4">
             <div class="relative z-10 size-20 rounded-2xl bg-white border-2 border-primary-200 grid place-items-center shadow-soft">
               <svg class="w-8 h-8 text-primary-600" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
               <span class="absolute -top-2.5 -right-2.5 size-6 rounded-full bg-primary-600 text-white text-xs font-bold grid place-items-center">5</span>
             </div>
-            <div><h3 class="font-bold text-slate-900">Suivi continu</h3><p class="text-sm text-slate-500 mt-1">Alertes marché, contrôle de factures, optimisation permanente.</p></div>
+            <div><h3 class="font-bold text-slate-900">On reste là</h3><p class="text-sm text-slate-500 mt-1">On garde un œil sur vos factures et sur le marché. Si un meilleur tarif sort, on vous prévient.</p></div>
           </div>
         </div>
+      </div>
+      <div data-reveal class="mt-12 text-center">
+        <a href="/scanner.html" class="btn-grow btn-shine inline-flex items-center justify-center gap-2 rounded-xl bg-primary-600 px-7 py-4 text-white font-bold shadow-soft hover:bg-primary-700 transition-colors">
+          <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M21 17v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2M3 12h18"/></svg>
+          Scanner ma facture <span class="opacity-80 font-semibold">· 15 s, gratuit</span>
+        </a>
+        <p class="mt-3 text-sm text-slate-500">Le plus simple : envoyez-nous une facture, on s'occupe du reste.</p>
       </div>
     </div>
   </section>
@@ -724,8 +732,15 @@
             <span>Puis-je profiter du meilleur prix si je suis déjà client du fournisseur proposé&nbsp;?</span>
             <svg class="faq-icon shrink-0 w-5 h-5 text-primary-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4"/></svg>
           </button>
-          <div class="faq-answer px-6 text-slate-600 text-sm"><p class="pb-5">Oui. Si, à l'issue de la négociation, votre fournisseur actuel l'emporte et propose mieux, nous faisons appliquer le nouveau tarif — sans démarches de votre part.</p></div>
+          <div class="faq-answer px-6 text-slate-600 text-sm"><p class="pb-5">Oui. Si, à l'issue de la négociation, votre fournisseur actuel l'emporte et propose mieux, nous faisons appliquer le nouveau tarif, sans démarches de votre part.</p></div>
         </div>
+      </div>
+      <div data-reveal class="mt-10 text-center">
+        <a href="/scanner.html" class="btn-grow btn-shine inline-flex items-center justify-center gap-2 rounded-xl bg-primary-600 px-7 py-4 text-white font-bold shadow-soft hover:bg-primary-700 transition-colors">
+          <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M21 17v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2M3 12h18"/></svg>
+          Convaincu ? Scanner ma facture
+        </a>
+        <p class="mt-3 text-sm text-slate-500">15 secondes, gratuit, sans engagement. Vous verrez tout de suite s'il y a à gagner.</p>
       </div>
     </div>
   </section>
@@ -812,8 +827,8 @@
           </div>
         </div>
         <div class="flex items-center justify-center gap-4 mt-8">
-          <button class="actu-prev size-10 rounded-xl border border-slate-200 bg-white hover:border-primary-400 hover:text-primary-700 transition-colors grid place-items-center"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg></button>
-          <button class="actu-next size-10 rounded-xl border border-slate-200 bg-white hover:border-primary-400 hover:text-primary-700 transition-colors grid place-items-center"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg></button>
+          <button aria-label="Article précédent" class="actu-prev size-10 rounded-xl border border-slate-200 bg-white hover:border-primary-400 hover:text-primary-700 transition-colors grid place-items-center"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19l-7-7 7-7"/></svg></button>
+          <button aria-label="Article suivant" class="actu-next size-10 rounded-xl border border-slate-200 bg-white hover:border-primary-400 hover:text-primary-700 transition-colors grid place-items-center"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg></button>
         </div>
       </div>
     </div>
@@ -827,8 +842,8 @@
         <p class="text-white/85 mt-2">Vous nous envoyez une facture, on vous rappelle sous 24&nbsp;h avec un comparatif clair. C'est tout — et ça ne vous engage à rien.</p>
       </div>
       <div data-reveal style="--rd:120ms" class="flex flex-wrap gap-3 shrink-0">
-        <a href="#devis" class="btn-grow btn-shine inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3.5 text-slate-900 font-bold shadow-soft hover:bg-primary-50 transition-colors">
-          Démarrer l'audit
+        <a href="/scanner.html" class="btn-grow btn-shine inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3.5 text-slate-900 font-bold shadow-soft hover:bg-primary-50 transition-colors">
+          Scanner ma facture
           <svg class="icon-go w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5-5 5M6 12h12"/></svg>
         </a>
         <a href="tel:+33745117867" class="btn-grow inline-flex items-center gap-2 rounded-xl border border-white/50 px-6 py-3.5 font-semibold hover:bg-white/10 transition-colors">
@@ -916,11 +931,16 @@
 
     // FAQ Accordéon
     document.querySelectorAll('.faq-trigger').forEach(trigger => {
+      trigger.setAttribute('aria-expanded', 'false');
       trigger.addEventListener('click', () => {
         const item = trigger.closest('.faq-item');
         const isOpen = item.classList.contains('open');
-        document.querySelectorAll('.faq-item.open').forEach(i => i.classList.remove('open'));
-        if (!isOpen) item.classList.add('open');
+        document.querySelectorAll('.faq-item.open').forEach(i => {
+          i.classList.remove('open');
+          const t = i.querySelector('.faq-trigger');
+          if (t) t.setAttribute('aria-expanded', 'false');
+        });
+        if (!isOpen) { item.classList.add('open'); trigger.setAttribute('aria-expanded', 'true'); }
       });
     });
 
@@ -988,7 +1008,8 @@
       const required = panel.querySelectorAll('input[required], textarea[required]');
       let valid = true;
       required.forEach(el => {
-        if (!el.value.trim()) {
+        const empty = (el.type === 'checkbox' || el.type === 'radio') ? !el.checked : !el.value.trim();
+        if (empty) {
           el.classList.add('border-red-400', 'ring-2', 'ring-red-100');
           el.addEventListener('input', () => el.classList.remove('border-red-400', 'ring-2', 'ring-red-100'), { once: true });
           valid = false;
@@ -1030,7 +1051,7 @@
       try {
         new Swiper('.suppliers-swiper', {
           slidesPerView: 2, spaceBetween: 16, loop: true, loopAdditionalSlides: 12,
-          speed: 9000, autoplay: { delay: 0, disableOnInteraction: false, pauseOnMouseEnter: true },
+          speed: 9000, autoplay: (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) ? false : { delay: 0, disableOnInteraction: false, pauseOnMouseEnter: true },
           breakpoints: { 640:{slidesPerView:3}, 768:{slidesPerView:4}, 1024:{slidesPerView:6} }
         });
         new Swiper('.actu-swiper', {
