@@ -164,7 +164,7 @@
     .hero-grid{background-image:linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px);background-size:46px 46px;-webkit-mask-image:radial-gradient(125% 92% at 50% 0%,#000 32%,transparent 76%);mask-image:radial-gradient(125% 92% at 50% 0%,#000 32%,transparent 76%)}
     /* Cases stats du hero — interactives */
     .stat-case{transition:transform .3s cubic-bezier(.16,1,.3,1),background .3s ease,border-color .3s ease}
-    .stat-case:hover{transform:translateY(-4px);background:rgba(255,255,255,.16);border-color:rgba(255,255,255,.4)}
+    .stat-case:hover{transform:translateY(-4px);box-shadow:0 14px 30px -12px rgba(2,6,12,.2);border-color:#cbd5e1}
     .stat-case .stat-ico{transition:transform .3s cubic-bezier(.16,1,.3,1)}
     .stat-case:hover .stat-ico{transform:scale(1.12) rotate(-6deg)}
     /* Barre fixe mobile : l'entonnoir "Scanner ma facture" (toujours visible, entrée différée) */
@@ -173,6 +173,10 @@
     /* Texte qui brille : dégradé animé qui balaie (titres importants) */
     @keyframes sweep{to{background-position:200% center}}
     .text-sweep{background:linear-gradient(110deg,#6ee7b7,#34d399 25%,#a5b4fc 50%,#34d399 75%,#6ee7b7);background-size:200% auto;-webkit-background-clip:text;background-clip:text;color:transparent;animation:sweep 5s linear infinite}
+    /* Hero clair sobre + mot qui défile en dégradé animé */
+    .hero-light-bg{background:radial-gradient(58% 52% at 16% -8%, rgba(16,185,129,.16) 0, transparent 60%),radial-gradient(52% 46% at 90% -2%, rgba(11,61,145,.12) 0, transparent 60%),linear-gradient(180deg,#ffffff 0%,#f7faf9 100%)}
+    .sweep-ink{background:linear-gradient(110deg,#0e8a57,#10b981 30%,#0b3d91 62%,#0e8a57);background-size:200% auto;-webkit-background-clip:text;background-clip:text;color:transparent;animation:sweep 5s linear infinite}
+    .rotator{display:inline-block;transition:opacity .25s ease,transform .25s ease}
     /* Voile de contraste sur le hero (lisibilité du texte blanc, surtout zone bleutée) */
     .hero-scrim{background:linear-gradient(100deg,rgba(4,28,20,.55) 0%,rgba(6,26,34,.18) 48%,rgba(8,32,64,.55) 100%)}
     /* Carte secteur : "En savoir plus" en mini-bouton + affordance cliquable */
@@ -180,7 +184,8 @@
     .group:hover .sector-link{background:#e2e8f0;gap:.6rem}
     @media (prefers-reduced-motion: reduce){
       .js [data-reveal]{opacity:1!important;transform:none!important;transition:none!important}
-      .text-sweep{animation:none!important;background-position:0 center}
+      .text-sweep,.sweep-ink{animation:none!important;background-position:0 center}
+      .rotator{transition:none!important}
       .reveal-load{animation:none!important}
       .floaty,.hero-orb{animation:none!important}
       .hero-bg{animation:none!important}
@@ -258,72 +263,52 @@
 
   <!-- Hero -->
   <section class="relative overflow-hidden">
-    <div class="absolute inset-0 hero-bg"></div>
-    <div class="hero-orb hero-orb--1"></div>
-    <div class="hero-orb hero-orb--2"></div>
-    <div class="absolute inset-0 hero-grid"></div>
-    <div class="absolute inset-0 hero-scrim"></div>
-    <div class="relative container grid gap-10 md:grid-cols-2 py-20 md:py-28 items-center text-white">
-      <div class="space-y-6">
-        <div style="--rd:0ms" class="reveal-load inline-flex items-center gap-2 rounded-full bg-white/15 border border-white/25 px-4 py-1.5 text-sm font-medium">
-          <span class="size-2 rounded-full bg-primary-300 animate-pulse shrink-0"></span>
-          Courtier en énergie indépendant · <strong class="font-semibold text-white"><svg class="w-4 h-4 shrink-0 inline-block align-[-3px]" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 21s-6-5.3-6-10a6 6 0 1112 0c0 4.7-6 10-6 10z"/><circle cx="12" cy="11" r="2"/></svg> Toulouse</strong>
+    <div class="absolute inset-0 hero-light-bg"></div>
+    <div class="relative container py-16 md:py-24">
+      <div class="max-w-3xl mx-auto text-center space-y-6">
+        <div style="--rd:0ms" class="reveal-load inline-flex items-center gap-2 rounded-full bg-white border border-slate-200 shadow-sm px-4 py-1.5 text-sm font-medium text-slate-600">
+          <span class="size-2 rounded-full bg-primary-500 animate-pulse shrink-0"></span>
+          Courtier en énergie indépendant · <strong class="font-semibold text-slate-800"><svg class="w-4 h-4 shrink-0 inline-block align-[-3px] text-primary-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 21s-6-5.3-6-10a6 6 0 1112 0c0 4.7-6 10-6 10z"/><circle cx="12" cy="11" r="2"/></svg> Toulouse</strong>
         </div>
-        <h1 style="--rd:90ms;text-wrap:balance" class="reveal-load text-4xl md:text-5xl font-extrabold leading-tight tracking-tight">
-          Payez-vous votre énergie <span class="text-sweep">trop cher</span>&nbsp;? <span class="block mt-1 text-white/90 text-2xl md:text-3xl font-bold">Vous le saurez en 15 secondes.</span>
+        <h1 style="--rd:90ms" class="reveal-load text-3xl sm:text-4xl md:text-5xl font-extrabold leading-tight tracking-tight text-slate-900">
+          Vos factures d'énergie sont <span class="rotator sweep-ink" id="rotator">trop chères</span>&nbsp;?
         </h1>
-        <p style="--rd:170ms" class="reveal-load text-white/90 text-lg max-w-lg">Prenez votre dernière facture en photo. On la lit, on compare 30+ fournisseurs, et on vous dit s'il y a de l'argent à récupérer. Vous décidez ensuite. Gratuitement.</p>
-        <div style="--rd:250ms" class="reveal-load flex flex-col sm:flex-row flex-wrap gap-3">
-          <a href="/scanner.html" class="btn-grow btn-shine inline-flex items-center justify-center gap-2 rounded-xl bg-white px-6 py-4 text-slate-900 font-bold shadow-soft hover:bg-primary-50 transition-colors">
-            <svg class="w-5 h-5 text-primary-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M21 17v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2M3 12h18"/></svg>
-            Scanner ma facture
-            <span class="text-primary-600/80 font-semibold">· 15 s</span>
+        <p style="--rd:170ms" class="reveal-load text-lg text-slate-600 max-w-xl mx-auto">Scannez votre facture en 15 secondes, gratuitement. On vous dit s'il y a de l'argent à récupérer.</p>
+        <div style="--rd:250ms" class="reveal-load flex flex-col sm:flex-row items-center justify-center gap-3">
+          <a href="/scanner.html" class="btn-grow btn-shine inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl bg-primary-600 px-7 py-4 text-white font-bold shadow-soft hover:bg-primary-700 transition-colors">
+            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M21 17v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2M3 12h18"/></svg>
+            Scanner ma facture <span class="opacity-80 font-semibold">· 15 s</span>
           </a>
-          <a href="#process" class="btn-grow inline-flex items-center justify-center rounded-xl border border-white/60 px-6 py-4 font-semibold hover:bg-white/10 transition-colors">Comment ça marche</a>
+          <a href="#process" class="btn-grow inline-flex w-full sm:w-auto items-center justify-center rounded-xl border border-slate-300 px-7 py-4 font-semibold text-slate-700 hover:border-slate-400 hover:bg-slate-50 transition-colors">Comment ça marche</a>
         </div>
-        <p style="--rd:330ms" class="reveal-load text-[15px] font-medium text-white flex items-center gap-2">
-          <svg class="w-5 h-5 text-primary-300 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
-          Gratuit, sans engagement — <span class="text-white/80">analyse en 15&nbsp;s, rappel d'un expert sous 24&nbsp;h.</span>
+        <p style="--rd:330ms" class="reveal-load text-sm text-slate-500 flex items-center justify-center gap-2">
+          <svg class="w-4 h-4 text-primary-600 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"/></svg>
+          Gratuit, sans engagement — rappel d'un expert sous 24&nbsp;h.
         </p>
       </div>
-      <!-- Carte repères hero (desktop) -->
-      <div style="--rd:200ms" class="reveal-load hidden md:block">
-        <div class="floaty rounded-3xl bg-white/10 backdrop-blur border border-white/20 p-8 space-y-5 shadow-soft">
-          <p class="text-white/75 text-xs font-semibold uppercase tracking-widest">En bref</p>
-          <div class="grid grid-cols-2 gap-4">
-            <div class="stat-case rounded-2xl bg-white/10 border border-white/15 p-5">
-              <svg class="stat-ico w-6 h-6 text-primary-300 mb-2" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4l2.5 2.5M9 2h6"/></svg>
-              <p class="text-3xl font-extrabold"><span data-count="15" data-suffix=" s">15&nbsp;s</span></p>
-              <p class="text-white/85 text-sm mt-1">Pour analyser votre facture</p>
-            </div>
-            <div class="stat-case rounded-2xl bg-white/10 border border-white/15 p-5">
-              <svg class="stat-ico w-6 h-6 text-primary-300 mb-2" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12h4l3 8 4-16 3 8h4"/></svg>
-              <p class="text-3xl font-extrabold"><span data-count="30" data-suffix="+">30+</span></p>
-              <p class="text-white/85 text-sm mt-1">Fournisseurs comparés</p>
-            </div>
-            <div class="stat-case rounded-2xl bg-white/10 border border-white/15 p-5">
-              <svg class="stat-ico w-6 h-6 text-primary-300 mb-2" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path stroke-linecap="round" stroke-linejoin="round" d="M14.5 9.5c-.8-.8-3.5-1.3-4.5.5-.7 1.3.5 2 2 2.2 1.5.2 2.7.9 2 2.3-1 1.8-3.7 1.3-4.5.5M12 7v1.5M12 15.5V17"/></svg>
-              <p class="text-3xl font-extrabold">Sans frais</p>
-              <p class="text-white/85 text-sm mt-1">Payé par les fournisseurs</p>
-            </div>
-            <div class="stat-case rounded-2xl bg-white/10 border border-white/15 p-5">
-              <svg class="stat-ico w-6 h-6 text-primary-300 mb-2" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-              <p class="text-3xl font-extrabold">Immédiat</p>
-              <p class="text-white/85 text-sm mt-1">Votre résultat en direct</p>
-            </div>
-          </div>
+      <!-- En bref (sous le hero) -->
+      <div data-reveal class="mt-14 grid grid-cols-2 lg:grid-cols-4 gap-4 max-w-4xl mx-auto">
+        <div class="stat-case rounded-2xl bg-white border border-slate-200 shadow-sm p-5">
+          <svg class="stat-ico w-6 h-6 text-primary-600 mb-2" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4l2.5 2.5M9 2h6"/></svg>
+          <p class="text-2xl md:text-3xl font-extrabold text-slate-900"><span data-count="15" data-suffix=" s">15&nbsp;s</span></p>
+          <p class="text-slate-500 text-sm mt-1">Pour analyser votre facture</p>
+        </div>
+        <div class="stat-case rounded-2xl bg-white border border-slate-200 shadow-sm p-5">
+          <svg class="stat-ico w-6 h-6 text-primary-600 mb-2" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12h4l3 8 4-16 3 8h4"/></svg>
+          <p class="text-2xl md:text-3xl font-extrabold text-slate-900"><span data-count="30" data-suffix="+">30+</span></p>
+          <p class="text-slate-500 text-sm mt-1">Fournisseurs comparés</p>
+        </div>
+        <div class="stat-case rounded-2xl bg-white border border-slate-200 shadow-sm p-5">
+          <svg class="stat-ico w-6 h-6 text-primary-600 mb-2" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path stroke-linecap="round" stroke-linejoin="round" d="M14.5 9.5c-.8-.8-3.5-1.3-4.5.5-.7 1.3.5 2 2 2.2 1.5.2 2.7.9 2 2.3-1 1.8-3.7 1.3-4.5.5M12 7v1.5M12 15.5V17"/></svg>
+          <p class="text-2xl md:text-3xl font-extrabold text-slate-900">Sans frais</p>
+          <p class="text-slate-500 text-sm mt-1">Payé par les fournisseurs</p>
+        </div>
+        <div class="stat-case rounded-2xl bg-white border border-slate-200 shadow-sm p-5">
+          <svg class="stat-ico w-6 h-6 text-primary-600 mb-2" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          <p class="text-2xl md:text-3xl font-extrabold text-slate-900">Immédiat</p>
+          <p class="text-slate-500 text-sm mt-1">Votre résultat en direct</p>
         </div>
       </div>
-    </div>
-  </section>
-
-  <!-- Stats mobile -->
-  <section class="md:hidden bg-gradient-to-r from-primary-700 to-secondary-700 text-white">
-    <div class="container py-8 grid grid-cols-2 gap-4">
-      <div class="text-center"><p class="text-2xl font-extrabold">15&nbsp;s</p><p class="text-white/85 text-xs mt-0.5">Pour analyser votre facture</p></div>
-      <div class="text-center"><p class="text-2xl font-extrabold">30+</p><p class="text-white/85 text-xs mt-0.5">Fournisseurs comparés</p></div>
-      <div class="text-center"><p class="text-2xl font-extrabold">Sans frais</p><p class="text-white/85 text-xs mt-0.5">Payé par les fournisseurs</p></div>
-      <div class="text-center"><p class="text-2xl font-extrabold">Immédiat</p><p class="text-white/85 text-xs mt-0.5">Votre résultat en direct</p></div>
     </div>
   </section>
 
@@ -454,7 +439,7 @@
       <div data-reveal class="text-center max-w-2xl mx-auto mb-14">
         <span class="inline-block rounded-full bg-secondary-100 text-secondary-700 text-xs font-semibold uppercase tracking-widest px-3 py-1 mb-3">Notre méthode</span>
         <h2 class="text-3xl md:text-4xl font-extrabold text-slate-900">Comment ça se passe, concrètement</h2>
-        <p class="mt-3 text-slate-500">Cinq étapes — et la plupart du temps, vous n'avez qu'à nous transmettre une facture. On s'occupe du reste.</p>
+        <p class="mt-3 text-slate-500">Cinq étapes, et on s'occupe de tout. Vous n'avez qu'à nous transmettre une facture.</p>
       </div>
       <div data-reveal style="--rd:100ms" class="relative">
         <div class="hidden lg:block absolute top-10 left-[calc(10%+2.5rem)] right-[calc(10%+2.5rem)] h-px bg-gradient-to-r from-primary-200 via-secondary-200 to-primary-200"></div>
@@ -464,35 +449,35 @@
               <svg class="w-8 h-8 text-primary-600" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
               <span class="absolute -top-2.5 -right-2.5 size-6 rounded-full bg-primary-600 text-white text-xs font-bold grid place-items-center">1</span>
             </div>
-            <div><h3 class="font-bold text-slate-900">On lit vos factures</h3><p class="text-sm text-slate-500 mt-1">Vous nous en envoyez une, on l'épluche : prix du kWh, abonnement, taxes, puissance. On repère où ça coince.</p></div>
+            <div><h3 class="font-bold text-slate-900">Scan de votre facture</h3><p class="text-sm text-slate-500 mt-1">15 secondes, une photo suffit.</p></div>
           </div>
           <div class="flex flex-col items-center text-center gap-4">
             <div class="relative z-10 size-20 rounded-2xl bg-white border-2 border-secondary-200 grid place-items-center shadow-soft">
               <svg class="w-8 h-8 text-secondary-600" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"/></svg>
               <span class="absolute -top-2.5 -right-2.5 size-6 rounded-full bg-secondary-600 text-white text-xs font-bold grid place-items-center">2</span>
             </div>
-            <div><h3 class="font-bold text-slate-900">On fait jouer la concurrence</h3><p class="text-sm text-slate-500 mt-1">On met 30+ fournisseurs face à face et on négocie le meilleur tarif pour votre profil de conso.</p></div>
+            <div><h3 class="font-bold text-slate-900">Mise en concurrence</h3><p class="text-sm text-slate-500 mt-1">30+ fournisseurs comparés en direct.</p></div>
           </div>
           <div class="flex flex-col items-center text-center gap-4">
             <div class="relative z-10 size-20 rounded-2xl bg-white border-2 border-primary-200 grid place-items-center shadow-soft">
               <svg class="w-8 h-8 text-primary-600" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
               <span class="absolute -top-2.5 -right-2.5 size-6 rounded-full bg-primary-600 text-white text-xs font-bold grid place-items-center">3</span>
             </div>
-            <div><h3 class="font-bold text-slate-900">On vous montre tout</h3><p class="text-sm text-slate-500 mt-1">Un comparatif clair, sans jargon. Vous voyez noir sur blanc ce que ça change pour vous.</p></div>
+            <div><h3 class="font-bold text-slate-900">Bilan comparatif</h3><p class="text-sm text-slate-500 mt-1">Clair, chiffré, sans jargon.</p></div>
           </div>
           <div class="flex flex-col items-center text-center gap-4">
             <div class="relative z-10 size-20 rounded-2xl bg-white border-2 border-secondary-200 grid place-items-center shadow-soft">
               <svg class="w-8 h-8 text-secondary-600" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
               <span class="absolute -top-2.5 -right-2.5 size-6 rounded-full bg-secondary-600 text-white text-xs font-bold grid place-items-center">4</span>
             </div>
-            <div><h3 class="font-bold text-slate-900">On gère la bascule</h3><p class="text-sm text-slate-500 mt-1">Vous signez, on s'occupe du reste : résiliation, changement de fournisseur, paperasse.</p></div>
+            <div><h3 class="font-bold text-slate-900">Zéro administratif</h3><p class="text-sm text-slate-500 mt-1">Aucune démarche de votre côté.</p></div>
           </div>
           <div class="flex flex-col items-center text-center gap-4">
             <div class="relative z-10 size-20 rounded-2xl bg-white border-2 border-primary-200 grid place-items-center shadow-soft">
               <svg class="w-8 h-8 text-primary-600" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
               <span class="absolute -top-2.5 -right-2.5 size-6 rounded-full bg-primary-600 text-white text-xs font-bold grid place-items-center">5</span>
             </div>
-            <div><h3 class="font-bold text-slate-900">On optimise en continu</h3><p class="text-sm text-slate-500 mt-1">On surveille vos factures et le marché toute l'année. Dès qu'un meilleur tarif sort, on vous le signale.</p></div>
+            <div><h3 class="font-bold text-slate-900">Suivi dans le temps</h3><p class="text-sm text-slate-500 mt-1">On veille, on vous alerte si mieux sort.</p></div>
           </div>
         </div>
       </div>
@@ -1114,6 +1099,25 @@
         ents.forEach(en => { if (en.isIntersecting) { run(en.target); io.unobserve(en.target); } });
       }, { threshold: 0.5 });
       nums.forEach(n => io.observe(n));
+    })();
+
+    // ===== Hero : mot qui défile =====
+    (function () {
+      var el = document.getElementById('rotator');
+      if (!el) return;
+      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      var words = ['trop chères', 'pas optimisées', 'sur-dimensionnées', 'pas protégées'];
+      var i = 0;
+      setInterval(function () {
+        el.style.opacity = '0';
+        el.style.transform = 'translateY(-8px)';
+        setTimeout(function () {
+          i = (i + 1) % words.length;
+          el.textContent = words[i];
+          el.style.opacity = '1';
+          el.style.transform = 'none';
+        }, 250);
+      }, 1600);
     })();
 
   </script>
