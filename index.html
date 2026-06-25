@@ -190,22 +190,17 @@
     .hscroll{display:flex;gap:1.25rem;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:none;-ms-overflow-style:none;padding:.25rem .25rem 1rem}
     .hscroll::-webkit-scrollbar{display:none}
     .hscroll>*{scroll-snap-align:start;flex:0 0 320px;max-width:84vw}
-    /* Cube 3D secteurs */
-    .cube-stage{--cs:300px;width:var(--cs);height:var(--cs);margin:0 auto;perspective:1100px}
-    @media(max-width:640px){.cube-stage{--cs:240px}}
-    .cube{position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform 1.1s cubic-bezier(.7,0,.2,1)}
-    .cube-face{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.7rem;text-align:center;padding:1.5rem;border-radius:1.25rem;background:linear-gradient(160deg,#ffffff,#eef2f6);border:1px solid #e2e8f0;box-shadow:0 24px 55px rgba(2,6,12,.14);backface-visibility:hidden;-webkit-backface-visibility:hidden;text-decoration:none}
-    .cube-face h3{font-weight:800;color:#0f172a;font-size:1.05rem;line-height:1.2}
-    .cube-face .ci{width:56px;height:56px;border-radius:16px;background:#ecfdf5;color:#0e8a57;display:grid;place-items:center}
-    .cube-face .cgo{font-size:.78rem;font-weight:700;color:#0b6c45;display:inline-flex;align-items:center;gap:.3rem}
-    .cube-face:hover{border-color:#34d399}
-    .f-front{transform:translateZ(calc(var(--cs)/2))}
-    .f-back{transform:rotateY(180deg) translateZ(calc(var(--cs)/2))}
-    .f-right{transform:rotateY(90deg) translateZ(calc(var(--cs)/2))}
-    .f-left{transform:rotateY(-90deg) translateZ(calc(var(--cs)/2))}
-    .f-top{transform:rotateX(90deg) translateZ(calc(var(--cs)/2))}
-    .f-bottom{transform:rotateX(-90deg) translateZ(calc(var(--cs)/2))}
-    @media (prefers-reduced-motion: reduce){.cube{transition:none}}
+    /* Carte secteurs (image + pins) */
+    .secteur-map{position:relative;border-radius:1.25rem;overflow:hidden;box-shadow:0 20px 50px rgba(2,6,12,.12)}
+    .secteur-map>img{display:block;width:100%}
+    .map-pin{position:absolute;transform:translate(-50%,-100%);display:grid;place-items:center;width:42px;height:42px;border-radius:9999px;background:#0e8a57;color:#fff;border:3px solid #fff;box-shadow:0 6px 16px rgba(2,6,12,.35);transition:transform .2s ease,background .2s ease;z-index:2}
+    .map-pin svg{width:20px;height:20px}
+    .map-pin::after{content:"";position:absolute;bottom:-7px;left:50%;transform:translateX(-50%);border-left:7px solid transparent;border-right:7px solid transparent;border-top:9px solid #0e8a57}
+    .map-pin:hover,.map-pin:focus-visible{background:#0b6c45;transform:translate(-50%,-100%) scale(1.14);z-index:6;outline:none}
+    .map-pin:hover::after,.map-pin:focus-visible::after{border-top-color:#0b6c45}
+    .pin-label{position:absolute;bottom:130%;left:50%;transform:translateX(-50%);white-space:nowrap;background:#0f172a;color:#fff;font-size:.72rem;font-weight:600;padding:.25rem .6rem;border-radius:9999px;opacity:0;pointer-events:none;transition:opacity .2s}
+    .map-pin:hover .pin-label,.map-pin:focus-visible .pin-label{opacity:1}
+    @media(max-width:640px){.map-pin{width:30px;height:30px;border-width:2px}.map-pin svg{width:14px;height:14px}}
     /* Voile de contraste sur le hero (lisibilité du texte blanc, surtout zone bleutée) */
     .hero-scrim{background:linear-gradient(100deg,rgba(4,28,20,.55) 0%,rgba(6,26,34,.18) 48%,rgba(8,32,64,.55) 100%)}
     @media (prefers-reduced-motion: reduce){
@@ -414,59 +409,26 @@
     <div class="container">
       <h2 data-reveal class="text-2xl md:text-3xl font-bold text-center mb-3 text-slate-900">On connaît les contraintes de votre métier</h2>
       <p data-reveal style="--rd:80ms" class="text-center text-slate-600 mb-10 max-w-2xl mx-auto">Une chambre froide, un hôtel à moitié vide l'hiver, 80 compteurs de copropriété : chaque secteur a ses contraintes. On les connaît.</p>
-      <div class="grid md:grid-cols-3 gap-6">
-        <a href="/restauration.html" data-reveal style="--rd:0ms" class="group lift rounded-2xl border border-slate-200 bg-white shadow-sm p-6 hover:border-primary-400 hover:shadow-soft transition-all">
-          <div class="size-12 rounded-xl bg-slate-100 text-primary-700 grid place-items-center mb-4">
-            <svg viewBox="0 0 24 24" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg>
-          </div>
-          <h3 class="font-semibold text-slate-900 mb-2 group-hover:text-primary-700">Restauration CHR</h3>
-          <p class="text-sm text-slate-600">Fours, frigos, chambres froides qui tournent en continu : on cale le contrat sur votre vrai rythme et votre puissance souscrite.</p>
-          <span class="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-primary-700 bg-primary-50 rounded-full px-3.5 py-1.5">En savoir plus <span class="icon-go">→</span></span>
-        </a>
-        <a href="/hotellerie.html" data-reveal style="--rd:60ms" class="group lift rounded-2xl border border-slate-200 bg-white shadow-sm p-6 hover:border-primary-400 hover:shadow-soft transition-all">
-          <div class="size-12 rounded-xl bg-slate-100 text-primary-700 grid place-items-center mb-4">
-            <svg viewBox="0 0 24 24" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
-          </div>
-          <h3 class="font-semibold text-slate-900 mb-2 group-hover:text-primary-700">Hôtellerie</h3>
-          <p class="text-sm text-slate-600">Multi-compteurs, saisons creuses, climatisation : autant de postes où il y a souvent beaucoup à récupérer.</p>
-          <span class="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-primary-700 bg-primary-50 rounded-full px-3.5 py-1.5">En savoir plus <span class="icon-go">→</span></span>
-        </a>
-        <a href="/syndics.html" data-reveal style="--rd:120ms" class="group lift rounded-2xl border border-slate-200 bg-white shadow-sm p-6 hover:border-primary-400 hover:shadow-soft transition-all">
-          <div class="size-12 rounded-xl bg-slate-100 text-primary-700 grid place-items-center mb-4">
-            <svg viewBox="0 0 24 24" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
-          </div>
-          <h3 class="font-semibold text-slate-900 mb-2 group-hover:text-primary-700">Syndics & Copropriétés</h3>
-          <p class="text-sm text-slate-600">Un syndic, c'est vite 40 à 120 contrats. On allège les charges des parties communes, sans passer par un vote en AG.</p>
-          <span class="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-primary-700 bg-primary-50 rounded-full px-3.5 py-1.5">En savoir plus <span class="icon-go">→</span></span>
-        </a>
-        <a href="/sante.html" data-reveal style="--rd:180ms" class="group lift rounded-2xl border border-slate-200 bg-white shadow-sm p-6 hover:border-primary-400 hover:shadow-soft transition-all">
-          <div class="size-12 rounded-xl bg-slate-100 text-primary-700 grid place-items-center mb-4">
-            <svg viewBox="0 0 24 24" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-          </div>
-          <h3 class="font-semibold text-slate-900 mb-2 group-hover:text-primary-700">Santé & EHPAD</h3>
-          <p class="text-sm text-slate-600">Décret tertiaire, fonctionnement 24h/24 : un interlocuteur qui comprend les établissements médico-sociaux.</p>
-          <span class="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-primary-700 bg-primary-50 rounded-full px-3.5 py-1.5">En savoir plus <span class="icon-go">→</span></span>
-        </a>
-        <a href="/collectivites.html" data-reveal style="--rd:240ms" class="group lift rounded-2xl border border-slate-200 bg-white shadow-sm p-6 hover:border-primary-400 hover:shadow-soft transition-all">
-          <div class="size-12 rounded-xl bg-slate-100 text-primary-700 grid place-items-center mb-4">
-            <svg viewBox="0 0 24 24" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22V12m0 0L4 6m8 6l8-6M4 6V4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2"/></svg>
-          </div>
-          <h3 class="font-semibold text-slate-900 mb-2 group-hover:text-primary-700">Collectivités & HLM</h3>
-          <p class="text-sm text-slate-600">Appels d'offres conformes, groupements de commandes, décret tertiaire : pour les mairies et les offices HLM.</p>
-          <span class="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-primary-700 bg-primary-50 rounded-full px-3.5 py-1.5">En savoir plus <span class="icon-go">→</span></span>
-        </a>
-        <a href="/industrie.html" data-reveal style="--rd:300ms" class="group lift rounded-2xl border border-slate-200 bg-white shadow-sm p-6 hover:border-primary-400 hover:shadow-soft transition-all">
-          <div class="size-12 rounded-xl bg-slate-100 text-primary-700 grid place-items-center mb-4">
-            <svg viewBox="0 0 24 24" class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/><line x1="12" y1="12" x2="12" y2="16"/><line x1="10" y1="14" x2="14" y2="14"/></svg>
-          </div>
-          <h3 class="font-semibold text-slate-900 mb-2 group-hover:text-primary-700">Industrie & Entrepôts</h3>
-          <p class="text-sm text-slate-600">Tarif HTA, effacement, puissance souscrite : c'est là que se cachent les plus gros gisements d'économies.</p>
-          <span class="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-primary-700 bg-primary-50 rounded-full px-3.5 py-1.5">En savoir plus <span class="icon-go">→</span></span>
-        </a>
+      <div data-reveal class="max-w-4xl mx-auto">
+        <div class="secteur-map">
+          <img src="/assets/images/secteurs-map.webp" alt="Quartier illustrant les secteurs accompagnés par Elga Energy" loading="lazy">
+        <a href="/industrie.html" class="map-pin" style="left:30%;top:27%" aria-label="Industrie & Entrepôts"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg><span class="pin-label">Industrie & Entrepôts</span></a>
+        <a href="/syndics.html" class="map-pin" style="left:53%;top:34%" aria-label="Syndics & Copropriétés"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 21v-6h6v6"/></svg><span class="pin-label">Syndics & Copropriétés</span></a>
+        <a href="/sante.html" class="map-pin" style="left:72%;top:23%" aria-label="Santé & EHPAD"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg><span class="pin-label">Santé & EHPAD</span></a>
+        <a href="/restauration.html" class="map-pin" style="left:22%;top:61%" aria-label="Restauration CHR"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 11l19-9-9 19-2-8-8-2z"/></svg><span class="pin-label">Restauration CHR</span></a>
+        <a href="/hotellerie.html" class="map-pin" style="left:46%;top:60%" aria-label="Hôtellerie"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span class="pin-label">Hôtellerie</span></a>
+        <a href="/collectivites.html" class="map-pin" style="left:64%;top:46%" aria-label="Collectivités & HLM"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 22V12m0 0L4 6m8 6l8-6M4 6V4a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v2"/></svg><span class="pin-label">Collectivités & HLM</span></a>
+        </div>
       </div>
-      <div class="mt-6 flex flex-wrap gap-3 justify-center">
-        <a href="/immobilier.html" class="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-primary-600 border border-slate-200 hover:border-primary-300 rounded-full px-4 py-1.5 transition-colors"><svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.9" viewBox="0 0 24 24"><rect x="4" y="3" width="16" height="18" rx="1"/><path d="M9 7h.01M15 7h.01M9 11h.01M15 11h.01M10 21v-4h4v4"/></svg> Immobilier tertiaire</a>
-        <a href="/transport.html" class="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-primary-600 border border-slate-200 hover:border-primary-300 rounded-full px-4 py-1.5 transition-colors"><svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="1.9" viewBox="0 0 24 24"><path d="M3 6h11v9H3zM14 9h4l3 3v3h-7z"/><circle cx="7" cy="18" r="1.6"/><circle cx="17" cy="18" r="1.6"/></svg> Transport &amp; Garages</a>
+      <div data-reveal class="mt-7 flex flex-wrap gap-2.5 justify-center max-w-3xl mx-auto">
+        <a href="/restauration.html" class="inline-flex items-center text-sm text-slate-600 hover:text-primary-700 border border-slate-200 hover:border-primary-300 rounded-full px-3.5 py-1.5 transition-colors">Restauration CHR</a>
+        <a href="/hotellerie.html" class="inline-flex items-center text-sm text-slate-600 hover:text-primary-700 border border-slate-200 hover:border-primary-300 rounded-full px-3.5 py-1.5 transition-colors">Hôtellerie</a>
+        <a href="/syndics.html" class="inline-flex items-center text-sm text-slate-600 hover:text-primary-700 border border-slate-200 hover:border-primary-300 rounded-full px-3.5 py-1.5 transition-colors">Syndics & Copropriétés</a>
+        <a href="/sante.html" class="inline-flex items-center text-sm text-slate-600 hover:text-primary-700 border border-slate-200 hover:border-primary-300 rounded-full px-3.5 py-1.5 transition-colors">Santé & EHPAD</a>
+        <a href="/collectivites.html" class="inline-flex items-center text-sm text-slate-600 hover:text-primary-700 border border-slate-200 hover:border-primary-300 rounded-full px-3.5 py-1.5 transition-colors">Collectivités & HLM</a>
+        <a href="/industrie.html" class="inline-flex items-center text-sm text-slate-600 hover:text-primary-700 border border-slate-200 hover:border-primary-300 rounded-full px-3.5 py-1.5 transition-colors">Industrie & Entrepôts</a>
+        <a href="/immobilier.html" class="inline-flex items-center text-sm text-slate-600 hover:text-primary-700 border border-slate-200 hover:border-primary-300 rounded-full px-3.5 py-1.5 transition-colors">Immobilier tertiaire</a>
+        <a href="/transport.html" class="inline-flex items-center text-sm text-slate-600 hover:text-primary-700 border border-slate-200 hover:border-primary-300 rounded-full px-3.5 py-1.5 transition-colors">Transport & Garages</a>
       </div>
     </div>
   </section>
@@ -986,19 +948,6 @@
         ents.forEach(en => { if (en.isIntersecting) { run(en.target); io.unobserve(en.target); } });
       }, { threshold: 0.5 });
       nums.forEach(n => io.observe(n));
-    })();
-
-    // ===== Cube 3D secteurs =====
-    (function () {
-      var cube = document.getElementById('cube');
-      if (!cube) return;
-      if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-      var rots = ['rotateY(0deg)', 'rotateY(-90deg)', 'rotateY(-180deg)', 'rotateY(90deg)', 'rotateX(-90deg)', 'rotateX(90deg)'];
-      var i = 0, paused = false;
-      var stage = cube.parentElement;
-      stage.addEventListener('mouseenter', function () { paused = true; });
-      stage.addEventListener('mouseleave', function () { paused = false; });
-      setInterval(function () { if (paused) return; i = (i + 1) % rots.length; cube.style.transform = rots[i]; }, 3000);
     })();
 
     // ===== Hero : mot qui défile =====
