@@ -212,12 +212,23 @@
     .pin-label{position:absolute;bottom:130%;left:50%;transform:translateX(-50%);white-space:nowrap;background:#0f172a;color:#fff;font-size:.72rem;font-weight:600;padding:.25rem .6rem;border-radius:9999px;opacity:0;pointer-events:none;transition:opacity .2s}
     .map-pin:hover .pin-label,.map-pin:focus-visible .pin-label{opacity:1}
     @media(max-width:640px){.map-pin{width:30px;height:30px;border-width:2px}.map-pin svg{width:14px;height:14px}}
+    /* Affordance "cliquable" : anneau vert qui pulse autour des pins + pastille d'aide */
+    .map-pin{animation:pinPulse 2.4s ease-out infinite}
+    .map-pin:nth-child(even){animation-delay:1.2s}
+    @keyframes pinPulse{
+      0%{box-shadow:0 6px 16px rgba(2,6,12,.35),0 0 0 0 rgba(14,138,87,.5)}
+      70%{box-shadow:0 6px 16px rgba(2,6,12,.35),0 0 0 13px rgba(14,138,87,0)}
+      100%{box-shadow:0 6px 16px rgba(2,6,12,.35),0 0 0 0 rgba(14,138,87,0)}
+    }
+    .map-pin:hover,.map-pin:focus-visible{animation:none}
+    .map-hint{position:absolute;top:10px;left:10px;z-index:7;display:inline-flex;align-items:center;gap:.35rem;background:rgba(255,255,255,.95);color:#0b6c45;font-size:.72rem;font-weight:600;border:1px solid #a7f3d0;border-radius:9999px;padding:.3rem .7rem;box-shadow:0 4px 12px rgba(2,6,12,.14);backdrop-filter:blur(4px)}
     /* Voile de contraste sur le hero (lisibilité du texte blanc, surtout zone bleutée) */
     .hero-scrim{background:linear-gradient(100deg,rgba(4,28,20,.55) 0%,rgba(6,26,34,.18) 48%,rgba(8,32,64,.55) 100%)}
     @media (prefers-reduced-motion: reduce){
       .js [data-reveal]{opacity:1!important;transform:none!important;transition:none!important}
       .text-sweep,.sweep-ink{animation:none!important;background-position:0 center}
       .logos-track{animation:none!important}
+      .map-pin{animation:none!important}
       .rotator{transition:none!important}
       .ul-pen::after{animation:none!important;transform:scaleX(1)}
       .reveal-load{animation:none!important}
@@ -304,11 +315,6 @@
           <img src="/assets/logos/elga-energy-logo.svg" alt="Elga Energy" class="h-28 sm:h-36 md:h-44 w-auto mx-auto" loading="eager">
           <p class="mt-2 text-sm md:text-base font-medium tracking-wide text-slate-500">Votre énergie, notre expertise — ensemble, économisons demain.</p>
         </div>
-        <div style="--rd:80ms" class="reveal-load inline-flex flex-wrap items-center justify-center gap-x-2 gap-y-1 rounded-full bg-white border border-slate-200 shadow-sm px-4 py-1.5 text-sm font-medium text-slate-600">
-          <span class="inline-flex items-center gap-2"><span class="size-2 rounded-full bg-primary-500 animate-pulse shrink-0"></span>Courtier en énergie indépendant</span>
-          <span class="hidden sm:inline text-slate-300" aria-hidden="true">·</span>
-          <strong class="inline-flex items-center gap-1 font-semibold text-slate-800"><svg class="w-4 h-4 shrink-0 text-primary-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M12 21s-6-5.3-6-10a6 6 0 1112 0c0 4.7-6 10-6 10z"/><circle cx="12" cy="11" r="2"/></svg>Toulouse</strong>
-        </div>
         <h1 style="--rd:90ms" class="reveal-load text-3xl sm:text-4xl md:text-5xl font-extrabold leading-tight tracking-tight text-slate-900">
           Vos factures d'énergie sont <span class="rotator sweep-ink" id="rotator">trop chères</span>&nbsp;?
         </h1>
@@ -326,25 +332,25 @@
         </p>
       </div>
       <!-- En bref (sous le hero) -->
-      <div data-reveal class="mt-14 grid grid-cols-2 lg:grid-cols-4 gap-4 max-w-4xl mx-auto">
-        <div class="stat-case rounded-2xl bg-white border border-slate-200 shadow-sm p-5">
+      <div data-reveal class="mt-8 sm:mt-14 grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 max-w-4xl mx-auto">
+        <div class="stat-case rounded-2xl bg-white border border-slate-200 shadow-sm p-4 sm:p-5">
           <svg class="stat-ico w-6 h-6 text-primary-600 mb-2" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4l2.5 2.5M9 2h6"/></svg>
-          <p class="text-2xl md:text-3xl font-extrabold text-slate-900"><span data-count="15" data-suffix=" s">15&nbsp;s</span></p>
+          <p class="text-xl sm:text-2xl md:text-3xl font-extrabold text-slate-900"><span data-count="15" data-suffix=" s">15&nbsp;s</span></p>
           <p class="text-slate-500 text-sm mt-1">Pour analyser votre facture</p>
         </div>
-        <div class="stat-case rounded-2xl bg-white border border-slate-200 shadow-sm p-5">
+        <div class="stat-case rounded-2xl bg-white border border-slate-200 shadow-sm p-4 sm:p-5">
           <svg class="stat-ico w-6 h-6 text-primary-600 mb-2" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 12h4l3 8 4-16 3 8h4"/></svg>
-          <p class="text-2xl md:text-3xl font-extrabold text-slate-900"><span data-count="30" data-suffix="+">30+</span></p>
+          <p class="text-xl sm:text-2xl md:text-3xl font-extrabold text-slate-900"><span data-count="30" data-suffix="+">30+</span></p>
           <p class="text-slate-500 text-sm mt-1">Fournisseurs comparés</p>
         </div>
-        <div class="stat-case rounded-2xl bg-white border border-slate-200 shadow-sm p-5">
+        <div class="stat-case rounded-2xl bg-white border border-slate-200 shadow-sm p-4 sm:p-5">
           <svg class="stat-ico w-6 h-6 text-primary-600 mb-2" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path stroke-linecap="round" stroke-linejoin="round" d="M14.5 9.5c-.8-.8-3.5-1.3-4.5.5-.7 1.3.5 2 2 2.2 1.5.2 2.7.9 2 2.3-1 1.8-3.7 1.3-4.5.5M12 7v1.5M12 15.5V17"/></svg>
-          <p class="text-2xl md:text-3xl font-extrabold text-slate-900">Sans frais</p>
+          <p class="text-xl sm:text-2xl md:text-3xl font-extrabold text-slate-900">Sans frais</p>
           <p class="text-slate-500 text-sm mt-1">Payé par les fournisseurs</p>
         </div>
-        <div class="stat-case rounded-2xl bg-white border border-slate-200 shadow-sm p-5">
+        <div class="stat-case rounded-2xl bg-white border border-slate-200 shadow-sm p-4 sm:p-5">
           <svg class="stat-ico w-6 h-6 text-primary-600 mb-2" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
-          <p class="text-2xl md:text-3xl font-extrabold text-slate-900">Immédiat</p>
+          <p class="text-xl sm:text-2xl md:text-3xl font-extrabold text-slate-900">Immédiat</p>
           <p class="text-slate-500 text-sm mt-1">Votre résultat en direct</p>
         </div>
       </div>
@@ -356,7 +362,7 @@
     <div class="container">
       <div data-reveal class="text-center mb-8">
         <p class="text-slate-400 text-xs font-semibold uppercase tracking-widest mb-2">Réseau de fournisseurs</p>
-        <h2 class="text-2xl md:text-3xl font-bold text-slate-900">Nous mettons les grands fournisseurs en concurrence</h2>
+        <h2 class="text-2xl md:text-3xl font-bold text-slate-900">Nous mettons les fournisseurs en concurrence</h2>
       </div>
       <div data-reveal class="logos-marquee">
         <div class="logos-track"><img src="/assets/fournisseurs/totalenergies.svg" alt="TotalEnergies" loading="lazy"><img src="/assets/fournisseurs/eni.svg" alt="Eni" loading="lazy"><img src="/assets/fournisseurs/vattenfall.svg" alt="Vattenfall" loading="lazy"><img src="/assets/fournisseurs/edf.svg" alt="EDF" loading="lazy"><img src="/assets/fournisseurs/engie.svg" alt="Engie" loading="lazy"><img src="/assets/fournisseurs/endesa-grupo.svg" alt="Endesa" loading="lazy"><img src="/assets/fournisseurs/alpiq.png" alt="Alpiq" loading="lazy"><img src="/assets/fournisseurs/alterna.png" alt="Alterna Énergie" loading="lazy"><img src="/assets/fournisseurs/enovos.webp" alt="Enovos" loading="lazy"><img src="/assets/fournisseurs/geg.png" alt="GEG" loading="lazy"><img src="/assets/fournisseurs/energem.png" alt="Énergem" loading="lazy"><img src="/assets/fournisseurs/primeo.png" alt="Primeo Énergie" loading="lazy"><img src="/assets/fournisseurs/dyneff.png" alt="Dyneff" loading="lazy"><img src="/assets/fournisseurs/ilek.png" alt="ilek" loading="lazy"><img src="/assets/fournisseurs/ohm.png" alt="OHM Énergie" loading="lazy"><img src="/assets/fournisseurs/totalenergies.svg" alt="TotalEnergies" loading="lazy"><img src="/assets/fournisseurs/eni.svg" alt="Eni" loading="lazy"><img src="/assets/fournisseurs/vattenfall.svg" alt="Vattenfall" loading="lazy"><img src="/assets/fournisseurs/edf.svg" alt="EDF" loading="lazy"><img src="/assets/fournisseurs/engie.svg" alt="Engie" loading="lazy"><img src="/assets/fournisseurs/endesa-grupo.svg" alt="Endesa" loading="lazy"><img src="/assets/fournisseurs/alpiq.png" alt="Alpiq" loading="lazy"><img src="/assets/fournisseurs/alterna.png" alt="Alterna Énergie" loading="lazy"><img src="/assets/fournisseurs/enovos.webp" alt="Enovos" loading="lazy"><img src="/assets/fournisseurs/geg.png" alt="GEG" loading="lazy"><img src="/assets/fournisseurs/energem.png" alt="Énergem" loading="lazy"><img src="/assets/fournisseurs/primeo.png" alt="Primeo Énergie" loading="lazy"><img src="/assets/fournisseurs/dyneff.png" alt="Dyneff" loading="lazy"><img src="/assets/fournisseurs/ilek.png" alt="ilek" loading="lazy"><img src="/assets/fournisseurs/ohm.png" alt="OHM Énergie" loading="lazy"></div>
@@ -467,6 +473,7 @@
       <div data-reveal class="max-w-4xl mx-auto">
         <div class="secteur-map">
           <img src="/assets/images/secteurs-map.webp" alt="Quartier illustrant les secteurs accompagnés par Elga Energy" loading="lazy">
+          <span class="map-hint" aria-hidden="true"><svg viewBox="0 0 24 24" fill="currentColor" width="13" height="13"><path d="M5 3l13 6.6-5.5 1.6L10 17z"/></svg>Cliquez sur un bâtiment</span>
         <a href="/industrie.html" class="map-pin" style="left:30%;top:27%" aria-label="Industrie & Entrepôts"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg><span class="pin-label">Industrie & Entrepôts</span></a>
         <a href="/syndics.html" class="map-pin" style="left:53%;top:34%" aria-label="Syndics & Copropriétés"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 21v-6h6v6"/></svg><span class="pin-label">Syndics & Copropriétés</span></a>
         <a href="/sante.html" class="map-pin" style="left:72%;top:23%" aria-label="Santé & EHPAD"><svg fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg><span class="pin-label">Santé & EHPAD</span></a>
