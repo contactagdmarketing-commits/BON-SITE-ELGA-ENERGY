@@ -62,6 +62,7 @@
     /* Cartes résultat qui réagissent au survol (lift premium) */
     .lever-in,.lift-card{transition:transform .3s cubic-bezier(.16,1,.3,1),box-shadow .3s ease}
     .lever-in:hover,.lift-card:hover{transform:translateY(-3px);box-shadow:0 18px 38px -16px rgba(2,6,12,.28)}
+    .lever-focus{box-shadow:0 0 0 2px #0e8a57,0 18px 38px -16px rgba(14,138,87,.3)}
     @media (prefers-reduced-motion: reduce){
       .reveal-medallion,.scan-line,.scan-glow{animation:none!important}
       .scan-line{opacity:.5;top:44px}
@@ -470,7 +471,7 @@
     <!-- Carte CAR : pourquoi ×12 ≠ budget réel -->
     <div class="result-card bg-amber-50 border border-amber-200 rounded-2xl p-5 space-y-3" style="animation-delay:.3s">
       <div class="flex items-start gap-3">
-        <span class="text-xl shrink-0 mt-0.5">📐</span>
+        <svg class="w-6 h-6 text-amber-600 shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3v18h18M8 17V10m4 7V6m4 11v-5"/></svg>
         <div>
           <p class="text-sm font-bold text-amber-900">Pourquoi votre budget annuel réel est différent</p>
           <p class="text-xs text-amber-800 leading-relaxed mt-1.5">
@@ -480,7 +481,7 @@
             La <strong>Consommation Annuelle de Référence (CAR)</strong>, c'est vos 12 derniers mois de consommation réelle, tels qu'ils sont enregistrés par Enedis. C'est la seule base fiable pour calculer un vrai budget annuel et comparer les offres fournisseurs.
           </p>
           <div class="mt-3 bg-amber-100 rounded-lg px-3 py-2 text-xs font-semibold text-amber-900">
-            👉 Pour connaître votre vraie CAR et calculer vos économies réelles, cliquez sur le bouton ci-dessous.
+            Pour connaître votre vraie CAR et calculer vos économies réelles, cliquez sur le bouton ci-dessous.
           </div>
         </div>
       </div>
@@ -488,7 +489,7 @@
 
     <!-- Bandeau urgence marché -->
     <div class="result-card bg-red-50 border border-red-200 rounded-xl p-4 flex items-start gap-3" style="animation-delay:.32s">
-      <span class="text-lg shrink-0 mt-0.5">⏱️</span>
+      <svg class="w-5 h-5 text-red-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4l2.5 2.5M9 2h6"/></svg>
       <div>
         <p class="text-sm font-bold text-red-800">Ces tarifs peuvent changer d'une semaine à l'autre</p>
         <p class="text-xs text-red-700 leading-relaxed mt-1">
@@ -530,7 +531,7 @@
       <div class="px-6 py-5 space-y-4">
         <!-- Explication Enedis -->
         <div class="bg-blue-50 border border-blue-100 rounded-xl p-4 space-y-3">
-          <p class="text-sm font-bold text-blue-900">🏛️ Enedis, c'est quoi exactement ?</p>
+          <p class="text-sm font-bold text-blue-900 flex items-center gap-2"><svg class="w-4 h-4 shrink-0 text-blue-700" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 21h18M5 21V8l7-4 7 4v13M9 21v-5h6v5"/></svg>Enedis, c'est quoi exactement ?</p>
           <p class="text-sm text-blue-800 leading-relaxed">Enedis est le gestionnaire unique du réseau de distribution électrique en France. Il conserve <strong>l'historique exact de vos 12 derniers mois de consommation</strong>, indépendamment de votre fournisseur.</p>
           <p class="text-sm text-blue-800 leading-relaxed">En récupérant ces données, nous pouvons calculer votre budget annuel réel (et non une extrapolation d'une seule facture) pour vous proposer le comparatif le plus précis du marché.</p>
         </div>
@@ -553,7 +554,7 @@
         </div>
 
         <div class="bg-primary-50 rounded-xl p-3 text-xs text-primary-800 font-medium text-center">
-          🔒 Vos données sont utilisées uniquement pour votre bilan. Aucune revente. Conformité RGPD.
+          <svg class="w-4 h-4 inline-block align-[-3px] mr-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path stroke-linecap="round" stroke-linejoin="round" d="M8 11V7a4 4 0 018 0v4"/></svg> Vos données sont utilisées uniquement pour votre bilan. Aucune revente. Conformité RGPD.
         </div>
       </div>
     </div>
@@ -889,54 +890,79 @@
     if (!box) return;
     var isGas = e.energy_type === 'gas';
     var consoMwh = e.annual_consumption_mwh || (e.annual_consumption_kwh ? e.annual_consumption_kwh / 1000 : null);
+    // Icônes SVG (clé -> path d) — fini les emojis
+    var ICONS = {
+      energie: 'M13 2L4.5 13.5H11l-1 8.5L18.5 10.5H12L13 2z',
+      abonnement: 'M6 3h12a1 1 0 011 1v17l-3-2-2 2-2-2-2 2-2-2-2 2V4a1 1 0 011-1zM8.5 8h7M8.5 12h7M8.5 16h4',
+      acheminement: 'M9 7V3M15 7V3M7 7h10v3a5 5 0 01-10 0V7zM12 15v6',
+      accise: 'M3 6h18v12H3zM12 9.5a2.5 2.5 0 100 5 2.5 2.5 0 000-5zM6 12h.01M18 12h.01'
+    };
     var L = [];
 
-    // 1. Énergie (kWh) — toujours
-    L.push({ icon: '⚡', color: 'primary', titre: "Prix de l'énergie (kWh)",
-      badge: (s && s.savings_pct) ? '≈ ' + s.savings_pct + '%' : 'à chiffrer',
-      desc: "Le prix au kWh, renégocié auprès de 30+ fournisseurs. Le plus gros levier, applicable à votre prochain renouvellement." });
+    // 1. Prix de l'énergie (kWh)
+    L.push({ icon: 'energie', color: 'primary', titre: "Prix de l'énergie (kWh)",
+      badge: (s && s.savings_pct) ? '\u2248 ' + s.savings_pct + '%' : 'à chiffrer',
+      desc: "Votre prix au kWh est comparé au prix moyen qu'Elga négocie auprès de 30+ fournisseurs à date. C'est le plus gros levier, applicable à votre prochain renouvellement de contrat." });
 
     // 2. Abonnement
     if (e.subscription_monthly_ht) {
-      L.push({ icon: '🧾', color: 'sky', titre: 'Abonnement', badge: formatEuro(e.subscription_monthly_ht) + '/mois',
-        desc: "La part fixe de votre facture, souvent optimisable selon l'offre et la puissance souscrite." });
+      L.push({ icon: 'abonnement', color: 'sky', titre: 'Abonnement', badge: formatEuro(e.subscription_monthly_ht) + '/mois',
+        desc: "Sur votre facture : " + formatEuro(e.subscription_monthly_ht) + "/mois de part fixe, soit " + formatEuro(Math.round(e.subscription_monthly_ht * 12)) + "/an. Souvent optimisable selon l'offre et la puissance souscrite." });
     }
 
     // 3. Acheminement & puissance (élec) — calcul TURPE 7 réel (part fixe €/kVA/an)
     if (!isGas && e.power_kva) {
-      // Barème TURPE 7 (Enedis, 01/08/2025) — part fixe soutirage C5 :
       var TURPE_KVA = (e.segment && /mu/i.test(e.segment)) ? 12.12 : 10.11; // HP/HC (MU4)=12,12 ; Base (CU4)=10,11
-      var badge = 'à vérifier';
-      var desc = 'Puissance souscrite : ' + e.power_kva + ' kVA. On vérifie qu\'elle est bien dimensionnée (1 kVA de trop = ' + TURPE_KVA.toFixed(2).replace('.', ',') + ' €/an de TURPE payé pour rien).';
+      var aBadge = 'à vérifier';
+      var aDesc = "Puissance souscrite : " + e.power_kva + " kVA. On vérifie qu'elle est bien dimensionnée (1 kVA de trop = " + TURPE_KVA.toFixed(2).replace('.', ',') + " €/an de TURPE payé pour rien).";
       if (consoMwh && consoMwh > 0) {
-        var heq = (consoMwh * 1000) / e.power_kva;   // heures équivalentes pleine puissance / an
+        var heq = (consoMwh * 1000) / e.power_kva; // heures équivalentes pleine puissance / an
         if (heq < 1000 && e.power_kva > 6 && e.power_kva <= 36) {
-          // Chiffrage € : valable en C5 (≤36 kVA), barème part-fixe TURPE 7 connu
           var cible = Math.max(6, e.power_kva - 3);
-          var eco = Math.round((e.power_kva - cible) * TURPE_KVA);
-          badge = '≈ ' + eco + ' €/an';
-          desc = 'Puissance de ' + e.power_kva + ' kVA pour ' + (Math.round(consoMwh * 10) / 10) + ' MWh/an : sans doute trop élevée. Exemple : passer de ' + e.power_kva + ' à ' + cible + ' kVA ≈ ' + eco + ' €/an d\'acheminement économisés (' + TURPE_KVA.toFixed(2).replace('.', ',') + ' €/kVA/an, barème TURPE 7). À ajuster selon votre puissance réellement atteinte (données Enedis).';
+          var ecoA = Math.round((e.power_kva - cible) * TURPE_KVA);
+          aBadge = '\u2248 ' + ecoA + ' €/an';
+          aDesc = "Puissance de " + e.power_kva + " kVA pour " + (Math.round(consoMwh * 10) / 10) + " MWh/an : sans doute trop élevée. Exemple : passer de " + e.power_kva + " à " + cible + " kVA \u2248 " + ecoA + " €/an d'acheminement économisés (" + TURPE_KVA.toFixed(2).replace('.', ',') + " €/kVA/an, barème TURPE 7 — CRE). À ajuster selon votre puissance réellement atteinte (données Enedis).";
+        } else if (heq < 1000 && e.power_kva > 36) {
+          aBadge = 'sur-dimensionnée ?';
+          aDesc = "Puissance de " + e.power_kva + " kVA pour " + (Math.round(consoMwh * 10) / 10) + " MWh/an : ratio faible, sans doute trop élevée. En tarif >36 kVA, l'économie se chiffre sur votre courbe de charge réelle (Enedis).";
+        } else if (heq > 4000) {
+          aBadge = 'bien dimensionnée';
+          aDesc = "Puissance de " + e.power_kva + " kVA bien utilisée. Peu de marge ici, on optimise les autres leviers.";
         }
-        else if (heq < 1000 && e.power_kva > 36) {   // C4/HTA : barème différent → qualitatif
-          badge = 'sur-dimensionnée ?';
-          desc = 'Puissance de ' + e.power_kva + ' kVA pour ' + (Math.round(consoMwh * 10) / 10) + ' MWh/an : ratio faible, la puissance semble trop élevée. En tarif >36 kVA, l\'économie d\'acheminement se chiffre sur votre courbe de charge réelle (Enedis).';
-        }
-        else if (heq > 4000) { badge = 'bien dimensionnée';
-          desc = 'Puissance de ' + e.power_kva + ' kVA bien utilisée. Peu de marge côté puissance, on optimise les autres leviers.'; }
       }
-      L.push({ icon: '🔌', color: 'amber', titre: 'Acheminement & puissance (TURPE)', badge: badge, desc: desc });
+      L.push({ icon: 'acheminement', color: 'amber', titre: 'Acheminement & puissance (TURPE)', badge: aBadge, desc: aDesc });
     }
 
-    // 4. Accise / taxe — selon la SECTION NAF (honnête : pas de faux levier pour le commerce/service)
+    // 4. Accise / taxe — chiffrée depuis le MONTANT RÉEL de la facture (si secteur industriel B/C/D)
     if (data.client_type !== 'particulier') {
       var code = data.naf || nafCode;
       var sect = data.secteur || nafSecteur;
       if (acciseEligibleNaf(code)) {
-        L.push({ icon: '💰', color: 'violet', titre: "Accise sur l'énergie (taxe)", badge: 'tarif réduit possible',
-          desc: 'Votre secteur' + (sect ? ' (' + sect + ')' : ' industriel') + " ouvre droit à un tarif réduit d'accise (jusqu'à ~5,5 €/MWh contre 26,58). Récupération possible sur 2 ans. À confirmer selon votre valeur ajoutée." });
+        var acciseNow = (e.accise_annual_ht != null) ? e.accise_annual_ht
+                       : (e.taxes_annual_ht != null ? Math.max(0, e.taxes_annual_ht - (e.cta_annual_ht || 50)) : null);
+        var tBadge = 'tarif réduit possible';
+        var tDesc = "Votre secteur" + (sect ? " (" + sect + ")" : " industriel") + " (NAF sections industrielles) ouvre droit au tarif réduit d'accise : 5,5 €/MWh au lieu du tarif plein. L'accise (ex-CSPE/TICFE) est payée sur chaque kWh — récupérable sur les 2 dernières années via le service des impôts. À confirmer selon votre ratio conso/valeur ajoutée.";
+        if (acciseNow && consoMwh && consoMwh > 0) {
+          var reduced = consoMwh * 5.5;
+          var ecoT = Math.round(acciseNow - reduced);
+          if (ecoT > 0) {
+            tBadge = '\u2248 ' + ecoT + ' €/an';
+            tDesc = "Sur votre facture, l'accise (ex-CSPE/TICFE) représente ~" + formatEuro(Math.round(acciseNow)) + "/an. Votre secteur" + (sect ? " (" + sect + ")" : " industriel") + " ouvre droit au tarif réduit de 5,5 €/MWh, soit ~" + formatEuro(Math.round(reduced)) + "/an \u2192 économie \u2248 " + formatEuro(ecoT) + "/an, récupérable sur 2 ans (via les impôts). À confirmer selon votre valeur ajoutée.";
+          }
+        }
+        L.push({ icon: 'accise', color: 'violet', titre: "Accise sur l'énergie (taxe)", badge: tBadge, desc: tDesc });
       } else if (!code) {
-        L.push({ icon: '💰', color: 'violet', titre: "Accise sur l'énergie (taxe)", badge: 'selon secteur',
-          desc: "Si votre activité est industrielle (fabrication, agroalimentaire, boulangerie…), un tarif réduit d'accise est possible. Indiquez votre secteur en haut pour le vérifier." });
+        L.push({ icon: 'accise', color: 'violet', titre: "Accise sur l'énergie (taxe)", badge: 'selon secteur',
+          desc: "Si votre activité est industrielle (fabrication, agroalimentaire, boulangerie…), un tarif réduit d'accise (5,5 €/MWh) est possible. Indiquez votre secteur en haut pour le vérifier." });
+      }
+    }
+
+    // Sélecteur "Que souhaitez-vous analyser ?" : met le levier ciblé en tête + le surligne
+    if (typeof analysisFocus !== 'undefined' && analysisFocus !== 'all') {
+      var fk = analysisFocus === 'kwh' ? 'énergie' : analysisFocus === 'taxes' ? 'Accise' : analysisFocus === 'acheminement' ? 'Acheminement' : '';
+      if (fk) {
+        L.sort(function (a, b) { return (a.titre.indexOf(fk) >= 0 ? 0 : 1) - (b.titre.indexOf(fk) >= 0 ? 0 : 1); });
+        if (L[0] && L[0].titre.indexOf(fk) >= 0) L[0].focus = true;
       }
     }
 
@@ -945,14 +971,14 @@
     L.forEach(function (lv, i) {
       var c = C[lv.color] || C.primary;
       var card = document.createElement('div');
-      card.className = 'lever-in bg-white rounded-xl shadow-soft p-4 flex items-start gap-4';
+      card.className = 'lever-in bg-white rounded-xl shadow-soft p-4 flex items-start gap-4' + (lv.focus ? ' lever-focus' : '');
       card.style.animationDelay = (i * 90) + 'ms';
       card.innerHTML =
-        '<div class="size-10 rounded-lg ' + c[0] + ' flex items-center justify-center shrink-0 text-lg">' + lv.icon + '</div>' +
+        '<div class="size-10 rounded-lg ' + c[0] + ' ' + c[1] + ' flex items-center justify-center shrink-0"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="' + (ICONS[lv.icon] || ICONS.energie) + '"/></svg></div>' +
         '<div class="flex-1 min-w-0"><div class="flex items-center justify-between gap-2">' +
           '<p class="lv-t text-sm font-bold text-slate-800"></p>' +
           '<span class="lv-b shrink-0 text-xs font-bold ' + c[1] + ' ' + c[2] + ' rounded-full px-2 py-0.5"></span>' +
-        '</div><p class="lv-d text-xs text-slate-500 mt-0.5"></p></div>';
+        '</div><p class="lv-d text-xs text-slate-500 mt-0.5 leading-relaxed"></p></div>';
       card.querySelector('.lv-t').textContent = lv.titre;
       card.querySelector('.lv-b').textContent = lv.badge;
       card.querySelector('.lv-d').textContent = lv.desc;
@@ -1061,7 +1087,7 @@
       { label: 'Puissance souscrite', value: e.power_kva ? e.power_kva + ' kVA' : null },
       { label: 'Conso. annuelle', value: consoMwh ? (consoMwh >= 1 ? formatNumber(Math.round(consoMwh)) + ' MWh' : formatNumber(Math.round(consoMwh * 1000)) + ' kWh') : null },
       { label: 'Abonnement', value: e.subscription_monthly_ht ? formatEuro(e.subscription_monthly_ht) + '/mois HT' : (e.subscription_annual_ht ? formatEuro(e.subscription_annual_ht) + '/an HT' : null) },
-      { label: 'Fiabilité analyse', value: e.confidence === 'high' ? '✅ Élevée' : e.confidence === 'medium' ? '⚠️ Moyenne' : '⚡ Estimée' },
+      { label: 'Fiabilité analyse', value: e.confidence === 'high' ? 'Élevée' : e.confidence === 'medium' ? 'Moyenne' : 'Estimée' },
     ];
     // Valeurs posées via textContent (jamais innerHTML) → pas d'injection possible
     details.innerHTML = '';
