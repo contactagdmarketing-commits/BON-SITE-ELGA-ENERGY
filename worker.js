@@ -131,7 +131,7 @@ Réponds UNIQUEMENT avec le JSON, sans texte avant ou après :
 Notes importantes :
 - Les prix unitaires (€/MWh) ne s'annualisent PAS — ce sont des prix fixes au contrat.
 - Sur les factures EDF/certains fournisseurs, prix en centimes/kWh → convertir : diviser par 10 pour obtenir €/MWh.
-- segment : c5_mu4 = ≤36 kVA usage moyen, c5_cu4 = ≤36 kVA usage court, c4_lu = 36-250 kVA longue utilisation, c5_hta = >36 kVA HTA. Gaz : t2_p12 = ≤200 MWh/an, t3 = 200-600 MWh/an.
+- segment : c5_mu4 = ≤36 kVA (C5) usage moyen, c5_cu4 = ≤36 kVA (C5) usage court, c4_lu = 36-250 kVA (C4) longue utilisation, c5_hta = >250 kVA / HTA (C3 et au-delà). Gaz : t2_p12 = ≤200 MWh/an, t3 = 200-600 MWh/an.
 - capa_mwh : chercher "mécanisme de capacité", souvent entre 0,50 et 15 €/MWh. Chez certains fournisseurs il est inclus dans le prix énergie (mettre null dans ce cas).
 - acheminement = "Utilisation du réseau" ou "TURPE" ou "Coûts d'utilisation du réseau".
 - accise = "Accise sur l'électricité" / "Accise sur les énergies" / ancien "TICFE" / "CSPE" (proportionnelle aux kWh).
@@ -230,9 +230,11 @@ function getDefaultPrices() {
         acheminement_annual: 1530, abo_monthly: 12.60
       },
       taxes: {
-        accise_mwh: 20.50,
-        cta_annual: 50,
-        tva_pct: 20
+        // Accise sur l'électricité 2026 (ex-CSPE/TICFE), €/MWh HT — barème par tranche de puissance (au 01/02/2026)
+        accise_mwh: 30.85,        // ≤ 36 kVA
+        accise_mwh_high: 26.58,   // > 36 kVA
+        cta_annual: 50,           // proxy CTA (15 % de la part fixe TURPE depuis le 01/02/2026)
+        tva_pct: 20               // TVA 20 % sur toute la facture depuis 08/2025 (récupérable pour un pro)
       }
     },
     gas: {
@@ -255,6 +257,12 @@ function getDefaultPrices() {
 
 // ─── Calcul des économies ─────────────────────────────────────────────────────
 
+// Taux d'accise élec selon la puissance souscrite (>36 kVA = tarif réduit pro).
+function acciseRate(kva, taxes) {
+  taxes = taxes || {};
+  return (kva && kva > 36) ? (taxes.accise_mwh_high || 26.58) : (taxes.accise_mwh || 30.85);
+}
+
 function calculateSavings(bill, grid) {
   if (!grid) return null;
 
@@ -272,9 +280,10 @@ function calculateSavings(bill, grid) {
     if (isGas) {
       seg = consumptionMwh > 200 ? 't3' : 't2_p12';
     } else if (kva) {
-      seg = kva > 250 ? 'c4_lu' : kva > 36 ? 'c5_hta' : 'c5_mu4';
+      // Nomenclature Enedis : ≤36 kVA = C5 ; 36-250 kVA = C4 (BT) ; >250 kVA / HTA = C3 et au-delà
+      seg = kva > 250 ? 'c5_hta' : kva > 36 ? 'c4_lu' : 'c5_mu4';
     } else if (consumptionMwh) {
-      seg = consumptionMwh > 300 ? 'c4_lu' : consumptionMwh > 50 ? 'c5_hta' : 'c5_mu4';
+      seg = consumptionMwh > 300 ? 'c5_hta' : consumptionMwh > 50 ? 'c4_lu' : 'c5_mu4';
     } else {
       seg = 'c5_mu4';
     }
@@ -356,7 +365,7 @@ function calculateSavings(bill, grid) {
   // On l'utilise aussi pour VÉRIFIER la méthode 1 (si M2 > M1 : capa/CEE manquants dans M1)
   if (bill.total_ht_annual && consumptionMwh) {
     const ach  = bill.acheminement_annual_ht || (ref.acheminement_annual || 0);
-    const taxH = bill.taxes_annual_ht        || consumptionMwh * (taxes.accise_mwh || 20.5);
+    const taxH = bill.taxes_annual_ht        || consumptionMwh * acciseRate(bill.power_kva, taxes);
     const aboH = (bill.subscription_monthly_ht || ref.abo_monthly || 0) * 12;
     const energyCapaCeeHT = bill.total_ht_annual - ach - taxH;
     if (energyCapaCeeHT > 0) {
