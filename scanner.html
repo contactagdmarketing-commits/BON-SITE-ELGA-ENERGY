@@ -93,6 +93,11 @@
     /* Fade in */
     @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
     .fade-in{animation:fadeIn .4s ease both}
+
+    /* Leviers : apparition décalée (stagger) */
+    .lever-in{opacity:0;transform:translateY(10px);animation:leverIn .5s cubic-bezier(.16,1,.3,1) forwards}
+    @keyframes leverIn{to{opacity:1;transform:translateY(0)}}
+    @media (prefers-reduced-motion: reduce){.lever-in{animation:none!important;opacity:1;transform:none}}
   </style>
 
   <script async src="https://www.googletagmanager.com/gtag/js?id=G-SHXXPV14N7"></script>
@@ -397,45 +402,11 @@
       </div>
     </div>
 
-    <!-- Les 3 leviers d'économies -->
+    <!-- Leviers d'optimisation (DYNAMIQUES : adaptés à chaque facture + au secteur NAF) -->
     <div class="result-card space-y-3" style="animation-delay:.25s">
-      <p class="text-sm font-bold text-slate-700 px-1">Les 3 leviers d'optimisation sur votre contrat</p>
-
-      <!-- Levier 1 : Fourniture -->
-      <div class="bg-white rounded-xl shadow-soft p-4 flex items-start gap-4">
-        <div class="size-10 rounded-lg bg-primary-100 flex items-center justify-center shrink-0 text-lg">⚡</div>
-        <div class="flex-1 min-w-0">
-          <div class="flex items-center justify-between gap-2">
-            <p class="text-sm font-bold text-slate-800">Prix de la fourniture</p>
-            <span class="shrink-0 text-xs font-bold text-primary-700 bg-primary-50 rounded-full px-2 py-0.5" id="lever1Badge"></span>
-          </div>
-          <p class="text-xs text-slate-500 mt-0.5">Le prix au kWh négocié auprès des fournisseurs. C'est là que se jouent les plus grandes économies, jusqu'à 30% selon votre contrat actuel.</p>
-        </div>
-      </div>
-
-      <!-- Levier 2 : TURPE -->
-      <div class="bg-white rounded-xl shadow-soft p-4 flex items-start gap-4">
-        <div class="size-10 rounded-lg bg-amber-100 flex items-center justify-center shrink-0 text-lg">🔧</div>
-        <div class="flex-1 min-w-0">
-          <div class="flex items-center justify-between gap-2">
-            <p class="text-sm font-bold text-slate-800">Acheminement (TURPE)</p>
-            <span class="shrink-0 text-xs font-bold text-amber-700 bg-amber-50 rounded-full px-2 py-0.5">Jusqu'à 35%</span>
-          </div>
-          <p class="text-xs text-slate-500 mt-0.5">La plupart des entreprises ont une puissance souscrite trop élevée par rapport à leur consommation réelle. En l'ajustant, on réduit directement la part fixe du TURPE payé à Enedis.</p>
-        </div>
-      </div>
-
-      <!-- Levier 3 : Taxes (pro uniquement — masqué pour les particuliers) -->
-      <div id="lever3Accise" class="bg-white rounded-xl shadow-soft p-4 flex items-start gap-4">
-        <div class="size-10 rounded-lg bg-violet-100 flex items-center justify-center shrink-0 text-lg">💰</div>
-        <div class="flex-1 min-w-0">
-          <div class="flex items-center justify-between gap-2">
-            <p class="text-sm font-bold text-slate-800">Taxes (Accise sur l'énergie)</p>
-            <span class="shrink-0 text-xs font-bold text-violet-700 bg-violet-50 rounded-full px-2 py-0.5">Récupération possible</span>
-          </div>
-          <p class="text-xs text-slate-500 mt-0.5">Selon votre secteur d'activité, il est possible de constituer un dossier de récupération de l'Accise (ex-TICFE/CSPE). Cette démarche, souvent méconnue, peut représenter plusieurs milliers d'euros par an.</p>
-        </div>
-      </div>
+      <p class="text-sm font-bold text-slate-700 px-1">Où sont vos économies, levier par levier</p>
+      <div id="leviers" class="space-y-2.5"></div>
+      <p class="text-[11px] leading-relaxed text-slate-400 px-1 pt-1">Estimations sur des tarifs moyens du marché, qui varient d'un jour à l'autre. Le chiffrage précis se fait avec votre consommation réelle (Enedis) lors du bilan.</p>
     </div>
 
     <!-- Carte CAR : pourquoi ×12 ≠ budget réel -->
@@ -835,6 +806,79 @@
   }
 
   // ── Display results ───────────────────────────────────────────────────────
+  // Éligibilité accise selon la SECTION NAF (05.xx–39.xx = industrie B/C/D/E → tarif réduit possible). Côté navigateur.
+  function acciseEligibleNaf(code) {
+    if (!code) return false;
+    var div = parseInt(String(code).slice(0, 2), 10);
+    return div >= 5 && div <= 39;
+  }
+
+  // Construit les leviers d'optimisation, adaptés à CHAQUE facture + au secteur.
+  function renderLeviers(e, s, data) {
+    var box = document.getElementById('leviers');
+    if (!box) return;
+    var isGas = e.energy_type === 'gas';
+    var consoMwh = e.annual_consumption_mwh || (e.annual_consumption_kwh ? e.annual_consumption_kwh / 1000 : null);
+    var L = [];
+
+    // 1. Énergie (kWh) — toujours
+    L.push({ icon: '⚡', color: 'primary', titre: "Prix de l'énergie (kWh)",
+      badge: (s && s.savings_pct) ? '≈ ' + s.savings_pct + '%' : 'à chiffrer',
+      desc: "Le prix au kWh, renégocié auprès de 30+ fournisseurs. Le plus gros levier, applicable à votre prochain renouvellement." });
+
+    // 2. Abonnement
+    if (e.subscription_monthly_ht) {
+      L.push({ icon: '🧾', color: 'sky', titre: 'Abonnement', badge: formatEuro(e.subscription_monthly_ht) + '/mois',
+        desc: "La part fixe de votre facture, souvent optimisable selon l'offre et la puissance souscrite." });
+    }
+
+    // 3. Acheminement & puissance (élec) — heuristique de sur-dimensionnement
+    if (!isGas && e.power_kva) {
+      var badge = 'à vérifier';
+      var desc = 'Puissance souscrite : ' + e.power_kva + ' kVA. On vérifie qu\'elle est bien dimensionnée (une puissance trop élevée = du TURPE payé pour rien).';
+      if (consoMwh && consoMwh > 0) {
+        var heq = (consoMwh * 1000) / e.power_kva;   // heures équivalentes pleine puissance / an
+        if (heq < 1000) { badge = 'sur-dimensionnée ?';
+          desc = 'Puissance de ' + e.power_kva + ' kVA pour ' + (Math.round(consoMwh * 10) / 10) + ' MWh/an : ratio faible, la puissance semble trop élevée. La baisser réduit directement la part fixe du TURPE.'; }
+        else if (heq > 4000) { badge = 'bien dimensionnée';
+          desc = 'Puissance de ' + e.power_kva + ' kVA bien utilisée. Peu de marge côté puissance, on optimise les autres leviers.'; }
+      }
+      L.push({ icon: '🔌', color: 'amber', titre: 'Acheminement & puissance (TURPE)', badge: badge, desc: desc });
+    }
+
+    // 4. Accise / taxe — selon la SECTION NAF (honnête : pas de faux levier pour le commerce/service)
+    if (data.client_type !== 'particulier') {
+      var code = data.naf || nafCode;
+      var sect = data.secteur || nafSecteur;
+      if (acciseEligibleNaf(code)) {
+        L.push({ icon: '💰', color: 'violet', titre: "Accise sur l'énergie (taxe)", badge: 'tarif réduit possible',
+          desc: 'Votre secteur' + (sect ? ' (' + sect + ')' : ' industriel') + " ouvre droit à un tarif réduit d'accise (jusqu'à ~5,5 €/MWh contre 26,58). Récupération possible sur 2 ans. À confirmer selon votre valeur ajoutée." });
+      } else if (!code) {
+        L.push({ icon: '💰', color: 'violet', titre: "Accise sur l'énergie (taxe)", badge: 'selon secteur',
+          desc: "Si votre activité est industrielle (fabrication, agroalimentaire, boulangerie…), un tarif réduit d'accise est possible. Indiquez votre secteur en haut pour le vérifier." });
+      }
+    }
+
+    var C = { primary: ['bg-primary-100', 'text-primary-700', 'bg-primary-50'], sky: ['bg-sky-100', 'text-sky-700', 'bg-sky-50'], amber: ['bg-amber-100', 'text-amber-700', 'bg-amber-50'], violet: ['bg-violet-100', 'text-violet-700', 'bg-violet-50'] };
+    box.innerHTML = '';
+    L.forEach(function (lv, i) {
+      var c = C[lv.color] || C.primary;
+      var card = document.createElement('div');
+      card.className = 'lever-in bg-white rounded-xl shadow-soft p-4 flex items-start gap-4';
+      card.style.animationDelay = (i * 90) + 'ms';
+      card.innerHTML =
+        '<div class="size-10 rounded-lg ' + c[0] + ' flex items-center justify-center shrink-0 text-lg">' + lv.icon + '</div>' +
+        '<div class="flex-1 min-w-0"><div class="flex items-center justify-between gap-2">' +
+          '<p class="lv-t text-sm font-bold text-slate-800"></p>' +
+          '<span class="lv-b shrink-0 text-xs font-bold ' + c[1] + ' ' + c[2] + ' rounded-full px-2 py-0.5"></span>' +
+        '</div><p class="lv-d text-xs text-slate-500 mt-0.5"></p></div>';
+      card.querySelector('.lv-t').textContent = lv.titre;
+      card.querySelector('.lv-b').textContent = lv.badge;
+      card.querySelector('.lv-d').textContent = lv.desc;
+      box.appendChild(card);
+    });
+  }
+
   function displayResults(data) {
     const { extracted: e, savings: s } = data;
 
@@ -881,10 +925,6 @@
 
       document.getElementById('hiddenSavings').value = formatEuro(s.savings_annual) + '/an (' + s.savings_pct + '%)';
 
-      // Levier 1 badge
-      const lever1 = document.getElementById('lever1Badge');
-      if (lever1) lever1.textContent = s.savings_pct + '% identifié';
-
       // Animate gauge
       setTimeout(() => {
         document.getElementById('gaugeBar').style.width = Math.min(s.savings_pct * 2.5, 95) + '%';
@@ -901,8 +941,6 @@
       const pmEl = document.getElementById('resultPeriodMonths');
       if (pmEl) pmEl.textContent = '1 mois';
       document.getElementById('gaugeBar').style.width = '60%';
-      const lever1 = document.getElementById('lever1Badge');
-      if (lever1) lever1.textContent = 'À calculer';
     }
 
     // Price details — champs nouveaux (€/MWh) avec fallback anciens (€/kWh)
@@ -953,9 +991,8 @@
       wrap.append(l, v); details.appendChild(wrap);
     });
 
-    // Cohérence/honnêteté : le levier "récupération Accise" ne concerne QUE les pros → masqué pour un particulier
-    const lever3 = document.getElementById('lever3Accise');
-    if (lever3) lever3.classList.toggle('hidden', data.client_type === 'particulier');
+    // Leviers d'optimisation dynamiques (énergie / abonnement / acheminement / accise selon NAF)
+    renderLeviers(e, s, data);
   }
 
   // ── Details toggle ────────────────────────────────────────────────────────
