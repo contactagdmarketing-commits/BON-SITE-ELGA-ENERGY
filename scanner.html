@@ -168,31 +168,32 @@
 </header>
 
 <!-- ─── Hero ──────────────────────────────────────────────────────────────── -->
-<section class="bg-gradient-to-br from-secondary-600 to-primary-600 text-white py-14 md:py-20">
-  <div class="container text-center max-w-3xl mx-auto space-y-5">
-    <div class="inline-flex items-center gap-2 rounded-full bg-white/15 border border-white/25 px-4 py-1.5 text-sm font-medium">
+<section class="relative overflow-hidden bg-gradient-to-br from-secondary-600 to-primary-700 text-white">
+  <!-- profondeur : halos radiaux subtils (atténués pour garder le contraste du texte) -->
+  <div class="absolute inset-0 pointer-events-none" style="background:radial-gradient(60% 55% at 12% -5%,rgba(255,255,255,.14),transparent 60%),radial-gradient(55% 65% at 105% 115%,rgba(16,185,129,.16),transparent 62%)"></div>
+  <div class="relative container text-center max-w-3xl mx-auto py-14 md:py-[5.5rem] space-y-6">
+    <div class="inline-flex items-center gap-2 rounded-full bg-white/15 border border-white/25 px-4 py-1.5 text-sm font-medium backdrop-blur-sm">
       <span class="size-2 rounded-full bg-primary-300 pulse shrink-0"></span>
       Outil gratuit · résultat en 15 secondes
     </div>
-    <h1 class="text-3xl md:text-5xl font-extrabold leading-tight">
-      Scannez votre facture,<br/>découvrez vos économies
+    <h1 class="text-3xl md:text-5xl font-extrabold leading-[1.08] tracking-tight" style="text-wrap:balance">
+      Scannez votre facture,<br class="hidden sm:block"> découvrez vos économies
     </h1>
-    <p class="text-white/85 text-lg max-w-2xl mx-auto">
-      Notre IA analyse votre facture d'électricité ou de gaz (tous fournisseurs) et la compare aux meilleures offres du marché B2B. En 15 secondes, vous savez combien vous pourriez économiser.
+    <p class="text-white/85 text-base md:text-lg max-w-2xl mx-auto" style="text-wrap:pretty">
+      Notre IA lit votre facture (élec ou gaz, tous fournisseurs) et la compare au marché B2B. En 15 secondes, vous voyez où vous pouvez économiser, levier par levier.
     </p>
-    <div class="flex flex-wrap justify-center gap-4 text-sm text-white/80">
-      <span class="flex items-center gap-1.5">
-        <svg class="w-4 h-4 text-primary-300" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
-        Tous fournisseurs reconnus
-      </span>
-      <span class="flex items-center gap-1.5">
-        <svg class="w-4 h-4 text-primary-300" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
-        Données non stockées
-      </span>
-      <span class="flex items-center gap-1.5">
-        <svg class="w-4 h-4 text-primary-300" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>
-        Sans engagement
-      </span>
+    <!-- Mini-parcours en 3 étapes (rassure, structure) -->
+    <div class="flex items-center justify-center flex-wrap gap-2 sm:gap-3 pt-1">
+      <span class="inline-flex items-center gap-2 rounded-full bg-white/12 border border-white/20 px-3.5 py-1.5 text-sm backdrop-blur-sm"><span class="size-5 rounded-full bg-white text-primary-700 text-[11px] font-bold grid place-items-center shrink-0">1</span>Déposez votre facture</span>
+      <svg class="hidden sm:block w-4 h-4 text-white/50 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+      <span class="inline-flex items-center gap-2 rounded-full bg-white/12 border border-white/20 px-3.5 py-1.5 text-sm backdrop-blur-sm"><span class="size-5 rounded-full bg-white text-primary-700 text-[11px] font-bold grid place-items-center shrink-0">2</span>On l'analyse en 15 s</span>
+      <svg class="hidden sm:block w-4 h-4 text-white/50 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
+      <span class="inline-flex items-center gap-2 rounded-full bg-white/12 border border-white/20 px-3.5 py-1.5 text-sm backdrop-blur-sm"><span class="size-5 rounded-full bg-white text-primary-700 text-[11px] font-bold grid place-items-center shrink-0">3</span>Vos leviers d'économies</span>
+    </div>
+    <div class="flex flex-wrap justify-center gap-x-5 gap-y-2 text-sm text-white/90 pt-1">
+      <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-primary-200 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>Tous fournisseurs reconnus</span>
+      <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-primary-200 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>Données non stockées</span>
+      <span class="flex items-center gap-1.5"><svg class="w-4 h-4 text-primary-200 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"/></svg>Sans engagement</span>
     </div>
   </div>
 </section>
@@ -277,9 +278,10 @@
     <!-- Bouton analyser -->
     <div class="mt-5">
       <button id="btnAnalyze" disabled
-        class="w-full py-4 rounded-2xl bg-primary-600 text-white font-bold text-lg shadow-soft hover:bg-primary-700 transition-colors disabled:opacity-40 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-primary-400">
+        class="w-full py-4 rounded-2xl text-white font-bold text-lg transition-all disabled:opacity-40 disabled:cursor-not-allowed disabled:shadow-none focus:outline-none focus:ring-2 focus:ring-primary-400 focus:ring-offset-2"
+        style="background-image:linear-gradient(180deg,#10b981,#0b6c45);box-shadow:0 12px 26px -8px rgba(14,138,87,.55)">
         Analyser ma facture
-        <span class="ml-2 text-white/70 font-normal text-base">→ voir mes économies</span>
+        <span class="ml-2 text-white/85 font-semibold text-base">→ voir mes économies</span>
       </button>
     </div>
 
