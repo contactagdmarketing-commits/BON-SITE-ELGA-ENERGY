@@ -976,9 +976,9 @@
       card.innerHTML =
         '<div class="size-10 rounded-lg ' + c[0] + ' ' + c[1] + ' flex items-center justify-center shrink-0"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="' + (ICONS[lv.icon] || ICONS.energie) + '"/></svg></div>' +
         '<div class="flex-1 min-w-0"><div class="flex items-center justify-between gap-2">' +
-          '<p class="lv-t text-sm font-bold text-slate-800"></p>' +
-          '<span class="lv-b shrink-0 text-xs font-bold ' + c[1] + ' ' + c[2] + ' rounded-full px-2 py-0.5"></span>' +
-        '</div><p class="lv-d text-xs text-slate-500 mt-0.5 leading-relaxed"></p></div>';
+          '<p class="lv-t text-[15px] font-bold text-slate-900"></p>' +
+          '<span class="lv-b shrink-0 text-sm font-extrabold ' + c[1] + ' ' + c[2] + ' rounded-lg px-2.5 py-1"></span>' +
+        '</div><p class="lv-d text-[13px] text-slate-600 mt-1.5 leading-relaxed"></p></div>';
       card.querySelector('.lv-t').textContent = lv.titre;
       card.querySelector('.lv-b').textContent = lv.badge;
       card.querySelector('.lv-d').textContent = lv.desc;
