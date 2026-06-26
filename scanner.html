@@ -56,10 +56,17 @@
     .scan-doc .ln{height:5px;border-radius:3px;background:#e8edf3}
     .scan-line{position:absolute;left:0;right:0;top:-20px;height:20px;background:linear-gradient(180deg,transparent,rgba(16,185,129,.45),transparent);box-shadow:0 0 16px 3px rgba(16,185,129,.55);animation:scanSweep 2.6s ease-in-out infinite}
     @keyframes scanSweep{0%{top:-20px}55%,100%{top:108px}}
+    /* Halo lumineux pulsant derrière la facture scannée (étape d'analyse) */
+    .scan-glow{position:absolute;inset:-24px;border-radius:50%;background:radial-gradient(circle,rgba(16,185,129,.30),transparent 68%);animation:glowPulse 2.6s ease-in-out infinite;pointer-events:none}
+    @keyframes glowPulse{0%,100%{transform:scale(.9);opacity:.55}50%{transform:scale(1.1);opacity:1}}
+    /* Cartes résultat qui réagissent au survol (lift premium) */
+    .lever-in,.lift-card{transition:transform .3s cubic-bezier(.16,1,.3,1),box-shadow .3s ease}
+    .lever-in:hover,.lift-card:hover{transform:translateY(-3px);box-shadow:0 18px 38px -16px rgba(2,6,12,.28)}
     @media (prefers-reduced-motion: reduce){
-      .reveal-medallion,.scan-line{animation:none!important}
+      .reveal-medallion,.scan-line,.scan-glow{animation:none!important}
       .scan-line{opacity:.5;top:44px}
       .reveal-cta{opacity:1;transform:none}
+      .lever-in:hover,.lift-card:hover{transform:none}
     }
 
     /* Sélecteur profil particulier/pro */
@@ -76,7 +83,7 @@
     .progress-bar{transition:width .5s ease}
 
     /* Savings gauge */
-    .gauge-fill{transition:width 1.2s cubic-bezier(.34,1.56,.64,1)}
+    .gauge-fill{transition:width 1.2s cubic-bezier(.16,1,.3,1)}
 
     /* Result card */
     .result-card{animation:slideUp .5s ease both}
@@ -86,9 +93,12 @@
     @keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
     .pulse{animation:pulse 1.4s ease-in-out infinite}
 
-    /* Spin */
-    @keyframes spin{to{transform:rotate(360deg)}}
-    .spin{animation:spin 1s linear infinite}
+    /* Accessibilité : couper aussi les anims d'entrée/boucle pour reduced-motion */
+    @media (prefers-reduced-motion: reduce){
+      .result-card,.fade-in{animation:none!important}
+      .pulse{animation:none!important}
+      .gauge-fill{transition:none!important}
+    }
 
     /* Fade in */
     @keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
@@ -296,16 +306,19 @@
   <div id="step-scanning" class="hidden">
     <div class="bg-white rounded-2xl shadow-soft p-10 text-center space-y-8">
 
-      <!-- Spinner animé -->
-      <div class="relative mx-auto size-20">
-        <svg class="spin absolute inset-0 w-20 h-20 text-primary-200" fill="none" viewBox="0 0 24 24">
-          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="3"/>
-          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"/>
-        </svg>
-        <div class="absolute inset-0 flex items-center justify-center">
-          <svg class="w-8 h-8 text-primary-600" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 3v11.25A2.25 2.25 0 006 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0118 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5M9 11.25v1.5M12 9v3.75m3-6v6"/>
-          </svg>
+      <!-- Facture en cours de scan (premium) : document + ligne qui balaie + halo -->
+      <div class="relative mx-auto w-fit py-2">
+        <div class="scan-glow"></div>
+        <div class="scan-doc relative mx-auto" aria-hidden="true">
+          <div class="lns">
+            <div class="ln" style="width:55%"></div>
+            <div class="ln" style="width:92%"></div>
+            <div class="ln" style="width:78%"></div>
+            <div class="ln" style="width:88%"></div>
+            <div class="ln" style="width:64%"></div>
+            <div class="ln" style="width:90%"></div>
+          </div>
+          <div class="scan-line"></div>
         </div>
       </div>
 
@@ -364,7 +377,7 @@
 
     <!-- Comparaison sur la période facturée -->
     <div class="result-card grid grid-cols-2 gap-3" style="animation-delay:.1s">
-      <div class="bg-white rounded-2xl shadow-soft p-4 space-y-1">
+      <div class="lift-card bg-white rounded-2xl shadow-soft p-4 space-y-1">
         <p class="text-xs font-semibold text-slate-400 uppercase tracking-wide">Vous avez payé</p>
         <p id="resultClientTotal" class="text-2xl font-extrabold text-slate-800"></p>
         <p id="resultPeriodLabel" class="text-xs text-slate-400">sur cette facture TTC</p>
@@ -375,7 +388,7 @@
           <div id="resultConso" class="hidden flex justify-between"><span>Conso. période</span><span id="valConso" class="font-mono font-semibold"></span></div>
         </div>
       </div>
-      <div class="bg-primary-600 rounded-2xl p-4 space-y-1 text-white">
+      <div class="lift-card bg-primary-600 rounded-2xl p-4 space-y-1 text-white">
         <p class="text-xs font-semibold text-primary-200 uppercase tracking-wide">Avec Elga Energy</p>
         <p id="resultElgaTotal" class="text-2xl font-extrabold"></p>
         <p class="text-xs text-primary-200">même période TTC</p>
@@ -906,7 +919,7 @@
       document.getElementById('resultElgaTotal').textContent   = formatEuro(elgaPeriod);
 
       // ── Héros : économies ANNUELLES en grand ──────────────────────────────
-      document.getElementById('resultSavings').textContent = formatEuro(s.savings_annual);
+      countUp(document.getElementById('resultSavings'), s.savings_annual);
 
       // Sous-titre : % + budget annuel avec Elga
       const subline = document.getElementById('resultSavingsSubline');
@@ -1075,6 +1088,25 @@
   function formatEuro(n) {
     if (!n && n !== 0) return '—';
     return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR', maximumFractionDigits: 0 }).format(n);
+  }
+
+  // Compteur animé (ease-out). La valeur finale est posée TOUT DE SUITE (jamais vide,
+  // même si rAF ne tourne pas / onglet caché / reduced-motion) ; l'animation passe par-dessus.
+  function countUp(el, target, ms) {
+    if (!el) return;
+    el.textContent = formatEuro(target);                 // filet : toujours la bonne valeur affichée
+    ms = ms || 1100;
+    var rm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (rm || document.hidden || typeof requestAnimationFrame !== 'function') return;
+    var start = null;
+    function tick(t) {
+      if (start === null) start = t;
+      var p = Math.min((t - start) / ms, 1);
+      var eased = 1 - Math.pow(1 - p, 3);
+      el.textContent = formatEuro(Math.round(target * eased));
+      if (p < 1) requestAnimationFrame(tick);
+    }
+    requestAnimationFrame(tick);
   }
 
   function formatNumber(n) {
