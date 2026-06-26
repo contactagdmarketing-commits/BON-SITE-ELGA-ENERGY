@@ -178,13 +178,15 @@
           🏠 Particulier
         </button>
       </div>
-      <!-- Champ NAF (pro uniquement) -->
-      <div id="nafWrap" class="mt-4 max-w-md mx-auto">
+      <!-- Recherche secteur par mot ou code NAF (pro uniquement) -->
+      <div id="nafWrap" class="mt-4 max-w-md mx-auto relative">
         <label for="nafInput" class="block text-xs font-semibold text-slate-600 mb-1">
-          Code NAF / APE <span class="text-slate-400 font-normal">(optionnel, affine le secteur)</span>
+          Votre activité <span class="text-slate-400 font-normal">(optionnel : tapez un métier ou un code NAF)</span>
         </label>
-        <input type="text" id="nafInput" inputmode="text" autocomplete="off" placeholder="ex. 56.10A"
+        <input type="text" id="nafInput" inputmode="text" autocomplete="off" role="combobox" aria-autocomplete="list" aria-expanded="false" aria-controls="nafSuggest" placeholder="ex. boulangerie, garage, hôtel…"
           class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" />
+        <!-- Liste de suggestions -->
+        <ul id="nafSuggest" role="listbox" class="hidden absolute z-20 left-0 right-0 mt-1 max-h-60 overflow-auto rounded-xl border border-slate-200 bg-white shadow-strong text-sm"></ul>
         <p id="nafSecteur" class="mt-1.5 text-xs"></p>
       </div>
     </div>
@@ -616,13 +618,36 @@
   let selectedFile = null;
   let scanInterval = null;
 
-  // ── Profil particulier/pro + code NAF ───────────────────────────────────────
+  // ── Profil particulier/pro + recherche secteur (NAF bidirectionnel) ─────────
   let clientType = 'professionnel';
   let nafCode = null, nafSecteur = null;
   const profilBtns    = document.querySelectorAll('.profil-btn');
   const nafWrap       = document.getElementById('nafWrap');
   const nafInput      = document.getElementById('nafInput');
   const nafSecteurEl  = document.getElementById('nafSecteur');
+  const nafSuggest    = document.getElementById('nafSuggest');
+
+  const fmtCode = (c) => c.slice(0, 2) + '.' + c.slice(2);
+  function hideSuggest() {
+    if (!nafSuggest) return;
+    nafSuggest.classList.add('hidden'); nafSuggest.innerHTML = '';
+    if (nafInput) nafInput.setAttribute('aria-expanded', 'false');
+  }
+  function clearNaf() {
+    nafCode = null; nafSecteur = null;
+    if (nafInput) nafInput.value = '';
+    if (nafSecteurEl) nafSecteurEl.textContent = '';
+    hideSuggest();
+  }
+  function chooseNaf(code, libelle) {
+    nafCode = code; nafSecteur = libelle;
+    if (nafInput) nafInput.value = libelle;
+    if (nafSecteurEl) {
+      nafSecteurEl.textContent = '✓ ' + libelle + ' (' + fmtCode(code) + ')';
+      nafSecteurEl.className = 'mt-1.5 text-xs font-medium text-primary-700';
+    }
+    hideSuggest();
+  }
 
   profilBtns.forEach(btn => btn.addEventListener('click', () => {
     clientType = btn.dataset.client;
@@ -632,28 +657,36 @@
       b.setAttribute('aria-checked', on ? 'true' : 'false');
     });
     if (nafWrap) nafWrap.classList.toggle('hidden', clientType !== 'professionnel');
-    // Reset du NAF si on quitte le mode pro (pas de secteur fantôme dans le payload)
-    if (clientType !== 'professionnel') {
-      nafCode = null; nafSecteur = null;
-      if (nafInput) nafInput.value = '';
-      if (nafSecteurEl) nafSecteurEl.textContent = '';
-    }
+    if (clientType !== 'professionnel') clearNaf();   // pas de secteur fantôme dans le payload
   }));
 
-  if (nafInput) {
+  if (nafInput && nafSuggest) {
     nafInput.addEventListener('input', () => {
       const v = nafInput.value.trim();
-      if (!v) { nafSecteurEl.textContent = ''; nafCode = null; nafSecteur = null; return; }
-      const res = (window.NAF && window.NAF.secteur) ? window.NAF.secteur(v) : null;
-      if (res) {
-        nafCode = res.code; nafSecteur = res.libelle;
-        nafSecteurEl.textContent = '✓ ' + res.libelle;
-        nafSecteurEl.className = 'mt-1.5 text-xs font-medium text-primary-700';
-      } else {
-        nafCode = null; nafSecteur = null;
-        nafSecteurEl.textContent = 'Code non reconnu, vous pouvez continuer sans.';
-        nafSecteurEl.className = 'mt-1.5 text-xs text-slate-400';
+      nafCode = null; nafSecteur = null; nafSecteurEl.textContent = '';   // une saisie invalide la sélection
+      const results = (window.NAF && window.NAF.rechercher) ? window.NAF.rechercher(v, 8) : [];
+      if (!v || results.length === 0) {
+        if (v && v.length >= 2) { nafSecteurEl.textContent = 'Aucune activité trouvée — vous pouvez continuer sans.'; nafSecteurEl.className = 'mt-1.5 text-xs text-slate-400'; }
+        hideSuggest(); return;
       }
+      nafSuggest.innerHTML = results.map(r =>
+        '<li role="option" data-code="' + r.code + '" class="px-3 py-2 cursor-pointer hover:bg-primary-50 flex items-center justify-between gap-2">' +
+          '<span class="text-slate-700">' + r.libelle + '</span>' +
+          '<span class="text-[10px] font-mono text-slate-400 shrink-0">' + fmtCode(r.code) + '</span>' +
+        '</li>').join('');
+      nafSuggest.classList.remove('hidden');
+      nafInput.setAttribute('aria-expanded', 'true');
+    });
+
+    nafSuggest.addEventListener('click', (e) => {
+      const li = e.target.closest('li[data-code]');
+      if (!li) return;
+      const res = window.NAF.secteur(li.getAttribute('data-code'));
+      if (res) chooseNaf(res.code, res.libelle);
+    });
+
+    document.addEventListener('click', (e) => {            // ferme la liste au clic extérieur
+      if (nafWrap && !nafWrap.contains(e.target)) hideSuggest();
     });
   }
 
