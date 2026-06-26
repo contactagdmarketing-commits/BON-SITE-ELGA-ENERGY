@@ -12,5 +12,65 @@
     var c = norm(input);
     return CODES[c] ? { code: c, libelle: CODES[c] } : null;
   }
-  global.NAF = { codes: CODES, norm: norm, secteur: secteur };
+
+  // Normalisation recherche : minuscule, sans accents, espaces compactes.
+  function normLabel(s) {
+    return String(s || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/\s+/g, ' ').trim();
+  }
+
+  // Alias metier courants (mots que tape un pro) -> codes NAF. Comble les ecarts de vocabulaire
+  // (les libelles INSEE officiels disent "reparation de vehicules", "produits pharmaceutiques"...).
+  var ALIASES = {
+    'restaurant':['5610A','5610C'],'resto':['5610A','5610C'],'restauration rapide':['5610C'],'fast food':['5610C'],
+    'pizzeria':['5610C'],'creperie':['5610A'],'traiteur':['5621Z'],'cantine':['5629A'],'restauration collective':['5629A'],
+    'bar':['5630Z'],'cafe':['5630Z'],'brasserie':['5630Z'],'pub':['5630Z'],'bistrot':['5630Z'],'discotheque':['5630Z'],
+    'boulangerie':['1071C','1071D','4724Z'],'boulanger':['1071C'],'patisserie':['1071D'],'patissier':['1071D'],
+    'boucherie':['4722Z'],'boucher':['4722Z'],'charcuterie':['1013B'],'poissonnerie':['4723Z'],'primeur':['4721Z'],
+    'hotel':['5510Z'],'hotellerie':['5510Z','5520Z'],'hebergement':['5510Z','5520Z'],'gite':['5520Z'],'chambre dhotes':['5520Z'],'camping':['5530Z'],
+    'garage':['4520A','4520B'],'garagiste':['4520A'],'carrosserie':['4520A'],'mecanicien':['4520A'],'concessionnaire':['4511Z'],'station service':['4730Z'],
+    'pharmacie':['4773Z'],'pharmacien':['4773Z'],'opticien':['4778A'],'optique':['4778A'],'orthopedie':['4774Z'],
+    'coiffeur':['9602A'],'coiffure':['9602A'],'salon de coiffure':['9602A'],'esthetique':['9602B'],'institut de beaute':['9602B'],'barbier':['9602A'],'spa':['9604Z'],
+    'epicerie':['4711B'],'superette':['4711C'],'supermarche':['4711D'],'hypermarche':['4711F'],'alimentation generale':['4711B'],'grande surface':['4711D','4711F'],
+    'fleuriste':['4776Z'],'pressing':['9601B'],'blanchisserie':['9601A','9601B'],'laverie':['9601B'],'cordonnerie':['9523Z'],
+    'ehpad':['8710A'],'maison de retraite':['8730A','8710A'],'clinique':['8610Z'],'hopital':['8610Z'],'cabinet medical':['8621Z'],
+    'medecin':['8621Z'],'dentiste':['8623Z'],'infirmier':['8690D'],'kine':['8690E'],'kinesitherapeute':['8690E'],'laboratoire':['8690B'],'veterinaire':['7500Z'],
+    'transport':['4941A','4941B'],'transporteur':['4941A'],'taxi':['4932Z'],'vtc':['4932Z'],'ambulance':['8690A'],'demenagement':['4942Z'],'messagerie':['5229A'],
+    'entrepot':['5210B'],'logistique':['5210B','5229B'],'stockage':['5210B'],'frigorifique':['5210A'],'entreposage':['5210B'],
+    'syndic':['6832A'],'copropriete':['6832A'],'agence immobiliere':['6831Z'],'immobilier':['6831Z','6832A'],'promoteur':['4110A'],
+    'imprimerie':['1812Z'],'imprimeur':['1812Z'],'menuiserie':['4332A'],'menuisier':['4332A'],'plombier':['4322A'],'plomberie':['4322A'],
+    'electricien':['4321A'],'electricite':['4321A'],'macon':['4399C'],'maconnerie':['4399C'],'peintre':['4334Z'],'btp':['4120B','4399C'],'batiment':['4120B'],
+    'salle de sport':['9313Z'],'fitness':['9313Z'],'club de sport':['9312Z'],'piscine':['9311Z'],
+    'ecole':['8520Z','8531Z'],'creche':['8891A'],'auto ecole':['8553Z'],'formation':['8559A'],
+    'usine':['2599B'],'industrie':['2599B'],'metallurgie':['2410Z'],'fonderie':['2451Z'],'plasturgie':['2229A'],'agroalimentaire':['1089Z'],
+    'commerce':['4719B'],'magasin':['4719B'],'boutique':['4719B'],'pret a porter':['4771Z'],'vetement':['4771Z'],'bijouterie':['4777Z'],'tabac':['4726Z'],'librairie':['4761Z']
+  };
+
+  var INDEX = null;
+  function buildIndex() {
+    INDEX = [];
+    for (var c in CODES) if (CODES.hasOwnProperty(c)) INDEX.push({ code: c, libelle: CODES[c], n: normLabel(CODES[c]) });
+  }
+
+  // Recherche BIDIRECTIONNELLE : "boulangerie" -> [{code,libelle}...] ; "56.10A" -> sous-classe exacte en tete.
+  function rechercher(query, limit) {
+    limit = limit || 12;
+    var q = String(query || '').trim();
+    if (q.length < 2) return [];
+    var seen = {}, out = [];
+    function push(code) { if (code && CODES[code] && !seen[code]) { seen[code] = 1; out.push({ code: code, libelle: CODES[code] }); } }
+    var exact = secteur(q);
+    if (exact) push(exact.code);
+    var nq = normLabel(q);
+    if (ALIASES[nq]) ALIASES[nq].forEach(push);
+    for (var a in ALIASES) { if (out.length < limit && a !== nq && (a.indexOf(nq) !== -1 || nq.indexOf(a) !== -1)) ALIASES[a].forEach(push); }
+    if (nq && out.length < limit) {
+      if (!INDEX) buildIndex();
+      var starts = [], contains = [];
+      for (var i = 0; i < INDEX.length; i++) { var p = INDEX[i].n.indexOf(nq); if (p === 0) starts.push(INDEX[i]); else if (p > 0) contains.push(INDEX[i]); }
+      starts.concat(contains).forEach(function (it) { if (out.length < limit) push(it.code); });
+    }
+    return out.slice(0, limit);
+  }
+
+  global.NAF = { codes: CODES, norm: norm, secteur: secteur, rechercher: rechercher, normLabel: normLabel, aliases: ALIASES };
 })(typeof window !== 'undefined' ? window : this);
