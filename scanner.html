@@ -4,9 +4,9 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Scanner ma facture — Estimer mes économies | Elga Energy</title>
-  <meta name="description" content="Uploadez votre facture d'électricité ou de gaz. Elga Energy analyse vos prix en 30 secondes et vous montre les économies potentielles par rapport aux meilleures offres du marché." />
+  <meta name="description" content="Uploadez votre facture d'électricité ou de gaz. Elga Energy analyse vos prix en 15 secondes et vous montre les économies potentielles par rapport aux meilleures offres du marché." />
   <link rel="canonical" href="https://www.elgaenergy.com/scanner.html" />
-  <meta property="og:title" content="Scanner ma facture énergie — Économies en 30 secondes" />
+  <meta property="og:title" content="Scanner ma facture énergie — Économies en 15 secondes" />
   <meta property="og:description" content="Déposez votre facture, notre IA détecte vos prix et calcule vos économies potentielles. Gratuit, sans engagement." />
   <meta property="og:url" content="https://www.elgaenergy.com/scanner.html" />
   <meta property="og:type" content="website" />
@@ -136,13 +136,13 @@
   <div class="container text-center max-w-3xl mx-auto space-y-5">
     <div class="inline-flex items-center gap-2 rounded-full bg-white/15 border border-white/25 px-4 py-1.5 text-sm font-medium">
       <span class="size-2 rounded-full bg-primary-300 pulse shrink-0"></span>
-      Outil gratuit — résultat en 30 secondes
+      Outil gratuit · résultat en 15 secondes
     </div>
     <h1 class="text-3xl md:text-5xl font-extrabold leading-tight">
       Scannez votre facture,<br/>découvrez vos économies
     </h1>
     <p class="text-white/85 text-lg max-w-2xl mx-auto">
-      Notre IA analyse votre facture d'électricité ou de gaz (tous fournisseurs) et la compare aux meilleures offres du marché B2B. En 30 secondes, vous savez combien vous pourriez économiser.
+      Notre IA analyse votre facture d'électricité ou de gaz (tous fournisseurs) et la compare aux meilleures offres du marché B2B. En 15 secondes, vous savez combien vous pourriez économiser.
     </p>
     <div class="flex flex-wrap justify-center gap-4 text-sm text-white/80">
       <span class="flex items-center gap-1.5">
@@ -181,7 +181,7 @@
       <!-- Champ NAF (pro uniquement) -->
       <div id="nafWrap" class="mt-4 max-w-md mx-auto">
         <label for="nafInput" class="block text-xs font-semibold text-slate-600 mb-1">
-          Code NAF / APE <span class="text-slate-400 font-normal">(optionnel — affine le secteur)</span>
+          Code NAF / APE <span class="text-slate-400 font-normal">(optionnel, affine le secteur)</span>
         </label>
         <input type="text" id="nafInput" inputmode="text" autocomplete="off" placeholder="ex. 56.10A"
           class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" />
@@ -242,7 +242,7 @@
     <div class="mt-6 flex flex-wrap justify-center gap-6 text-xs text-slate-400">
       <span class="flex items-center gap-1.5">
         <svg class="w-4 h-4 text-slate-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
-        Analyse sécurisée — données non conservées
+        Analyse sécurisée, données non conservées
       </span>
       <span class="flex items-center gap-1.5">
         <svg class="w-4 h-4 text-slate-300" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
@@ -354,7 +354,7 @@
         <div id="gaugeBar" class="gauge-fill h-full bg-white rounded-full" style="width:0%"></div>
       </div>
       <!-- Disclaimer estimation -->
-      <p class="text-xs text-white/50 mt-2">* Projection basée sur votre facture de <span id="resultPeriodMonths"></span> — votre consommation réelle peut varier selon les saisons</p>
+      <p class="text-xs text-white/50 mt-2">* Projection basée sur votre facture de <span id="resultPeriodMonths"></span>. Votre consommation réelle peut varier selon les saisons</p>
       <!-- Détail mensuel -->
       <div id="annualProjectionBlock" class="mt-3 bg-white/10 rounded-xl px-4 py-2.5 text-center hidden">
         <p class="text-xs text-white/60">Soit environ <span id="resultSavingsMonthly" class="font-bold text-white/90"></span> par mois sur cette facture</p>
@@ -373,7 +373,7 @@
             <p class="text-sm font-bold text-slate-800">Prix de la fourniture</p>
             <span class="shrink-0 text-xs font-bold text-primary-700 bg-primary-50 rounded-full px-2 py-0.5" id="lever1Badge"></span>
           </div>
-          <p class="text-xs text-slate-500 mt-0.5">Le prix au kWh négocié auprès des fournisseurs. C'est là que se jouent les plus grandes économies — jusqu'à 30% selon votre contrat actuel.</p>
+          <p class="text-xs text-slate-500 mt-0.5">Le prix au kWh négocié auprès des fournisseurs. C'est là que se jouent les plus grandes économies, jusqu'à 30% selon votre contrat actuel.</p>
         </div>
       </div>
 
@@ -409,7 +409,7 @@
         <div>
           <p class="text-sm font-bold text-amber-900">Pourquoi votre budget annuel réel est différent</p>
           <p class="text-xs text-amber-800 leading-relaxed mt-1.5">
-            On pourrait multiplier votre facture par 12 — mais ce serait inexact. <strong>Votre consommation d'énergie n'est pas linéaire :</strong> chauffage en hiver, climatisation en été, périodes creuses... Une seule facture ne reflète qu'un instant T.
+            On pourrait multiplier votre facture par 12, mais ce serait inexact. <strong>Votre consommation d'énergie n'est pas linéaire :</strong> chauffage en hiver, climatisation en été, périodes creuses... Une seule facture ne reflète qu'un instant T.
           </p>
           <p class="text-xs text-amber-800 leading-relaxed mt-1.5">
             La <strong>Consommation Annuelle de Référence (CAR)</strong>, c'est vos 12 derniers mois de consommation réelle, tels qu'ils sont enregistrés par Enedis. C'est la seule base fiable pour calculer un vrai budget annuel et comparer les offres fournisseurs.
@@ -427,7 +427,7 @@
       <div>
         <p class="text-sm font-bold text-red-800">Ces tarifs peuvent changer d'une semaine à l'autre</p>
         <p class="text-xs text-red-700 leading-relaxed mt-1">
-          Les prix affichés sont basés sur nos <strong>dernières négociations en cours</strong> avec les fournisseurs. Les marchés de l'énergie fluctuent en permanence : les offres compétitives d'aujourd'hui ne seront peut-être plus disponibles dans quelques semaines. Plus vous attendez, moins vous avez de garantie de bénéficier de ces conditions.
+          Les prix affichés sont basés sur nos <strong>dernières négociations en cours</strong> avec les fournisseurs. Les marchés de l'énergie fluctuent en permanence : les offres compétitives d'aujourd'hui ne seront peut-être plus disponibles dans quelques semaines. Au-delà de quelques semaines, ces conditions ne sont plus garanties.
         </p>
       </div>
     </div>
@@ -445,7 +445,7 @@
     <div class="result-card space-y-3" style="animation-delay:.35s">
       <button id="btnGetAudit"
         class="w-full py-4 rounded-2xl bg-primary-600 text-white font-bold text-lg shadow-strong hover:bg-primary-700 transition-all focus:outline-none focus:ring-2 focus:ring-primary-600">
-        Affiner mes économies — bilan gratuit →
+        Affiner mes économies : bilan gratuit →
       </button>
       <p class="text-center text-xs text-slate-400">Résultat précis sous 24h · Zéro engagement · Zéro frais</p>
     </div>
@@ -459,7 +459,7 @@
       <div class="bg-gradient-to-r from-secondary-600 to-primary-600 px-6 py-6 text-white">
         <p class="text-xs font-semibold text-white/70 uppercase tracking-wide mb-1">Étape suivante</p>
         <h2 class="text-xl font-bold leading-snug">Votre simulation peut être bien plus précise</h2>
-        <p class="text-sm text-white/80 mt-2">Une seule facture ne reflète pas votre consommation annuelle réelle. Voici comment on va affiner le calcul — sans effort de votre part.</p>
+        <p class="text-sm text-white/80 mt-2">Une seule facture ne reflète pas votre consommation annuelle réelle. Voici comment on va affiner le calcul, sans effort de votre part.</p>
       </div>
 
       <div class="px-6 py-5 space-y-4">
@@ -467,7 +467,7 @@
         <div class="bg-blue-50 border border-blue-100 rounded-xl p-4 space-y-3">
           <p class="text-sm font-bold text-blue-900">🏛️ Enedis, c'est quoi exactement ?</p>
           <p class="text-sm text-blue-800 leading-relaxed">Enedis est le gestionnaire unique du réseau de distribution électrique en France. Il conserve <strong>l'historique exact de vos 12 derniers mois de consommation</strong>, indépendamment de votre fournisseur.</p>
-          <p class="text-sm text-blue-800 leading-relaxed">En récupérant ces données, nous pouvons calculer votre budget annuel réel — et non une extrapolation d'une seule facture — pour vous proposer le comparatif le plus précis du marché.</p>
+          <p class="text-sm text-blue-800 leading-relaxed">En récupérant ces données, nous pouvons calculer votre budget annuel réel (et non une extrapolation d'une seule facture) pour vous proposer le comparatif le plus précis du marché.</p>
         </div>
 
         <!-- Comment ça marche -->
@@ -651,7 +651,7 @@
         nafSecteurEl.className = 'mt-1.5 text-xs font-medium text-primary-700';
       } else {
         nafCode = null; nafSecteur = null;
-        nafSecteurEl.textContent = 'Code non reconnu — vous pouvez continuer sans.';
+        nafSecteurEl.textContent = 'Code non reconnu, vous pouvez continuer sans.';
         nafSecteurEl.className = 'mt-1.5 text-xs text-slate-400';
       }
     });
@@ -799,7 +799,7 @@
 
       // Sous-titre : % + budget annuel avec Elga
       const subline = document.getElementById('resultSavingsSubline');
-      if (subline) subline.textContent = 'soit ' + s.savings_pct + '% — budget annuel avec Elga : ' + formatEuro(s.elga_total_annual);
+      if (subline) subline.textContent = 'soit ' + s.savings_pct + '%, budget annuel avec Elga : ' + formatEuro(s.elga_total_annual);
 
       // Disclaimer période (astérisque)
       const periodMonthsEl = document.getElementById('resultPeriodMonths');
