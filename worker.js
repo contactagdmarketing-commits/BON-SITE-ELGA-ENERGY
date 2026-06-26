@@ -119,7 +119,10 @@ Réponds UNIQUEMENT avec le JSON, sans texte avant ou après :
   "cee_mwh": coût des CEE en €/MWh (si facturé séparément, sinon null),
   "subscription_monthly_ht": abonnement mensuel en € HT,
   "acheminement_annual_ht": coût annuel d'acheminement/TURPE en € HT (ANNUALISÉ),
-  "taxes_annual_ht": total annuel taxes (Accise/TICFE + CTA) en € HT (ANNUALISÉ, hors TVA),
+  "accise_annual_ht": montant annuel de l'Accise sur l'énergie (ex-TICFE/CSPE) en € HT (ANNUALISÉ), null si introuvable,
+  "cta_annual_ht": montant annuel de la CTA (Contribution Tarifaire d'Acheminement) en € HT (ANNUALISÉ), null si introuvable,
+  "taxes_annual_ht": total annuel taxes (Accise + CTA) en € HT (ANNUALISÉ, hors TVA) — doit égaler accise + cta si les deux sont trouvés,
+  "tva_pct": taux de TVA appliqué en % (ex: 20 ; 5.5 possible sur l'abonnement avant 08/2025),
   "total_ht_annual": total annuel HT en € (ANNUALISÉ, hors TVA),
   "total_ttc_annual": total annuel TTC en € (ANNUALISÉ, TVA incluse),
   "confidence": "high" si prix unitaires + conso + total trouvés, "medium" si partiel, "low" si peu de données
@@ -131,7 +134,9 @@ Notes importantes :
 - segment : c5_mu4 = ≤36 kVA usage moyen, c5_cu4 = ≤36 kVA usage court, c4_lu = 36-250 kVA longue utilisation, c5_hta = >36 kVA HTA. Gaz : t2_p12 = ≤200 MWh/an, t3 = 200-600 MWh/an.
 - capa_mwh : chercher "mécanisme de capacité", souvent entre 0,50 et 15 €/MWh. Chez certains fournisseurs il est inclus dans le prix énergie (mettre null dans ce cas).
 - acheminement = "Utilisation du réseau" ou "TURPE" ou "Coûts d'utilisation du réseau".
-- taxes = TICFE/Accise + CTA (pas la TVA).`;
+- accise = "Accise sur l'électricité" / "Accise sur les énergies" / ancien "TICFE" / "CSPE" (proportionnelle aux kWh).
+- cta = "CTA" / "Contribution Tarifaire d'Acheminement" (assise sur la part fixe de l'acheminement).
+- taxes_annual_ht = accise + cta (PAS la TVA). Sépare accise et cta si la facture les détaille ; sinon mets-les dans taxes_annual_ht.`;
 
 // ─── Prompt extraction depuis bilan comparatif ───────────────────────────────
 
@@ -431,6 +436,10 @@ async function handleScan(request, env) {
   }
 
   const { file_data, file_name } = body;
+  // Profil saisi côté site : 'particulier' | 'professionnel' (défaut pro = cœur de cible B2B).
+  const clientType = body.client_type === 'particulier' ? 'particulier' : 'professionnel';
+  const naf     = typeof body.naf === 'string'     ? body.naf.slice(0, 8)      : null;
+  const secteur = typeof body.secteur === 'string' ? body.secteur.slice(0, 120) : null;
   // Garde-fou taille : base64 de ~10 Mo ≈ 13,6 M caractères.
   if (typeof file_data === 'string' && file_data.length > 14_000_000) {
     return jsonResponse({ error: 'Fichier trop volumineux (max ~10 Mo).' }, 413);
@@ -465,6 +474,11 @@ async function handleScan(request, env) {
     ? { type: 'image', source: { type: 'base64', media_type: file_type, data: file_data } }
     : { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: file_data } };
 
+  // Contexte profil : oriente l'extraction (un particulier raisonne TTC ≤36 kVA, un pro en HT).
+  const profilContext = clientType === 'particulier'
+    ? 'CONTEXTE : facture d\'un PARTICULIER (résidentiel, ≤36 kVA, prix souvent en c€/kWh, montants TTC, TVA NON récupérable). Raisonne en cohérence.\n\n'
+    : 'CONTEXTE : facture d\'un PROFESSIONNEL (TVA récupérable, raisonner en € HT)' + (secteur ? `, secteur : ${secteur}` : '') + '.\n\n';
+
   const claudeRes = await fetch(ANTHROPIC_API, {
     method: 'POST',
     headers: {
@@ -476,7 +490,7 @@ async function handleScan(request, env) {
     body: JSON.stringify({
       model: CLAUDE_MODEL,
       max_tokens: 1024,
-      messages: [{ role: 'user', content: [contentBlock, { type: 'text', text: EXTRACTION_PROMPT }] }],
+      messages: [{ role: 'user', content: [contentBlock, { type: 'text', text: profilContext + EXTRACTION_PROMPT }] }],
     }),
   });
 
@@ -495,8 +509,18 @@ async function handleScan(request, env) {
     return jsonResponse({ error: 'Impossible de lire la réponse IA', raw: claudeData }, 502);
   }
 
+  // Filet : si l'IA a séparé accise/cta mais pas rempli le total, on le reconstitue (le calcul s'en sert).
+  if (extracted && extracted.taxes_annual_ht == null &&
+      (extracted.accise_annual_ht != null || extracted.cta_annual_ht != null)) {
+    extracted.taxes_annual_ht = (extracted.accise_annual_ht || 0) + (extracted.cta_annual_ht || 0);
+  }
+
   const savings = calculateSavings(extracted, priceGrid);
-  return jsonResponse({ extracted, savings, price_grid_updated_at: priceGrid.meta?.updated_at });
+  return jsonResponse({
+    extracted, savings,
+    client_type: clientType, naf, secteur,
+    price_grid_updated_at: priceGrid.meta?.updated_at,
+  });
 }
 
 // ─── Handler : lecture de la grille de prix ───────────────────────────────────
