@@ -461,11 +461,48 @@
       </div>
     </div>
 
-    <!-- Leviers d'optimisation (DYNAMIQUES : adaptés à chaque facture + au secteur NAF) -->
-    <div class="result-card space-y-3" style="animation-delay:.25s">
-      <p class="text-sm font-bold text-slate-700 px-1">Où sont vos économies, levier par levier</p>
+    <!-- Leviers = RÉGLAGES : cochez ceux à retenir → recalcul en direct -->
+    <div class="result-card bg-white rounded-2xl shadow-soft p-5 space-y-3.5" style="animation-delay:.25s">
+      <div class="flex items-center justify-between gap-3">
+        <div class="min-w-0">
+          <p class="text-sm font-bold text-slate-800">Vos leviers d'économie</p>
+          <p class="text-xs text-slate-400 mt-0.5">Cochez les leviers à retenir — votre projection se recalcule en direct.</p>
+        </div>
+        <div class="text-right shrink-0">
+          <p class="text-[10px] text-slate-400 uppercase tracking-wide">Total retenu</p>
+          <p id="leviersTotal" class="text-lg font-extrabold text-primary-700 tabular-nums">—</p>
+        </div>
+      </div>
       <div id="leviers" class="space-y-2.5"></div>
-      <p class="text-[11px] leading-relaxed text-slate-400 px-1 pt-1">Estimations sur des tarifs moyens du marché, qui varient d'un jour à l'autre. Le chiffrage précis se fait avec votre consommation réelle (Enedis) lors du bilan.</p>
+      <p class="text-[11px] leading-relaxed text-slate-400 pt-0.5">Estimations sur des tarifs moyens du marché, qui varient d'un jour à l'autre. Le chiffrage précis se fait avec votre consommation réelle (Enedis) lors du bilan.</p>
+    </div>
+
+    <!-- VOTRE FACTURE EN DÉTAIL — 100% personnalisé -->
+    <div class="result-card bg-white rounded-2xl shadow-soft p-5 space-y-4" style="animation-delay:.27s">
+      <div class="flex items-center gap-2.5">
+        <div class="size-9 rounded-lg bg-secondary-50 text-secondary-600 flex items-center justify-center shrink-0">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m-6-8h6M5 4h14a1 1 0 011 1v14a1 1 0 01-1 1H5a1 1 0 01-1-1V5a1 1 0 011-1z"/></svg>
+        </div>
+        <div>
+          <p class="text-sm font-bold text-slate-800">Votre facture en détail</p>
+          <p class="text-xs text-slate-400">Lecture poste par poste de votre document, telle qu'analysée.</p>
+        </div>
+      </div>
+      <div id="factureDetail" class="space-y-4"></div>
+    </div>
+
+    <!-- COMPARATIF vs grille Elga -->
+    <div id="elgaCompareCard" class="result-card bg-white rounded-2xl shadow-soft p-5 space-y-3 hidden" style="animation-delay:.29s">
+      <div class="flex items-center gap-2.5">
+        <div class="size-9 rounded-lg bg-primary-100 text-primary-700 flex items-center justify-center shrink-0">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17V9m4 8V5m4 12v-6M5 21h14"/></svg>
+        </div>
+        <div>
+          <p class="text-sm font-bold text-slate-800">Votre tarif vs la grille Elga</p>
+          <p class="text-xs text-slate-400">Poste par poste, face à nos meilleures offres négociées <span id="elgaSegment" class="font-semibold text-slate-500"></span>.</p>
+        </div>
+      </div>
+      <div id="elgaCompare"></div>
     </div>
 
     <!-- Carte CAR : pourquoi ×12 ≠ budget réel -->
@@ -496,15 +533,6 @@
           Les prix affichés sont basés sur nos <strong>dernières négociations en cours</strong> avec les fournisseurs. Les marchés de l'énergie fluctuent en permanence : les offres compétitives d'aujourd'hui ne seront peut-être plus disponibles dans quelques semaines. Au-delà de quelques semaines, ces conditions ne sont plus garanties.
         </p>
       </div>
-    </div>
-
-    <!-- Données extraites -->
-    <div class="result-card bg-white rounded-2xl shadow-soft p-4" style="animation-delay:.32s">
-      <button id="toggleDetails" class="w-full flex items-center justify-between text-sm font-semibold text-slate-600 hover:text-slate-800">
-        <span>Détail des données extraites</span>
-        <svg id="detailsChevron" class="w-4 h-4 transition-transform" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
-      </button>
-      <div id="detailsPanel" class="hidden mt-4 grid grid-cols-2 gap-3 text-sm"></div>
     </div>
 
     <!-- CTA principal -->
@@ -884,106 +912,259 @@
     return div >= 5 && div <= 39;
   }
 
-  // Construit les leviers d'optimisation, adaptés à CHAQUE facture + au secteur.
-  function renderLeviers(e, s, data) {
-    var box = document.getElementById('leviers');
-    if (!box) return;
+  // ── État du rapport (partagé entre leviers / recompute / détail / comparatif) ──
+  var _e = null, _s = null, _data = null, _levers = [];
+  var LEVER_ICONS = {
+    energie: 'M13 2L4.5 13.5H11l-1 8.5L18.5 10.5H12L13 2z',
+    abonnement: 'M6 3h12a1 1 0 011 1v17l-3-2-2 2-2-2-2 2-2-2-2 2V4a1 1 0 011-1zM8.5 8h7M8.5 12h7M8.5 16h4',
+    acheminement: 'M9 7V3M15 7V3M7 7h10v3a5 5 0 01-10 0V7zM12 15v6',
+    accise: 'M3 6h18v12H3zM12 9.5a2.5 2.5 0 100 5 2.5 2.5 0 000-5zM6 12h.01M18 12h.01'
+  };
+  var LEVER_C = {
+    primary: ['bg-primary-100', 'text-primary-700', 'bg-primary-50'],
+    sky: ['bg-sky-100', 'text-sky-700', 'bg-sky-50'],
+    amber: ['bg-amber-100', 'text-amber-700', 'bg-amber-50'],
+    violet: ['bg-violet-100', 'text-violet-700', 'bg-violet-50']
+  };
+  function mwhStr(v) { return (Math.round(v * 10) / 10).toFixed(1).replace('.', ',') + ' €/MWh HT'; }
+  function consoMwhOf(e) { return e.annual_consumption_mwh || (e.annual_consumption_kwh ? e.annual_consumption_kwh / 1000 : null); }
+
+  // Construit les leviers CHIFFRES (euro = montant retenable, ou null = a chiffrer).
+  function computeLevers(e, s, data) {
     var isGas = e.energy_type === 'gas';
-    var consoMwh = e.annual_consumption_mwh || (e.annual_consumption_kwh ? e.annual_consumption_kwh / 1000 : null);
-    // Icônes SVG (clé -> path d) — fini les emojis
-    var ICONS = {
-      energie: 'M13 2L4.5 13.5H11l-1 8.5L18.5 10.5H12L13 2z',
-      abonnement: 'M6 3h12a1 1 0 011 1v17l-3-2-2 2-2-2-2 2-2-2-2 2V4a1 1 0 011-1zM8.5 8h7M8.5 12h7M8.5 16h4',
-      acheminement: 'M9 7V3M15 7V3M7 7h10v3a5 5 0 01-10 0V7zM12 15v6',
-      accise: 'M3 6h18v12H3zM12 9.5a2.5 2.5 0 100 5 2.5 2.5 0 000-5zM6 12h.01M18 12h.01'
-    };
+    var consoMwh = consoMwhOf(e);
     var L = [];
 
-    // 1. Prix de l'énergie (kWh)
-    L.push({ icon: 'energie', color: 'primary', titre: "Prix de l'énergie (kWh)",
-      badge: (s && s.savings_pct) ? '\u2248 ' + s.savings_pct + '%' : 'à chiffrer',
-      desc: "Votre prix au kWh est comparé au prix moyen qu'Elga négocie auprès de 30+ fournisseurs à date. C'est le plus gros levier, applicable à votre prochain renouvellement de contrat." });
+    L.push({ key: 'energie', icon: 'energie', color: 'primary', titre: "Prix de l'énergie (kWh)",
+      euro: (s && s.savings_annual) ? Math.round(s.savings_annual) : null, checked: true,
+      desc: "Votre prix au kWh comparé au prix moyen qu'Elga négocie auprès de 30+ fournisseurs. Le plus gros levier, applicable à votre prochain renouvellement de contrat." });
 
-    // 2. Abonnement
     if (e.subscription_monthly_ht) {
-      L.push({ icon: 'abonnement', color: 'sky', titre: 'Abonnement', badge: formatEuro(e.subscription_monthly_ht) + '/mois',
-        desc: "Sur votre facture : " + formatEuro(e.subscription_monthly_ht) + "/mois de part fixe, soit " + formatEuro(Math.round(e.subscription_monthly_ht * 12)) + "/an. Souvent optimisable selon l'offre et la puissance souscrite." });
+      L.push({ key: 'abo', icon: 'abonnement', color: 'sky', titre: 'Abonnement', euro: null, checked: false,
+        desc: "Part fixe de " + formatEuro(e.subscription_monthly_ht) + "/mois (" + formatEuro(Math.round(e.subscription_monthly_ht * 12)) + "/an). Souvent optimisable selon l'offre et la puissance souscrite." });
     }
 
-    // 3. Acheminement & puissance (élec) — calcul TURPE 7 réel (part fixe €/kVA/an)
     if (!isGas && e.power_kva) {
-      var TURPE_KVA = (e.segment && /mu/i.test(e.segment)) ? 12.12 : 10.11; // HP/HC (MU4)=12,12 ; Base (CU4)=10,11
-      var aBadge = 'à vérifier';
+      var TURPE_KVA = (e.segment && /mu/i.test(e.segment)) ? 12.12 : 10.11;
+      var euroA = null;
       var aDesc = "Puissance souscrite : " + e.power_kva + " kVA. On vérifie qu'elle est bien dimensionnée (1 kVA de trop = " + TURPE_KVA.toFixed(2).replace('.', ',') + " €/an de TURPE payé pour rien).";
       if (consoMwh && consoMwh > 0) {
-        var heq = (consoMwh * 1000) / e.power_kva; // heures équivalentes pleine puissance / an
+        var heq = (consoMwh * 1000) / e.power_kva;
         if (heq < 1000 && e.power_kva > 6 && e.power_kva <= 36) {
           var cible = Math.max(6, e.power_kva - 3);
-          var ecoA = Math.round((e.power_kva - cible) * TURPE_KVA);
-          aBadge = '\u2248 ' + ecoA + ' €/an';
-          aDesc = "Puissance de " + e.power_kva + " kVA pour " + (Math.round(consoMwh * 10) / 10) + " MWh/an : sans doute trop élevée. Exemple : passer de " + e.power_kva + " à " + cible + " kVA \u2248 " + ecoA + " €/an d'acheminement économisés (" + TURPE_KVA.toFixed(2).replace('.', ',') + " €/kVA/an, barème TURPE 7 — CRE). À ajuster selon votre puissance réellement atteinte (données Enedis).";
-        } else if (heq < 1000 && e.power_kva > 36) {
-          aBadge = 'sur-dimensionnée ?';
-          aDesc = "Puissance de " + e.power_kva + " kVA pour " + (Math.round(consoMwh * 10) / 10) + " MWh/an : ratio faible, sans doute trop élevée. En tarif >36 kVA, l'économie se chiffre sur votre courbe de charge réelle (Enedis).";
+          euroA = Math.round((e.power_kva - cible) * TURPE_KVA);
+          aDesc = "Puissance de " + e.power_kva + " kVA pour " + (Math.round(consoMwh * 10) / 10) + " MWh/an : sans doute trop élevée. Passer de " + e.power_kva + " à " + cible + " kVA ≈ " + euroA + " €/an d'acheminement économisés (barème TURPE 7 — CRE). À ajuster avec vos données Enedis.";
         } else if (heq > 4000) {
-          aBadge = 'bien dimensionnée';
           aDesc = "Puissance de " + e.power_kva + " kVA bien utilisée. Peu de marge ici, on optimise les autres leviers.";
         }
       }
-      L.push({ icon: 'acheminement', color: 'amber', titre: 'Acheminement & puissance (TURPE)', badge: aBadge, desc: aDesc });
+      L.push({ key: 'turpe', icon: 'acheminement', color: 'amber', titre: 'Acheminement & puissance (TURPE)', euro: euroA, checked: euroA != null, desc: aDesc });
     }
 
-    // 4. Accise / taxe — chiffrée depuis le MONTANT RÉEL de la facture (si secteur industriel B/C/D)
     if (data.client_type !== 'particulier') {
-      var code = data.naf || nafCode;
-      var sect = data.secteur || nafSecteur;
+      var code = data.naf || (typeof nafCode !== 'undefined' ? nafCode : null);
+      var sect = data.secteur || (typeof nafSecteur !== 'undefined' ? nafSecteur : null);
       if (acciseEligibleNaf(code)) {
         var acciseNow = (e.accise_annual_ht != null) ? e.accise_annual_ht
-                       : (e.taxes_annual_ht != null ? Math.max(0, e.taxes_annual_ht - (e.cta_annual_ht || 50)) : null);
-        var tBadge = 'tarif réduit possible';
-        var tDesc = "Votre secteur" + (sect ? " (" + sect + ")" : " industriel") + " (NAF sections industrielles) ouvre droit au tarif réduit d'accise : 5,5 €/MWh au lieu du tarif plein. L'accise (ex-CSPE/TICFE) est payée sur chaque kWh — récupérable sur les 2 dernières années via le service des impôts. À confirmer selon votre ratio conso/valeur ajoutée.";
+          : (e.taxes_annual_ht != null ? Math.max(0, e.taxes_annual_ht - (e.cta_annual_ht || 50)) : null);
+        var euroT = null;
+        var tDesc = "Votre secteur" + (sect ? " (" + sect + ")" : " industriel") + " ouvre droit au tarif réduit d'accise (5,5 €/MWh au lieu du tarif plein). L'accise (ex-CSPE/TICFE) est récupérable sur les 2 dernières années via les impôts.";
         if (acciseNow && consoMwh && consoMwh > 0) {
           var reduced = consoMwh * 5.5;
-          var ecoT = Math.round(acciseNow - reduced);
-          if (ecoT > 0) {
-            tBadge = '\u2248 ' + ecoT + ' €/an';
-            tDesc = "Sur votre facture, l'accise (ex-CSPE/TICFE) représente ~" + formatEuro(Math.round(acciseNow)) + "/an. Votre secteur" + (sect ? " (" + sect + ")" : " industriel") + " ouvre droit au tarif réduit de 5,5 €/MWh, soit ~" + formatEuro(Math.round(reduced)) + "/an \u2192 économie \u2248 " + formatEuro(ecoT) + "/an, récupérable sur 2 ans (via les impôts). À confirmer selon votre valeur ajoutée.";
+          var et = Math.round(acciseNow - reduced);
+          if (et > 0) {
+            euroT = et;
+            tDesc = "Sur votre facture, l'accise représente ~" + formatEuro(Math.round(acciseNow)) + "/an. Tarif réduit (5,5 €/MWh) ≈ " + formatEuro(Math.round(reduced)) + "/an → économie ≈ " + formatEuro(et) + "/an, récupérable sur 2 ans.";
           }
         }
-        L.push({ icon: 'accise', color: 'violet', titre: "Accise sur l'énergie (taxe)", badge: tBadge, desc: tDesc });
+        L.push({ key: 'accise', icon: 'accise', color: 'violet', titre: "Accise sur l'énergie (taxe)", euro: euroT, checked: euroT != null, desc: tDesc });
       } else if (!code) {
-        L.push({ icon: 'accise', color: 'violet', titre: "Accise sur l'énergie (taxe)", badge: 'selon secteur',
+        L.push({ key: 'accise', icon: 'accise', color: 'violet', titre: "Accise sur l'énergie (taxe)", euro: null, checked: false,
           desc: "Si votre activité est industrielle (fabrication, agroalimentaire, boulangerie…), un tarif réduit d'accise (5,5 €/MWh) est possible. Indiquez votre secteur en haut pour le vérifier." });
       }
     }
+    return L;
+  }
 
-    // Sélecteur "Que souhaitez-vous analyser ?" : met le levier ciblé en tête + le surligne
-    if (typeof analysisFocus !== 'undefined' && analysisFocus !== 'all') {
-      var fk = analysisFocus === 'kwh' ? 'énergie' : analysisFocus === 'taxes' ? 'Accise' : analysisFocus === 'acheminement' ? 'Acheminement' : '';
-      if (fk) {
-        L.sort(function (a, b) { return (a.titre.indexOf(fk) >= 0 ? 0 : 1) - (b.titre.indexOf(fk) >= 0 ? 0 : 1); });
-        if (L[0] && L[0].titre.indexOf(fk) >= 0) L[0].focus = true;
-      }
-    }
-
-    var C = { primary: ['bg-primary-100', 'text-primary-700', 'bg-primary-50'], sky: ['bg-sky-100', 'text-sky-700', 'bg-sky-50'], amber: ['bg-amber-100', 'text-amber-700', 'bg-amber-50'], violet: ['bg-violet-100', 'text-violet-700', 'bg-violet-50'] };
+  // Rend les leviers en CASES A COCHER (reglages). Cocher/decocher -> recompute().
+  function renderLeviers() {
+    var box = document.getElementById('leviers');
+    if (!box) return;
     box.innerHTML = '';
-    L.forEach(function (lv, i) {
-      var c = C[lv.color] || C.primary;
-      var card = document.createElement('div');
-      card.className = 'lever-in bg-white rounded-xl shadow-soft p-4 flex items-start gap-4' + (lv.focus ? ' lever-focus' : '');
-      card.style.animationDelay = (i * 90) + 'ms';
+    _levers.forEach(function (lv, i) {
+      var c = LEVER_C[lv.color] || LEVER_C.primary;
+      var hasEuro = lv.euro != null;
+      var card = document.createElement('label');
+      card.className = 'lever-in flex items-start gap-3 rounded-xl border p-4 transition-colors ' + (hasEuro ? 'border-slate-200 bg-white cursor-pointer hover:border-primary-300' : 'border-slate-100 bg-slate-50/60');
+      card.style.animationDelay = (i * 70) + 'ms';
       card.innerHTML =
-        '<div class="size-10 rounded-lg ' + c[0] + ' ' + c[1] + ' flex items-center justify-center shrink-0"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="' + (ICONS[lv.icon] || ICONS.energie) + '"/></svg></div>' +
+        '<input type="checkbox" class="lev-cb mt-1 size-4 shrink-0 rounded border-slate-300 text-primary-600 focus:ring-primary-500" ' + (lv.checked ? 'checked' : '') + (hasEuro ? '' : ' disabled') + '>' +
+        '<div class="size-10 rounded-lg ' + c[0] + ' ' + c[1] + ' flex items-center justify-center shrink-0"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="' + (LEVER_ICONS[lv.icon] || LEVER_ICONS.energie) + '"/></svg></div>' +
         '<div class="flex-1 min-w-0"><div class="flex items-center justify-between gap-2">' +
           '<p class="lv-t text-[15px] font-bold text-slate-900"></p>' +
-          '<span class="lv-b shrink-0 text-sm font-extrabold ' + c[1] + ' ' + c[2] + ' rounded-lg px-2.5 py-1"></span>' +
+          '<span class="lv-b shrink-0 text-sm font-extrabold ' + c[1] + ' ' + c[2] + ' rounded-lg px-2.5 py-1 tabular-nums"></span>' +
         '</div><p class="lv-d text-[13px] text-slate-600 mt-1.5 leading-relaxed"></p></div>';
       card.querySelector('.lv-t').textContent = lv.titre;
-      card.querySelector('.lv-b').textContent = lv.badge;
+      card.querySelector('.lv-b').textContent = hasEuro ? ('≈ ' + formatEuro(lv.euro) + '/an') : 'à chiffrer';
       card.querySelector('.lv-d').textContent = lv.desc;
+      var cb = card.querySelector('.lev-cb');
+      cb.addEventListener('change', function () { lv.checked = cb.checked; recompute(); });
       box.appendChild(card);
     });
+  }
+
+  // Recalcule le heros (somme des leviers coches) + sous-titre + jauge + total retenu.
+  function recompute() {
+    var total = 0;
+    _levers.forEach(function (lv) { if (lv.checked && lv.euro != null) total += lv.euro; });
+    var hero = document.getElementById('resultSavings');
+    if (total > 0) countUp(hero, total);
+    else if (_s && _s.savings_annual) { total = Math.round(_s.savings_annual); countUp(hero, total); }
+    else hero.textContent = "Jusqu'à 30%";
+
+    var lt = document.getElementById('leviersTotal');
+    if (lt) lt.textContent = total > 0 ? formatEuro(total) + '/an' : '—';
+
+    var sub = document.getElementById('resultSavingsSubline');
+    var clientAnnual = _s ? _s.client_total_annual : null;
+    if (sub) {
+      if (total > 0 && clientAnnual) {
+        var pct = Math.min(60, Math.round(total / clientAnnual * 100));
+        sub.textContent = 'soit ≈ ' + pct + '% de votre budget — cible ≈ ' + formatEuro(Math.max(0, clientAnnual - total)) + '/an';
+        document.getElementById('gaugeBar').style.width = Math.min(pct * 2.5, 95) + '%';
+      } else if (_s) {
+        sub.textContent = 'soit ' + _s.savings_pct + '%, budget annuel avec Elga : ' + formatEuro(_s.elga_total_annual);
+        document.getElementById('gaugeBar').style.width = Math.min(_s.savings_pct * 2.5, 95) + '%';
+      } else {
+        sub.textContent = "d'économies potentielles sur votre budget annuel";
+        document.getElementById('gaugeBar').style.width = '60%';
+      }
+    }
+    var hid = document.getElementById('hiddenSavings');
+    if (hid && total > 0) hid.value = formatEuro(total) + '/an (leviers retenus)';
+  }
+
+  // Detail facture 100% personnalise - groupe, uniquement les lignes presentes.
+  function buildFactureDetail(e, data) {
+    var host = document.getElementById('factureDetail');
+    if (!host) return;
+    host.innerHTML = '';
+    var consoMwh = consoMwhOf(e);
+    var enLabel = e.energy_type === 'gas' ? 'Gaz' : e.energy_type === 'both' ? 'Élec. + Gaz' : 'Électricité';
+    var groups = [
+      { h: 'Contrat', rows: [
+        ['Fournisseur', e.supplier],
+        ['Énergie', enLabel],
+        ['Segment tarifaire', e.segment ? String(e.segment).toUpperCase().replace('_', '-') : e.contract_type],
+        ['Secteur', data.secteur || null],
+        ['Puissance souscrite', e.power_kva ? e.power_kva + ' kVA' : null],
+        ['Conso. annuelle', consoMwh != null ? (consoMwh >= 1 ? formatNumber(Math.round(consoMwh)) + ' MWh' : formatNumber(Math.round(consoMwh * 1000)) + ' kWh') : null],
+        ['Période facturée', e.billing_months ? e.billing_months + ' mois' : null],
+        ['Fiabilité de l\'analyse', e.confidence === 'high' ? 'Élevée' : e.confidence === 'medium' ? 'Moyenne' : 'Estimée'],
+      ] },
+      { h: 'Prix de l\'énergie (HT)', rows: [
+        ['Heures pleines hiver (HPH)', e.price_hph_mwh != null ? mwhStr(e.price_hph_mwh) : null],
+        ['Heures creuses hiver (HCH)', e.price_hch_mwh != null ? mwhStr(e.price_hch_mwh) : null],
+        ['Heures pleines été (HPB)', e.price_hpb_mwh != null ? mwhStr(e.price_hpb_mwh) : null],
+        ['Heures creuses été (HCB)', e.price_hcb_mwh != null ? mwhStr(e.price_hcb_mwh) : null],
+        ['Pointe (Pte)', e.price_pte_mwh != null ? mwhStr(e.price_pte_mwh) : null],
+        ['Prix de base', e.price_base_mwh != null ? mwhStr(e.price_base_mwh) : null],
+        ['Capacité', e.capa_mwh != null ? mwhStr(e.capa_mwh) : null],
+        ['CEE', e.cee_mwh != null ? mwhStr(e.cee_mwh) : null],
+      ] },
+      { h: 'Coûts fixes & réseau', rows: [
+        ['Abonnement', e.subscription_monthly_ht != null ? formatEuro(e.subscription_monthly_ht) + '/mois HT' : null],
+        ['Acheminement (TURPE)', e.acheminement_annual_ht != null ? formatEuro(Math.round(e.acheminement_annual_ht)) + '/an HT' : null],
+      ] },
+      { h: 'Taxes', rows: [
+        ['Accise (ex-CSPE/TICFE)', e.accise_annual_ht != null ? formatEuro(Math.round(e.accise_annual_ht)) + '/an HT' : null],
+        ['CTA', e.cta_annual_ht != null ? formatEuro(Math.round(e.cta_annual_ht)) + '/an HT' : null],
+        ['TVA', e.tva_pct != null ? e.tva_pct + ' %' : null],
+      ] },
+      { h: 'Totaux annualisés', rows: [
+        ['Total HT / an', e.total_ht_annual != null ? formatEuro(Math.round(e.total_ht_annual)) : null],
+        ['Total TTC / an', e.total_ttc_annual != null ? formatEuro(Math.round(e.total_ttc_annual)) : null],
+      ] },
+    ];
+    groups.forEach(function (g) {
+      var rows = g.rows.filter(function (r) { return r[1] != null && r[1] !== ''; });
+      if (!rows.length) return;
+      var sec = document.createElement('div');
+      var title = document.createElement('p');
+      title.className = 'text-[11px] font-bold uppercase tracking-wide text-slate-400 mb-1.5';
+      title.textContent = g.h;
+      sec.appendChild(title);
+      var list = document.createElement('div');
+      list.className = 'rounded-xl bg-slate-50 divide-y divide-white';
+      rows.forEach(function (r) {
+        var line = document.createElement('div');
+        line.className = 'flex items-center justify-between gap-4 px-3.5 py-2';
+        var k = document.createElement('span'); k.className = 'text-[13px] text-slate-500'; k.textContent = r[0];
+        var v = document.createElement('span'); v.className = 'text-[13.5px] font-semibold text-slate-800 tabular-nums text-right'; v.textContent = r[1];
+        line.append(k, v); list.appendChild(line);
+      });
+      sec.appendChild(list);
+      host.appendChild(sec);
+    });
+  }
+
+  function clientEnergyAvg(e) {
+    if (e.price_hph_mwh != null && e.price_hch_mwh != null) return Math.round((e.price_hph_mwh * 0.55 + e.price_hch_mwh * 0.45) * 10) / 10;
+    if (e.price_base_mwh != null) return e.price_base_mwh;
+    return null;
+  }
+
+  // Comparatif poste par poste vs la grille Elga (GET /api/prices, public).
+  async function fetchElgaCompare(e) {
+    var card = document.getElementById('elgaCompareCard');
+    var box = document.getElementById('elgaCompare');
+    if (!card || !box || !e.segment) return;
+    try {
+      var r = await fetch(window.ELGA_WORKER_URL + '/api/prices', { cache: 'no-store' });
+      if (!r.ok) return;
+      var grid = await r.json();
+      var isGas = e.energy_type === 'gas';
+      var g = isGas ? ((grid.gas || {})[e.segment]) : ((grid.electricity || {})[e.segment]);
+      if (!g) return;
+      var rows = [];
+      if (isGas) {
+        if (g.molecule_mwh != null) rows.push(['Prix molécule', (e.price_base_mwh || null), g.molecule_mwh, '€/MWh']);
+        rows.push(['Abonnement', (e.subscription_monthly_ht != null ? e.subscription_monthly_ht : null), (g.abo_monthly != null ? g.abo_monthly : null), '€/mois']);
+      } else {
+        var elgaAvg = (g.hph != null && g.hch != null) ? Math.round((g.hph * 0.55 + g.hch * 0.45) * 10) / 10 : (g.hph != null ? g.hph : null);
+        if (elgaAvg != null) rows.push(['Prix énergie (moy.)', clientEnergyAvg(e), elgaAvg, '€/MWh']);
+        rows.push(['Abonnement', (e.subscription_monthly_ht != null ? e.subscription_monthly_ht : null), (g.abo_monthly != null ? g.abo_monthly : null), '€/mois']);
+        if (e.acheminement_annual_ht != null || g.acheminement_annual != null) rows.push(['Acheminement / an', (e.acheminement_annual_ht != null ? Math.round(e.acheminement_annual_ht) : null), (g.acheminement_annual != null ? g.acheminement_annual : null), '€']);
+      }
+      rows = rows.filter(function (r) { return r[1] != null || r[2] != null; });
+      if (!rows.length) return;
+
+      box.innerHTML = '';
+      var head = document.createElement('div');
+      head.className = 'grid grid-cols-4 gap-2 bg-slate-50 px-3 py-2 text-[11px] font-bold uppercase tracking-wide text-slate-400';
+      ['Poste', 'Vous', 'Elga', 'Écart'].forEach(function (t, i) {
+        var c = document.createElement('span'); c.textContent = t; if (i > 0) c.className = 'text-right'; head.appendChild(c);
+      });
+      box.appendChild(head);
+      rows.forEach(function (r) {
+        var vous = r[1], elga = r[2], unit = r[3];
+        var line = document.createElement('div');
+        line.className = 'grid grid-cols-4 gap-2 px-3 py-2.5 border-t border-slate-100 text-[13px]';
+        var c0 = document.createElement('span'); c0.className = 'text-slate-600'; c0.textContent = r[0];
+        var c1 = document.createElement('span'); c1.className = 'text-right font-semibold text-slate-800 tabular-nums'; c1.textContent = vous != null ? (vous + ' ' + unit) : '—';
+        var c2 = document.createElement('span'); c2.className = 'text-right font-semibold text-primary-700 tabular-nums'; c2.textContent = elga != null ? (elga + ' ' + unit) : '—';
+        var c3 = document.createElement('span'); c3.className = 'text-right font-bold tabular-nums';
+        if (vous != null && elga != null) {
+          var d = Math.round((vous - elga) * 10) / 10;
+          c3.textContent = (d > 0 ? '−' : d < 0 ? '+' : '') + Math.abs(d) + ' ' + unit;
+          c3.className += d > 0 ? ' text-primary-700' : d < 0 ? ' text-red-500' : ' text-slate-400';
+        } else { c3.textContent = '—'; c3.className += ' text-slate-300'; }
+        line.append(c0, c1, c2, c3); box.appendChild(line);
+      });
+      var segEl = document.getElementById('elgaSegment');
+      if (segEl) segEl.textContent = '(' + String(e.segment).toUpperCase().replace('_', '-') + ')';
+      card.classList.remove('hidden');
+    } catch (_) { /* silencieux */ }
   }
 
   function displayResults(data) {
@@ -1012,13 +1193,6 @@
       document.getElementById('resultClientTotal').textContent = formatEuro(clientPeriod);
       document.getElementById('resultElgaTotal').textContent   = formatEuro(elgaPeriod);
 
-      // ── Héros : économies ANNUELLES en grand ──────────────────────────────
-      countUp(document.getElementById('resultSavings'), s.savings_annual);
-
-      // Sous-titre : % + budget annuel avec Elga
-      const subline = document.getElementById('resultSavingsSubline');
-      if (subline) subline.textContent = 'soit ' + s.savings_pct + '%, budget annuel avec Elga : ' + formatEuro(s.elga_total_annual);
-
       // Disclaimer période (astérisque)
       const periodMonthsEl = document.getElementById('resultPeriodMonths');
       if (periodMonthsEl) periodMonthsEl.textContent = months === 1 ? '1 mois' : months + ' mois';
@@ -1029,25 +1203,15 @@
         annualBlock.classList.remove('hidden');
         document.getElementById('resultSavingsMonthly').textContent = formatEuro(savingsPeriod);
       }
-
-      document.getElementById('hiddenSavings').value = formatEuro(s.savings_annual) + '/an (' + s.savings_pct + '%)';
-
-      // Animate gauge
-      setTimeout(() => {
-        document.getElementById('gaugeBar').style.width = Math.min(s.savings_pct * 2.5, 95) + '%';
-      }, 300);
+      // Héros (montant), sous-titre et jauge : pilotés par recompute() = somme des leviers cochés
 
     } else {
-      // Calcul impossible
+      // Calcul d'économie global indisponible — les leviers chiffrés (puissance/accise) restent affichés
       document.getElementById('resultPeriodLabel').textContent = 'sur cette facture TTC';
       document.getElementById('resultClientTotal').textContent = 'Non calculé';
       document.getElementById('resultElgaTotal').textContent = '—';
-      document.getElementById('resultSavings').textContent = 'Jusqu\'à 30%';
-      const subline = document.getElementById('resultSavingsSubline');
-      if (subline) subline.textContent = 'd\'économies potentielles sur votre budget annuel';
       const pmEl = document.getElementById('resultPeriodMonths');
       if (pmEl) pmEl.textContent = '1 mois';
-      document.getElementById('gaugeBar').style.width = '60%';
     }
 
     // Price details — champs nouveaux (€/MWh) avec fallback anciens (€/kWh)
@@ -1077,38 +1241,14 @@
         : formatNumber(Math.round(consoPeriod * 1000)) + ' kWh';
     }
 
-    // Details panel
-    const details = document.getElementById('detailsPanel');
-    const fields = [
-      { label: 'Fournisseur', value: e.supplier },
-      { label: 'Type d\'énergie', value: e.energy_type === 'gas' ? 'Gaz' : e.energy_type === 'both' ? 'Élec. + Gaz' : 'Électricité' },
-      { label: 'Segment tarifaire', value: e.segment || e.contract_type },
-      { label: 'Secteur d\'activité', value: data.secteur || null },
-      { label: 'Puissance souscrite', value: e.power_kva ? e.power_kva + ' kVA' : null },
-      { label: 'Conso. annuelle', value: consoMwh ? (consoMwh >= 1 ? formatNumber(Math.round(consoMwh)) + ' MWh' : formatNumber(Math.round(consoMwh * 1000)) + ' kWh') : null },
-      { label: 'Abonnement', value: e.subscription_monthly_ht ? formatEuro(e.subscription_monthly_ht) + '/mois HT' : (e.subscription_annual_ht ? formatEuro(e.subscription_annual_ht) + '/an HT' : null) },
-      { label: 'Fiabilité analyse', value: e.confidence === 'high' ? 'Élevée' : e.confidence === 'medium' ? 'Moyenne' : 'Estimée' },
-    ];
-    // Valeurs posées via textContent (jamais innerHTML) → pas d'injection possible
-    details.innerHTML = '';
-    fields.filter(f => f.value).forEach(f => {
-      const wrap = document.createElement('div'); wrap.className = 'space-y-0.5';
-      const l = document.createElement('p'); l.className = 'text-xs text-slate-400'; l.textContent = f.label;
-      const v = document.createElement('p'); v.className = 'font-semibold text-slate-700 text-sm'; v.textContent = f.value;
-      wrap.append(l, v); details.appendChild(wrap);
-    });
-
-    // Leviers d'optimisation dynamiques (énergie / abonnement / acheminement / accise selon NAF)
-    renderLeviers(e, s, data);
+    // ── Pipeline rapport premium ────────────────────────────────────────────
+    _e = e; _s = s; _data = data;
+    buildFactureDetail(e, data);                 // détail facture 100% personnalisé
+    _levers = computeLevers(e, s, data);         // leviers chiffrés
+    renderLeviers();                             // cases à cocher (réglages)
+    recompute();                                 // héros = somme des leviers cochés
+    fetchElgaCompare(e);                         // comparatif vs grille Elga
   }
-
-  // ── Details toggle ────────────────────────────────────────────────────────
-  document.getElementById('toggleDetails').addEventListener('click', () => {
-    const panel = document.getElementById('detailsPanel');
-    const chevron = document.getElementById('detailsChevron');
-    panel.classList.toggle('hidden');
-    chevron.classList.toggle('rotate-180');
-  });
 
   // ── Navigation ────────────────────────────────────────────────────────────
   btnRescan.addEventListener('click', () => {
