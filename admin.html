@@ -688,7 +688,7 @@
       populateForm(ext);
       updateJsonPreview();
 
-      document.getElementById('bilanNotes').textContent = ext.notes || ('Confiance : ' + (ext.confidence || 'non précisée'));
+      document.getElementById('bilanNotes').textContent = (ext.meta && ext.meta.notes) || ext.notes || ('Confiance : ' + (ext.confidence || 'non précisée'));
       bilanResult.classList.remove('hidden');
       showStatus('Prix extraits et pré-remplis ✅ — vérifiez puis cliquez sur "Enregistrer".', 'success');
 

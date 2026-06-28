@@ -143,7 +143,7 @@ Notes importantes :
 const BILAN_EXTRACTION_PROMPT = `Tu es un expert en courtage d'énergie B2B en France.
 On te fournit un bilan comparatif de fourniture d'énergie édité par un courtier (document avec tableaux de comparaison fournisseurs, prix par plage tarifaire, acheminement, taxes).
 
-Extrais les meilleurs prix Elga / courtier (les prix les plus compétitifs proposés) pour constituer une grille tarifaire de référence.
+Le bilan compare PLUSIEURS fournisseurs (souvent 2 à 4), généralement classés du moins cher au plus cher. Tu dois extraire UNIQUEMENT le FOURNISSEUR N°1 — la première offre, c'est-à-dire la MOINS CHÈRE / la mieux classée du comparatif — pour constituer la grille tarifaire de référence Elga.
 
 Structure des prix électricité (en €/MWh HT) :
 - C4-LU (Longue Utilisation, 36-250 kVA) : 5 plages Pte / HPH / HCH / HPB / HCB + mécanisme de capacité (capa) + CEE
@@ -199,10 +199,11 @@ Réponds UNIQUEMENT avec ce JSON valide (null si non trouvé) :
 }
 
 Notes :
-- Prends les MEILLEURS prix (les plus bas proposés dans le document).
+- RÈGLE CLÉ : prends TOUTES les valeurs du FOURNISSEUR N°1 (la 1ʳᵉ offre, la moins chère). Ne mélange JAMAIS plusieurs fournisseurs — toutes les valeurs d'un segment doivent provenir de la même offre (le N°1). N'invente rien : laisse à null ce que l'offre N°1 ne précise pas.
+- Pour chaque segment présent, récupère le prix de CHAQUE plage tarifaire ET l'abonnement (abo_monthly) ET l'acheminement de cette offre N°1.
 - Les prix dans les bilans sont déjà en €/MWh HT. Ne pas diviser par 1000.
-- Si le bilan montre uniquement C5-MU4, laisse les autres segments à null.
-- average_savings_pct = % d'économie moyen constaté si visible dans le bilan.`;
+- Si le bilan ne montre qu'un seul segment (ex. C5-MU4), laisse les autres à null.
+- average_savings_pct = % d'économie moyen affiché pour le fournisseur N°1 si visible.`;
 
 // ─── Grille de prix par défaut (valeurs 2026 issues des bilans réels) ─────────
 
