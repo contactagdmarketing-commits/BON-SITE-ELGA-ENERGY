@@ -1620,38 +1620,48 @@
   }
   document.querySelectorAll('.js-audit').forEach(function (b) { b.addEventListener('click', openFunnel); });
 
-  // Confirmer la demande : valide tél + mail, envoie au CRM, affiche la confirmation
+  // Étape 2 : capture tél + mail. Increvable — on capte DÈS que les 2 champs sont
+  // valides (au blur), même si l'utilisateur ne clique pas « Confirmer ».
   (function () {
     var btn = document.getElementById('rsConfirm');
     if (!btn) return;
     var errEl = document.getElementById('rsError');
+    var telEl = document.getElementById('rsTel');
+    var mailEl = document.getElementById('rsMail');
+    var _coordsSent = false;
     function showRsError(m) { if (errEl) { errEl.textContent = m; errEl.classList.remove('hidden'); } }
-    btn.addEventListener('click', function () {
-      var tel = (document.getElementById('rsTel').value || '').trim();
-      var mail = (document.getElementById('rsMail').value || '').trim();
-      var telOk = tel.replace(/[\s.\-]/g, '').match(/^(?:\+33|0)[1-9]\d{8}$/);
-      var mailOk = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(mail);
-      if (!telOk) { showRsError('Indiquez un numéro de portable valide (ex. 06 12 34 56 78).'); document.getElementById('rsTel').focus(); return; }
-      if (!mailOk) { showRsError('Indiquez un e-mail valide.'); document.getElementById('rsMail').focus(); return; }
-      if (errEl) errEl.classList.add('hidden');
-      // Étape 2/3 — non bloquant. Met à jour la ligne du scan via le jeton de session.
+    function telValid(t) { return ('' + t).replace(/[\s.\-]/g, '').match(/^(?:\+33|0)[1-9]\d{8}$/); }
+    function mailValid(m) { return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(m); }
+    function vals() { return { tel: (telEl.value || '').trim(), mail: (mailEl.value || '').trim() }; }
+    // Envoi (idempotent) des coordonnées dès qu'elles sont valides
+    function captureCoords() {
+      if (_coordsSent) return true;
+      var v = vals();
+      if (!telValid(v.tel) || !mailValid(v.mail)) return false;
+      _coordsSent = true;
       try {
         if (window.ELGA_SUPA_URL && window.ELGA_SUPA_KEY) {
           var tok = elgaSessionToken();
-          var champs = {
-            telephone: tel,
-            email: mail,
-            consentement_rappel: true,
-            date_consentement: new Date().toISOString(),
-          };
           fetch(window.ELGA_SUPA_URL + '/rest/v1/scans?session_token=eq.' + encodeURIComponent(tok), {
             method: 'PATCH',
             headers: supaHeaders({ 'Prefer': 'return=minimal' }),
             keepalive: true,
-            body: JSON.stringify(champs),
+            body: JSON.stringify({ telephone: v.tel, email: v.mail, consentement_rappel: true, date_consentement: new Date().toISOString() }),
           }).catch(function () {});
         }
       } catch (_) {}
+      try { gtag('event', 'lead_capture', { event_category: 'scanner' }); } catch (_) {}
+      return true;
+    }
+    // Capte sans attendre le clic (anti-abandon)
+    telEl.addEventListener('blur', captureCoords);
+    mailEl.addEventListener('blur', captureCoords);
+    btn.addEventListener('click', function () {
+      var v = vals();
+      if (!telValid(v.tel)) { showRsError('Indiquez un numéro de portable valide (ex. 06 12 34 56 78).'); telEl.focus(); return; }
+      if (!mailValid(v.mail)) { showRsError('Indiquez un e-mail valide.'); mailEl.focus(); return; }
+      if (errEl) errEl.classList.add('hidden');
+      captureCoords();
       try { gtag('event', 'lead_confirm', { event_category: 'scanner' }); } catch (_) {}
       document.getElementById('realSavingsForm').classList.add('hidden');
       document.getElementById('realSavingsDone').classList.remove('hidden');
