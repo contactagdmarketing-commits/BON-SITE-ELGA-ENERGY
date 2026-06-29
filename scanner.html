@@ -481,6 +481,24 @@
       </button>
     </div>
 
+    <!-- Sélecteur d'énergie : visible uniquement pour une facture GAZ + ÉLEC -->
+    <div id="energyToggle" class="result-card hidden">
+      <div class="bg-white rounded-2xl shadow-soft p-4 flex items-center justify-between gap-3 flex-wrap">
+        <div>
+          <p class="text-[11px] text-slate-400 font-semibold uppercase tracking-wide">Facture 2 énergies — économies totales</p>
+          <p class="text-lg font-extrabold text-primary-700"><span id="energyComboTotal">—</span> <span class="text-sm font-semibold text-slate-400">/ an</span></p>
+        </div>
+        <div class="inline-flex rounded-xl border border-slate-200 p-1 bg-slate-50">
+          <button type="button" data-energy="electricity" class="energy-tab inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold text-slate-500 transition-colors">
+            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 2L4 14h7l-1 8 10-12h-7l0-8z"/></svg>Électricité
+          </button>
+          <button type="button" data-energy="gas" class="energy-tab inline-flex items-center gap-1.5 px-4 py-2 rounded-lg text-sm font-semibold text-slate-500 transition-colors">
+            <svg class="w-4 h-4 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3c0 4-5 5-5 9a5 5 0 0010 0c0-2-1-3-2-4 0 2-1 2-1 2 .5-3-2-5-2-7z"/></svg>Gaz
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- Comparaison sur la période facturée -->
     <div class="result-card grid grid-cols-2 gap-3" style="animation-delay:.1s">
       <div class="lift-card bg-white rounded-2xl shadow-soft p-4 space-y-1">
@@ -1066,7 +1084,13 @@
       }
 
       const data = await res.json();
-      displayResults(data);
+      // Facture 2 énergies (gaz + élec) : on prépare le sélecteur, sinon affichage normal
+      if (data && data.multi && data.energies) {
+        setupMultiEnergy(data);
+      } else {
+        document.getElementById('energyToggle').classList.add('hidden');
+        displayResults(data);
+      }
       showStep('results');
       // Stocke la facture (non bloquant) puis crée la trace CRM avec son chemin
       var facturePath = await uploadFacture(selectedFile).catch(function () { return null; });
@@ -1083,6 +1107,34 @@
       }
       showError(msg);
     }
+  }
+
+  // ── Facture 2 énergies (gaz + élec) : sélecteur ────────────────────────────
+  var _multi = null;
+  function setupMultiEnergy(data) {
+    _multi = data.energies;
+    document.getElementById('energyToggle').classList.remove('hidden');
+    var es = (_multi.electricity && _multi.electricity.savings) || {};
+    var gs = (_multi.gas && _multi.gas.savings) || {};
+    var combo = (es.savings_annual || 0) + (gs.savings_annual || 0);
+    document.getElementById('energyComboTotal').textContent = formatEuro(Math.round(combo));
+    document.querySelectorAll('.energy-tab').forEach(function (b) {
+      b.onclick = function () { selectEnergy(b.getAttribute('data-energy')); };
+    });
+    // affiche d'abord l'énergie qui a le plus gros budget (la plus parlante)
+    var first = ((es.client_total_annual || 0) >= (gs.client_total_annual || 0)) ? 'electricity' : 'gas';
+    selectEnergy(_multi[first] ? first : (_multi.electricity ? 'electricity' : 'gas'));
+  }
+  function selectEnergy(key) {
+    if (!_multi || !_multi[key]) return;
+    document.querySelectorAll('.energy-tab').forEach(function (b) {
+      var on = b.getAttribute('data-energy') === key;
+      b.classList.toggle('bg-white', on);
+      b.classList.toggle('shadow-sm', on);
+      b.classList.toggle('text-primary-700', on);
+      b.classList.toggle('text-slate-500', !on);
+    });
+    displayResults(_multi[key]);
   }
 
   // ── Tuyau SITE → CRM ────────────────────────────────────────────────────────
@@ -1132,20 +1184,32 @@
   function pushScanToCRM(data, facturePath) {
     try {
       if (!window.ELGA_SUPA_URL || !window.ELGA_SUPA_KEY) return;
-      var e = (data && data.extracted) || {};
+      // Cas 2 énergies : on consolide (extracted élec + énergie 'both' + économies cumulées)
+      var ex, sv, etype;
+      if (data && data.multi && data.energies) {
+        var elec = data.energies.electricity || {}, gaz = data.energies.gas || {};
+        ex = Object.assign({}, elec.extracted || gaz.extracted || {}, { electricity: elec.extracted || null, gas: gaz.extracted || null });
+        var sa = ((elec.savings || {}).savings_annual || 0) + ((gaz.savings || {}).savings_annual || 0);
+        sv = { savings_annual: sa, total_annuel: sa, electricity: elec.savings || null, gas: gaz.savings || null };
+        etype = 'both';
+      } else {
+        ex = (data && data.extracted) || null;
+        sv = (data && data.savings) || null;
+        etype = (ex && ex.energy_type) || null;
+      }
       var row = {
         session_token: elgaSessionToken(),
         source: 'entrant',                         // requis par la règle d'insertion
         client_type: clientType,                   // 'professionnel' | 'particulier'
-        energy_type: e.energy_type || null,
+        energy_type: etype,
         naf: (clientType === 'professionnel' ? nafCode : null) || null,
         secteur: (clientType === 'professionnel' ? nafSecteur : null) || null,
         enseigne: _ident.enseigne || null,
         contact_prenom: _ident.prenom || null,
         contact_nom: _ident.nom || null,
         facture_path: facturePath || null,
-        extracted: (data && data.extracted) || null,
-        savings: (data && data.savings) || null,
+        extracted: ex,
+        savings: sv,
       };
       // return=minimal : anon ne lit jamais la table (confidentialité des leads)
       fetch(window.ELGA_SUPA_URL + '/rest/v1/scans', {

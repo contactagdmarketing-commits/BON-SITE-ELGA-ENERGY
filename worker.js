@@ -139,7 +139,15 @@ Notes importantes :
 - EDF Tarif Bleu / TRV : la facture contient TOUJOURS une phrase du type « La part fixe de l'acheminement versé par EDF au gestionnaire de réseau est de X €, et la part variable est de Y € ». Extrais X → acheminement_fixe_annual_ht et Y → acheminement_var_annual_ht (ANNUALISÉS : ×12/N si la facture couvre N mois). Ces deux champs ne concernent QUE les factures EDF au Tarif Réglementé.
 - accise = "Accise sur l'électricité" / "Accise sur les énergies" / ancien "TICFE" / "CSPE" (proportionnelle aux kWh).
 - cta = "CTA" / "Contribution Tarifaire d'Acheminement" (assise sur la part fixe de l'acheminement).
-- taxes_annual_ht = accise + cta (PAS la TVA). Sépare accise et cta si la facture les détaille ; sinon mets-les dans taxes_annual_ht.`;
+- taxes_annual_ht = accise + cta (PAS la TVA). Sépare accise et cta si la facture les détaille ; sinon mets-les dans taxes_annual_ht.
+
+⚡🔥 FACTURE 2 ÉNERGIES — RÈGLE IMPORTANTE :
+- Si la facture contient À LA FOIS de l'électricité ET du gaz (energy_type = "both"), ajoute EN PLUS deux objets complets séparés, un par énergie, avec EXACTEMENT les mêmes champs que le schéma ci-dessus :
+  "electricity": { ...tous les champs pour l'ÉLECTRICITÉ seule (energy_type="electricity", son contract_type, segment, power_kva, conso, prix, acheminement, taxes, totaux HT/TTC...) },
+  "gas": { ...tous les champs pour le GAZ seul (energy_type="gas", son contract_type, segment, conso, prix, acheminement, taxes, totaux HT/TTC...) }
+- Chaque sous-objet doit être AUTONOME (chiffres propres à cette énergie uniquement). Ne mélange JAMAIS les chiffres gaz et élec entre eux.
+- Garde aussi les champs de premier niveau (vue globale, energy_type="both").
+- Si la facture ne contient qu'UNE énergie, n'ajoute PAS ces sous-objets.`;
 
 // ─── Prompt extraction depuis bilan comparatif ───────────────────────────────
 
@@ -522,10 +530,28 @@ async function handleScan(request, env) {
     return jsonResponse({ error: 'Impossible de lire la réponse IA', raw: claudeData }, 502);
   }
 
-  // Filet : si l'IA a séparé accise/cta mais pas rempli le total, on le reconstitue (le calcul s'en sert).
-  if (extracted && extracted.taxes_annual_ht == null &&
-      (extracted.accise_annual_ht != null || extracted.cta_annual_ht != null)) {
-    extracted.taxes_annual_ht = (extracted.accise_annual_ht || 0) + (extracted.cta_annual_ht || 0);
+  // Filet taxes : si accise/cta séparés mais total vide, on le reconstitue (le calcul s'en sert).
+  const fixTaxes = (b) => {
+    if (b && b.taxes_annual_ht == null && (b.accise_annual_ht != null || b.cta_annual_ht != null)) {
+      b.taxes_annual_ht = (b.accise_annual_ht || 0) + (b.cta_annual_ht || 0);
+    }
+    return b;
+  };
+  fixTaxes(extracted);
+
+  // ── Facture 2 ÉNERGIES (gaz + élec) : on calcule chaque énergie séparément ──
+  if (extracted && extracted.energy_type === 'both' && extracted.electricity && extracted.gas) {
+    const elecE = fixTaxes({ ...extracted.electricity, energy_type: 'electricity' });
+    const gasE  = fixTaxes({ ...extracted.gas, energy_type: 'gas' });
+    return jsonResponse({
+      multi: true,
+      energies: {
+        electricity: { extracted: elecE, savings: calculateSavings(elecE, priceGrid) },
+        gas:         { extracted: gasE,  savings: calculateSavings(gasE,  priceGrid) },
+      },
+      client_type: clientType, naf, secteur,
+      price_grid_updated_at: priceGrid.meta?.updated_at,
+    });
   }
 
   const savings = calculateSavings(extracted, priceGrid);
