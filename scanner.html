@@ -934,7 +934,7 @@
   }
 
   // ── État du rapport (partagé entre leviers / recompute / détail / comparatif) ──
-  var _e = null, _s = null, _data = null, _levers = [], _grid = null;
+  var _e = null, _s = null, _data = null, _levers = [], _grid = null, _months = 1, _clientAnnual = null;
   var LEVER_ICONS = {
     energie: 'M13 2L4.5 13.5H11l-1 8.5L18.5 10.5H12L13 2z',
     abonnement: 'M6 3h12a1 1 0 011 1v17l-3-2-2 2-2-2-2 2-2-2-2 2V4a1 1 0 011-1zM8.5 8h7M8.5 12h7M8.5 16h4',
@@ -1124,6 +1124,16 @@
 
     var lt = document.getElementById('leviersTotal');
     if (lt) lt.textContent = total > 0 ? formatEuro(total) + '/an' : '—';
+
+    // Cohérence arithmétique : « Avec Elga » et le « /mois » suivent le total retenu.
+    if (_clientAnnual != null) {
+      var clientPeriod = Math.round(_clientAnnual / 12 * _months);
+      var periodSav = Math.round(total / 12 * _months);
+      var perMonth = Math.round(total / 12);
+      var elgaPeriod = Math.max(0, clientPeriod - periodSav);
+      var elgaEl = document.getElementById('resultElgaTotal'); if (elgaEl) elgaEl.textContent = formatEuro(elgaPeriod);
+      var mEl = document.getElementById('resultSavingsMonthly'); if (mEl) mEl.textContent = formatEuro(perMonth);
+    }
 
     var sub = document.getElementById('resultSavingsSubline');
     var clientAnnual = _s ? _s.client_total_annual : null;
@@ -1341,6 +1351,7 @@
 
     // ── Pipeline rapport premium (grille Elga récupérée AVANT le chiffrage) ──
     _e = e; _s = s; _data = data;
+    _months = e.billing_months || 1; _clientAnnual = s ? s.client_total_annual : null;
     buildFactureDetail(e, data);                 // détail facture 100% personnalisé
     _levers = computeLevers(e, s, data, null);   // affichage immédiat (sans grille)
     renderLeviers();
