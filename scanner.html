@@ -1352,11 +1352,18 @@
         lines: aboLines });
     }
 
-    // 3. Acheminement & puissance (élec) — TURPE 7 (right-sizing puissance)
+    // 3. Acheminement & puissance (élec) — TURPE 7 : le coût est TOUJOURS chiffré ;
+    //    l'acheminement est régulé (non négociable), seule la puissance est un levier d'économie.
     if (!isGas && e.power_kva) {
       var TURPE_KVA = turpeKva(e);
-      var euroA = null, lines3 = [['Puissance souscrite', e.power_kva + ' kVA'], ['Tarif TURPE (part fixe)', TURPE_KVA.toFixed(2).replace('.', ',') + ' €/kVA/an']];
-      var note3 = "On vérifie que la puissance est bien dimensionnée (1 kVA de trop = " + TURPE_KVA.toFixed(2).replace('.', ',') + " €/an payés pour rien). Ajusté avec vos données Enedis.";
+      var achA = acheminementOf(e);
+      var lines3 = [['Puissance souscrite', e.power_kva + ' kVA'], ['Tarif TURPE (part fixe)', TURPE_KVA.toFixed(2).replace('.', ',') + ' €/kVA/an']];
+      if (achA.val != null) {
+        lines3.push(['Coût acheminement / an' + (achA.est ? ' (estimé)' : ''), formatEuro(achA.val) + '/an']);
+        if (consoMwh && consoMwh > 0) lines3.push(['Soit', String(Math.round(achA.val / consoMwh * 10) / 10).replace('.', ',') + ' €/MWh']);
+      }
+      var euroA = null;
+      var note3 = "L'acheminement (TURPE) est régulé — identique chez tous les fournisseurs, non négociable. Le seul levier d'économie : ajuster la puissance souscrite (1 kVA de trop = " + TURPE_KVA.toFixed(2).replace('.', ',') + " €/an payés pour rien).";
       if (consoMwh && consoMwh > 0) {
         var heq = (consoMwh * 1000) / e.power_kva;
         if (heq < 1000 && e.power_kva > 6 && e.power_kva <= 36) {
@@ -1364,32 +1371,60 @@
           euroA = Math.round((e.power_kva - cible) * TURPE_KVA);
           lines3.push(['Puissance cible estimée', cible + ' kVA']);
           lines3.push(['Économie : (' + e.power_kva + ' − ' + cible + ') × ' + TURPE_KVA.toFixed(2).replace('.', ','), formatEuro(euroA) + '/an']);
-          note3 = "Puissance sans doute trop élevée pour votre consommation (" + (Math.round(consoMwh * 10) / 10) + " MWh/an). Barème TURPE 7 — CRE.";
+          note3 = "Puissance sans doute trop élevée pour votre consommation (" + (Math.round(consoMwh * 10) / 10) + " MWh/an). Barème TURPE 7 — CRE. Ajusté avec vos données Enedis.";
         } else if (heq > 4000) {
-          note3 = "Puissance bien utilisée. Peu de marge ici, on optimise les autres leviers.";
+          note3 = "Acheminement régulé (non négociable). Puissance bien utilisée — peu de marge ici, on optimise les autres leviers.";
         }
       }
-      L.push({ key: 'turpe', icon: 'acheminement', color: 'amber', titre: 'Acheminement & puissance (TURPE)', euro: euroA, checked: euroA != null, note: note3, lines: lines3 });
+      L.push({ key: 'turpe', icon: 'acheminement', color: 'amber', titre: 'Acheminement & puissance (TURPE)',
+        euro: euroA, checked: euroA != null,
+        badge: (euroA == null && achA.val != null) ? (formatEuro(achA.val) + '/an · régulé') : null,
+        note: note3, lines: lines3 });
     }
 
-    // 4. Accise / taxe — tarif réduit secteur industriel
+    // 4. Accise / taxe — élec : tarif réduit industrie ; gaz : accise 2026 (ex-TICGN) + réduits ETS/électro-intensif/agricole
     if (data.client_type !== 'particulier') {
       var code = data.naf || (typeof nafCode !== 'undefined' ? nafCode : null);
       var sect = data.secteur || (typeof nafSecteur !== 'undefined' ? nafSecteur : null);
-      if (acciseEligibleNaf(code)) {
-        var acciseNow = (e.accise_annual_ht != null) ? e.accise_annual_ht
-          : (e.taxes_annual_ht != null ? Math.max(0, e.taxes_annual_ht - (e.cta_annual_ht || 50)) : null);
-        var euroT = null, lines4 = [], note4 = "Votre secteur" + (sect ? " (" + sect + ")" : " industriel") + " ouvre droit au tarif réduit d'accise (5,5 €/MWh). Récupérable sur 2 ans via les impôts.";
+      var acciseNow = (e.accise_annual_ht != null) ? e.accise_annual_ht
+        : (e.taxes_annual_ht != null ? Math.max(0, e.taxes_annual_ht - (e.cta_annual_ht || 50)) : null);
+
+      if (isGas) {
+        // Accise sur le gaz (ex-TICGN) — taux normal 16,39 €/MWh au 01/02/2026.
+        // Réduits (sur attestation) : électro-intensif/fuite carbone 1,60 · quotas ETS 1,52 · agricole 0,54.
+        // Exonération totale : production d'électricité, usage non-combustion (matière première).
+        var lines4g = [];
+        if (acciseNow != null) {
+          lines4g.push(['Accise gaz actuelle', formatEuro(Math.round(acciseNow)) + '/an']);
+          if (consoMwh && consoMwh > 0) lines4g.push(['Soit', String(Math.round(acciseNow / consoMwh * 100) / 100).replace('.', ',') + ' €/MWh (normal : 16,39)']);
+        }
+        var euroG = null, badgeG = null;
+        var note4g = "Accise gaz (ex-TICGN) = 16,39 €/MWh en 2026. Tarif réduit possible UNIQUEMENT si le site est soumis aux quotas ETS (1,52 €/MWh), électro-intensif/exposé fuite carbone (1,60) ou agricole (0,54) — sur attestation (formulaire 2040-TIC-ATT-G). Production d'électricité / usage non-combustion = exonération totale. Éligibilité vérifiée au bilan.";
+        if (acciseEligibleNaf(code) && acciseNow && consoMwh && consoMwh > 0) {
+          var reducedG = consoMwh * 1.60;
+          var eg = Math.round(acciseNow - reducedG);
+          if (eg > 0) {
+            euroG = eg;
+            lines4g.push(['Tarif réduit électro-intensif (1,60 €/MWh)', formatEuro(Math.round(reducedG)) + '/an']);
+            lines4g.push(['≈ Économie possible (si éligible)', formatEuro(eg) + '/an']);
+            note4g = "Votre secteur" + (sect ? " (" + sect + ")" : "") + " peut être électro-intensif ou soumis aux quotas ETS → accise gaz réduite (1,52–1,60 €/MWh au lieu de 16,39). Sous réserve d'attestation et d'éligibilité réelle — on vérifie au bilan.";
+          }
+        }
+        if (euroG == null && acciseNow != null) badgeG = formatEuro(Math.round(acciseNow)) + '/an';
+        L.push({ key: 'accise', icon: 'accise', color: 'violet', titre: "Accise sur le gaz (taxe)", euro: euroG, checked: euroG != null, badge: badgeG, note: note4g, lines: lines4g });
+      } else if (acciseEligibleNaf(code)) {
+        var euroT = null, lines4 = [], note4 = "Votre secteur" + (sect ? " (" + sect + ")" : " industriel") + " ouvre droit au tarif réduit d'accise élec (5,5 €/MWh). Récupérable sur 2 ans via les impôts.";
         if (acciseNow && consoMwh && consoMwh > 0) {
           var reduced = consoMwh * 5.5;
           var et = Math.round(acciseNow - reduced);
           lines4 = [['Accise actuelle', formatEuro(Math.round(acciseNow)) + '/an'], ['Tarif réduit (5,5 €/MWh)', formatEuro(Math.round(reduced)) + '/an']];
           if (et > 0) { euroT = et; lines4.push(['≈ Économie', formatEuro(et) + '/an']); }
         }
-        L.push({ key: 'accise', icon: 'accise', color: 'violet', titre: "Accise sur l'énergie (taxe)", euro: euroT, checked: euroT != null, note: note4, lines: lines4 });
+        L.push({ key: 'accise', icon: 'accise', color: 'violet', titre: "Accise sur l'énergie (taxe)", euro: euroT, checked: euroT != null,
+          badge: (euroT == null && acciseNow != null) ? (formatEuro(Math.round(acciseNow)) + '/an') : null, note: note4, lines: lines4 });
       } else if (!code) {
         L.push({ key: 'accise', icon: 'accise', color: 'violet', titre: "Accise sur l'énergie (taxe)", euro: null, checked: false,
-          note: "Si votre activité est industrielle (fabrication, agroalimentaire, boulangerie…), un tarif réduit d'accise (5,5 €/MWh) est possible. Indiquez votre secteur en haut.", lines: [] });
+          note: "Si votre activité est industrielle (fabrication, agroalimentaire, boulangerie…), un tarif réduit d'accise (5,5 €/MWh élec) est possible. Indiquez votre secteur en haut.", lines: [] });
       }
     }
     return L;
@@ -1422,7 +1457,7 @@
         '</div>' +
         '<div class="lev-detail hidden mt-3 ml-7 rounded-lg ' + c[2] + ' p-3 space-y-1.5"></div>';
       card.querySelector('.lv-t').textContent = lv.titre;
-      card.querySelector('.lv-b').textContent = hasEuro ? ('≈ ' + formatEuro(lv.euro) + '/an') : 'à chiffrer';
+      card.querySelector('.lv-b').textContent = hasEuro ? ('≈ ' + formatEuro(lv.euro) + '/an') : (lv.badge || 'à chiffrer');
       card.querySelector('.lv-d').textContent = lv.note || '';
       // détail du calcul
       var det = card.querySelector('.lev-detail');
