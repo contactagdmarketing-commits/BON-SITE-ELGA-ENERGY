@@ -22,6 +22,8 @@ const ANTHROPIC_API  = 'https://api.anthropic.com/v1/messages';
 const ALLOWED_ORIGINS = [
   'https://www.elgaenergy.com',
   'https://elgaenergy.com',
+  'https://elga-crm.vercel.app',
+  'http://localhost:3000',
   'http://localhost:8788',
   'http://localhost:8799',
   'http://127.0.0.1:8788',
@@ -665,6 +667,78 @@ async function handleExtractPrices(request, env) {
   return jsonResponse({ extracted });
 }
 
+// ─── Extraction FICHE CRM (compléter une fiche prospect/client) ───────────────
+const CRM_FICHE_PROMPT = `Tu es un expert des factures d'énergie professionnelle françaises (électricité et gaz), tous fournisseurs (EDF, Engie, TotalEnergies, Vattenfall, Endesa, GEG, Elmy, ilek, Primeo, SEFE…).
+
+On te donne UNE facture (image ou PDF). Tu extrais les informations utiles à la complétion d'une fiche prospect dans un CRM de courtage en énergie. Réponds UNIQUEMENT avec un objet JSON valide, sans texte avant ni après, sans bloc de code.
+
+Schéma attendu (mets null si introuvable, n'invente JAMAIS) :
+{
+  "raison_sociale": string|null,
+  "adresse": string|null,
+  "siret": string|null,
+  "siren": string|null,
+  "fournisseur": string|null,
+  "type_compteur": "elec"|"gaz"|"gaz_elec"|null,
+  "nb_compteurs_elec": number|null,
+  "nb_compteurs_gaz": number|null,
+  "date_fin_contrat": string|null,
+  "est_trv": boolean,
+  "preavis_resiliation": string|null,
+  "consommation_annuelle_mwh": number|null,
+  "confiance": "haute"|"moyenne"|"basse"
+}
+
+Règles :
+- La "raison_sociale" est le CLIENT (destinataire de la facture), surtout pas le fournisseur.
+- Tarif Bleu / Tarif Réglementé de Vente EDF -> est_trv=true et date_fin_contrat=null.
+- Annualise la consommation si la période de facturation est inférieure à un an.`;
+
+async function handleScanFiche(request, env) {
+  let body;
+  try { body = await request.json(); } catch { return jsonResponse({ error: 'Requête invalide.' }, 400); }
+  let { file_data, file_type, file_name } = body || {};
+  if (!file_data) return jsonResponse({ error: 'Aucun fichier reçu.' }, 400);
+
+  if (!file_type && file_name && /\.(jpg|jpeg)$/i.test(file_name)) file_type = 'image/jpeg';
+  if (!file_type && file_name && /\.png$/i.test(file_name)) file_type = 'image/png';
+  if (!file_type && file_name && /\.webp$/i.test(file_name)) file_type = 'image/webp';
+  if (!file_type && file_name && /\.pdf$/i.test(file_name)) file_type = 'application/pdf';
+  const isImage = (file_type || '').startsWith('image/');
+  const contentBlock = isImage
+    ? { type: 'image', source: { type: 'base64', media_type: file_type, data: file_data } }
+    : { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: file_data } };
+
+  const claudeRes = await fetch(ANTHROPIC_API, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': env.ANTHROPIC_API_KEY,
+      'anthropic-version': '2023-06-01',
+      'anthropic-beta': 'pdfs-2024-09-25',
+    },
+    body: JSON.stringify({
+      model: CLAUDE_MODEL,
+      max_tokens: 1024,
+      messages: [{ role: 'user', content: [contentBlock, { type: 'text', text: CRM_FICHE_PROMPT }] }],
+    }),
+  });
+  if (!claudeRes.ok) {
+    const errText = await claudeRes.text();
+    return jsonResponse({ error: 'Analyse refusée', detail: errText.slice(0, 300) }, 502);
+  }
+  const claudeData = await claudeRes.json();
+  let extracted;
+  try {
+    const text = claudeData.content[0].text.trim();
+    const match = text.match(/\{[\s\S]*\}/);
+    extracted = JSON.parse(match ? match[0] : text);
+  } catch {
+    return jsonResponse({ error: 'Lecture impossible. Reprends la photo, plus nette et bien cadrée.' }, 422);
+  }
+  return jsonResponse({ extracted });
+}
+
 // ─── Router principal ─────────────────────────────────────────────────────────
 
 export default {
@@ -680,6 +754,8 @@ export default {
     let res;
     if (pathname === '/api/scan' && method === 'POST') {
       res = await handleScan(request, env);
+    } else if (pathname === '/api/scan-fiche' && method === 'POST') {
+      res = await handleScanFiche(request, env);
     } else if (pathname === '/api/prices' && method === 'GET') {
       res = await handleGetPrices(request, env);
     } else if (pathname === '/api/prices' && method === 'POST') {
