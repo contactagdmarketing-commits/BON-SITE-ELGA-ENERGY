@@ -534,7 +534,7 @@
 
     <!-- Panneau qui se déplie sur place : capture tél + mail (étape 2) -->
     <div id="realSavings" class="hidden">
-      <div class="rounded-2xl border-2 border-primary-300 bg-gradient-to-br from-primary-50 to-white shadow-strong p-5 sm:p-6 mt-1">
+      <div class="rounded-2xl border border-primary-200 bg-gradient-to-br from-primary-50/60 to-white shadow-soft p-5 sm:p-6 mt-1">
         <div class="flex items-start gap-3">
           <div class="shrink-0 size-11 rounded-xl bg-gradient-to-br from-primary-600 to-secondary-600 text-white grid place-items-center shadow-soft">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 2L4 14h7l-1 8 10-12h-7l0-8z"/></svg>
@@ -545,10 +545,21 @@
           </div>
         </div>
 
-        <!-- FOMO -->
-        <div class="mt-3 flex items-start gap-2 text-[13px] text-amber-800 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2.5">
-          <svg class="w-4 h-4 shrink-0 mt-0.5 text-amber-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
-          <span>Les tarifs du marché bougent <strong>chaque jour</strong>. Plus vous lancez tôt, plus vous verrouillez tôt le bon prix — chaque mois d'attente, c'est de l'argent perdu.</span>
+        <!-- Petite alerte (courte) -->
+        <p class="mt-3 flex items-center gap-2 text-[13px] text-amber-700">
+          <svg class="w-4 h-4 shrink-0 text-amber-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+          Les tarifs du marché bougent <strong>chaque jour</strong>.
+        </p>
+
+        <!-- Réassurance forte (on fait peur une ligne, on rassure beaucoup) -->
+        <div class="mt-3 flex items-start gap-3 rounded-xl bg-primary-50 border border-primary-200 px-4 py-3.5">
+          <div class="shrink-0 size-9 rounded-full bg-primary-100 text-primary-700 grid place-items-center mt-0.5">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3l7 4v5c0 4.5-3 7.5-7 9-4-1.5-7-4.5-7-9V7l7-4z"/><path stroke-linecap="round" stroke-linejoin="round" d="M9.5 12.5l1.8 1.8 3.5-3.8"/></svg>
+          </div>
+          <div class="text-[13.5px] leading-relaxed text-slate-700">
+            <strong class="text-primary-800">On s'occupe de tout — vous n'avez rien à faire.</strong><br>
+            Vous recevrez une autorisation par SMS et e-mail au nom d'Elga&nbsp;Energy : <strong>un seul clic</strong> pour valider. <span class="text-slate-500">Sans engagement, sans frais — vos données ne sont jamais revendues.</span>
+          </div>
         </div>
 
         <!-- Formulaire -->
@@ -563,10 +574,6 @@
             <input id="rsMail" type="email" autocomplete="email" placeholder="vous@entreprise.fr"
               class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" />
           </div>
-          <p class="sm:col-span-2 text-[12.5px] text-slate-500 flex items-start gap-1.5">
-            <svg class="w-4 h-4 shrink-0 mt-0.5 text-primary-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
-            Vous recevrez une <strong class="text-slate-700">autorisation par SMS et e-mail au nom d'Elga Energy</strong> — un clic suffit pour valider la récupération Enedis. Données jamais revendues.
-          </p>
           <button id="rsConfirm" type="button" class="sm:col-span-2 inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-b from-primary-500 to-primary-700 text-white font-bold text-base px-6 py-3.5 shadow-soft hover:shadow-lg hover:-translate-y-0.5 transition-all focus:outline-none focus:ring-2 focus:ring-primary-400">
             Confirmer ma demande
             <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
