@@ -206,7 +206,7 @@
   <div class="absolute inset-0 hero-light-bg"></div>
   <div class="relative container max-w-3xl mx-auto px-4 py-12 sm:py-16 text-center">
     <div class="reveal-load inline-flex items-center gap-2 rounded-full border border-primary-200 bg-primary-50 text-primary-700 px-4 py-1.5 text-[13px] sm:text-sm font-semibold" style="--rd:0ms">
-      <span class="size-1.5 rounded-full bg-primary-500 pulse shrink-0"></span> Gratuit · sans engagement · données non stockées
+      <span class="size-1.5 rounded-full bg-primary-500 pulse shrink-0"></span> Gratuit · sans engagement · 100 % confidentiel
     </div>
     <h1 class="reveal-load mt-6 text-3xl sm:text-4xl md:text-5xl font-extrabold leading-tight tracking-tight text-slate-900" style="--rd:90ms;text-wrap:balance">
       Votre facture d'énergie,<br class="hidden sm:block"> <span class="sweep-ink">décortiquée ligne par ligne</span>.
@@ -1068,7 +1068,9 @@
       const data = await res.json();
       displayResults(data);
       showStep('results');
-      pushScanToCRM(data);   // trace dans le CRM (anonyme, non bloquant)
+      // Stocke la facture (non bloquant) puis crée la trace CRM avec son chemin
+      var facturePath = await uploadFacture(selectedFile).catch(function () { return null; });
+      pushScanToCRM(data, facturePath);
 
     } catch (err) {
       clearInterval(scanInterval);
@@ -1106,8 +1108,28 @@
     if (extra) for (var k in extra) h[k] = extra[k];
     return h;
   }
+  // Stocke la facture dans Supabase Storage (bucket privé). Renvoie le chemin, ou null.
+  async function uploadFacture(file) {
+    try {
+      if (!window.ELGA_SUPA_URL || !window.ELGA_SUPA_KEY || !file) return null;
+      var ext = (String(file.name).split('.').pop() || 'bin').toLowerCase().replace(/[^a-z0-9]/g, '') || 'bin';
+      var path = 'web/' + elgaSessionToken() + '/' + Date.now() + '.' + ext;
+      var r = await fetch(window.ELGA_SUPA_URL + '/storage/v1/object/factures/' + path, {
+        method: 'POST',
+        headers: {
+          'apikey': window.ELGA_SUPA_KEY,
+          'Authorization': 'Bearer ' + window.ELGA_SUPA_KEY,
+          'Content-Type': file.type || 'application/octet-stream',
+          'x-upsert': 'true',
+        },
+        body: file,
+      });
+      return r.ok ? path : null;
+    } catch (e) { return null; }
+  }
+
   // Étape 1 : insère chaque scan directement dans Supabase (anonyme). Non bloquant.
-  function pushScanToCRM(data) {
+  function pushScanToCRM(data, facturePath) {
     try {
       if (!window.ELGA_SUPA_URL || !window.ELGA_SUPA_KEY) return;
       var e = (data && data.extracted) || {};
@@ -1121,6 +1143,7 @@
         enseigne: _ident.enseigne || null,
         contact_prenom: _ident.prenom || null,
         contact_nom: _ident.nom || null,
+        facture_path: facturePath || null,
         extracted: (data && data.extracted) || null,
         savings: (data && data.savings) || null,
       };
