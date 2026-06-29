@@ -179,52 +179,68 @@
   </div>
 </header>
 
-<!-- ─── Hero ──────────────────────────────────────────────────────────────── -->
+<!-- ─── Hero (charte page d'accueil) ───────────────────────────────────────── -->
 <style>
-  .hero-rise{animation:heroRise .6s cubic-bezier(.16,1,.3,1) both;animation-delay:var(--d,0ms)}
-  @keyframes heroRise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
+  /* Charte reprise de la page d'accueil Elga */
+  @keyframes revealUp{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+  .reveal-load{animation:revealUp .7s cubic-bezier(.16,1,.3,1) both;animation-delay:var(--rd,0ms)}
+  .hero-light-bg{background:radial-gradient(58% 52% at 16% -8%, rgba(16,185,129,.16) 0, transparent 60%),radial-gradient(52% 46% at 90% -2%, rgba(11,61,145,.12) 0, transparent 60%),linear-gradient(180deg,#ffffff 0%,#f7faf9 100%)}
+  @keyframes sweep{to{background-position:200% center}}
+  .sweep-ink{background:linear-gradient(110deg,#0e8a57,#10b981 30%,#0b3d91 62%,#0e8a57);background-size:200% auto;-webkit-background-clip:text;background-clip:text;color:transparent;animation:sweep 5s linear infinite}
+  .ul-pen{position:relative;white-space:nowrap;font-weight:700;color:#0b3d91}
+  .ul-pen::after{content:"";position:absolute;left:0;right:0;bottom:-3px;height:3px;border-radius:99px;background:linear-gradient(90deg,#10b981,#0e8a57);transform:scaleX(0);transform-origin:left;animation:ulDraw .85s cubic-bezier(.16,1,.3,1) .55s forwards}
+  @keyframes ulDraw{to{transform:scaleX(1)}}
   .scroll-cue{animation:bob 1.8s ease-in-out infinite}
   @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(7px)}}
-  /* Mot qui défile (centré, propre sur sa ligne) : parfaites ? / trop chères ? / … */
-  .rot{display:grid;justify-items:center}
-  .rot>span{grid-area:1/1;opacity:0;will-change:opacity,transform;animation:rotWord 9.2s infinite}
-  .rot>span:nth-child(1){animation-delay:0s}
-  .rot>span:nth-child(2){animation-delay:2.3s}
-  .rot>span:nth-child(3){animation-delay:4.6s}
-  .rot>span:nth-child(4){animation-delay:6.9s}
-  @keyframes rotWord{0%{opacity:0;transform:translateY(.4em)}4%{opacity:1;transform:none}21%{opacity:1;transform:none}26%{opacity:0;transform:translateY(-.4em)}100%{opacity:0;transform:translateY(-.4em)}}
+  .step-pill{transition:transform .3s cubic-bezier(.16,1,.3,1),box-shadow .3s ease,border-color .3s ease}
+  .step-pill:hover{transform:translateY(-3px);box-shadow:0 14px 30px -14px rgba(2,6,12,.22);border-color:#a7f3d0}
   @media (prefers-reduced-motion: reduce){
-    .hero-rise,.scroll-cue{animation:none!important;opacity:1!important;transform:none!important}
-    .rot>span{animation:none!important}
-    .rot>span:nth-child(1){opacity:1!important}
-    .rot>span:not(:first-child){display:none}
+    .reveal-load,.scroll-cue{animation:none!important;opacity:1!important;transform:none!important}
+    .sweep-ink{animation:none!important;background-position:0 center}
+    .ul-pen::after{animation:none!important;transform:scaleX(1)}
   }
 </style>
-<section class="relative overflow-hidden bg-white">
-  <!-- accent vert très léger, en retrait (le fond ne crie plus) -->
-  <div class="absolute inset-x-0 top-0 h-80 pointer-events-none" style="background:radial-gradient(75% 100% at 50% -12%,rgba(16,185,129,.13),transparent 72%)"></div>
-  <div class="relative container max-w-3xl mx-auto px-4 pt-10 pb-9 sm:pt-14 sm:pb-12 text-center">
-    <div class="hero-rise inline-flex items-center gap-2 rounded-full border border-primary-200 bg-primary-50 text-primary-700 px-3.5 py-1.5 text-[13px] font-semibold" style="--d:0ms">
-      <span class="size-1.5 rounded-full bg-primary-500 pulse shrink-0"></span>
-      Gratuit · 15 secondes · sans engagement
+<section class="relative overflow-hidden">
+  <div class="absolute inset-0 hero-light-bg"></div>
+  <div class="relative container max-w-3xl mx-auto px-4 py-12 sm:py-16 text-center">
+    <div class="reveal-load inline-flex items-center gap-2 rounded-full border border-primary-200 bg-primary-50 text-primary-700 px-4 py-1.5 text-[13px] sm:text-sm font-semibold" style="--rd:0ms">
+      <span class="size-1.5 rounded-full bg-primary-500 pulse shrink-0"></span> Gratuit · sans engagement · données non stockées
     </div>
-    <h1 class="hero-rise mt-6 text-[34px] leading-[1.04] sm:text-[3.2rem] md:text-[3.7rem] font-extrabold tracking-tight text-secondary-700" style="--d:90ms;text-wrap:balance">
-      Vos factures d'énergie sont-elles
-      <span class="rot text-primary-600 mt-1">
-        <span>parfaites&nbsp;?</span>
-        <span>trop chères&nbsp;?</span>
-        <span>bien négociées&nbsp;?</span>
-        <span>au bon tarif&nbsp;?</span>
-      </span>
+    <h1 class="reveal-load mt-6 text-3xl sm:text-4xl md:text-5xl font-extrabold leading-tight tracking-tight text-slate-900" style="--rd:90ms;text-wrap:balance">
+      Votre facture d'énergie,<br class="hidden sm:block"> <span class="sweep-ink">décortiquée ligne par ligne</span>.
     </h1>
-    <p class="hero-rise mt-5 text-slate-600 text-lg sm:text-xl max-w-md mx-auto" style="--d:190ms">
-      Scannez-la. En 15 secondes, vous voyez <strong class="text-secondary-700 font-bold">où vous payez trop</strong>.
+    <p class="reveal-load mt-5 text-lg md:text-xl text-slate-600 max-w-xl mx-auto" style="--rd:170ms">
+      En <span class="ul-pen">moins de 15 secondes</span>, un comparatif clair, poste par poste — et exactement où vous payez trop.
     </p>
-    <div class="hero-rise mt-8 flex justify-center" style="--d:300ms" aria-hidden="true">
+
+    <!-- Les 4 postes comparés, mis en valeur -->
+    <div class="reveal-load mt-7 flex flex-wrap items-center justify-center gap-2 sm:gap-2.5" style="--rd:230ms">
+      <span class="inline-flex items-center gap-1.5 rounded-full bg-white border border-slate-200 shadow-sm px-3.5 py-2 text-sm font-semibold text-slate-700"><span class="size-2 rounded-full bg-primary-500 shrink-0"></span>Prix du kWh</span>
+      <span class="inline-flex items-center gap-1.5 rounded-full bg-white border border-slate-200 shadow-sm px-3.5 py-2 text-sm font-semibold text-slate-700"><span class="size-2 rounded-full bg-secondary-600 shrink-0"></span>Acheminement</span>
+      <span class="inline-flex items-center gap-1.5 rounded-full bg-white border border-slate-200 shadow-sm px-3.5 py-2 text-sm font-semibold text-slate-700"><span class="size-2 rounded-full bg-primary-500 shrink-0"></span>Taxes</span>
+      <span class="inline-flex items-center gap-1.5 rounded-full bg-white border border-slate-200 shadow-sm px-3.5 py-2 text-sm font-semibold text-slate-700"><span class="size-2 rounded-full bg-secondary-600 shrink-0"></span>Abonnement</span>
+    </div>
+
+    <!-- Le parcours en 3 étapes (lever le doute = convertir) -->
+    <div class="reveal-load mt-9 grid grid-cols-1 sm:grid-cols-3 gap-3 max-w-2xl mx-auto text-left" style="--rd:300ms">
+      <div class="step-pill rounded-2xl bg-white border border-slate-200 shadow-sm p-4 flex items-center gap-3">
+        <span class="shrink-0 size-8 rounded-full bg-primary-600 text-white text-sm font-bold grid place-items-center">1</span>
+        <div><p class="font-bold text-slate-900 text-[15px] leading-tight">Renseignez vos infos</p><p class="text-slate-500 text-[12.5px] mt-0.5">Profil &amp; activité</p></div>
+      </div>
+      <div class="step-pill rounded-2xl bg-white border border-slate-200 shadow-sm p-4 flex items-center gap-3">
+        <span class="shrink-0 size-8 rounded-full bg-primary-600 text-white text-sm font-bold grid place-items-center">2</span>
+        <div><p class="font-bold text-slate-900 text-[15px] leading-tight">Choisissez votre analyse</p><p class="text-slate-500 text-[12.5px] mt-0.5">Tout, ou un poste précis</p></div>
+      </div>
+      <div class="step-pill rounded-2xl bg-white border border-slate-200 shadow-sm p-4 flex items-center gap-3">
+        <span class="shrink-0 size-8 rounded-full bg-primary-600 text-white text-sm font-bold grid place-items-center">3</span>
+        <div><p class="font-bold text-slate-900 text-[15px] leading-tight">Consultez vos résultats</p><p class="text-slate-500 text-[12.5px] mt-0.5">Comparatif &amp; économies</p></div>
+      </div>
+    </div>
+
+    <div class="reveal-load mt-9 flex justify-center" style="--rd:380ms" aria-hidden="true">
       <span class="scroll-cue text-primary-500"><svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7-7-7M19 6l-7 7-7-7"/></svg></span>
     </div>
   </div>
-</section>
 </section>
 
 <!-- ─── Zone principale ───────────────────────────────────────────────────── -->
