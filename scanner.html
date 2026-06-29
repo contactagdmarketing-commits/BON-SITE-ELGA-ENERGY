@@ -277,6 +277,29 @@
         <ul id="nafSuggest" role="listbox" class="hidden absolute z-20 left-0 right-0 mt-1 max-h-60 overflow-auto rounded-xl border border-slate-200 bg-white shadow-strong text-sm"></ul>
         <p id="nafSecteur" class="mt-1.5 text-xs"></p>
       </div>
+
+      <!-- Identité PRO (personnalise le rapport — obligatoire) -->
+      <div id="proIdentite" class="mt-4 max-w-md mx-auto grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div class="sm:col-span-2">
+          <label for="champEnseigne" class="block text-xs font-semibold text-slate-600 mb-1">Enseigne / raison sociale <span class="text-rose-500">*</span></label>
+          <input id="champEnseigne" type="text" autocomplete="organization" placeholder="ex. Boulangerie Martin"
+            class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" />
+        </div>
+        <div>
+          <label for="champPrenom" class="block text-xs font-semibold text-slate-600 mb-1">Prénom <span class="text-rose-500">*</span></label>
+          <input id="champPrenom" type="text" autocomplete="given-name" placeholder="Jean"
+            class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" />
+        </div>
+        <div>
+          <label for="champNom" class="block text-xs font-semibold text-slate-600 mb-1">Nom <span class="text-rose-500">*</span></label>
+          <input id="champNom" type="text" autocomplete="family-name" placeholder="Martin"
+            class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" />
+        </div>
+        <p class="sm:col-span-2 text-[11.5px] text-slate-400 -mt-0.5 flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5 text-primary-500 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/></svg>
+          Pour personnaliser votre rapport à votre entreprise. Jamais revendu.
+        </p>
+      </div>
     </div>
 
     <!-- Que souhaitez-vous analyser ? (oriente le scan) -->
@@ -830,6 +853,9 @@
     });
     if (nafWrap) nafWrap.classList.toggle('hidden', clientType !== 'professionnel');
     if (clientType !== 'professionnel') clearNaf();   // pas de secteur fantôme dans le payload
+    // Identité PRO : visible + obligatoire pour un professionnel, masquée sinon
+    var proId = document.getElementById('proIdentite');
+    if (proId) proId.classList.toggle('hidden', clientType !== 'professionnel');
   }));
 
   // ── Que souhaitez-vous analyser ? (oriente le résultat) ─────────────────────
@@ -908,8 +934,32 @@
   // ── Analyze button ────────────────────────────────────────────────────────
   btnAnalyze.addEventListener('click', startAnalysis);
 
+  // Identité PRO saisie (étape 1) — réutilisée pour l'envoi au CRM
+  var _ident = { enseigne: '', prenom: '', nom: '' };
+
   async function startAnalysis() {
     if (!selectedFile) return;
+
+    // Identité obligatoire pour un professionnel (personnalise le rapport + étape 1 CRM)
+    if (clientType === 'professionnel') {
+      var champEnseigne = document.getElementById('champEnseigne');
+      var champPrenom = document.getElementById('champPrenom');
+      var champNom = document.getElementById('champNom');
+      _ident = {
+        enseigne: (champEnseigne && champEnseigne.value || '').trim(),
+        prenom: (champPrenom && champPrenom.value || '').trim(),
+        nom: (champNom && champNom.value || '').trim(),
+      };
+      var manquant = !_ident.enseigne ? champEnseigne : !_ident.prenom ? champPrenom : !_ident.nom ? champNom : null;
+      if (manquant) {
+        showError('Renseignez votre enseigne, prénom et nom — c\'est ce qui personnalise votre rapport.');
+        manquant.focus();
+        manquant.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        return;
+      }
+    } else {
+      _ident = { enseigne: '', prenom: '', nom: '' };
+    }
 
     const workerUrl = window.ELGA_WORKER_URL;
     if (!workerUrl || workerUrl.includes('VOTRE_SUBDOMAIN')) {
@@ -989,6 +1039,10 @@
         energy_type: e.energy_type || null,       // 'electricity' | 'gas' | 'both'
         naf: (clientType === 'professionnel' ? nafCode : null) || null,
         secteur: (clientType === 'professionnel' ? nafSecteur : null) || null,
+        // Identité étape 1 (pro) — personnalise + alimente la fiche CRM
+        enseigne: _ident.enseigne || null,
+        contact_prenom: _ident.prenom || null,
+        contact_nom: _ident.nom || null,
         extracted: data && data.extracted ? data.extracted : null,
         savings: data && data.savings ? data.savings : null,
       };
