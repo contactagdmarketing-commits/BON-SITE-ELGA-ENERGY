@@ -134,8 +134,10 @@
 <script>
   // Remplacez par l'URL de votre Cloudflare Worker après déploiement
   window.ELGA_WORKER_URL = 'https://elga-scanner.edhy-delaprez.workers.dev';
-  // Tuyau SITE -> CRM : chaque scan (même anonyme) crée une trace visible dans « Scans entrants »
-  window.ELGA_CRM_INGEST = 'https://elga-crm.vercel.app/api/ingest/scan';
+  // Tuyau SITE -> CRM : écriture directe dans Supabase via la clé PUBLIQUE (publishable).
+  // RLS = insertion/maj uniquement (anon ne peut JAMAIS lire/supprimer les leads).
+  window.ELGA_SUPA_URL = 'https://zqvocdmxpxkhknsgmijt.supabase.co';
+  window.ELGA_SUPA_KEY = 'sb_publishable_Yjplm_el8tlLJ_0xxvMB_g_XI8vStgr';
 </script>
 <!-- Table NAF/APE embarquée (résolution code → secteur, hors-ligne) -->
 <script src="/assets/naf.js"></script>
@@ -1094,34 +1096,41 @@
       return t;
     } catch (e) { return 'web-' + Date.now().toString(36); }
   }
-  // Envoie chaque scan au CRM (anonyme). Non bloquant : un échec n'impacte jamais l'analyse.
+  // En-têtes Supabase REST (clé publique = insertion/maj seulement, jamais de lecture)
+  function supaHeaders(extra) {
+    var h = {
+      'Content-Type': 'application/json',
+      'apikey': window.ELGA_SUPA_KEY,
+      'Authorization': 'Bearer ' + window.ELGA_SUPA_KEY,
+    };
+    if (extra) for (var k in extra) h[k] = extra[k];
+    return h;
+  }
+  // Étape 1 : insère chaque scan directement dans Supabase (anonyme). Non bloquant.
   function pushScanToCRM(data) {
     try {
-      var url = window.ELGA_CRM_INGEST;
-      if (!url) return;
+      if (!window.ELGA_SUPA_URL || !window.ELGA_SUPA_KEY) return;
       var e = (data && data.extracted) || {};
-      var payload = {
+      var row = {
         session_token: elgaSessionToken(),
-        client_type: clientType,                 // 'professionnel' | 'particulier'
-        energy_type: e.energy_type || null,       // 'electricity' | 'gas' | 'both'
+        source: 'entrant',                         // requis par la règle d'insertion
+        client_type: clientType,                   // 'professionnel' | 'particulier'
+        energy_type: e.energy_type || null,
         naf: (clientType === 'professionnel' ? nafCode : null) || null,
         secteur: (clientType === 'professionnel' ? nafSecteur : null) || null,
-        // Identité étape 1 (pro) — personnalise + alimente la fiche CRM
         enseigne: _ident.enseigne || null,
         contact_prenom: _ident.prenom || null,
         contact_nom: _ident.nom || null,
-        extracted: data && data.extracted ? data.extracted : null,
-        savings: data && data.savings ? data.savings : null,
+        extracted: (data && data.extracted) || null,
+        savings: (data && data.savings) || null,
       };
-      fetch(url, {
+      // return=minimal : anon ne lit jamais la table (confidentialité des leads)
+      fetch(window.ELGA_SUPA_URL + '/rest/v1/scans', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(payload),
+        headers: supaHeaders({ 'Prefer': 'return=minimal' }),
+        body: JSON.stringify(row),
         keepalive: true,
-      })
-        .then(function (r) { return r.ok ? r.json() : null; })
-        .then(function (j) { if (j && j.id) _scanRowId = j.id; })
-        .catch(function () { /* silencieux : le CRM ne doit jamais casser l'expérience */ });
+      }).catch(function () { /* silencieux : le CRM ne doit jamais casser l'expérience */ });
     } catch (e) { /* no-op */ }
   }
 
@@ -1625,25 +1634,21 @@
       if (!telOk) { showRsError('Indiquez un numéro de portable valide (ex. 06 12 34 56 78).'); document.getElementById('rsTel').focus(); return; }
       if (!mailOk) { showRsError('Indiquez un e-mail valide.'); document.getElementById('rsMail').focus(); return; }
       if (errEl) errEl.classList.add('hidden');
-      // Envoi au CRM (étape 2/3) — non bloquant. Met à jour la ligne du scan si on a son id.
+      // Étape 2/3 — non bloquant. Met à jour la ligne du scan via le jeton de session.
       try {
-        var url = window.ELGA_CRM_INGEST;
-        if (url) {
-          fetch(url, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+        if (window.ELGA_SUPA_URL && window.ELGA_SUPA_KEY) {
+          var tok = elgaSessionToken();
+          var champs = {
+            telephone: tel,
+            email: mail,
+            consentement_rappel: true,
+            date_consentement: new Date().toISOString(),
+          };
+          fetch(window.ELGA_SUPA_URL + '/rest/v1/scans?session_token=eq.' + encodeURIComponent(tok), {
+            method: 'PATCH',
+            headers: supaHeaders({ 'Prefer': 'return=minimal' }),
             keepalive: true,
-            body: JSON.stringify({
-              scan_id: _scanRowId || null,
-              session_token: elgaSessionToken(),
-              client_type: clientType,
-              enseigne: _ident.enseigne || null,
-              contact_prenom: _ident.prenom || null,
-              contact_nom: _ident.nom || null,
-              telephone: tel,
-              email: mail,
-              consentement_rappel: true,
-            }),
+            body: JSON.stringify(champs),
           }).catch(function () {});
         }
       } catch (_) {}
