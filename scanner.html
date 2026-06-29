@@ -198,11 +198,17 @@
       <span class="size-2 rounded-full bg-primary-300 pulse shrink-0"></span>
       Gratuit · résultat en 15 secondes · sans engagement
     </div>
-    <h1 class="hero-rise mt-5 text-[28px] leading-[1.1] sm:text-4xl md:text-5xl font-extrabold tracking-tight" style="--d:80ms;text-wrap:balance">
-      Et si vous payiez votre énergie<br class="hidden sm:block"> <span class="text-primary-200">trop cher</span>, sans le savoir&nbsp;?
+    <h1 class="hero-rise mt-5 text-[27px] leading-[1.12] sm:text-4xl md:text-[2.9rem] font-extrabold tracking-tight" style="--d:80ms;text-wrap:balance">
+      Vos factures d'énergie sont-elles<br class="hidden sm:block"> vraiment <span class="text-primary-200">parfaites</span>&nbsp;?
     </h1>
-    <p class="hero-rise mt-4 text-white/85 text-[15px] sm:text-lg max-w-xl mx-auto" style="--d:160ms;text-wrap:pretty">
-      Déposez une facture — élec ou gaz, tous fournisseurs. On la compare au marché B2B et on vous montre, <strong class="text-white font-semibold">levier par levier</strong>, où récupérer de l'argent.
+    <div class="hero-rise flex flex-wrap items-center justify-center gap-2 mt-4" style="--d:140ms">
+      <span class="rounded-full bg-white/12 border border-white/20 px-3 py-1 text-[13px] sm:text-sm backdrop-blur-sm">Trop chères&nbsp;?</span>
+      <span class="rounded-full bg-white/12 border border-white/20 px-3 py-1 text-[13px] sm:text-sm backdrop-blur-sm">Mal optimisées&nbsp;?</span>
+      <span class="rounded-full bg-white/12 border border-white/20 px-3 py-1 text-[13px] sm:text-sm backdrop-blur-sm">Mauvais tarif pour votre activité&nbsp;?</span>
+      <span class="rounded-full bg-white/12 border border-white/20 px-3 py-1 text-[13px] sm:text-sm backdrop-blur-sm">Mauvaise puissance&nbsp;?</span>
+    </div>
+    <p class="hero-rise mt-4 text-white/90 text-[15px] sm:text-lg max-w-xl mx-auto" style="--d:200ms;text-wrap:pretty">
+      Ne vous posez plus la question. <strong class="text-white font-semibold">Scannez-la</strong> : analyse 100&nbsp;% complète, gratuite, en 15&nbsp;secondes.
     </p>
     <div class="hero-rise mt-7" style="--d:240ms">
       <a href="#step-upload" class="cta-pulse inline-flex w-full sm:w-auto items-center justify-center gap-2 rounded-2xl bg-white text-primary-700 font-bold text-base sm:text-lg px-8 py-4 shadow-strong hover:bg-primary-50 transition-colors">
@@ -482,6 +488,19 @@
       </div>
     </div>
 
+    <!-- CTA : mes économies réelles (Enedis) -->
+    <div class="result-card mt-1">
+      <button type="button" class="js-audit group w-full rounded-2xl bg-gradient-to-br from-primary-600 to-primary-700 text-white shadow-strong hover:shadow-xl hover:-translate-y-0.5 transition-all px-5 py-4 text-left focus:outline-none focus:ring-2 focus:ring-primary-400">
+        <span class="flex items-center justify-between gap-3">
+          <span>
+            <span class="block font-extrabold text-[16px] sm:text-lg leading-tight">Je veux mes économies réelles sur 12 mois</span>
+            <span class="block text-[12.5px] text-white/80 mt-0.5">Gratuit · calculées sur vos vraies données Enedis · sans engagement</span>
+          </span>
+          <svg class="w-5 h-5 shrink-0 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5-5 5M6 12h12"/></svg>
+        </span>
+      </button>
+    </div>
+
     <!-- Leviers = RÉGLAGES : cochez ceux à retenir → recalcul en direct -->
     <div class="result-card bg-white rounded-2xl shadow-soft p-5 space-y-3.5" style="animation-delay:.25s">
       <div class="flex items-center justify-between gap-3">
@@ -496,6 +515,19 @@
       </div>
       <div id="leviers" class="space-y-2.5"></div>
       <p class="text-[11px] leading-relaxed text-slate-400 pt-0.5">Estimations sur des tarifs moyens du marché, qui varient d'un jour à l'autre. Le chiffrage précis se fait avec votre consommation réelle (Enedis) lors du bilan.</p>
+    </div>
+
+    <!-- CTA : mes économies réelles (Enedis) -->
+    <div class="result-card mt-1">
+      <button type="button" class="js-audit group w-full rounded-2xl bg-gradient-to-br from-primary-600 to-primary-700 text-white shadow-strong hover:shadow-xl hover:-translate-y-0.5 transition-all px-5 py-4 text-left focus:outline-none focus:ring-2 focus:ring-primary-400">
+        <span class="flex items-center justify-between gap-3">
+          <span>
+            <span class="block font-extrabold text-[16px] sm:text-lg leading-tight">Je veux mes économies réelles sur 12 mois</span>
+            <span class="block text-[12.5px] text-white/80 mt-0.5">Gratuit · calculées sur vos vraies données Enedis · sans engagement</span>
+          </span>
+          <svg class="w-5 h-5 shrink-0 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5-5 5M6 12h12"/></svg>
+        </span>
+      </button>
     </div>
 
     <!-- VOTRE FACTURE EN DÉTAIL — 100% personnalisé -->
@@ -526,6 +558,19 @@
       <div id="elgaCompare"></div>
     </div>
 
+    <!-- CTA : mes économies réelles (Enedis) -->
+    <div class="result-card mt-1">
+      <button type="button" class="js-audit group w-full rounded-2xl bg-gradient-to-br from-primary-600 to-primary-700 text-white shadow-strong hover:shadow-xl hover:-translate-y-0.5 transition-all px-5 py-4 text-left focus:outline-none focus:ring-2 focus:ring-primary-400">
+        <span class="flex items-center justify-between gap-3">
+          <span>
+            <span class="block font-extrabold text-[16px] sm:text-lg leading-tight">Je veux mes économies réelles sur 12 mois</span>
+            <span class="block text-[12.5px] text-white/80 mt-0.5">Gratuit · calculées sur vos vraies données Enedis · sans engagement</span>
+          </span>
+          <svg class="w-5 h-5 shrink-0 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5-5 5M6 12h12"/></svg>
+        </span>
+      </button>
+    </div>
+
     <!-- Carte CAR : pourquoi ×12 ≠ budget réel -->
     <div class="result-card bg-amber-50 border border-amber-200 rounded-2xl p-5 space-y-3" style="animation-delay:.3s">
       <div class="flex items-start gap-3">
@@ -549,20 +594,26 @@
     <div class="result-card bg-red-50 border border-red-200 rounded-xl p-4 flex items-start gap-3" style="animation-delay:.32s">
       <svg class="w-5 h-5 text-red-500 shrink-0 mt-0.5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><circle cx="12" cy="13" r="8"/><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4l2.5 2.5M9 2h6"/></svg>
       <div>
-        <p class="text-sm font-bold text-red-800">Ces tarifs peuvent changer d'une semaine à l'autre</p>
+        <p class="text-sm font-bold text-red-800">Ces tarifs bougent — parfois plusieurs fois par jour</p>
         <p class="text-xs text-red-700 leading-relaxed mt-1">
-          Les prix affichés sont basés sur nos <strong>dernières négociations en cours</strong> avec les fournisseurs. Les marchés de l'énergie fluctuent en permanence : les offres compétitives d'aujourd'hui ne seront peut-être plus disponibles dans quelques semaines. Au-delà de quelques semaines, ces conditions ne sont plus garanties.
+          Les prix de marché des fournisseurs changent en continu. On met à jour nos bilans en permanence pour afficher les tarifs <strong>les plus proches de la réalité à l'instant T</strong>. Pour vos résultats exacts et personnalisés, lancez votre projection sur vos vraies données Enedis.
         </p>
       </div>
     </div>
 
     <!-- CTA principal -->
-    <div class="result-card space-y-3" style="animation-delay:.35s">
-      <button id="btnGetAudit"
-        class="w-full py-4 rounded-2xl bg-primary-600 text-white font-bold text-lg shadow-strong hover:bg-primary-700 transition-all focus:outline-none focus:ring-2 focus:ring-primary-600">
-        Affiner mes économies : bilan gratuit →
+    <div class="result-card space-y-2" style="animation-delay:.35s">
+      <button id="btnGetAudit" type="button"
+        class="js-audit group w-full rounded-2xl bg-gradient-to-br from-primary-600 to-primary-700 text-white shadow-strong hover:shadow-xl hover:-translate-y-0.5 transition-all px-5 py-4 text-left focus:outline-none focus:ring-2 focus:ring-primary-400">
+        <span class="flex items-center justify-between gap-3">
+          <span>
+            <span class="block font-extrabold text-[16px] sm:text-lg leading-tight">Je veux mes économies réelles sur 12 mois</span>
+            <span class="block text-[12.5px] text-white/80 mt-0.5">Gratuit · calculées sur vos vraies données Enedis · sans engagement</span>
+          </span>
+          <svg class="w-5 h-5 shrink-0 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5-5 5M6 12h12"/></svg>
+        </span>
       </button>
-      <p class="text-center text-xs text-slate-400">Résultat précis sous 24h · Zéro engagement · Zéro frais</p>
+      <p class="text-center text-xs text-slate-400">Résultat précis · zéro engagement · zéro frais</p>
     </div>
   </div>
 
@@ -590,20 +641,20 @@
           <p class="text-sm font-bold text-slate-700">Comment ça se passe ?</p>
           <div class="flex items-start gap-3">
             <div class="size-7 rounded-full bg-primary-600 text-white text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">1</div>
-            <p class="text-sm text-slate-600">Vous nous laissez vos coordonnées ci-dessous</p>
+            <p class="text-sm text-slate-600">Vous laissez vos coordonnées — elles <strong>restent chez Elga Energy, jamais revendues</strong> (RGPD).</p>
           </div>
           <div class="flex items-start gap-3">
             <div class="size-7 rounded-full bg-primary-600 text-white text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">2</div>
-            <p class="text-sm text-slate-600">Vous recevez un <strong>SMS d'Enedis</strong> pour autoriser la transmission de vos données de consommation</p>
+            <p class="text-sm text-slate-600">Vous recevez un <strong>SMS et un e-mail d'Elga Energy</strong> pour donner votre accord : vos données vous appartiennent, il nous faut votre autorisation pour les récupérer chez Enedis.</p>
           </div>
           <div class="flex items-start gap-3">
             <div class="size-7 rounded-full bg-primary-600 text-white text-xs font-bold flex items-center justify-center shrink-0 mt-0.5">3</div>
-            <p class="text-sm text-slate-600">Un conseiller Elga Energy vous rappelle avec votre <strong>bilan comparatif personnalisé</strong> sur les 3 leviers d'économies</p>
+            <p class="text-sm text-slate-600">Nous construisons votre <strong>bilan personnalisé</strong> sur vos 12 derniers mois réels, et on vous rappelle.</p>
           </div>
         </div>
 
         <div class="bg-primary-50 rounded-xl p-3 text-xs text-primary-800 font-medium text-center">
-          <svg class="w-4 h-4 inline-block align-[-3px] mr-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path stroke-linecap="round" stroke-linejoin="round" d="M8 11V7a4 4 0 018 0v4"/></svg> Vos données sont utilisées uniquement pour votre bilan. Aucune revente. Conformité RGPD.
+          <svg class="w-4 h-4 inline-block align-[-3px] mr-0.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><rect x="5" y="11" width="14" height="9" rx="2"/><path stroke-linecap="round" stroke-linejoin="round" d="M8 11V7a4 4 0 018 0v4"/></svg> Vos coordonnées restent chez Elga Energy, ne sont jamais revendues, et ne servent qu'à votre bilan. Conformité RGPD.
         </div>
       </div>
     </div>
@@ -965,8 +1016,11 @@
   // Prix énergie "pur" moyen côté client (€/MWh HT). Pour le TRV, on isole l'énergie en
   // retirant acheminement + taxes + abonnement du total (acheminement inclus dans la facture).
   function clientEnergyAvg(e) {
-    if (e.price_hph_mwh != null && e.price_hch_mwh != null) return Math.round((e.price_hph_mwh * 0.55 + e.price_hch_mwh * 0.45) * 10) / 10;
-    if (e.price_base_mwh != null && !isTRV(e)) return e.price_base_mwh;
+    if (!isTRV(e)) {
+      if (e.price_hph_mwh != null && e.price_hch_mwh != null) return Math.round((e.price_hph_mwh * 0.55 + e.price_hch_mwh * 0.45) * 10) / 10;
+      if (e.price_base_mwh != null) return e.price_base_mwh;
+    }
+    // TRV ou prix non détaillés : on isole l'énergie en retirant l'acheminement (issu de la facture) + taxes + abonnement.
     var conso = consoMwhOf(e);
     if (e.total_ht_annual != null && conso) {
       var ach = acheminementOf(e).val || 0;
@@ -1244,7 +1298,6 @@
     var cliE = clientEnergyAvg(e), elgaE = elgaEnergyAvg(g);
     if (elgaE != null) rows.push(['Prix énergie (moy.)', cliE, elgaE, '€/MWh']);
     rows.push(['Abonnement', (e.subscription_monthly_ht != null ? e.subscription_monthly_ht : null), (g.abo_monthly != null ? g.abo_monthly : null), '€/mois']);
-    if (!isGas && (ach.val != null || g.acheminement_annual != null)) rows.push(['Acheminement / an', ach.val, (g.acheminement_annual != null ? g.acheminement_annual : null), '€']);
     rows = rows.filter(function (r) { return r[1] != null || r[2] != null; });
     if (!rows.length) return;
 
@@ -1376,11 +1429,12 @@
     showStep('upload');
   });
 
-  btnGetAudit.addEventListener('click', () => {
+  function openFunnel() {
     showStep('funnel');
     window.scrollTo({ top: document.getElementById('step-funnel').offsetTop - 80, behavior: 'smooth' });
-    gtag('event', 'funnel_start', { event_category: 'scanner' });
-  });
+    try { gtag('event', 'funnel_start', { event_category: 'scanner' }); } catch (_) {}
+  }
+  document.querySelectorAll('.js-audit').forEach(function (b) { b.addEventListener('click', openFunnel); });
 
   const btnBackToResults = document.getElementById('btnBackToResults');
   if (btnBackToResults) {
