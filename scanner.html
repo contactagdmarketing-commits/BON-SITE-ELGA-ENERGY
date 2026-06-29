@@ -134,6 +134,8 @@
 <script>
   // Remplacez par l'URL de votre Cloudflare Worker après déploiement
   window.ELGA_WORKER_URL = 'https://elga-scanner.edhy-delaprez.workers.dev';
+  // Tuyau SITE -> CRM : chaque scan (même anonyme) crée une trace visible dans « Scans entrants »
+  window.ELGA_CRM_INGEST = 'https://elga-crm.vercel.app/api/ingest/scan';
 </script>
 <!-- Table NAF/APE embarquée (résolution code → secteur, hors-ligne) -->
 <script src="/assets/naf.js"></script>
@@ -934,6 +936,7 @@
       const data = await res.json();
       displayResults(data);
       showStep('results');
+      pushScanToCRM(data);   // trace dans le CRM (anonyme, non bloquant)
 
     } catch (err) {
       clearInterval(scanInterval);
@@ -946,6 +949,46 @@
       }
       showError(msg);
     }
+  }
+
+  // ── Tuyau SITE → CRM ────────────────────────────────────────────────────────
+  // Jeton de session stable (relie le scan anonyme aux coordonnées si données ensuite)
+  var _scanRowId = null;
+  function elgaSessionToken() {
+    try {
+      var t = localStorage.getItem('elga_session');
+      if (!t) {
+        t = 'web-' + Date.now().toString(36) + '-' + Math.round(Math.random() * 1e6).toString(36);
+        localStorage.setItem('elga_session', t);
+      }
+      return t;
+    } catch (e) { return 'web-' + Date.now().toString(36); }
+  }
+  // Envoie chaque scan au CRM (anonyme). Non bloquant : un échec n'impacte jamais l'analyse.
+  function pushScanToCRM(data) {
+    try {
+      var url = window.ELGA_CRM_INGEST;
+      if (!url) return;
+      var e = (data && data.extracted) || {};
+      var payload = {
+        session_token: elgaSessionToken(),
+        client_type: clientType,                 // 'professionnel' | 'particulier'
+        energy_type: e.energy_type || null,       // 'electricity' | 'gas' | 'both'
+        naf: (clientType === 'professionnel' ? nafCode : null) || null,
+        secteur: (clientType === 'professionnel' ? nafSecteur : null) || null,
+        extracted: data && data.extracted ? data.extracted : null,
+        savings: data && data.savings ? data.savings : null,
+      };
+      fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+        keepalive: true,
+      })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (j) { if (j && j.id) _scanRowId = j.id; })
+        .catch(function () { /* silencieux : le CRM ne doit jamais casser l'expérience */ });
+    } catch (e) { /* no-op */ }
   }
 
   // ── Scan animation ────────────────────────────────────────────────────────
