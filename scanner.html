@@ -183,36 +183,48 @@
 <style>
   .hero-rise{animation:heroRise .6s cubic-bezier(.16,1,.3,1) both;animation-delay:var(--d,0ms)}
   @keyframes heroRise{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:none}}
-  .cta-pulse{position:relative}
-  .cta-pulse::after{content:"";position:absolute;inset:0;border-radius:1rem;box-shadow:0 0 0 0 rgba(255,255,255,.55);animation:ctaPulse 2.4s ease-out infinite}
-  @keyframes ctaPulse{0%{box-shadow:0 0 0 0 rgba(255,255,255,.45)}70%{box-shadow:0 0 0 14px rgba(255,255,255,0)}100%{box-shadow:0 0 0 0 rgba(255,255,255,0)}}
   .scroll-cue{animation:bob 1.8s ease-in-out infinite}
   @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(7px)}}
+  /* Fond qui dérive doucement (corporate, vivant sans distraire) */
+  .aurora{animation:auroraDrift 16s ease-in-out infinite alternate}
+  @keyframes auroraDrift{from{transform:translate3d(0,0,0) scale(1)}to{transform:translate3d(0,-16px,0) scale(1.07)}}
+  /* Mot qui défile : parfaites ? / trop chères ? / … (slot vertical, largeur stable) */
+  .rot{display:inline-grid;text-align:left}
+  .rot>span{grid-area:1/1;opacity:0;will-change:opacity,transform;animation:rotWord 9.2s infinite}
+  .rot>span:nth-child(1){animation-delay:0s}
+  .rot>span:nth-child(2){animation-delay:2.3s}
+  .rot>span:nth-child(3){animation-delay:4.6s}
+  .rot>span:nth-child(4){animation-delay:6.9s}
+  @keyframes rotWord{0%{opacity:0;transform:translateY(.5em)}4%{opacity:1;transform:none}21%{opacity:1;transform:none}26%{opacity:0;transform:translateY(-.5em)}100%{opacity:0;transform:translateY(-.5em)}}
+  /* Bas du héros fondu dans la page (plus de démarcation nette) */
+  .hero-fade{position:absolute;left:0;right:0;bottom:-1px;height:120px;background:linear-gradient(to bottom,rgba(248,250,252,0),#f8fafc);pointer-events:none;z-index:1}
   @media (prefers-reduced-motion: reduce){
-    .hero-rise,.scroll-cue{animation:none!important;opacity:1!important;transform:none!important}
-    .cta-pulse::after{animation:none!important;box-shadow:none!important}
+    .hero-rise,.scroll-cue,.aurora{animation:none!important;opacity:1!important;transform:none!important}
+    .rot>span{animation:none!important}
+    .rot>span:nth-child(1){opacity:1!important}
+    .rot>span:not(:first-child){display:none}
   }
 </style>
 <section class="relative overflow-hidden bg-gradient-to-br from-secondary-600 to-primary-700 text-white">
-  <div class="absolute inset-0 pointer-events-none" style="background:radial-gradient(60% 55% at 12% -5%,rgba(255,255,255,.14),transparent 60%),radial-gradient(55% 65% at 105% 115%,rgba(16,185,129,.16),transparent 62%)"></div>
-  <div class="relative container text-center max-w-3xl mx-auto px-4 py-12 sm:py-16 md:py-[5.5rem]">
+  <div class="aurora absolute inset-0 pointer-events-none" style="background:radial-gradient(60% 55% at 12% -5%,rgba(255,255,255,.14),transparent 60%),radial-gradient(55% 65% at 105% 115%,rgba(16,185,129,.18),transparent 62%)"></div>
+  <div class="relative z-10 container text-center max-w-3xl mx-auto px-4 py-12 sm:py-16 md:py-[5.5rem]">
     <div class="hero-rise inline-flex items-center gap-2 rounded-full bg-white/15 border border-white/25 px-4 py-1.5 text-[13px] sm:text-sm font-medium backdrop-blur-sm" style="--d:0ms">
       <span class="size-2 rounded-full bg-primary-300 pulse shrink-0"></span>
       Gratuit · résultat en 15 secondes · sans engagement
     </div>
-    <h1 class="hero-rise mt-5 text-[30px] leading-[1.08] sm:text-[2.7rem] md:text-[3.1rem] font-extrabold tracking-tight" style="--d:80ms;text-wrap:balance">
-      Votre facture d'énergie vous fait<br class="hidden sm:block"> peut-être payer <span class="text-primary-200">des centaines d'euros en trop</span>.
+    <h1 class="hero-rise mt-5 text-[30px] leading-[1.1] sm:text-[2.7rem] md:text-[3.1rem] font-extrabold tracking-tight" style="--d:80ms;text-wrap:balance">
+      Vos factures d'énergie sont-elles
+      <span class="rot align-bottom text-primary-200">
+        <span>parfaites&nbsp;?</span>
+        <span>trop chères&nbsp;?</span>
+        <span>bien négociées&nbsp;?</span>
+        <span>au bon tarif&nbsp;?</span>
+      </span>
     </h1>
-    <p class="hero-rise mt-4 text-white/90 text-[15.5px] sm:text-lg max-w-2xl mx-auto" style="--d:170ms;text-wrap:pretty">
-      Déposez-la ci-dessous. En 15 secondes, on décortique <strong class="text-white font-semibold">chaque ligne</strong> — prix du kWh, abonnement, acheminement, taxes — et on vous montre, chiffres à l'appui, exactement où vous payez trop.
+    <p class="hero-rise mt-5 text-white/90 text-[16px] sm:text-lg max-w-2xl mx-auto" style="--d:170ms;text-wrap:pretty">
+      Ne vous posez plus la question. <strong class="text-white font-semibold">Scannez-la — gratuitement, en 15 secondes.</strong> On décortique chaque ligne (kWh, abonnement, acheminement, taxes) et on vous montre, chiffres à l'appui, où vous payez trop.
     </p>
-    <div class="hero-rise flex flex-wrap items-center justify-center gap-2.5 mt-6" style="--d:240ms">
-      <span class="inline-flex items-center gap-1.5 rounded-xl bg-white/12 border border-white/20 px-3.5 py-2 text-sm font-semibold backdrop-blur-sm"><svg class="w-4 h-4 text-primary-200 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 2L4 14h7l-1 8 10-12h-7l0-8z"/></svg>Résultat en 15 s</span>
-      <span class="inline-flex items-center gap-1.5 rounded-xl bg-white/12 border border-white/20 px-3.5 py-2 text-sm font-semibold backdrop-blur-sm"><svg class="w-4 h-4 text-primary-200 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-4-4"/></svg>4 leviers analysés</span>
-      <span class="inline-flex items-center gap-1.5 rounded-xl bg-white/12 border border-white/20 px-3.5 py-2 text-sm font-semibold backdrop-blur-sm"><svg class="w-4 h-4 text-primary-200 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M20 12v9H4v-9M2 7h20v5H2zM12 22V7M12 7S9 2 6.5 3.5 9 7 12 7zM12 7s3-5 5.5-3.5S15 7 12 7z"/></svg>100 % gratuit</span>
-    </div>
-    <p class="hero-rise mt-6 text-white/80 text-[13px]" style="--d:300ms">Gratuit · données non stockées · sans engagement</p>
-    <div class="hero-rise flex items-center justify-center flex-wrap gap-2 sm:gap-3 mt-7" style="--d:320ms">
+    <div class="hero-rise flex items-center justify-center flex-wrap gap-2 sm:gap-3 mt-7" style="--d:300ms">
       <span class="inline-flex items-center gap-2 rounded-full bg-white/12 border border-white/20 px-3 py-1.5 text-[13px] sm:text-sm backdrop-blur-sm"><span class="size-5 rounded-full bg-white text-primary-700 text-[11px] font-bold grid place-items-center shrink-0">1</span>Déposez votre facture</span>
       <svg class="hidden sm:block w-4 h-4 text-white/50 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 5l7 7-7 7"/></svg>
       <span class="inline-flex items-center gap-2 rounded-full bg-white/12 border border-white/20 px-3 py-1.5 text-[13px] sm:text-sm backdrop-blur-sm"><span class="size-5 rounded-full bg-white text-primary-700 text-[11px] font-bold grid place-items-center shrink-0">2</span>On l'analyse en 15 s</span>
@@ -228,6 +240,7 @@
       <span class="scroll-cue text-white/45"><svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7-7-7M19 6l-7 7-7-7"/></svg></span>
     </div>
   </div>
+  <div class="hero-fade" aria-hidden="true"></div>
 </section>
 
 <!-- ─── Zone principale ───────────────────────────────────────────────────── -->
