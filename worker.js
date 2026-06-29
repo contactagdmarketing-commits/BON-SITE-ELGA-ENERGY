@@ -119,6 +119,8 @@ Réponds UNIQUEMENT avec le JSON, sans texte avant ou après :
   "cee_mwh": coût des CEE en €/MWh (si facturé séparément, sinon null),
   "subscription_monthly_ht": abonnement mensuel en € HT,
   "acheminement_annual_ht": coût annuel d'acheminement/TURPE en € HT (ANNUALISÉ),
+  "acheminement_var_annual_ht": (EDF TARIF BLEU / TRV UNIQUEMENT) part VARIABLE de l'acheminement en € HT ANNUALISÉE — null sinon,
+  "acheminement_fixe_annual_ht": (EDF TARIF BLEU / TRV UNIQUEMENT) part FIXE de l'acheminement en € HT ANNUALISÉE — null sinon,
   "accise_annual_ht": montant annuel de l'Accise sur l'énergie (ex-TICFE/CSPE) en € HT (ANNUALISÉ), null si introuvable,
   "cta_annual_ht": montant annuel de la CTA (Contribution Tarifaire d'Acheminement) en € HT (ANNUALISÉ), null si introuvable,
   "taxes_annual_ht": total annuel taxes (Accise + CTA) en € HT (ANNUALISÉ, hors TVA) — doit égaler accise + cta si les deux sont trouvés,
@@ -134,6 +136,7 @@ Notes importantes :
 - segment : c5_mu4 = ≤36 kVA (C5) usage moyen, c5_cu4 = ≤36 kVA (C5) usage court, c4_lu = 36-250 kVA (C4) longue utilisation, c5_hta = >250 kVA / HTA (C3 et au-delà). Gaz : t2_p12 = ≤200 MWh/an, t3 = 200-600 MWh/an.
 - capa_mwh : chercher "mécanisme de capacité", souvent entre 0,50 et 15 €/MWh. Chez certains fournisseurs il est inclus dans le prix énergie (mettre null dans ce cas).
 - acheminement = "Utilisation du réseau" ou "TURPE" ou "Coûts d'utilisation du réseau".
+- EDF Tarif Bleu / TRV : la facture contient TOUJOURS une phrase du type « La part fixe de l'acheminement versé par EDF au gestionnaire de réseau est de X €, et la part variable est de Y € ». Extrais X → acheminement_fixe_annual_ht et Y → acheminement_var_annual_ht (ANNUALISÉS : ×12/N si la facture couvre N mois). Ces deux champs ne concernent QUE les factures EDF au Tarif Réglementé.
 - accise = "Accise sur l'électricité" / "Accise sur les énergies" / ancien "TICFE" / "CSPE" (proportionnelle aux kWh).
 - cta = "CTA" / "Contribution Tarifaire d'Acheminement" (assise sur la part fixe de l'acheminement).
 - taxes_annual_ht = accise + cta (PAS la TVA). Sépare accise et cta si la facture les détaille ; sinon mets-les dans taxes_annual_ht.`;
