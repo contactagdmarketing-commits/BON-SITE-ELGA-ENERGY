@@ -532,6 +532,66 @@
       </button>
     </div>
 
+    <!-- Panneau qui se déplie sur place : capture tél + mail (étape 2) -->
+    <div id="realSavings" class="hidden">
+      <div class="rounded-2xl border-2 border-primary-300 bg-gradient-to-br from-primary-50 to-white shadow-strong p-5 sm:p-6 mt-1">
+        <div class="flex items-start gap-3">
+          <div class="shrink-0 size-11 rounded-xl bg-gradient-to-br from-primary-600 to-secondary-600 text-white grid place-items-center shadow-soft">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 2L4 14h7l-1 8 10-12h-7l0-8z"/></svg>
+          </div>
+          <div class="min-w-0">
+            <p class="font-extrabold text-slate-900 text-lg leading-tight">Vos économies <span class="text-primary-700">réelles</span> sur 12 mois</p>
+            <p class="text-sm text-slate-600 mt-1">Le chiffre ci-dessus est une moyenne du marché. Votre montant <strong class="text-slate-900">exact</strong> se calcule sur vos <strong class="text-slate-900">12 derniers mois réels</strong> (données Enedis). On lance la récupération pour vous — gratuitement, sans engagement.</p>
+          </div>
+        </div>
+
+        <!-- FOMO -->
+        <div class="mt-3 flex items-start gap-2 text-[13px] text-amber-800 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2.5">
+          <svg class="w-4 h-4 shrink-0 mt-0.5 text-amber-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd"/></svg>
+          <span>Les tarifs du marché bougent <strong>chaque jour</strong>. Plus vous lancez tôt, plus vous verrouillez tôt le bon prix — chaque mois d'attente, c'est de l'argent perdu.</span>
+        </div>
+
+        <!-- Formulaire -->
+        <div id="realSavingsForm" class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label for="rsTel" class="block text-xs font-semibold text-slate-600 mb-1">Téléphone portable</label>
+            <input id="rsTel" type="tel" inputmode="tel" autocomplete="tel" placeholder="06 12 34 56 78"
+              class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" />
+          </div>
+          <div>
+            <label for="rsMail" class="block text-xs font-semibold text-slate-600 mb-1">E-mail</label>
+            <input id="rsMail" type="email" autocomplete="email" placeholder="vous@entreprise.fr"
+              class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" />
+          </div>
+          <p class="sm:col-span-2 text-[12.5px] text-slate-500 flex items-start gap-1.5">
+            <svg class="w-4 h-4 shrink-0 mt-0.5 text-primary-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+            Vous recevrez une <strong class="text-slate-700">autorisation par SMS et e-mail au nom d'Elga Energy</strong> — un clic suffit pour valider la récupération Enedis. Données jamais revendues.
+          </p>
+          <button id="rsConfirm" type="button" class="sm:col-span-2 inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-b from-primary-500 to-primary-700 text-white font-bold text-base px-6 py-3.5 shadow-soft hover:shadow-lg hover:-translate-y-0.5 transition-all focus:outline-none focus:ring-2 focus:ring-primary-400">
+            Confirmer ma demande
+            <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+          </button>
+          <p id="rsError" class="sm:col-span-2 hidden text-[13px] text-rose-600 font-medium"></p>
+        </div>
+
+        <!-- Confirmation (après clic) -->
+        <div id="realSavingsDone" class="hidden text-center py-2">
+          <div class="size-14 rounded-full bg-primary-100 text-primary-700 grid place-items-center mx-auto">
+            <svg class="w-8 h-8" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>
+          </div>
+          <p class="font-extrabold text-slate-900 text-lg mt-3">C'est lancé, merci !</p>
+          <p class="text-sm text-slate-600 mt-1.5 max-w-md mx-auto">Vous recevrez <strong class="text-slate-900">dans la journée</strong> une autorisation par <strong class="text-slate-900">SMS et e-mail au nom d'Elga Energy</strong> à valider. Une fois validée, on récupère vos 12 derniers mois auprès d'<strong>Enedis</strong> (le gestionnaire du réseau) et on vous envoie vos économies réelles.</p>
+          <div class="mt-5 rounded-xl bg-slate-50 border border-slate-200 p-4">
+            <p class="text-sm font-semibold text-slate-700">Vous avez d'autres factures à analyser en attendant&nbsp;?</p>
+            <button id="rsAnother" type="button" class="mt-2.5 inline-flex items-center justify-center gap-2 rounded-xl border-2 border-primary-300 text-primary-700 font-bold px-5 py-2.5 hover:bg-primary-50 transition-colors">
+              <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 7V5a2 2 0 012-2h2M17 3h2a2 2 0 012 2v2M21 17v2a2 2 0 01-2 2h-2M7 21H5a2 2 0 01-2-2v-2M3 12h18"/></svg>
+              Scanner une autre facture
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <!-- Leviers = RÉGLAGES : cochez ceux à retenir → recalcul en direct -->
     <div class="result-card bg-white rounded-2xl shadow-soft p-5 space-y-3.5" style="animation-delay:.25s">
       <div class="flex items-center justify-between gap-3">
@@ -1532,12 +1592,83 @@
     showStep('upload');
   });
 
+  // Étape 2 : déplier le panneau de capture SUR PLACE (au lieu d'une page séparée)
   function openFunnel() {
-    showStep('funnel');
-    window.scrollTo({ top: document.getElementById('step-funnel').offsetTop - 80, behavior: 'smooth' });
+    var panel = document.getElementById('realSavings');
+    if (!panel) return;
+    panel.classList.remove('hidden');
+    panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    var tel = document.getElementById('rsTel');
+    if (tel) setTimeout(function () { try { tel.focus({ preventScroll: true }); } catch (_) {} }, 450);
     try { gtag('event', 'funnel_start', { event_category: 'scanner' }); } catch (_) {}
   }
   document.querySelectorAll('.js-audit').forEach(function (b) { b.addEventListener('click', openFunnel); });
+
+  // Confirmer la demande : valide tél + mail, envoie au CRM, affiche la confirmation
+  (function () {
+    var btn = document.getElementById('rsConfirm');
+    if (!btn) return;
+    var errEl = document.getElementById('rsError');
+    function showRsError(m) { if (errEl) { errEl.textContent = m; errEl.classList.remove('hidden'); } }
+    btn.addEventListener('click', function () {
+      var tel = (document.getElementById('rsTel').value || '').trim();
+      var mail = (document.getElementById('rsMail').value || '').trim();
+      var telOk = tel.replace(/[\s.\-]/g, '').match(/^(?:\+33|0)[1-9]\d{8}$/);
+      var mailOk = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(mail);
+      if (!telOk) { showRsError('Indiquez un numéro de portable valide (ex. 06 12 34 56 78).'); document.getElementById('rsTel').focus(); return; }
+      if (!mailOk) { showRsError('Indiquez un e-mail valide.'); document.getElementById('rsMail').focus(); return; }
+      if (errEl) errEl.classList.add('hidden');
+      // Envoi au CRM (étape 2/3) — non bloquant. Met à jour la ligne du scan si on a son id.
+      try {
+        var url = window.ELGA_CRM_INGEST;
+        if (url) {
+          fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            keepalive: true,
+            body: JSON.stringify({
+              scan_id: _scanRowId || null,
+              session_token: elgaSessionToken(),
+              client_type: clientType,
+              enseigne: _ident.enseigne || null,
+              contact_prenom: _ident.prenom || null,
+              contact_nom: _ident.nom || null,
+              telephone: tel,
+              email: mail,
+              consentement_rappel: true,
+            }),
+          }).catch(function () {});
+        }
+      } catch (_) {}
+      try { gtag('event', 'lead_confirm', { event_category: 'scanner' }); } catch (_) {}
+      document.getElementById('realSavingsForm').classList.add('hidden');
+      document.getElementById('realSavingsDone').classList.remove('hidden');
+      document.getElementById('realSavingsDone').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+  })();
+
+  // « Scanner une autre facture » → retour à l'upload
+  (function () {
+    var b = document.getElementById('rsAnother');
+    if (!b) return;
+    b.addEventListener('click', function () {
+      // réinitialise le panneau pour un prochain usage
+      var panel = document.getElementById('realSavings');
+      if (panel) panel.classList.add('hidden');
+      document.getElementById('realSavingsForm').classList.remove('hidden');
+      document.getElementById('realSavingsDone').classList.add('hidden');
+      var t = document.getElementById('rsTel'); if (t) t.value = '';
+      var m = document.getElementById('rsMail'); if (m) m.value = '';
+      // réinitialise l'upload (même logique que « Scanner une autre facture » historique)
+      selectedFile = null;
+      try { fileInput.value = ''; } catch (_) {}
+      dropDefault.classList.remove('hidden');
+      dropSelected.classList.add('hidden');
+      btnAnalyze.disabled = true;
+      hideError();
+      showStep('upload');
+    });
+  })();
 
   const btnBackToResults = document.getElementById('btnBackToResults');
   if (btnBackToResults) {
