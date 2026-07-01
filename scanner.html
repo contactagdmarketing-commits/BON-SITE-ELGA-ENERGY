@@ -1398,20 +1398,16 @@
           lines4g.push(['Accise gaz actuelle', formatEuro(Math.round(acciseNow)) + '/an']);
           if (consoMwh && consoMwh > 0) lines4g.push(['Soit', String(Math.round(acciseNow / consoMwh * 100) / 100).replace('.', ',') + ' €/MWh (normal : 16,39)']);
         }
-        var euroG = null, badgeG = null;
-        var note4g = "Accise gaz (ex-TICGN) = 16,39 €/MWh en 2026. Tarif réduit possible UNIQUEMENT si le site est soumis aux quotas ETS (1,52 €/MWh), électro-intensif/exposé fuite carbone (1,60) ou agricole (0,54) — sur attestation (formulaire 2040-TIC-ATT-G). Production d'électricité / usage non-combustion = exonération totale. Éligibilité vérifiée au bilan.";
-        if (acciseEligibleNaf(code) && acciseNow && consoMwh && consoMwh > 0) {
-          var reducedG = consoMwh * 1.60;
-          var eg = Math.round(acciseNow - reducedG);
-          if (eg > 0) {
-            euroG = eg;
-            lines4g.push(['Tarif réduit électro-intensif (1,60 €/MWh)', formatEuro(Math.round(reducedG)) + '/an']);
-            lines4g.push(['≈ Économie possible (si éligible)', formatEuro(eg) + '/an']);
-            note4g = "Votre secteur" + (sect ? " (" + sect + ")" : "") + " peut être électro-intensif ou soumis aux quotas ETS → accise gaz réduite (1,52–1,60 €/MWh au lieu de 16,39). Sous réserve d'attestation et d'éligibilité réelle — on vérifie au bilan.";
-          }
+        // L'accise gaz s'applique à TOUS (aucun filtre NAF). Le tarif réduit ne dépend PAS
+        // d'un code NAF mais du STATUT du site (ETS / électro-intensif / agricole) + attestation.
+        // → informatif uniquement : on affiche l'accise réelle, on signale la réduction conditionnelle,
+        //   on NE calcule PAS d'économie automatique (ce serait trompeur).
+        if (acciseNow != null && consoMwh && consoMwh > 0) {
+          lines4g.push(['Tarif réduit (si éligible)', 'ETS 1,52 · électro-intensif 1,60 · agricole 0,54 €/MWh']);
         }
-        if (euroG == null && acciseNow != null) badgeG = formatEuro(Math.round(acciseNow)) + '/an';
-        L.push({ key: 'accise', icon: 'accise', color: 'violet', titre: "Accise sur le gaz (taxe)", euro: euroG, checked: euroG != null, badge: badgeG, note: note4g, lines: lines4g });
+        var badgeG = (acciseNow != null) ? (formatEuro(Math.round(acciseNow)) + '/an') : null;
+        var note4g = "L'accise gaz (ex-TICGN, 16,39 €/MWh en 2026) est payée par TOUS les consommateurs de gaz — pas de code NAF exonéré. Un tarif réduit n'existe QUE pour les sites soumis aux quotas ETS (1,52), électro-intensifs/exposés fuite carbone (1,60) ou agricoles (0,54), sur attestation (formulaire 2040-TIC-ATT-G) ; production d'électricité / usage non-combustion = exonération totale. On vérifie ton éligibilité réelle au bilan.";
+        L.push({ key: 'accise', icon: 'accise', color: 'violet', titre: "Accise sur le gaz (taxe)", euro: null, checked: false, badge: badgeG, note: note4g, lines: lines4g });
       } else if (acciseEligibleNaf(code)) {
         var euroT = null, lines4 = [], note4 = "Votre secteur" + (sect ? " (" + sect + ")" : " industriel") + " ouvre droit au tarif réduit d'accise élec (5,5 €/MWh). Récupérable sur 2 ans via les impôts.";
         if (acciseNow && consoMwh && consoMwh > 0) {
