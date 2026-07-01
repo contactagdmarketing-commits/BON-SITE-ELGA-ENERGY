@@ -1283,8 +1283,15 @@
   // retirant acheminement + taxes + abonnement du total (acheminement inclus dans la facture).
   function clientEnergyAvg(e) {
     if (!isTRV(e)) {
-      if (e.price_hph_mwh != null && e.price_hch_mwh != null) return Math.round((e.price_hph_mwh * 0.55 + e.price_hch_mwh * 0.45) * 10) / 10;
-      if (e.price_base_mwh != null) return e.price_base_mwh;
+      var base = null;
+      if (e.price_hph_mwh != null && e.price_hch_mwh != null) base = e.price_hph_mwh * 0.55 + e.price_hch_mwh * 0.45;
+      else if (e.price_base_mwh != null) base = e.price_base_mwh;
+      if (base != null) {
+        // La référence Elga inclut capacité + CEE : on les ajoute côté client pour comparer à périmètre égal.
+        if (e.capa_mwh != null && e.capa_mwh > 0.1) base += e.capa_mwh;
+        if (e.cee_mwh != null && e.cee_mwh > 0.1) base += e.cee_mwh;
+        return Math.round(base * 10) / 10;
+      }
     } else {
       // EDF TRV : le prix affiché inclut l'acheminement. RÈGLE EDF : on retire la part VARIABLE
       // de l'acheminement (lue sur la facture) ramenée au MWh = part_variable / conso.
@@ -1325,18 +1332,32 @@
 
     // 1. Prix de l'énergie (kWh)
     (function () {
-      var euro = (s && s.savings_annual) ? Math.round(s.savings_annual) : null;
       var cli = clientEnergyAvg(e), elga = elgaEnergyAvg(g);
+      // L'économie du levier énergie = VRAI écart (client − Elga) × conso, jamais négatif.
+      // Elle est cohérente avec le détail affiché (fini le chiffre serveur qui contredisait l'écart).
+      var euro = null, dejaBienPlace = false;
+      if (cli != null && elga != null && consoMwh != null) {
+        var diffHT = (cli - elga) * consoMwh;
+        if (diffHT > 0) euro = Math.round(diffHT * 1.20);   // → TTC
+        else dejaBienPlace = true;                            // Elga n'est pas moins cher sur l'énergie
+      }
       var lines = [];
       if (cli != null) lines.push(['Votre prix énergie (moy.)', mwhStr(cli)]);
       if (elga != null) lines.push(['Prix Elga négocié (moy.)', mwhStr(elga)]);
       if (consoMwh != null) lines.push(['Consommation', (consoMwh >= 1 ? formatNumber(Math.round(consoMwh)) + ' MWh/an' : formatNumber(Math.round(consoMwh * 1000)) + ' kWh/an')]);
-      if (cli != null && elga != null && consoMwh != null) lines.push(['Écart × conso (HT)', formatEuro(Math.round((cli - elga) * consoMwh)) + '/an']);
-      if (euro != null) lines.push(['≈ Économie retenue (TTC)', formatEuro(euro) + '/an']);
-      var note = isTRV(e)
-        ? "Vous êtes au Tarif Réglementé (Tarif Bleu EDF) : l'acheminement est inclus dans le prix. On l'a isolé pour comparer la part énergie seule."
-        : "Économie estimée par notre moteur en comparant votre prix au kWh à nos offres négociées. Chiffrage précis au bilan via votre conso réelle (Enedis).";
-      L.push({ key: 'energie', icon: 'energie', color: 'primary', titre: "Prix de l'énergie (kWh)", euro: euro, checked: euro != null, lines: lines, note: note });
+      if (euro != null) {
+        lines.push(['Écart énergie (HT)', mwhStr(Math.round((cli - elga) * 10) / 10)]);
+        lines.push(['≈ Économie énergie (TTC)', formatEuro(euro) + '/an']);
+      }
+      var note = dejaBienPlace
+        ? "Bonne nouvelle : votre prix de l'énergie est déjà compétitif. On va chercher les économies ailleurs — abonnement, puissance, taxes."
+        : isTRV(e)
+          ? "Vous êtes au Tarif Réglementé (Tarif Bleu EDF) : l'acheminement est inclus dans le prix. On l'a isolé pour comparer la part énergie seule."
+          : "Économie estimée en comparant votre prix au kWh (capacité + CEE compris) à nos offres négociées. Chiffrage précis au bilan via votre conso réelle (Enedis).";
+      L.push({ key: 'energie', icon: 'energie', color: 'primary', titre: "Prix de l'énergie (kWh)",
+        euro: euro, checked: euro != null,
+        badge: dejaBienPlace ? 'déjà bien placé' : null,
+        lines: lines, note: note });
     })();
 
     // 2. Abonnement — économie estimée vs grille Elga, comptée dans le budget
@@ -1480,8 +1501,10 @@
     var total = 0;
     _levers.forEach(function (lv) { if (lv.checked && lv.euro != null) total += lv.euro; });
     var hero = document.getElementById('resultSavings');
+    // Grille chargée : le bandeau = SOMME réelle des leviers (cohérence carte ↔ bandeau).
+    // Grille pas encore chargée : teaser serveur le temps du chiffrage, puis on bascule sur la somme.
+    if (total <= 0 && !_grid && _s && _s.savings_annual) total = Math.round(_s.savings_annual);
     if (total > 0) countUp(hero, total);
-    else if (_s && _s.savings_annual) { total = Math.round(_s.savings_annual); countUp(hero, total); }
     else hero.textContent = "Jusqu'à 30%";
 
     var lt = document.getElementById('leviersTotal');
