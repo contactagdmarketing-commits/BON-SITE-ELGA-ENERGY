@@ -567,8 +567,15 @@ async function handleScan(request, env) {
 // ─── Handler : lecture de la grille de prix ───────────────────────────────────
 
 async function handleGetPrices(request, env) {
-  // Auth optionnelle : si token admin fourni, on retourne la grille complète,
-  // sinon on retourne aussi (la grille est publique en lecture)
+  // Lecture publique de la grille (le scanner en a besoin sans auth).
+  // MAIS si un token est fourni (écran de login admin), il DOIT être valide —
+  // sinon le login « passait » avec n'importe quel mot de passe et l'extraction
+  // de bilan renvoyait ensuite « Token admin invalide » (401).
+  const auth = request.headers.get('Authorization') || '';
+  if (auth) {
+    const token = auth.replace('Bearer ', '').trim();
+    if (token !== env.ADMIN_TOKEN) return jsonResponse({ error: 'Non autorisé' }, 401);
+  }
   try {
     const raw = await env.ELGA_KV.get('price_grid');
     if (raw) return jsonResponse(JSON.parse(raw));
