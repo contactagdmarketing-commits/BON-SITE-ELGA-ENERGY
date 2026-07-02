@@ -654,6 +654,20 @@
       </div>
     </div>
 
+    <!-- Points de vigilance : risques détectés sur le contrat (TRV volatil, tacite reconduction…) -->
+    <div id="vigilanceCard" class="result-card hidden bg-white rounded-2xl shadow-soft p-5 space-y-3" style="animation-delay:.23s">
+      <div class="flex items-center gap-2.5">
+        <div class="size-9 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center shrink-0">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.3 3.86l-8.5 14.7A2 2 0 003.5 21.5h17a2 2 0 001.7-2.94l-8.5-14.7a2 2 0 00-3.4 0z"/></svg>
+        </div>
+        <div>
+          <p class="text-sm font-bold text-slate-800">Points de vigilance</p>
+          <p class="text-xs text-slate-400">Ce qu'on a repéré sur votre contrat — au-delà du prix.</p>
+        </div>
+      </div>
+      <div id="vigilance" class="space-y-2"></div>
+    </div>
+
     <!-- Leviers = RÉGLAGES : cochez ceux à retenir → recalcul en direct -->
     <div class="result-card bg-white rounded-2xl shadow-soft p-5 space-y-3.5" style="animation-delay:.25s">
       <div class="flex items-center justify-between gap-3">
@@ -1634,6 +1648,76 @@
   }
 
   // Détail facture 100% personnalisé — groupé, uniquement les lignes présentes.
+  // Points de vigilance : risques du contrat au-delà du prix (TRV volatil, tacite reconduction…).
+  function computeVigilance(e, s, data) {
+    var V = [];
+    var consoMwh = consoMwhOf(e);
+    var trv = isTRV(e) || e.est_trv === true;
+
+    // 1. Tarif Réglementé / Tarif Bleu EDF → prix subi, révisé plusieurs fois par an
+    if (trv) {
+      V.push({ t: 'danger', titre: 'Tarif Réglementé (Tarif Bleu EDF)',
+        txt: "Votre prix est fixé par l'État et révisé plusieurs fois par an. Budget volatil et subi : vous ne maîtrisez pas votre coût. Un contrat de marché à prix fixe sécurise votre budget." });
+    }
+
+    // 2. Pas de date de fin (hors TRV) → tacite reconduction, prix revu chaque an sans accord
+    var aDateFin = !!(e.date_fin_contrat);
+    if (!trv && !aDateFin) {
+      V.push({ t: 'danger', titre: 'Aucune échéance détectée — tacite reconduction probable',
+        txt: "Sans date de fin claire, votre contrat se reconduit tacitement : le fournisseur peut réviser votre prix chaque année sans votre accord. C'est le cas le moins maîtrisé — à reprendre en main en priorité." });
+    } else if (!trv && aDateFin) {
+      V.push({ t: 'info', titre: 'Échéance de contrat : ' + String(e.date_fin_contrat),
+        txt: "Anticipez : un préavis est souvent requis avant cette date pour changer d'offre sans reconduction automatique." });
+    }
+
+    // 3. Préavis / résiliation mentionné
+    if (e.preavis_resiliation) {
+      V.push({ t: 'info', titre: 'Préavis de résiliation : ' + String(e.preavis_resiliation),
+        txt: "À respecter pour changer d'offre au bon moment, sans pénalité ni reconduction." });
+    }
+
+    // 4. Facture sur une courte période → estimation à fiabiliser
+    if (e.billing_months && e.billing_months < 12) {
+      V.push({ t: 'info', titre: 'Estimation sur ' + e.billing_months + ' mois de facture',
+        txt: "Les chiffres sont annualisés depuis cette facture. Vos 12 mois réels (Enedis) donneront le budget exact." });
+    }
+
+    // 5. Puissance souscrite probablement surdimensionnée (élec)
+    if (e.energy_type !== 'gas' && e.power_kva && consoMwh) {
+      var heq = (consoMwh * 1000) / e.power_kva;
+      if (heq < 1000 && e.power_kva > 6) {
+        V.push({ t: 'warn', titre: 'Puissance souscrite sans doute trop élevée',
+          txt: "Vous payez une part fixe d'acheminement (TURPE) sur une puissance peu utilisée. L'ajuster réduit la facture sans rien changer à votre activité." });
+      }
+    }
+    return V;
+  }
+
+  function renderVigilance(V) {
+    var card = document.getElementById('vigilanceCard');
+    var box = document.getElementById('vigilance');
+    if (!card || !box) return;
+    box.innerHTML = '';
+    if (!V || !V.length) { card.classList.add('hidden'); return; }
+    card.classList.remove('hidden');
+    var TONE = {
+      danger: { bd: 'border-rose-200', bg: 'bg-rose-50/60', dot: 'text-rose-500', ti: 'text-rose-800' },
+      warn:   { bd: 'border-amber-200', bg: 'bg-amber-50/60', dot: 'text-amber-500', ti: 'text-amber-800' },
+      info:   { bd: 'border-sky-200', bg: 'bg-sky-50/60', dot: 'text-sky-600', ti: 'text-sky-800' },
+    };
+    V.forEach(function (v) {
+      var c = TONE[v.t] || TONE.info;
+      var row = document.createElement('div');
+      row.className = 'rounded-xl border ' + c.bd + ' ' + c.bg + ' p-3 flex gap-2.5';
+      row.innerHTML =
+        '<svg class="w-4 h-4 shrink-0 mt-0.5 ' + c.dot + '" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v4m0 4h.01M10.3 3.86l-8.5 14.7A2 2 0 003.5 21.5h17a2 2 0 001.7-2.94l-8.5-14.7a2 2 0 00-3.4 0z"/></svg>' +
+        '<div class="min-w-0"><p class="text-[13.5px] font-bold ' + c.ti + '"></p><p class="text-[12.5px] text-slate-600 mt-0.5 leading-relaxed"></p></div>';
+      row.querySelectorAll('p')[0].textContent = v.titre;
+      row.querySelectorAll('p')[1].textContent = v.txt;
+      box.appendChild(row);
+    });
+  }
+
   function buildFactureDetail(e, data) {
     var host = document.getElementById('factureDetail');
     if (!host) return;
@@ -1831,6 +1915,7 @@
     _e = e; _s = s; _data = data;
     _months = e.billing_months || 1; _clientAnnual = s ? s.client_total_annual : null;
     buildFactureDetail(e, data);                 // détail facture 100% personnalisé
+    renderVigilance(computeVigilance(e, s, data)); // points de vigilance (TRV, tacite reconduction…)
     _levers = computeLevers(e, s, data, null);   // affichage immédiat (sans grille)
     renderLeviers();
     recompute();

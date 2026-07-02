@@ -129,6 +129,9 @@ Réponds UNIQUEMENT avec le JSON, sans texte avant ou après :
   "tva_pct": taux de TVA appliqué en % (ex: 20 ; 5.5 possible sur l'abonnement avant 08/2025),
   "total_ht_annual": total annuel HT en € (ANNUALISÉ, hors TVA),
   "total_ttc_annual": total annuel TTC en € (ANNUALISÉ, TVA incluse),
+  "est_trv": true si Tarif Réglementé de Vente / Tarif Bleu EDF, false sinon,
+  "date_fin_contrat": date de fin/échéance du contrat au format AAAA-MM-JJ si visible, sinon null,
+  "preavis_resiliation": info de préavis/résiliation si mentionnée (ex "2 mois", "tacite reconduction"), sinon null,
   "confidence": "high" si prix unitaires + conso + total trouvés, "medium" si partiel, "low" si peu de données
 }
 
