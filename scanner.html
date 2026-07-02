@@ -1150,6 +1150,16 @@
       return t;
     } catch (e) { return 'web-' + Date.now().toString(36); }
   }
+  // Tag d'origine : lien partagé « scanner.html?ref=james » → le scan est marqué et
+  // triable dans le CRM (mes liens vs entrant site). Mémorisé pour survivre au rechargement.
+  function elgaRef() {
+    try {
+      var m = new URLSearchParams(location.search).get('ref');
+      if (m) { m = String(m).slice(0, 40); localStorage.setItem('elga_ref', m); return m; }
+      return localStorage.getItem('elga_ref') || null;
+    } catch (_) { return null; }
+  }
+  elgaRef(); // capture le tag dès l'arrivée sur la page
   // En-têtes Supabase REST (clé publique = insertion/maj seulement, jamais de lecture)
   function supaHeaders(extra) {
     var h = {
@@ -1211,6 +1221,10 @@
         extracted: ex,
         savings: sv,
       };
+      // Lien balisé (?ref=james) : clé ajoutée seulement si présente — un visiteur
+      // normal reste « entrant site » et l'insert ne dépend pas de la colonne.
+      var _ref = elgaRef();
+      if (_ref) row.ref = _ref;
       // return=minimal : anon ne lit jamais la table (confidentialité des leads)
       fetch(window.ELGA_SUPA_URL + '/rest/v1/scans', {
         method: 'POST',
