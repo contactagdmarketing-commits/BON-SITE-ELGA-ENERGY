@@ -304,6 +304,41 @@
       </div>
     </div>
 
+    <!-- Vos énergies + nombre de compteurs (plusieurs factures = même analyse, même profil) -->
+    <div class="mb-5 bg-white rounded-2xl shadow-soft p-5">
+      <p class="text-sm font-semibold text-slate-700 text-center">Vos énergies&nbsp;:</p>
+      <p class="text-xs text-slate-400 mt-0.5 mb-3 text-center">Plusieurs compteurs&nbsp;? Scannez une facture par compteur — tout est regroupé.</p>
+      <div class="grid grid-cols-3 gap-2.5 max-w-md mx-auto" role="radiogroup" aria-label="Vos énergies">
+        <button type="button" class="scan-opt nrj-opt is-active" data-nrj="elec" role="radio" aria-checked="true">
+          <svg fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 2L4.5 13.5H11l-1 8.5L18.5 10.5H12L13 2z"/></svg>
+          <span class="scan-opt-t">Électricité</span>
+        </button>
+        <button type="button" class="scan-opt nrj-opt" data-nrj="gaz" role="radio" aria-checked="false">
+          <svg fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3c0 4-5 5-5 9a5 5 0 0010 0c0-2-1-3-2-4 0 2-1 2-1 2 .5-3-2-5-2-7z"/></svg>
+          <span class="scan-opt-t">Gaz</span>
+        </button>
+        <button type="button" class="scan-opt nrj-opt" data-nrj="both" role="radio" aria-checked="false">
+          <svg fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M11 2L5 10.5h4L8.3 16 14 8.5h-4L11 2z"/><path stroke-linecap="round" stroke-linejoin="round" d="M17.5 9c0 2.6-3.2 3.3-3.2 5.9a3.2 3.2 0 006.4 0c0-1.3-.6-2-1.3-2.6 0 1.3-.6 1.3-.6 1.3.3-1.9-1.3-3.2-1.3-4.6z"/></svg>
+          <span class="scan-opt-t">Les deux</span>
+        </button>
+      </div>
+      <div class="mt-3 grid grid-cols-1 sm:grid-cols-2 gap-3 max-w-md mx-auto">
+        <div id="cptElecWrap">
+          <label for="cptElec" class="block text-xs font-semibold text-slate-600 mb-1">Compteurs électricité</label>
+          <select id="cptElec" class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary-400">
+            <option value="1" selected>1 compteur</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10 et +</option>
+          </select>
+        </div>
+        <div id="cptGazWrap" class="hidden">
+          <label for="cptGaz" class="block text-xs font-semibold text-slate-600 mb-1">Compteurs gaz</label>
+          <select id="cptGaz" class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm bg-white focus:outline-none focus:ring-2 focus:ring-primary-400">
+            <option value="1" selected>1 compteur</option><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option><option value="9">9</option><option value="10">10 et +</option>
+          </select>
+        </div>
+      </div>
+      <p id="nrjHint" class="hidden text-[12px] text-primary-700 font-semibold text-center mt-3"></p>
+    </div>
+
     <!-- Que souhaitez-vous analyser ? (oriente le scan) -->
     <div class="mb-5 bg-white rounded-2xl shadow-soft p-5">
       <p class="text-sm font-semibold text-slate-700 text-center">Que souhaitez-vous analyser&nbsp;?</p>
@@ -947,14 +982,47 @@
 
   // ── Que souhaitez-vous analyser ? (oriente le résultat) ─────────────────────
   let analysisFocus = 'all';
-  document.querySelectorAll('.scan-opt').forEach(opt => opt.addEventListener('click', () => {
+  // Choix d'analyse (scopé sur data-focus pour ne pas interférer avec le choix d'énergie)
+  const focusOpts = document.querySelectorAll('.scan-opt[data-focus]');
+  focusOpts.forEach(opt => opt.addEventListener('click', () => {
     analysisFocus = opt.dataset.focus || 'all';
-    document.querySelectorAll('.scan-opt').forEach(o => {
+    focusOpts.forEach(o => {
       const on = o === opt;
       o.classList.toggle('is-active', on);
       o.setAttribute('aria-checked', on ? 'true' : 'false');
     });
   }));
+
+  // ── Vos énergies + compteurs (déclaratif : oriente le parcours multi-factures) ──
+  var nrjChoice = 'elec';
+  var cptElecSel = document.getElementById('cptElec'), cptGazSel = document.getElementById('cptGaz');
+  function nrjCounts() {
+    var e = parseInt(cptElecSel && cptElecSel.value, 10) || 1;
+    var g = parseInt(cptGazSel && cptGazSel.value, 10) || 1;
+    return { elec: nrjChoice !== 'gaz' ? e : 0, gaz: nrjChoice !== 'elec' ? g : 0 };
+  }
+  function nrjHintUpdate() {
+    var c = nrjCounts(), tot = c.elec + c.gaz;
+    var hint = document.getElementById('nrjHint');
+    if (!hint) return;
+    if (tot > 1) {
+      hint.textContent = tot + ' compteurs : scannez une facture par compteur (bouton « Scanner une autre facture » après chaque analyse) — tout est regroupé dans le même profil.';
+      hint.classList.remove('hidden');
+    } else hint.classList.add('hidden');
+  }
+  document.querySelectorAll('.nrj-opt').forEach(function (b) {
+    b.addEventListener('click', function () {
+      document.querySelectorAll('.nrj-opt').forEach(function (o) { o.classList.remove('is-active'); o.setAttribute('aria-checked', 'false'); });
+      b.classList.add('is-active'); b.setAttribute('aria-checked', 'true');
+      nrjChoice = b.getAttribute('data-nrj') || 'elec';
+      var we = document.getElementById('cptElecWrap'), wg = document.getElementById('cptGazWrap');
+      if (we) we.classList.toggle('hidden', nrjChoice === 'gaz');
+      if (wg) wg.classList.toggle('hidden', nrjChoice === 'elec');
+      nrjHintUpdate();
+    });
+  });
+  if (cptElecSel) cptElecSel.addEventListener('change', nrjHintUpdate);
+  if (cptGazSel) cptGazSel.addEventListener('change', nrjHintUpdate);
 
   if (nafInput && nafSuggest) {
     nafInput.addEventListener('input', () => {
@@ -1207,6 +1275,11 @@
         sv = (data && data.savings) || null;
         etype = (ex && ex.energy_type) || null;
       }
+      // Déclaratif du visiteur (énergies + nb de compteurs) → visible dans le CRM
+      try {
+        var _c = nrjCounts();
+        ex = Object.assign({}, ex || {}, { declare: { energies: nrjChoice, compteurs_elec: _c.elec, compteurs_gaz: _c.gaz } });
+      } catch (_) {}
       var row = {
         session_token: elgaSessionToken(),
         source: 'entrant',                         // requis par la règle d'insertion
@@ -1225,12 +1298,19 @@
       // normal reste « entrant site » et l'insert ne dépend pas de la colonne.
       var _ref = elgaRef();
       if (_ref) row.ref = _ref;
-      // return=minimal : anon ne lit jamais la table (confidentialité des leads)
-      fetch(window.ELGA_SUPA_URL + '/rest/v1/scans', {
-        method: 'POST',
-        headers: supaHeaders({ 'Prefer': 'return=minimal' }),
-        body: JSON.stringify(row),
-        keepalive: true,
+      // return=minimal : anon ne lit jamais la table (confidentialité des leads).
+      // INCREVABLE : si la base refuse (ex. colonne ref absente), on réessaie SANS ref —
+      // un scan ne doit JAMAIS être perdu.
+      function postScan(r) {
+        return fetch(window.ELGA_SUPA_URL + '/rest/v1/scans', {
+          method: 'POST',
+          headers: supaHeaders({ 'Prefer': 'return=minimal' }),
+          body: JSON.stringify(r),
+          keepalive: true,
+        });
+      }
+      postScan(row).then(function (resp) {
+        if (!resp.ok && row.ref) { var r2 = Object.assign({}, row); delete r2.ref; return postScan(r2); }
       }).catch(function () { /* silencieux : le CRM ne doit jamais casser l'expérience */ });
     } catch (e) { /* no-op */ }
   }

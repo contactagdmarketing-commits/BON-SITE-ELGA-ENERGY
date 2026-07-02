@@ -137,5 +137,10 @@
     </div>
     <div class="border-t border-white/10"><div class="container py-4 text-xs text-slate-400">© 2026 Elga Energy</div></div>
   </footer>
+  <script>
+  // Lien balisé (?ref=james) : mémorisé pour attribuer les scans à leur apporteur,
+  // quelle que soit la page d'arrivée. Lu par le scanner au moment du scan.
+  try { var _elgaRef = new URLSearchParams(location.search).get('ref'); if (_elgaRef) localStorage.setItem('elga_ref', String(_elgaRef).slice(0, 40)); } catch (e) {}
+  </script>
 </body>
 </html>
