@@ -1973,11 +1973,14 @@
       try {
         if (window.ELGA_SUPA_URL && window.ELGA_SUPA_KEY) {
           var tok = elgaSessionToken();
-          fetch(window.ELGA_SUPA_URL + '/rest/v1/scans?session_token=eq.' + encodeURIComponent(tok), {
-            method: 'PATCH',
-            headers: supaHeaders({ 'Prefer': 'return=minimal' }),
+          // RPC capture_coords (fonction serveur security definer) : le PATCH direct
+          // matchait 0 ligne — en RLS Postgres, un UPDATE avec WHERE exige aussi une
+          // policy SELECT, qu'on refuse à anon (les leads ne doivent pas être lisibles).
+          fetch(window.ELGA_SUPA_URL + '/rest/v1/rpc/capture_coords', {
+            method: 'POST',
+            headers: supaHeaders({}),
             keepalive: true,
-            body: JSON.stringify({ telephone: v.tel, email: v.mail, consentement_rappel: true, date_consentement: new Date().toISOString() }),
+            body: JSON.stringify({ p_token: tok, p_tel: v.tel, p_mail: v.mail }),
           }).catch(function () {});
         }
       } catch (_) {}
