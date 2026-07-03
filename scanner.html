@@ -576,7 +576,7 @@
 
     <!-- CTA : mes économies réelles (Enedis) -->
     <div class="result-card mt-1">
-      <button type="button" class="js-audit group w-full rounded-2xl bg-gradient-to-br from-primary-600 to-primary-700 text-white shadow-strong hover:shadow-xl hover:-translate-y-0.5 transition-all px-5 py-4 text-left focus:outline-none focus:ring-2 focus:ring-primary-400">
+      <button id="ctaEco" type="button" class="js-audit group w-full rounded-2xl bg-gradient-to-br from-primary-600 to-primary-700 text-white shadow-strong hover:shadow-xl hover:-translate-y-0.5 transition-all px-5 py-4 text-left focus:outline-none focus:ring-2 focus:ring-primary-400">
         <span class="flex items-center justify-between gap-3">
           <span>
             <span class="block font-extrabold text-[16px] sm:text-lg leading-tight">Je veux mes économies réelles sur 12 mois</span>
@@ -684,19 +684,6 @@
       <p class="text-[11px] leading-relaxed text-slate-400 pt-0.5">Estimations sur des tarifs moyens du marché, qui varient d'un jour à l'autre. Le chiffrage précis se fait avec votre consommation réelle (Enedis) lors du bilan.</p>
     </div>
 
-    <!-- CTA : mes économies réelles (Enedis) -->
-    <div class="result-card mt-1">
-      <button type="button" class="js-audit group w-full rounded-2xl bg-gradient-to-br from-primary-600 to-primary-700 text-white shadow-strong hover:shadow-xl hover:-translate-y-0.5 transition-all px-5 py-4 text-left focus:outline-none focus:ring-2 focus:ring-primary-400">
-        <span class="flex items-center justify-between gap-3">
-          <span>
-            <span class="block font-extrabold text-[16px] sm:text-lg leading-tight">Je veux mes économies réelles sur 12 mois</span>
-            <span class="block text-[12.5px] text-white/80 mt-0.5">Gratuit · calculées sur vos vraies données Enedis · sans engagement</span>
-          </span>
-          <svg class="w-5 h-5 shrink-0 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5-5 5M6 12h12"/></svg>
-        </span>
-      </button>
-    </div>
-
     <!-- VOTRE FACTURE EN DÉTAIL — 100% personnalisé -->
     <div class="result-card bg-white rounded-2xl shadow-soft p-5 space-y-4" style="animation-delay:.27s">
       <div class="flex items-center gap-2.5">
@@ -723,19 +710,6 @@
         </div>
       </div>
       <div id="elgaCompare"></div>
-    </div>
-
-    <!-- CTA : mes économies réelles (Enedis) -->
-    <div class="result-card mt-1">
-      <button type="button" class="js-audit group w-full rounded-2xl bg-gradient-to-br from-primary-600 to-primary-700 text-white shadow-strong hover:shadow-xl hover:-translate-y-0.5 transition-all px-5 py-4 text-left focus:outline-none focus:ring-2 focus:ring-primary-400">
-        <span class="flex items-center justify-between gap-3">
-          <span>
-            <span class="block font-extrabold text-[16px] sm:text-lg leading-tight">Je veux mes économies réelles sur 12 mois</span>
-            <span class="block text-[12.5px] text-white/80 mt-0.5">Gratuit · calculées sur vos vraies données Enedis · sans engagement</span>
-          </span>
-          <svg class="w-5 h-5 shrink-0 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5-5 5M6 12h12"/></svg>
-        </span>
-      </button>
     </div>
 
     <!-- Carte CAR : pourquoi ×12 ≠ budget réel -->
@@ -768,21 +742,15 @@
       </div>
     </div>
 
-    <!-- CTA principal -->
-    <div class="result-card space-y-2" style="animation-delay:.35s">
-      <button id="btnGetAudit" type="button"
-        class="js-audit group w-full rounded-2xl bg-gradient-to-br from-primary-600 to-primary-700 text-white shadow-strong hover:shadow-xl hover:-translate-y-0.5 transition-all px-5 py-4 text-left focus:outline-none focus:ring-2 focus:ring-primary-400">
-        <span class="flex items-center justify-between gap-3">
-          <span>
-            <span class="block font-extrabold text-[16px] sm:text-lg leading-tight">Je veux mes économies réelles sur 12 mois</span>
-            <span class="block text-[12.5px] text-white/80 mt-0.5">Gratuit · calculées sur vos vraies données Enedis · sans engagement</span>
-          </span>
-          <svg class="w-5 h-5 shrink-0 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 7l5 5-5 5M6 12h12"/></svg>
-        </span>
-      </button>
-      <p class="text-center text-xs text-slate-400">Résultat précis · zéro engagement · zéro frais</p>
-    </div>
   </div>
+
+  <!-- Bouton FLOTTANT « économies réelles » : suit le scroll sur la page résultat,
+       apparaît dès que le bouton principal sort de l'écran, et déplie/scrolle vers lui. -->
+  <button id="floatEco" type="button"
+    class="hidden fixed bottom-5 left-1/2 -translate-x-1/2 z-40 items-center gap-2.5 rounded-full bg-gradient-to-br from-primary-600 to-primary-700 text-white font-extrabold text-[14.5px] pl-5 pr-6 py-3.5 shadow-strong hover:shadow-xl hover:-translate-y-0.5 transition-all focus:outline-none focus:ring-2 focus:ring-primary-400">
+    <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 2L4 14h7l-1 8 10-12h-7l0-8z"/></svg>
+    Je veux mes économies réelles sur 12 mois
+  </button>
 
   <!-- ── ÉTAPE 4 : Entonnoir — Précision Enedis ─────────────────────────── -->
   <div id="step-funnel" class="hidden fade-in space-y-5">
@@ -1264,7 +1232,8 @@
           'apikey': window.ELGA_SUPA_KEY,
           'Authorization': 'Bearer ' + window.ELGA_SUPA_KEY,
           'Content-Type': file.type || 'application/octet-stream',
-          'x-upsert': 'true',
+          // PAS de x-upsert : anon n'a que le droit INSERT (l'upsert → 403 silencieux,
+          // c'est ce qui empêchait les factures d'arriver au CRM). Chemin unique par Date.now().
         },
         body: file,
       });
@@ -1425,9 +1394,12 @@
   }
   function elgaEnergyAvg(g) {
     if (!g) return null;
-    if (g.molecule_mwh != null) return g.molecule_mwh; // gaz
-    if (g.hph != null && g.hch != null) return Math.round((g.hph * 0.55 + g.hch * 0.45) * 10) / 10;
-    return g.hph != null ? g.hph : null;
+    // Périmètre IDENTIQUE au prix client (qui inclut capa+CEE) : on ajoute
+    // CEE + capacité côté Elga aussi — sinon l'économie serait surestimée.
+    if (g.molecule_mwh != null) return Math.round((g.molecule_mwh + (g.cee_mwh || 0) + (g.cpb_mwh || 0)) * 10) / 10; // gaz
+    var base = (g.hph != null && g.hch != null) ? (g.hph * 0.55 + g.hch * 0.45) : g.hph;
+    if (base == null) return null;
+    return Math.round((base + (g.cee || 0) + (g.capa || 0)) * 10) / 10;
   }
 
   // Construit les leviers CHIFFRES + le DÉTAIL du calcul de chaque levier.
@@ -1950,6 +1922,32 @@
     try { gtag('event', 'funnel_start', { event_category: 'scanner' }); } catch (_) {}
   }
   document.querySelectorAll('.js-audit').forEach(function (b) { b.addEventListener('click', openFunnel); });
+
+  // ── Bouton FLOTTANT « économies réelles » : toujours visible sur la page résultat
+  //    dès que le CTA principal sort de l'écran ; clic = déplie le panneau du CTA.
+  (function () {
+    var floatBtn = document.getElementById('floatEco');
+    var cta = document.getElementById('ctaEco');
+    if (!floatBtn || !cta) return;
+    var ctaVisible = true;
+    function updateFloat() {
+      var onResults = stepResults && !stepResults.classList.contains('hidden');
+      var show = onResults && !ctaVisible;
+      floatBtn.classList.toggle('hidden', !show);
+      floatBtn.classList.toggle('inline-flex', show);
+    }
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(function (entries) {
+        ctaVisible = entries[0].isIntersecting;
+        updateFloat();
+      }, { threshold: 0.1 }).observe(cta);
+    }
+    window.addEventListener('scroll', function () { requestAnimationFrame(updateFloat); }, { passive: true });
+    floatBtn.addEventListener('click', function () {
+      openFunnel();
+      cta.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
+  })();
 
   // Étape 2 : capture tél + mail. Increvable — on capte DÈS que les 2 champs sont
   // valides (au blur), même si l'utilisateur ne clique pas « Confirmer ».
