@@ -1,0 +1,365 @@
+<!doctype html>
+<html lang="fr-FR" class="scroll-smooth">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Mon espace client — Elga Energy</title>
+  <meta name="description" content="Votre espace client Elga Energy : votre contrat, vos factures et le suivi de votre énergie, au même endroit." />
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="canonical" href="https://www.elgaenergy.com/espace/" />
+  <link rel="icon" href="/assets/logos/favicon.ico" sizes="any" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/logos/favicon-32.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="/assets/logos/favicon-16.png" />
+  <link rel="apple-touch-icon" href="/assets/logos/apple-touch-icon.png" />
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: { 50:'#ecfdf5',100:'#d1fae5',200:'#a7f3d0',300:'#6ee7b7',400:'#34d399',500:'#10b981',600:'#0e8a57',700:'#0b6c45',800:'#0a5336',900:'#083f2a' },
+            secondary: { 50:'#eef2ff',100:'#e0e7ff',600:'#0b3d91',700:'#0a357e' }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body{background:radial-gradient(1200px 600px at 80% -10%,#ecfdf5 0,transparent 55%),radial-gradient(900px 500px at -10% 10%,#eef2ff 0,transparent 45%),#f8fafc}
+    .glass{backdrop-filter:saturate(180%) blur(12px);background:rgba(255,255,255,.85)}
+    .shadow-soft{box-shadow:0 10px 30px rgba(2,6,12,.07)}
+    .shadow-strong{box-shadow:0 24px 60px -20px rgba(14,138,87,.28)}
+    .fade-in{animation:fadeIn .5s cubic-bezier(.16,1,.3,1) both}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
+    .pop{animation:pop .45s cubic-bezier(.16,1,.3,1) both}
+    @keyframes pop{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:scale(1)}}
+    .stagger>*{opacity:0;animation:fadeIn .5s cubic-bezier(.16,1,.3,1) forwards}
+    .stagger>*:nth-child(1){animation-delay:.04s}.stagger>*:nth-child(2){animation-delay:.10s}
+    .stagger>*:nth-child(3){animation-delay:.16s}.stagger>*:nth-child(4){animation-delay:.22s}
+    .stagger>*:nth-child(5){animation-delay:.28s}.stagger>*:nth-child(6){animation-delay:.34s}
+    .stagger>*:nth-child(7){animation-delay:.40s}.stagger>*:nth-child(8){animation-delay:.46s}
+    .stagger>*:nth-child(9){animation-delay:.52s}.stagger>*:nth-child(10){animation-delay:.58s}
+    .tile{transition:transform .3s cubic-bezier(.16,1,.3,1),box-shadow .3s ease}
+    .tile:hover{transform:translateY(-3px);box-shadow:0 18px 38px -18px rgba(2,6,12,.22)}
+    .drop{border:2.5px dashed #a7f3d0;transition:border-color .2s,background .2s,transform .2s}
+    .drop:hover,.drop.drag-over{border-color:#0e8a57;background:#ecfdf5;transform:translateY(-2px)}
+    .code-input{letter-spacing:.5em;font-variant-numeric:tabular-nums}
+    .spin{width:34px;height:34px;border-radius:50%;border:3px solid #d1fae5;border-top-color:#0e8a57;animation:sp 1s linear infinite}
+    @keyframes sp{to{transform:rotate(360deg)}}
+    .scanline{position:absolute;inset:auto 0 0 0;height:22px;background:linear-gradient(180deg,transparent,rgba(16,185,129,.5),transparent);animation:sw 2.4s ease-in-out infinite}
+    @keyframes sw{0%{top:0}55%,100%{top:100%}}
+    .btn-primary{background:#0e8a57;color:#fff;font-weight:700;border-radius:.8rem;transition:background .15s,transform .15s,box-shadow .15s;box-shadow:0 10px 24px -12px rgba(14,138,87,.7)}
+    .btn-primary:hover{background:#0b6c45;transform:translateY(-1px)}
+    .btn-primary:disabled{opacity:.5;transform:none;cursor:not-allowed}
+    @media (prefers-reduced-motion: reduce){.fade-in,.pop,.stagger>*,.scanline{animation:none!important;opacity:1!important;transform:none!important}.tile:hover{transform:none}}
+  </style>
+</head>
+<body class="antialiased text-slate-800 min-h-screen">
+
+  <script>
+    window.ELGA_WORKER_URL = 'https://elga-scanner.edhy-delaprez.workers.dev';
+    window.ELGA_SUPA_URL   = 'https://zqvocdmxpxkhknsgmijt.supabase.co';
+    window.ELGA_SUPA_KEY   = 'sb_publishable_Yjplm_el8tlLJ_0xxvMB_g_XI8vStgr';
+  </script>
+
+  <!-- En-tête -->
+  <header class="sticky top-0 z-30 glass border-b border-slate-200/70">
+    <div class="max-w-5xl mx-auto px-4 h-16 flex items-center justify-between">
+      <a href="/" class="flex items-center gap-2.5">
+        <img src="/assets/logos/elga-energy-logo.png" alt="Elga Energy" class="h-8 w-auto" />
+      </a>
+      <div class="flex items-center gap-2 text-[13px] font-semibold text-slate-500">
+        <svg class="w-4 h-4 text-primary-600" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+        Espace client
+      </div>
+    </div>
+  </header>
+
+  <main id="app" class="max-w-3xl mx-auto px-4 py-8"></main>
+
+  <footer class="max-w-3xl mx-auto px-4 pb-10 text-center">
+    <p class="text-[12px] text-slate-400">Un conseiller Elga suit votre dossier · vos données restent strictement confidentielles.</p>
+  </footer>
+
+<script>
+/* ─────────────────────────────────────────────────────────────
+   Espace client Elga — page statique sur elgaenergy.com.
+   Même technique que le scanner : appels Supabase (anon) + worker.
+   Accès par lien personnel : /espace/?t=<token>
+   ───────────────────────────────────────────────────────────── */
+const SUPA = window.ELGA_SUPA_URL, KEY = window.ELGA_SUPA_KEY, WORKER = window.ELGA_WORKER_URL;
+const app = document.getElementById('app');
+const params = new URLSearchParams(location.search);
+const TOKEN = params.get('t') || params.get('token') || location.hash.replace('#','') || '';
+
+const euro = (n,d=0)=> n==null||isNaN(n)?null:new Intl.NumberFormat('fr-FR',{style:'currency',currency:'EUR',maximumFractionDigits:d}).format(n);
+const num  = (n,d=1)=> n==null||isNaN(n)?null:new Intl.NumberFormat('fr-FR',{maximumFractionDigits:d}).format(n);
+const esc  = s => (s==null?'':String(s)).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const TYPE = { fixe:'Prix fixe', evolutif:'Prix évolutif', indexe:'Prix indexé', trv:'Tarif Réglementé (Tarif Bleu)' };
+
+async function rpc(fn, body){
+  const r = await fetch(`${SUPA}/rest/v1/rpc/${fn}`, {
+    method:'POST', headers:{apikey:KEY, Authorization:'Bearer '+KEY, 'Content-Type':'application/json'},
+    body: JSON.stringify(body)
+  });
+  try { return await r.json(); } catch { return null; }
+}
+function fileToB64(file){ return new Promise((res,rej)=>{ const r=new FileReader(); r.onload=()=>res(String(r.result).split(',')[1]); r.onerror=()=>rej(new Error('lecture')); r.readAsDataURL(file); }); }
+async function upload(prefixe, file){
+  try{
+    const ext=(file.name.split('.').pop()||'pdf').toLowerCase().replace(/[^a-z0-9]/g,'');
+    const path=`espace/${TOKEN}/${prefixe}-${Date.now()}.${ext}`;
+    const r=await fetch(`${SUPA}/storage/v1/object/factures/${path}`,{method:'POST',headers:{apikey:KEY,Authorization:'Bearer '+KEY,'Content-Type':file.type||'application/octet-stream'},body:file});
+    return r.ok?path:null;
+  }catch{ return null; }
+}
+
+let ETAT = null;
+async function charger(){ ETAT = await rpc('espace_etat', {p_token: TOKEN}); render(); }
+
+/* ─── Rendu selon l'état ─── */
+function render(){
+  if(!TOKEN)            return app.innerHTML = vueMessage('Accès à votre espace', "Ouvrez votre espace depuis le lien personnel que nous vous avons envoyé par e-mail.");
+  if(ETAT === null)     return app.innerHTML = vueMessage('Chargement…', '', true);
+  if(!ETAT.ok)          return app.innerHTML = vueMessage('Espace introuvable', "Ce lien n'est pas valide ou n'est plus actif. Contactez votre conseiller Elga.");
+  if(!ETAT.active)      return vueActivation();
+  return vueDashboard();
+}
+
+function vueMessage(titre, sous, loading){
+  return `<div class="fade-in bg-white rounded-2xl shadow-soft p-10 text-center">
+    ${loading?'<div class="spin mx-auto mb-4"></div>':''}
+    <h1 class="text-xl font-extrabold text-slate-900">${esc(titre)}</h1>
+    ${sous?`<p class="text-[14px] text-slate-500 mt-2 max-w-md mx-auto">${esc(sous)}</p>`:''}
+  </div>`;
+}
+
+/* ─── Activation par code ─── */
+function vueActivation(){
+  const prenom = ETAT.prenom || (ETAT.nom && ETAT.nom!=='votre espace' ? ETAT.nom : '');
+  app.innerHTML = `
+  <div class="fade-in max-w-md mx-auto bg-white rounded-2xl shadow-strong p-7 sm:p-8 text-center">
+    <div class="mx-auto mb-4 h-14 w-14 rounded-2xl bg-primary-50 grid place-items-center">
+      <svg class="w-7 h-7 text-primary-600" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="10" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/></svg>
+    </div>
+    <h1 class="text-[20px] font-extrabold text-slate-900">Bienvenue${prenom?', '+esc(prenom):''} 👋</h1>
+    <p class="text-[13.5px] text-slate-500 mt-2">Votre espace client Elga Energy est prêt. Saisissez le code reçu par e-mail pour l'activer.</p>
+    <form id="fActiv" class="mt-6 space-y-3">
+      <input id="code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="••••••"
+        class="code-input w-full text-center text-[28px] font-bold text-slate-800 rounded-xl border-2 border-slate-200 focus:border-primary-500 focus:ring-4 focus:ring-primary-100 outline-none py-3"/>
+      <p id="errActiv" class="text-[13px] text-rose-600 hidden"></p>
+      <button id="btnActiv" type="submit" disabled class="btn-primary w-full py-3 text-[15px]">Activer mon espace</button>
+    </form>
+    <p class="text-[12px] text-slate-400 mt-4">Pas reçu le code ? Vérifiez vos spams, ou contactez votre conseiller Elga.</p>
+  </div>`;
+  const code=document.getElementById('code'), btn=document.getElementById('btnActiv'), err=document.getElementById('errActiv');
+  code.addEventListener('input',()=>{ code.value=code.value.replace(/\D/g,'').slice(0,6); btn.disabled=code.value.length<6; err.classList.add('hidden'); });
+  code.focus();
+  document.getElementById('fActiv').addEventListener('submit', async e=>{
+    e.preventDefault(); btn.disabled=true; btn.textContent='Activation…';
+    const r=await rpc('espace_activer',{p_token:TOKEN,p_code:code.value});
+    if(r&&r.ok){ await charger(); }
+    else { err.textContent = (r&&r.error==='code incorrect')?"Ce code ne correspond pas. Vérifiez l'e-mail que nous vous avons envoyé.":"Activation impossible. Réessayez dans un instant."; err.classList.remove('hidden'); btn.textContent='Activer mon espace'; btn.disabled=false; }
+  });
+}
+
+/* ─── Tableau de bord (espace actif) ─── */
+function vueDashboard(){
+  const prenom = ETAT.prenom || '';
+  const societe = ETAT.societe || (ETAT.nom!=='votre espace'?ETAT.nom:'');
+  app.innerHTML = `
+    <div class="fade-in flex items-center justify-between gap-3 mb-5">
+      <div>
+        <h1 class="text-[22px] sm:text-2xl font-extrabold text-slate-900 tracking-tight">Bonjour${prenom?' '+esc(prenom):''} 👋</h1>
+        ${societe?`<p class="text-[13.5px] text-slate-500">${esc(societe)} · suivi par ${esc(ETAT.hote||'Elga Energy')}</p>`:''}
+      </div>
+    </div>
+
+    <div class="fade-in rounded-2xl p-5 text-white shadow-strong mb-5" style="background:linear-gradient(135deg,#0e8a57,#0b3d91)">
+      <div class="flex items-center gap-3">
+        <svg class="w-8 h-8 shrink-0" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M13 2L4 14h7l-1 8 10-12h-7l0-8z"/></svg>
+        <div>
+          <div class="font-extrabold text-[15.5px]">Elga veille sur votre énergie 🔍</div>
+          <div class="text-[13px] text-white/85">Votre contrat et vos factures, surveillés toute l'année — on vous alerte au moindre écart.</div>
+        </div>
+      </div>
+    </div>
+
+    <div id="contratZone" class="mb-6"></div>
+    <div id="factureZone"></div>
+  `;
+  renderContrat();
+  renderFactures();
+}
+
+function badgeType(t){
+  if(!t) return '';
+  const warn = ['trv','evolutif','indexe'].includes(t);
+  return `<span class="text-[11px] font-bold px-2 py-0.5 rounded-full ${warn?'bg-amber-100 text-amber-700':'bg-primary-100 text-primary-700'}">${esc(TYPE[t]||t)}</span>`;
+}
+function tuile(label, valeur, sub, accent){
+  if(valeur==null||valeur==='') return '';
+  return `<div class="tile bg-white rounded-xl border border-slate-100 p-3.5">
+    <div class="text-[11px] uppercase tracking-wide text-slate-400 font-semibold">${esc(label)}</div>
+    <div class="text-[16px] font-extrabold mt-0.5 ${accent?'text-primary-700':'text-slate-800'}">${valeur}</div>
+    ${sub?`<div class="text-[11.5px] text-slate-400 mt-0.5">${sub}</div>`:''}
+  </div>`;
+}
+function joursAvant(d){ if(!d) return null; const j=Math.round((new Date(d)-new Date())/86400000); return isNaN(j)?null:j; }
+function frDate(d){ if(!d) return null; const x=new Date(d); return isNaN(x)?esc(d):x.toLocaleDateString('fr-FR',{day:'2-digit',month:'long',year:'numeric'}); }
+
+function renderContrat(){
+  const zone=document.getElementById('contratZone'); const c=ETAT.contrat;
+  if(!c){
+    zone.innerHTML = `
+    <div class="fade-in bg-white rounded-2xl shadow-soft p-5">
+      <h2 class="text-[16px] font-extrabold text-slate-900">Mon contrat</h2>
+      <p class="text-[13px] text-slate-400 mb-3">Déposez votre contrat une seule fois — on en extrait toutes les infos (prix, abonnement, dates, préavis…) et on garde l'œil dessus.</p>
+      <button id="dropContrat" class="drop w-full rounded-2xl p-8 text-center block">
+        <svg class="mx-auto w-8 h-8 text-primary-600" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16V4m0 0L7 9m5-5l5 5M4 20h16"/></svg>
+        <p class="text-[14.5px] font-bold text-slate-800 mt-2">Déposer mon contrat (PDF ou photo)</p>
+        <p class="text-[12.5px] text-slate-400 mt-0.5">CGV comprises — analyse automatique en quelques secondes</p>
+      </button>
+      <input id="fileContrat" type="file" accept=".pdf,image/*" class="hidden"/>
+    </div>`;
+    brancherDepot('dropContrat','fileContrat', scanContrat);
+    return;
+  }
+  const ck = v => v!=null ? `${num(v)} €/MWh` : null;
+  const centKwh = v => v!=null ? `≈ ${num(v/10,2)} c€/kWh` : '';
+  const prixVal = c.prix_kwh_base_mwh!=null ? ck(c.prix_kwh_base_mwh)
+                 : (c.prix_kwh_hph_mwh!=null ? `${num(c.prix_kwh_hph_mwh)} / ${num(c.prix_kwh_hch_mwh)}` : null);
+  const prixSub = c.prix_kwh_base_mwh!=null ? centKwh(c.prix_kwh_base_mwh) : (c.prix_kwh_hph_mwh!=null?'HP / HC €/MWh':'');
+  const jf = joursAvant(c.date_fin);
+  const finSub = jf!=null ? (jf<0?'échéance passée':`dans ${jf} jour${jf>1?'s':''}`) : '';
+  const vig = [];
+  if(c.type_contrat==='trv') vig.push("Vous êtes au Tarif Réglementé : prix révisé plusieurs fois par an, non maîtrisé.");
+  if(c.reconduction==='tacite') vig.push("Reconduction tacite : sans action de votre part, le contrat repart automatiquement. On vous préviendra avant l'échéance.");
+  if(!c.date_fin && c.type_contrat!=='trv') vig.push("Aucune date de fin claire détectée : votre prix peut être revu sans préavis. On garde un œil dessus.");
+
+  zone.innerHTML = `
+    <div class="fade-in bg-white rounded-2xl shadow-soft overflow-hidden">
+      <div class="p-5 border-b border-slate-100 flex items-start justify-between gap-3">
+        <div>
+          <div class="text-[11px] uppercase tracking-wide text-slate-400 font-semibold">Mon contrat</div>
+          <div class="text-[19px] font-extrabold text-slate-900 mt-0.5">${esc(c.fournisseur||'Votre contrat')}</div>
+          <div class="text-[13px] text-slate-500">${esc(c.offre_nom||'')}</div>
+        </div>
+        <div class="text-right shrink-0">${badgeType(c.type_contrat)}</div>
+      </div>
+      <div class="p-5 grid grid-cols-2 sm:grid-cols-3 gap-3 stagger">
+        ${tuile('Prix de l\'énergie', prixVal, prixSub, true)}
+        ${tuile('Abonnement', c.abonnement_mensuel_ht!=null?`${num(c.abonnement_mensuel_ht,2)} €`:null, '/ mois HT')}
+        ${tuile('Puissance', c.puissance_kva?`${num(c.puissance_kva)} kVA`:null)}
+        ${tuile('Début du contrat', frDate(c.date_debut))}
+        ${tuile('Fin du contrat', frDate(c.date_fin), finSub, jf!=null&&jf<=90)}
+        ${tuile('Préavis de résiliation', c.preavis_resiliation?esc(c.preavis_resiliation):null)}
+        ${tuile('Reconduction', c.reconduction?(c.reconduction==='tacite'?'Tacite':'Expresse'):null)}
+        ${tuile('Gestionnaire réseau', c.gestionnaire_reseau?esc(c.gestionnaire_reseau):null)}
+        ${tuile('N° PDL / PRM', (c.pdl||c.pce)?esc(c.pdl||c.pce):null)}
+      </div>
+      ${vig.length?`<div class="mx-5 mb-5 rounded-xl border border-amber-200 bg-amber-50/70 p-3.5">
+        <div class="text-[12.5px] font-bold text-amber-800 mb-1">⚠️ Points de vigilance</div>
+        <ul class="text-[12.5px] text-amber-800/90 space-y-1 list-disc pl-4">${vig.map(v=>`<li>${esc(v)}</li>`).join('')}</ul>
+      </div>`:`<div class="mx-5 mb-5 rounded-xl bg-primary-50 text-primary-800 text-[13px] font-semibold p-3">✅ Contrat sous contrôle — rien à signaler pour le moment.</div>`}
+      <div class="px-5 pb-5">
+        <button id="dropContrat" class="text-[13px] font-semibold text-primary-700 hover:underline">Mettre à jour mon contrat</button>
+        <input id="fileContrat" type="file" accept=".pdf,image/*" class="hidden"/>
+      </div>
+    </div>`;
+  brancherDepot('dropContrat','fileContrat', scanContrat);
+}
+
+function renderFactures(){
+  const zone=document.getElementById('factureZone');
+  const list=(ETAT.factures||[]).slice().reverse();
+  const items = list.map(f=>{
+    const eco=f.savings&&f.savings.savings_annual;
+    const ok = !eco || eco < ((f.extracted&&f.extracted.total_ttc_annual)||1)*0.05;
+    return `<div class="flex items-center justify-between gap-2 rounded-xl border border-slate-100 bg-white px-3.5 py-2.5">
+      <span class="text-[12.5px] text-slate-400">${esc(f.le)}</span>
+      ${ok?'<span class="text-[12.5px] font-bold text-primary-700">✅ Tout est en règle</span>'
+          :`<span class="text-[12.5px] font-bold text-amber-700">⚠️ Écart repéré · ~${euro(eco)}/an</span>`}
+    </div>`;
+  }).join('');
+  zone.innerHTML = `
+    <div class="fade-in bg-white rounded-2xl shadow-soft p-5">
+      <h2 class="text-[16px] font-extrabold text-slate-900">Ma facture du mois</h2>
+      <p class="text-[13px] text-slate-400 mb-3">Chaque mois, scannez votre facture : on vérifie en 15 secondes que votre prix est toujours cohérent avec votre contrat.</p>
+      ${items?`<div class="space-y-2 mb-4">${items}</div>`:''}
+      <button id="dropFacture" class="drop w-full rounded-2xl p-7 text-center block">
+        <svg class="mx-auto w-7 h-7 text-primary-600" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16V4m0 0L7 9m5-5l5 5M4 20h16"/></svg>
+        <p class="text-[14px] font-bold text-slate-800 mt-2">Scanner ma facture du mois</p>
+        <p class="text-[12px] text-slate-400 mt-0.5">Vérification en 15 secondes</p>
+      </button>
+      <input id="fileFacture" type="file" accept=".pdf,image/*" class="hidden"/>
+    </div>`;
+  brancherDepot('dropFacture','fileFacture', scanFacture);
+}
+
+/* ─── Dépôts (drag & drop + clic) ─── */
+function brancherDepot(btnId, inputId, handler){
+  const btn=document.getElementById(btnId), input=document.getElementById(inputId);
+  if(!btn||!input) return;
+  btn.addEventListener('click',()=>input.click());
+  input.addEventListener('change',e=>{ if(e.target.files&&e.target.files[0]) handler(e.target.files[0]); });
+  ['dragenter','dragover'].forEach(ev=>btn.addEventListener(ev,e=>{e.preventDefault();btn.classList.add('drag-over');}));
+  ['dragleave','drop'].forEach(ev=>btn.addEventListener(ev,e=>{e.preventDefault();btn.classList.remove('drag-over');}));
+  btn.addEventListener('drop',e=>{ if(e.dataTransfer.files&&e.dataTransfer.files[0]) handler(e.dataTransfer.files[0]); });
+}
+function overlayAnalyse(txt){
+  const o=document.createElement('div');
+  o.id='ov'; o.className='fixed inset-0 z-50 grid place-items-center bg-slate-900/40 backdrop-blur-sm';
+  o.innerHTML=`<div class="pop bg-white rounded-2xl shadow-strong p-7 text-center w-[280px]">
+    <div class="relative w-[84px] h-[108px] mx-auto rounded-lg bg-white border border-slate-200 overflow-hidden shadow-soft">
+      <div class="absolute inset-x-3 top-4 space-y-1.5">${'<div class="h-1.5 rounded bg-slate-100"></div>'.repeat(6)}</div>
+      <div class="scanline"></div>
+    </div>
+    <p class="text-[14px] font-bold text-slate-800 mt-4">${esc(txt)}</p>
+    <p class="text-[12px] text-slate-400 mt-1">Quelques secondes…</p>
+  </div>`;
+  document.body.appendChild(o); return ()=>document.getElementById('ov')?.remove();
+}
+function toast(msg, ok=true){
+  const t=document.createElement('div');
+  t.className=`fixed bottom-5 left-1/2 -translate-x-1/2 z-50 px-4 py-2.5 rounded-xl text-[13px] font-semibold text-white shadow-strong pop ${ok?'bg-primary-600':'bg-rose-600'}`;
+  t.textContent=msg; document.body.appendChild(t); setTimeout(()=>t.remove(),3200);
+}
+
+async function scanContrat(file){
+  const close=overlayAnalyse('Lecture de votre contrat');
+  try{
+    const b64=await fileToB64(file);
+    const r=await fetch(`${WORKER}/api/scan-contrat`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({file_data:b64,file_type:file.type,file_name:file.name})});
+    const j=await r.json();
+    if(!r.ok||!j.extracted) throw new Error(j.error||'analyse');
+    const path=await upload('contrat',file);
+    const sv=await rpc('espace_save_contrat',{p_token:TOKEN,p_extracted:j.extracted,p_path:path});
+    close();
+    if(sv&&sv.ok){ toast('Contrat enregistré ✓'); await charger(); }
+    else toast(sv&&sv.error||'Enregistrement impossible', false);
+  }catch(e){ close(); toast('Lecture impossible — reprenez une photo nette.', false); }
+}
+async function scanFacture(file){
+  const close=overlayAnalyse('Analyse de votre facture');
+  try{
+    const b64=await fileToB64(file);
+    const r=await fetch(`${WORKER}/api/scan`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({file_data:b64,file_type:file.type,file_name:file.name,client_type:'professionnel'})});
+    const j=await r.json();
+    if(!r.ok) throw new Error(j.error||'analyse');
+    const ex=j.multi?j.energies.electricity.extracted:j.extracted;
+    const sv=j.multi?j.energies.electricity.savings:j.savings;
+    await upload('facture',file);
+    const res=await rpc('espace_save_facture',{p_token:TOKEN,p_extracted:ex,p_savings:sv});
+    close();
+    if(res&&res.ok){ toast('Facture vérifiée ✓'); await charger(); }
+    else toast(res&&res.error||'Enregistrement impossible', false);
+  }catch(e){ close(); toast('Lecture impossible — reprenez une photo nette.', false); }
+}
+
+charger();
+</script>
+</body>
+</html>
