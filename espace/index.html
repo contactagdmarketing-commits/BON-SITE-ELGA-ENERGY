@@ -202,14 +202,17 @@ function renderContent(){
 
 function bandeauParrainage(){
   if(localStorage.getItem('elga_parr_dismiss')==='1') return '';
-  return `<div id="bParr" class="relative rounded-2xl p-4 pr-10 text-white shadow-soft mb-5 fade cursor-pointer" style="background:linear-gradient(135deg,#0b3d91,#0e8a57)" onclick="setTab('parrainage')">
-    <button onclick="event.stopPropagation();document.getElementById('bParr').remove();localStorage.setItem('elga_parr_dismiss','1')" class="absolute top-2.5 right-2.5 text-white/70 hover:text-white">✕</button>
-    <div class="flex items-center gap-3">
-      <div class="text-2xl">🎁</div>
-      <div>
-        <div class="font-extrabold text-[14.5px]">Tu connais un pro qui paie trop cher ?</div>
-        <div class="text-[12.5px] text-white/85">Partage ton lien, fais-lui checker sa facture — et <strong>gagne une récompense</strong> →</div>
+  return `<div id="bParr" class="relative rounded-2xl overflow-hidden text-white shadow-strong mb-5 fade" style="background:linear-gradient(115deg,#0b3d91 0%,#0e8a57 70%)">
+    <div class="absolute -right-8 -bottom-10 w-36 h-36 rounded-full bg-white/10 pointer-events-none"></div>
+    <div class="absolute right-16 -top-8 w-20 h-20 rounded-full bg-white/10 pointer-events-none"></div>
+    <button aria-label="Fermer" onclick="event.stopPropagation();var b=document.getElementById('bParr');if(b)b.remove();localStorage.setItem('elga_parr_dismiss','1')" class="absolute top-2 right-2.5 z-10 text-white/70 hover:text-white text-xl leading-none">×</button>
+    <div class="relative flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 p-4 sm:p-5 cursor-pointer" onclick="setTab('parrainage')">
+      <div class="text-3xl sm:text-4xl shrink-0 leading-none">🎁</div>
+      <div class="flex-1 min-w-0">
+        <div class="font-extrabold text-[15.5px] sm:text-[17px] leading-snug">Tu connais un patron qui râle sur ses factures ?</div>
+        <div class="text-[12.5px] sm:text-[13.5px] text-white/90 mt-1">File-lui ton lien : il check les siennes en 15 secondes — et toi, tu es récompensé quand il devient client.</div>
       </div>
+      <span class="shrink-0 inline-flex items-center gap-1.5 bg-white text-primary-700 font-bold text-[13.5px] rounded-xl px-4 py-2.5 self-start sm:self-center whitespace-nowrap">Partager mon lien <span aria-hidden="true">→</span></span>
     </div>
   </div>`;
 }
