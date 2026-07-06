@@ -749,6 +749,70 @@ async function handleScanFiche(request, env) {
   return jsonResponse({ extracted });
 }
 
+// ─── Extraction CONTRAT (espace client : le contrat = référence) ──────────────
+const CONTRAT_PROMPT = `Tu es un expert des contrats de fourniture d'énergie professionnelle en France (électricité et gaz), tous fournisseurs. On te donne UN contrat (ou, pour EDF Tarif Bleu / TRV uniquement, une facture qui fait office de contrat), CGV comprises.
+
+Extrais les informations clés. Réponds UNIQUEMENT avec un objet JSON valide, sans texte ni bloc de code. Mets null si introuvable, n'invente JAMAIS.
+
+{
+  "raison_sociale": string|null,
+  "adresse_site": string|null,
+  "siret": string|null,
+  "fournisseur": string|null,
+  "offre_nom": string|null,
+  "energie": "elec"|"gaz"|"both"|null,
+  "type_contrat": "fixe"|"evolutif"|"indexe"|"trv"|null,   // fixe / à prix évolutif / indexé / Tarif Réglementé
+  "est_trv": boolean,
+  "prix_kwh_base_mwh": number|null,      // €/MWh HT si prix unique
+  "prix_kwh_hph_mwh": number|null,       // €/MWh HT heures pleines si HP/HC
+  "prix_kwh_hch_mwh": number|null,       // €/MWh HT heures creuses
+  "abonnement_mensuel_ht": number|null,  // € HT / mois
+  "puissance_kva": number|null,
+  "date_debut": string|null,             // AAAA-MM-JJ
+  "date_fin": string|null,               // AAAA-MM-JJ (échéance)
+  "duree_mois": number|null,
+  "preavis_resiliation": string|null,    // ex "2 mois", "1 mois"
+  "reconduction": "tacite"|"expresse"|null,
+  "gestionnaire_reseau": string|null,    // ex "Enedis" (élec) / "GRDF" (gaz)
+  "pdl": string|null,                    // Point de livraison / PRM élec (14 chiffres)
+  "pce": string|null,                    // Point de comptage estimation gaz
+  "confiance": "haute"|"moyenne"|"basse"
+}
+
+Règles :
+- "type_contrat" : "fixe" si le prix est bloqué sur la durée ; "evolutif" ou "indexe" si le prix peut bouger ; "trv" si Tarif Réglementé (Tarif Bleu EDF).
+- Tarif Bleu / TRV EDF -> est_trv=true, type_contrat="trv".
+- "pdl" : cherche "PDL", "PRM", "Point de livraison", "Point de référence mesure" (14 chiffres, élec).
+- "gestionnaire_reseau" : quasi toujours "Enedis" pour l'élec, "GRDF" pour le gaz.
+- "reconduction" : cherche "tacite reconduction" dans les CGV.`;
+
+async function handleScanContrat(request, env) {
+  let body;
+  try { body = await request.json(); } catch { return jsonResponse({ error: 'Requête invalide.' }, 400); }
+  let { file_data, file_type, file_name } = body || {};
+  if (!file_data) return jsonResponse({ error: 'Aucun fichier reçu.' }, 400);
+  if (!file_type && file_name && /\.(jpg|jpeg)$/i.test(file_name)) file_type = 'image/jpeg';
+  if (!file_type && file_name && /\.png$/i.test(file_name)) file_type = 'image/png';
+  if (!file_type && file_name && /\.webp$/i.test(file_name)) file_type = 'image/webp';
+  if (!file_type && file_name && /\.pdf$/i.test(file_name)) file_type = 'application/pdf';
+  const isImage = (file_type || '').startsWith('image/');
+  const contentBlock = isImage
+    ? { type: 'image', source: { type: 'base64', media_type: file_type, data: file_data } }
+    : { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: file_data } };
+
+  const claudeRes = await fetch(ANTHROPIC_API, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-api-key': env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01', 'anthropic-beta': 'pdfs-2024-09-25' },
+    body: JSON.stringify({ model: CLAUDE_MODEL, max_tokens: 1200, messages: [{ role: 'user', content: [contentBlock, { type: 'text', text: CONTRAT_PROMPT }] }] }),
+  });
+  if (!claudeRes.ok) { const t = await claudeRes.text(); return jsonResponse({ error: 'Analyse refusée', detail: t.slice(0, 300) }, 502); }
+  const claudeData = await claudeRes.json();
+  let extracted;
+  try { const text = claudeData.content[0].text.trim(); const match = text.match(/\{[\s\S]*\}/); extracted = JSON.parse(match ? match[0] : text); }
+  catch { return jsonResponse({ error: 'Lecture impossible. Reprenez la photo, plus nette.' }, 422); }
+  return jsonResponse({ extracted });
+}
+
 // ─── Router principal ─────────────────────────────────────────────────────────
 
 export default {
@@ -766,6 +830,8 @@ export default {
       res = await handleScan(request, env);
     } else if (pathname === '/api/scan-fiche' && method === 'POST') {
       res = await handleScanFiche(request, env);
+    } else if (pathname === '/api/scan-contrat' && method === 'POST') {
+      res = await handleScanContrat(request, env);
     } else if (pathname === '/api/prices' && method === 'GET') {
       res = await handleGetPrices(request, env);
     } else if (pathname === '/api/prices' && method === 'POST') {
