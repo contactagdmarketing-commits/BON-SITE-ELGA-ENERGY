@@ -1,0 +1,297 @@
+<!doctype html>
+<html lang="fr-FR" class="scroll-smooth">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Présentation Elga Energy — R2</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" href="/assets/logos/favicon.ico" sizes="any" />
+  <link rel="icon" type="image/png" sizes="32x32" href="/assets/logos/favicon-32.png" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: {
+      primary: { 50:'#ecfdf5',100:'#d1fae5',200:'#a7f3d0',300:'#6ee7b7',400:'#34d399',500:'#10b981',600:'#0e8a57',700:'#0b6c45',800:'#0a5336',900:'#083f2a' },
+      secondary: { 50:'#eef2ff',100:'#e0e7ff',600:'#0b3d91',700:'#0a357e' } } } } }
+  </script>
+  <style>
+    html,body{height:100%}
+    body{background:#0a1626;color:#e8eef6;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;overflow:hidden}
+    .deck{position:fixed;inset:0}
+    .slide{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:5vh 6vw;opacity:0;visibility:hidden;transition:opacity .5s ease;pointer-events:none}
+    .slide.active{opacity:1;visibility:visible;pointer-events:auto}
+    .slide-inner{width:100%;max-width:980px}
+    /* reveals — jouées quand la slide devient active */
+    .r{opacity:0;transform:translateY(22px)}
+    .active .r{animation:rise .7s cubic-bezier(.16,1,.3,1) forwards}
+    .active .r.d1{animation-delay:.10s}.active .r.d2{animation-delay:.24s}.active .r.d3{animation-delay:.38s}
+    .active .r.d4{animation-delay:.52s}.active .r.d5{animation-delay:.66s}.active .r.d6{animation-delay:.80s}
+    @keyframes rise{to{opacity:1;transform:none}}
+    .pop{opacity:0;transform:scale(.9)}.active .pop{animation:pop .6s cubic-bezier(.16,1,.3,1) forwards}
+    @keyframes pop{to{opacity:1;transform:none}}
+    .glass{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);backdrop-filter:blur(6px)}
+    .glow{box-shadow:0 30px 90px -40px rgba(16,185,129,.6)}
+    .grad-text{background:linear-gradient(100deg,#34d399,#7dd3fc);-webkit-background-clip:text;background-clip:text;color:transparent}
+    .float{animation:fl 5s ease-in-out infinite}@keyframes fl{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
+    /* pilotage */
+    .ctrl{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:50;display:flex;align-items:center;gap:10px}
+    .btn-n{width:44px;height:44px;border-radius:999px;display:grid;place-items:center;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);color:#fff;cursor:pointer;transition:background .15s,transform .15s}
+    .btn-n:hover{background:rgba(255,255,255,.16);transform:translateY(-1px)}
+    .dots{display:flex;gap:6px}
+    .dot{width:8px;height:8px;border-radius:999px;background:rgba(255,255,255,.22);cursor:pointer;transition:all .2s}
+    .dot.on{width:22px;background:#34d399}
+    .brand{position:fixed;top:18px;left:22px;z-index:50;display:flex;align-items:center;gap:8px;opacity:.9}
+    .count{position:fixed;top:20px;right:22px;z-index:50;font-size:12px;color:rgba(255,255,255,.5);font-variant-numeric:tabular-nums}
+    .chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;padding:5px 11px;border-radius:999px;background:rgba(16,185,129,.14);color:#6ee7b7;border:1px solid rgba(16,185,129,.25)}
+    .draw{stroke-dasharray:1600;stroke-dashoffset:1600}.active .draw{animation:draw 2s ease forwards .3s}@keyframes draw{to{stroke-dashoffset:0}}
+    .bar{transition:height .8s cubic-bezier(.16,1,.3,1),background .3s}
+    .furn{cursor:pointer;transition:transform .2s,border-color .2s,background .2s}
+    .furn:hover{transform:translateY(-2px)}
+    .furn.sel{border-color:#34d399;background:rgba(16,185,129,.12)}
+    @media (prefers-reduced-motion: reduce){.r,.pop,.draw,.float{animation:none!important;opacity:1!important;transform:none!important;stroke-dashoffset:0!important}}
+    kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:5px;padding:1px 6px;font-size:11px}
+  </style>
+</head>
+<body>
+  <div class="brand"><img src="/assets/logos/favicon-32.png" class="h-6 w-6" alt=""/><span class="text-[13px] font-bold tracking-wide">ELGA ENERGY</span></div>
+  <div class="count"><span id="cur">1</span> / <span id="tot">9</span></div>
+
+  <div class="deck" id="deck">
+
+    <!-- 1. RÈGLES DU JEU -->
+    <section class="slide" data-s="1">
+      <div class="slide-inner text-center">
+        <div class="r d1 chip mb-6">Avant de commencer</div>
+        <h1 class="r d2 text-4xl sm:text-6xl font-extrabold leading-[1.05]">On fixe <span class="grad-text">les règles du jeu.</span></h1>
+        <div class="r d3 max-w-2xl mx-auto mt-7 space-y-3 text-left">
+          <div class="glass rounded-2xl p-4 flex items-start gap-3"><span class="text-xl">🚫</span><p class="text-[15px] text-slate-200">Je ne suis pas là pour vous vendre un contrat aujourd'hui.</p></div>
+          <div class="glass rounded-2xl p-4 flex items-start gap-3"><span class="text-xl">🤝</span><p class="text-[15px] text-slate-200">On regarde ensemble si <strong>notre façon de travailler</strong> vous correspond. C'est tout.</p></div>
+          <div class="glass rounded-2xl p-4 flex items-start gap-3"><span class="text-xl">🎯</span><p class="text-[15px] text-slate-200">Le métier de courtier, ce n'est pas « trouver un prix ». C'est <strong>trois leviers</strong>.</p></div>
+        </div>
+        <div class="r d4 mt-7 inline-flex items-center gap-3 text-[13px] text-slate-400">
+          <span class="inline-block w-4 h-4 rounded-full border-2 border-emerald-400 border-t-transparent animate-spin"></span>
+          On charge votre bilan pendant qu'on en parle…
+        </div>
+      </div>
+    </section>
+
+    <!-- 2. LES 3 LEVIERS -->
+    <section class="slide" data-s="2">
+      <div class="slide-inner">
+        <h2 class="r d1 text-3xl sm:text-4xl font-extrabold text-center mb-2">Le courtier, c'est <span class="grad-text">3 leviers.</span></h2>
+        <p class="r d2 text-center text-slate-400 mb-9">Le prix, c'est juste le premier. Les deux autres font toute la différence.</p>
+        <div class="grid sm:grid-cols-3 gap-4">
+          <div class="r d3 glass rounded-3xl p-6 text-center"><div class="text-4xl float mb-3">⚖️</div><div class="text-[13px] font-bold text-emerald-400">LEVIER 1</div><div class="text-xl font-extrabold mt-1">Négociation</div><p class="text-[13px] text-slate-400 mt-2">Chaque fournisseur, un par un, à la même marge pour tous.</p></div>
+          <div class="r d4 glass rounded-3xl p-6 text-center"><div class="text-4xl float mb-3" style="animation-delay:.5s">🛡️</div><div class="text-[13px] font-bold text-emerald-400">LEVIER 2</div><div class="text-xl font-extrabold mt-1">Gestion</div><p class="text-[13px] text-slate-400 mt-2">Votre espace, vos factures suivies, un agent 24/7.</p></div>
+          <div class="r d5 glass rounded-3xl p-6 text-center glow"><div class="text-4xl float mb-3" style="animation-delay:1s">🔄</div><div class="text-[13px] font-bold text-emerald-400">LEVIER 3</div><div class="text-xl font-extrabold mt-1">Renouvellement</div><p class="text-[13px] text-slate-400 mt-2">Le plus important. On y travaille 2 ans à l'avance.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3. NÉGOCIATION -->
+    <section class="slide" data-s="3">
+      <div class="slide-inner">
+        <div class="r d1 chip mb-4">Levier 1 · Négociation</div>
+        <h2 class="r d2 text-3xl sm:text-4xl font-extrabold">On interroge chaque fournisseur, <span class="grad-text">à la même marge.</span></h2>
+        <p class="r d3 text-slate-300 mt-3 max-w-2xl">Personne n'est mis en avant parce qu'il nous arrange. On met <strong>la même marge pour tous</strong> — comme ça, c'est le meilleur pour <em>vous</em> qui gagne, pas celui qui nous rémunère le mieux.</p>
+        <div class="r d4 flex flex-wrap gap-2 mt-6">
+          <span class="glass rounded-xl px-3 py-2 text-[13px]">EDF</span><span class="glass rounded-xl px-3 py-2 text-[13px]">Engie</span><span class="glass rounded-xl px-3 py-2 text-[13px]">TotalEnergies</span><span class="glass rounded-xl px-3 py-2 text-[13px]">Endesa</span><span class="glass rounded-xl px-3 py-2 text-[13px]">Enovos</span><span class="glass rounded-xl px-3 py-2 text-[13px]">Vattenfall</span><span class="glass rounded-xl px-3 py-2 text-[13px]">+ 10 autres</span>
+        </div>
+        <div class="r d5 mt-7 glass rounded-2xl p-5 flex items-center gap-4 max-w-lg">
+          <div class="text-4xl font-extrabold grad-text">≈35 h</div>
+          <p class="text-[14px] text-slate-300">C'est le temps qu'il vous faudrait pour négocier vous-même avec tous les fournisseurs. Nous, c'est notre métier — et on le fait chaque jour.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- 4. TRV vs MARCHÉ -->
+    <section class="slide" data-s="4">
+      <div class="slide-inner">
+        <div class="r d1 chip mb-4">Levier 1 · Pourquoi c'est urgent</div>
+        <h2 class="r d2 text-2xl sm:text-3xl font-extrabold">Le Tarif Réglementé EDF ne fait que <span class="grad-text">monter.</span></h2>
+        <div class="r d3 mt-5 glass rounded-3xl p-5">
+          <svg viewBox="0 0 640 260" class="w-full h-[42vh]">
+            <g stroke="rgba(255,255,255,.08)"><line x1="40" y1="220" x2="620" y2="220"/><line x1="40" y1="160" x2="620" y2="160"/><line x1="40" y1="100" x2="620" y2="100"/><line x1="40" y1="40" x2="620" y2="40"/></g>
+            <!-- marché : volatil -->
+            <polyline class="draw" fill="none" stroke="#7dd3fc" stroke-width="2.5" stroke-linejoin="round" points="40,150 110,120 180,175 250,95 320,165 390,110 460,150 530,90 600,130"/>
+            <!-- TRV : monte tout le temps -->
+            <polyline class="draw" fill="none" stroke="#34d399" stroke-width="3.5" stroke-linejoin="round" points="40,205 110,196 180,183 250,168 320,150 390,128 460,104 530,78 600,48"/>
+            <text x="606" y="44" fill="#34d399" font-size="12" text-anchor="end">TRV EDF ↑</text>
+            <text x="606" y="145" fill="#7dd3fc" font-size="12" text-anchor="end">Prix de marché</text>
+          </svg>
+          <div class="grid sm:grid-cols-2 gap-3 mt-2">
+            <div class="text-[13px] text-slate-300"><span class="text-emerald-400 font-bold">+6,2 %/an</span> en moyenne sur 14 ans. Le TRV monte, encore et encore.</div>
+            <div class="text-[13px] text-slate-300">Le marché fait des hauts et des bas — mais <strong>votre facture ne suit jamais les baisses.</strong></div>
+          </div>
+        </div>
+        <p class="r d4 mt-4 text-[14px] text-slate-300 max-w-2xl">💡 C'est comme le <strong>blé et la farine</strong> : si le blé baisse sur les marchés, le prix de la farine à Intermarché, lui, ne baisse pas. Quand la matière première baisse, c'est le vendeur qui garde la marge.</p>
+      </div>
+    </section>
+
+    <!-- 5. GESTION -->
+    <section class="slide" data-s="5">
+      <div class="slide-inner">
+        <div class="r d1 chip mb-4">Levier 2 · Gestion & suivi</div>
+        <h2 class="r d2 text-3xl sm:text-4xl font-extrabold">La partie dont on est <span class="grad-text">le plus fiers.</span></h2>
+        <p class="r d3 text-slate-300 mt-3 max-w-2xl">Chaque client a son <strong>espace personnel</strong>. Tout y est, au même endroit — et un agent qui ne dort jamais.</p>
+        <div class="grid sm:grid-cols-2 gap-3 mt-6">
+          <div class="r d4 glass rounded-2xl p-4 flex gap-3"><span class="text-2xl">📄</span><div><div class="font-bold text-[15px]">Votre contrat + les CGV</div><p class="text-[13px] text-slate-400">Les 20 pages de petites lignes que personne ne lit — mais qui comptent le plus.</p></div></div>
+          <div class="r d4 glass rounded-2xl p-4 flex gap-3"><span class="text-2xl">🧾</span><div><div class="font-bold text-[15px]">Vos factures, mois par mois</div><p class="text-[13px] text-slate-400">Au bout de 12 mois, on voit si votre acheminement est bien calibré.</p></div></div>
+          <div class="r d5 glass rounded-2xl p-4 flex gap-3"><span class="text-2xl">🤖</span><div><div class="font-bold text-[15px]">Un agent 24/7</div><p class="text-[13px] text-slate-400">Une question sur une ligne, une échéance, un engagement ? Réponse immédiate, même à 2 h du matin.</p></div></div>
+          <div class="r d5 glass rounded-2xl p-4 flex gap-3"><span class="text-2xl">📞</span><div><div class="font-bold text-[15px]">Moi, votre conseiller attitré</div><p class="text-[13px] text-slate-400">Je reste votre interlocuteur. L'agent prend le relais quand je ne peux pas répondre.</p></div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. RENOUVELLEMENT — LE PIÈGE -->
+    <section class="slide" data-s="6">
+      <div class="slide-inner text-center">
+        <div class="r d1 chip mb-5">Levier 3 · Renouvellement</div>
+        <h2 class="r d2 text-3xl sm:text-4xl font-extrabold leading-tight">Le fournisseur vous envoie son renouvellement<br><span class="grad-text">15 jours avant la fin.</span></h2>
+        <p class="r d3 text-slate-300 mt-5 max-w-2xl mx-auto">À la dernière minute, vous n'avez plus le temps de partir. Vous êtes déjà engagé. Vous <strong>subissez</strong> la reconduction — parce que vous n'avez ni le temps ni l'envie de tout recommencer. Et c'est normal.</p>
+        <div class="r d4 mt-8 glass rounded-2xl px-6 py-5 inline-block"><p class="text-[15px] text-slate-200">Ce n'est pas un hasard. <strong class="text-emerald-400">C'est calculé.</strong> Et je vais vous montrer pourquoi.</p></div>
+      </div>
+    </section>
+
+    <!-- 7. RENOUVELLEMENT — LE MÉCANISME (billet d'avion) -->
+    <section class="slide" data-s="7">
+      <div class="slide-inner">
+        <div class="r d1 chip mb-4">Le secret que 99 % des dirigeants ignorent</div>
+        <h2 class="r d2 text-2xl sm:text-3xl font-extrabold">Un fournisseur, ce n'est pas un magasin. C'est un <span class="grad-text">grossiste.</span></h2>
+        <p class="r d3 text-slate-300 mt-3 max-w-2xl">Il achète d'énormes volumes d'électricité à l'avance et vous les revend au fil de l'eau. Vous signez 4 ans à 100 MWh/an ? Il <strong>réserve 400 MWh</strong> pour vous. Son seul job : vous les livrer.</p>
+        <div class="r d4 mt-6 glass rounded-3xl p-6 glow">
+          <div class="text-center text-[13px] text-emerald-400 font-bold mb-3">✈️ C'est exactement comme un billet d'avion</div>
+          <div class="grid grid-cols-2 gap-4">
+            <div class="rounded-2xl p-4 text-center" style="background:rgba(16,185,129,.10)"><div class="text-2xl">🗓️ 2 ans avant</div><div class="text-emerald-400 font-extrabold text-lg mt-1">Prix cassé</div><p class="text-[12.5px] text-slate-300 mt-1">Le fournisseur a tout son temps pour acheter → zéro risque → il baisse au maximum.</p></div>
+            <div class="rounded-2xl p-4 text-center" style="background:rgba(248,113,113,.10)"><div class="text-2xl">⏰ La veille</div><div class="text-rose-300 font-extrabold text-lg mt-1">Prix maximum</div><p class="text-[12.5px] text-slate-300 mt-1">Plus le temps de partir. Il le sait. Il remet toute sa marge.</p></div>
+          </div>
+        </div>
+        <p class="r d5 mt-4 text-[14px] text-slate-300 max-w-2xl">Le fournisseur <strong>compte sur le fait</strong> que vous vous y prendrez à la dernière minute. C'est pour ça qu'il attend 15 jours avant.</p>
+      </div>
+    </section>
+
+    <!-- 8. RENOUVELLEMENT — CE QU'ON FAIT -->
+    <section class="slide" data-s="8">
+      <div class="slide-inner">
+        <div class="r d1 chip mb-4">Levier 3 · Ce qu'on fait, nous</div>
+        <h2 class="r d2 text-3xl sm:text-4xl font-extrabold">On travaille votre renouvellement <span class="grad-text">2 ans à l'avance.</span></h2>
+        <div class="grid sm:grid-cols-3 gap-3 mt-6">
+          <div class="r d3 glass rounded-2xl p-4"><div class="text-2xl mb-1">🔔</div><div class="font-bold text-[14px]">Des alertes en place</div><p class="text-[13px] text-slate-400">Branchés en direct sur les marchés, avec vos tarifs et vos conditions.</p></div>
+          <div class="r d4 glass rounded-2xl p-4"><div class="text-2xl mb-1">🎯</div><div class="font-bold text-[14px]">On pose une option</div><p class="text-[13px] text-slate-400">Dès qu'un prix passe sous le vôtre, on le verrouille — comme une pré-commande.</p></div>
+          <div class="r d5 glass rounded-2xl p-4"><div class="text-2xl mb-1">📈</div><div class="font-bold text-[14px]">Vous profitez des baisses</div><p class="text-[13px] text-slate-400">Sans jamais subir une hausse au renouvellement.</p></div>
+        </div>
+        <div class="r d6 mt-7 flex flex-wrap items-center gap-6 glass rounded-2xl p-5">
+          <div><div class="text-3xl font-extrabold grad-text">15 à 25 %</div><div class="text-[12.5px] text-slate-400">d'économie en plus sur nos renouvellements de cet été</div></div>
+          <div class="h-10 w-px bg-white/10 hidden sm:block"></div>
+          <div><div class="text-3xl font-extrabold grad-text">90 %</div><div class="text-[12.5px] text-slate-400">de nos clients renouvellent avec nous</div></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 9. BILAN COMPARATIF INTERACTIF -->
+    <section class="slide" data-s="9">
+      <div class="slide-inner">
+        <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
+          <div><div class="r d1 chip mb-2">Votre bilan comparatif</div><h2 class="r d2 text-2xl sm:text-3xl font-extrabold">Le prix du jour n'est pas <span class="grad-text">le vrai gagnant.</span></h2></div>
+          <span class="r d2 text-[11px] text-slate-500">Exemple — sera calqué sur votre vrai bilan</span>
+        </div>
+        <p class="r d3 text-[13.5px] text-slate-400 mb-4 max-w-2xl">Cliquez sur une offre : on projette votre budget sur <strong>4 ans</strong>. Un prix fixe vous protège des +6,2 %/an — même s'il est un peu plus cher aujourd'hui.</p>
+        <div class="r d4 grid lg:grid-cols-2 gap-4">
+          <div id="offres" class="space-y-2"></div>
+          <div class="glass rounded-3xl p-5">
+            <div class="flex items-end justify-between mb-1"><div class="text-[12px] text-slate-400">Budget cumulé sur 4 ans</div><div id="ecoBadge" class="text-[13px] font-bold text-emerald-400"></div></div>
+            <div id="chart" class="flex items-end gap-3 h-[26vh] mt-3"></div>
+            <div id="detail" class="text-[12.5px] text-slate-300 mt-3"></div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Pilotage -->
+  <div class="ctrl">
+    <button class="btn-n" onclick="go(-1)" aria-label="Précédent">‹</button>
+    <div class="dots" id="dots"></div>
+    <button class="btn-n" onclick="go(1)" aria-label="Suivant">›</button>
+  </div>
+
+<script>
+/* ─── Deck ─── */
+const slides=[...document.querySelectorAll('.slide')];
+const N=slides.length; let i=0;
+document.getElementById('tot').textContent=N;
+const dotsEl=document.getElementById('dots');
+slides.forEach((_,k)=>{const d=document.createElement('div');d.className='dot';d.onclick=()=>show(k);dotsEl.appendChild(d);});
+const dots=[...dotsEl.children];
+function show(k){ i=Math.max(0,Math.min(N-1,k)); slides.forEach((s,x)=>s.classList.toggle('active',x===i)); dots.forEach((d,x)=>d.classList.toggle('on',x===i)); document.getElementById('cur').textContent=i+1; if(i===8) initBilan(); }
+function go(d){ show(i+d); }
+addEventListener('keydown',e=>{ if(e.key==='ArrowRight'||e.key===' '||e.key==='PageDown'){e.preventDefault();go(1);} if(e.key==='ArrowLeft'||e.key==='PageUp'){e.preventDefault();go(-1);} });
+let sx=null; addEventListener('touchstart',e=>sx=e.touches[0].clientX,{passive:true});
+addEventListener('touchend',e=>{ if(sx==null)return; const dx=e.changedTouches[0].clientX-sx; if(Math.abs(dx)>50) go(dx<0?1:-1); sx=null; });
+show(0);
+
+/* ─── Bilan comparatif interactif (démo) ─── */
+const CONSO=100;            // MWh / an
+const INFLA=0.062;          // +6,2 %/an sur l'évolutif
+const ANS=4;
+// offres démo — prix €/MWh HT
+const OFFRES=[
+  {nom:'EDF — Tarif actuel', type:'evolutif', prix:95, duree:0,  ref:true},
+  {nom:'Endesa',  type:'fixe', prix:88, duree:36},
+  {nom:'Enovos',  type:'fixe', prix:90, duree:48},
+  {nom:'Engie',   type:'fixe', prix:91, duree:48},
+];
+function budget4(o){
+  // budget cumulé sur 4 ans. Fixe pendant `duree` mois, puis on repasse en évolutif (+6,2%/an).
+  let tot=0, dureeAns=o.type==='evolutif'?0:Math.round(o.duree/12);
+  for(let y=0;y<ANS;y++){
+    let pu;
+    if(o.type==='evolutif') pu=o.prix*Math.pow(1+INFLA,y);
+    else if(y<dureeAns) pu=o.prix;                                   // verrouillé
+    else pu=OFFRES[0].prix*Math.pow(1+INFLA,y);                      // après la fin du fixe → exposé à l'évolutif
+    tot+=pu*CONSO;
+  }
+  return Math.round(tot);
+}
+const REF=budget4(OFFRES[0]);
+let sel=1;
+function euro(n){return new Intl.NumberFormat('fr-FR',{style:'currency',currency:'EUR',maximumFractionDigits:0}).format(n);}
+function initBilan(){
+  const wrap=document.getElementById('offres'); if(!wrap||wrap.dataset.done)return; wrap.dataset.done='1';
+  wrap.innerHTML=OFFRES.map((o,k)=>{
+    const b=budget4(o), eco=REF-b;
+    return `<div class="furn glass rounded-2xl p-3.5 flex items-center justify-between" data-k="${k}" onclick="selFourn(${k})">
+      <div><div class="font-bold text-[14.5px]">${o.nom}</div>
+      <div class="text-[12px] text-slate-400">${o.type==='fixe'?('Prix fixe '+o.duree+' mois'):'Prix évolutif'} · ${o.prix} €/MWh</div></div>
+      <div class="text-right">${o.ref?'<span class="text-[12px] text-slate-500">référence</span>':`<span class="text-[13px] font-bold ${eco>0?'text-emerald-400':'text-rose-300'}">${eco>0?'−'+euro(eco):'+'+euro(-eco)}<span class="text-[10px] text-slate-500">/4 ans</span></span>`}</div>
+    </div>`;
+  }).join('');
+  selFourn(2); // Enovos 48m — illustre que le 48m bat le 36m sur 4 ans
+}
+function selFourn(k){
+  sel=k;
+  [...document.querySelectorAll('.furn')].forEach(f=>f.classList.toggle('sel',+f.dataset.k===k));
+  const o=OFFRES[k], b=budget4(o), eco=REF-b;
+  // barres : référence vs offre
+  const max=Math.max(REF,b);
+  const chart=document.getElementById('chart');
+  chart.innerHTML=`
+    <div class="flex-1 flex flex-col items-center justify-end h-full">
+      <div class="text-[12px] text-slate-400 mb-1">${euro(REF)}</div>
+      <div class="bar w-full rounded-t-lg" style="height:0;background:linear-gradient(#f87171,#b91c1c)"></div>
+      <div class="text-[11px] text-slate-400 mt-2 text-center">Sans rien changer<br>(évolutif)</div>
+    </div>
+    <div class="flex-1 flex flex-col items-center justify-end h-full">
+      <div class="text-[12px] text-emerald-300 mb-1 font-bold">${euro(b)}</div>
+      <div class="bar w-full rounded-t-lg" style="height:0;background:linear-gradient(#34d399,#0e8a57)"></div>
+      <div class="text-[11px] text-slate-300 mt-2 text-center font-semibold">${o.nom}</div>
+    </div>`;
+  requestAnimationFrame(()=>{const bars=chart.querySelectorAll('.bar');bars[0].style.height=(REF/max*100)+'%';bars[1].style.height=(b/max*100)+'%';});
+  document.getElementById('ecoBadge').textContent = eco>0 ? ('Vous gagnez '+euro(eco)+' sur 4 ans') : '';
+  document.getElementById('detail').innerHTML = o.ref
+    ? `Si vous ne changez rien, votre budget suit le TRV : <strong>+6,2 %/an</strong>. En 4 ans, vous payez <strong>${euro(REF)}</strong>.`
+    : `${o.type==='fixe'?`Prix bloqué ${o.duree} mois à <strong>${o.prix} €/MWh</strong>`:''}. Même ${o.prix>OFFRES[1].prix?'un peu plus cher aujourd\'hui':'à ce prix'}, sur 4 ans vous économisez <strong class="text-emerald-400">${euro(eco)}</strong> face au « sans rien faire ».`;
+}
+</script>
+</body>
+</html>
