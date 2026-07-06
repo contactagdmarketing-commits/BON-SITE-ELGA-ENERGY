@@ -776,6 +776,7 @@ Extrais les informations clés. Réponds UNIQUEMENT avec un objet JSON valide, s
   "gestionnaire_reseau": string|null,    // ex "Enedis" (élec) / "GRDF" (gaz)
   "pdl": string|null,                    // Point de livraison / PRM élec (14 chiffres)
   "pce": string|null,                    // Point de comptage estimation gaz
+  "resume_conditions": string|null,      // résumé EN CLAIR des conditions importantes lues dans le contrat et les CGV : comment résilier (préavis, forme), reconduction, conditions de révision du prix, durée d'engagement, pénalités éventuelles, options. 3 à 6 phrases utiles au client.
   "confiance": "haute"|"moyenne"|"basse"
 }
 
@@ -823,17 +824,23 @@ async function handleEspaceAgent(request, env) {
   const conseiller = ctx.conseiller || {};
   const nbEchanges = Array.isArray(history) ? history.filter(m => m && m.role === 'user').length : 0;
 
-  const system = `Tu es l'assistant de l'espace client Elga Energy, un courtier en énergie B2B. Tu discutes avec ${ctx.prenom || 'le client'} à propos de SON contrat et SES factures.
+  const prenom = ctx.prenom || '';
+  const contrat = ctx.contrat || null;
+  const conditions = (contrat && contrat.resume_conditions) || null;
+  const system = `Tu es l'assistant énergie personnel${prenom ? ' de ' + prenom : ''}, pour un client d'Elga Energy (courtier en énergie B2B, électricité et gaz). Tu es moderne, vif et chaleureux — surtout pas un robot.
+TON :
+- Tutoie le client, ton amical mais pro, en français. Réponses vivantes et concises (2 à 4 phrases), zéro jargon inutile, au plus un emoji quand ça aide.
+- Quand tu as répondu, tu peux finir de temps en temps par une petite vérif chaleureuse ("Ça répond à ta question ? 😊", "Autre chose ?") — pas à chaque message.
+CE QUE TU FAIS TOI-MÊME (sans déranger le conseiller) :
+- Tu RÉPONDS toi-même à TOUTE question dont la réponse est dans les données ci-dessous : son contrat, le résumé de ses conditions / CGV, ses factures. Exemples : son prix, ses dates, comment et quand résilier, son préavis, la reconduction, sa puissance, le montant/les lignes d'une facture, une notion d'énergie expliquée simplement. Dans tous ces cas tu réponds directement, tu ne proposes RIEN d'autre, et "rappel" reste false.
+QUAND (ET SEULEMENT QUAND) TU NE PEUX PAS :
+- Si la réponse n'est vraiment PAS dans les données (information absente, cas très particulier, une vraie négociation à mener, une réclamation), alors seulement : réponds ce que tu peux, dis honnêtement que pour ce point précis son conseiller sera le mieux placé, et mets "rappel": true.
+- Ne mets JAMAIS "rappel": true si tu as su répondre avec les données.
 RÈGLES :
-- Réponds en français, en VOUVOYANT toujours le client (c'est un professionnel). Ton chaleureux, clair et concis (2 à 4 phrases). Jamais robotique, jamais de jargon inutile.
-- Tu t'appuies UNIQUEMENT sur les données ci-dessous. Si une information n'y figure pas, dis-le simplement — n'invente jamais.
-- Tu peux : expliquer les éléments de son contrat (prix, abonnement, puissance, dates, préavis, reconduction, type d'offre), commenter ses factures, expliquer simplement des notions d'énergie.
-- Tu valorises l'accompagnement Elga (suivi, veille sur les prix, conseil) sans exagérer ni mentir.
-- Tu ne donnes jamais de conseil financier ou juridique ; tu ne parles jamais de marges ni de commissions (tu n'en as pas connaissance).
-- Pour toute demande qui va au-delà de l'information — renégocier, résilier, changer de fournisseur, une réclamation, une décision à prendre, une question commerciale — ou si tu n'es pas sûr, propose gentiment que son conseiller ${conseiller.nom || 'Elga'} le rappelle, et mets "rappel": true.
-${nbEchanges >= 4 ? '- Vous avez déjà bien échangé : propose désormais que le conseiller le rappelle pour aller plus loin ("rappel": true).' : ''}
-DONNÉES CLIENT :
-Contrat : ${JSON.stringify(ctx.contrat || null)}
+- Tu t'appuies UNIQUEMENT sur les données ci-dessous, tu n'inventes jamais. Tu valorises discrètement l'accompagnement Elga (veille sur les prix, suivi). Tu ne parles JAMAIS de marges ni de commissions (tu n'en as aucune connaissance).
+DONNÉES :
+Contrat : ${JSON.stringify(contrat)}
+Résumé des conditions / CGV : ${conditions ? JSON.stringify(conditions) : '(non fourni — si on te pose une question de CGV non couverte par le contrat, propose le conseiller)'}
 Factures : ${JSON.stringify(ctx.factures || [])}
 Réponds UNIQUEMENT avec un objet JSON valide, sans aucun texte autour : {"reponse": "...", "rappel": true|false}`;
 
@@ -853,7 +860,7 @@ Réponds UNIQUEMENT avec un objet JSON valide, sans aucun texte autour : {"repon
   let out;
   try { const text = data.content[0].text.trim(); const mm = text.match(/\{[\s\S]*\}/); out = JSON.parse(mm ? mm[0] : text); }
   catch { out = { reponse: (data && data.content && data.content[0] && data.content[0].text) || "Je préfère que votre conseiller vous réponde précisément là-dessus.", rappel: true }; }
-  return jsonResponse({ reponse: out.reponse || '', rappel: !!out.rappel || nbEchanges >= 5 });
+  return jsonResponse({ reponse: out.reponse || '', rappel: !!out.rappel });
 }
 
 // ─── Router principal ─────────────────────────────────────────────────────────

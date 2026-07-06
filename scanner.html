@@ -1214,6 +1214,16 @@
     } catch (_) { return null; }
   }
   elgaRef(); // capture le tag dès l'arrivée sur la page
+  // Parrainage client : lien « scanner.html?parrain=<code> » → le scan est rattaché
+  // au parrain (visible dans son espace client). Additif, sans impact si absent.
+  function elgaParrain() {
+    try {
+      var m = new URLSearchParams(location.search).get('parrain');
+      if (m) { m = String(m).slice(0, 12).toUpperCase(); localStorage.setItem('elga_parrain', m); return m; }
+      return localStorage.getItem('elga_parrain') || null;
+    } catch (_) { return null; }
+  }
+  elgaParrain();
   // En-têtes Supabase REST (clé publique = insertion/maj seulement, jamais de lecture)
   function supaHeaders(extra) {
     var h = {
@@ -1267,6 +1277,8 @@
         var _c = nrjCounts();
         ex = Object.assign({}, ex || {}, { declare: { energies: nrjChoice, compteurs_elec: _c.elec, compteurs_gaz: _c.gaz } });
       } catch (_) {}
+      // Parrainage : rattache le scan au parrain (visible dans son espace client).
+      try { var _p = elgaParrain(); if (_p) ex = Object.assign({}, ex || {}, { parrain: _p }); } catch (_) {}
       var row = {
         session_token: elgaSessionToken(),
         source: 'entrant',                         // requis par la règle d'insertion
