@@ -40,9 +40,20 @@
     .bubble{max-width:82%;padding:.6rem .85rem;border-radius:1rem;font-size:13.5px;line-height:1.45}
     .bubble-a{background:#f1f5f9;color:#1f2937;border-bottom-left-radius:.25rem}
     .bubble-u{background:#0e8a57;color:#fff;border-bottom-right-radius:.25rem;margin-left:auto}
-    .dots span{display:inline-block;width:6px;height:6px;border-radius:50%;background:#94a3b8;margin:0 1.5px;animation:bl 1.2s infinite}
+    .dots span{display:inline-block;width:7px;height:7px;border-radius:50%;background:#94a3b8;margin:0 2px;animation:bl 1.2s infinite}
     .dots span:nth-child(2){animation-delay:.2s}.dots span:nth-child(3){animation-delay:.4s}@keyframes bl{0%,60%,100%{opacity:.3}30%{opacity:1}}
-    @media (prefers-reduced-motion: reduce){.fade,.pop,.stagger>*,.scanline,.dots span{animation:none!important;opacity:1!important;transform:none!important}.tile:hover{transform:none}}
+    /* ── Assistant plein écran (2026) ── */
+    .ava{border-radius:14px;display:grid;place-items:center;background:linear-gradient(135deg,#0e8a57,#0b3d91);color:#fff;flex:none}
+    .ava-sm{width:36px;height:36px;font-size:17px}
+    .ava-hero{width:76px;height:76px;border-radius:24px;font-size:36px;box-shadow:0 24px 55px -18px rgba(14,138,87,.6)}
+    .ava-ring{position:relative}.ava-ring::after{content:"";position:absolute;inset:-5px;border-radius:20px;border:2px solid rgba(16,185,129,.35);animation:pulse 2.4s ease-out infinite}
+    @keyframes pulse{0%{transform:scale(.9);opacity:.7}100%{transform:scale(1.25);opacity:0}}
+    .msg{max-width:78%;padding:.85rem 1.15rem;border-radius:1.35rem;font-size:15px;line-height:1.55}
+    .msg-a{background:#fff;border:1px solid #eef2f7;color:#1f2937;border-top-left-radius:.4rem;box-shadow:0 4px 18px -10px rgba(2,6,12,.12)}
+    .msg-u{background:#0e8a57;color:#fff;border-top-right-radius:.4rem}
+    .sugg{transition:border-color .2s,box-shadow .2s,transform .2s}.sugg:hover{border-color:#34d399;box-shadow:0 14px 30px -18px rgba(14,138,87,.4);transform:translateY(-2px)}
+    .floatY{animation:floatY 4s ease-in-out infinite}@keyframes floatY{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+    @media (prefers-reduced-motion: reduce){.fade,.pop,.stagger>*,.scanline,.dots span,.ava-ring::after,.floatY{animation:none!important;opacity:1!important;transform:none!important}.tile:hover{transform:none}}
   </style>
 </head>
 <body class="antialiased text-slate-800 min-h-screen">
@@ -160,7 +171,7 @@ function renderApp(){
         <nav id="navM" class="px-2 pb-2 flex gap-1 overflow-x-auto"></nav>
       </header>
 
-      <main class="max-w-3xl mx-auto px-4 py-6 sm:py-8">
+      <main class="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
         <div class="hidden md:block mb-5">
           <h1 class="text-[22px] font-extrabold text-slate-900 tracking-tight">${esc(nom)}</h1>
           <p class="text-[13px] text-slate-500">Votre espace client · suivi par ${esc(STATE.hote||'Elga Energy')}</p>
@@ -375,36 +386,42 @@ function vueParrainage(){
       <div><div class="text-[13px] font-semibold text-slate-700">${esc(p.qui)}</div><div class="text-[11px] text-slate-400">a checké sa facture · ${esc(p.le)}</div></div></div>
       ${p.eco&&+p.eco>0?`<span class="text-[12px] font-bold text-primary-700">${euro(+p.eco)}/an à gagner</span>`:''}</div>`).join('');
   return `
-  <section class="fade bg-white rounded-2xl shadow-soft overflow-hidden mb-4">
-    <div class="p-6 text-white relative overflow-hidden" style="background:linear-gradient(135deg,#0b3d91,#0e8a57)">
-      <div class="text-3xl mb-2">🎁</div>
-      <h2 class="text-[20px] font-extrabold">Fais gagner ton réseau (et toi aussi)</h2>
-      <p class="text-[13.5px] text-white/90 mt-1.5 max-w-md">Les factures d'énergie explosent et la plupart des entreprises paient trop cher sans le savoir. Partage ton lien : tes connaissances font vérifier leurs factures gratuitement en 15 s — et dès qu'une devient cliente, <strong>tu es récompensé</strong>.</p>
-    </div>
-    <div class="p-5">
-      <div class="rounded-xl bg-slate-50 p-3 flex items-center gap-2">
-        <input readonly value="${esc(lienParrain())}" class="flex-1 bg-transparent text-[12.5px] text-slate-600 outline-none truncate"/>
-        <button onclick="partager('copy')" class="btn btn-p px-3 py-2 text-[12.5px] shrink-0">Copier</button>
-      </div>
-      <div class="grid grid-cols-3 gap-2 mt-3">
-        <button onclick="partager('wa')" class="tile flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 py-2.5 text-[13px] font-semibold text-slate-600 hover:bg-slate-50"><span>💬</span> WhatsApp</button>
-        <button onclick="partager('sms')" class="tile flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 py-2.5 text-[13px] font-semibold text-slate-600 hover:bg-slate-50"><span>📱</span> SMS</button>
-        <button onclick="partager('mail')" class="tile flex items-center justify-center gap-1.5 rounded-xl border border-slate-200 py-2.5 text-[13px] font-semibold text-slate-600 hover:bg-slate-50"><span>✉️</span> E-mail</button>
-      </div>
+  <section class="fade relative overflow-hidden rounded-3xl text-white shadow-strong mb-5" style="background:linear-gradient(120deg,#0b3d91 0%,#0e8a57 75%)">
+    <div class="absolute -right-10 -top-10 w-52 h-52 rounded-full bg-white/10 pointer-events-none"></div>
+    <div class="absolute right-24 bottom-0 w-28 h-28 rounded-full bg-white/10 pointer-events-none"></div>
+    <div class="relative p-6 sm:p-9 max-w-2xl">
+      <div class="inline-flex items-center gap-2 text-[12px] font-bold bg-white/15 rounded-full px-3 py-1.5 mb-4">Programme de parrainage</div>
+      <h2 class="text-2xl sm:text-4xl font-extrabold leading-tight">Recommande Elga.<br>Fais gagner ton réseau — et toi.</h2>
+      <p class="text-[14.5px] sm:text-[15.5px] text-white/90 mt-3 leading-relaxed">Les factures d'énergie explosent, et la plupart des entreprises paient trop cher sans le savoir. Partage ton lien : un pro que tu connais fait vérifier ses factures en 15 secondes — et dès qu'il devient client, <strong>tu es récompensé</strong>.</p>
     </div>
   </section>
 
-  <section class="fade bg-white rounded-2xl shadow-soft p-5">
-    <div class="flex items-center justify-between mb-3">
-      <h3 class="text-[15px] font-extrabold text-slate-900">Grâce à toi</h3>
-      <span class="text-[12px] font-bold text-primary-700 bg-primary-50 px-2.5 py-1 rounded-full">${n} entreprise${n>1?'s':''}</span>
+  <section class="fade bg-white rounded-3xl shadow-soft p-6 sm:p-7 mb-5">
+    <h3 class="text-[16px] font-extrabold text-slate-900">Ton lien personnel</h3>
+    <p class="text-[13px] text-slate-400 mb-4">Un seul lien, à partager où tu veux. Chaque scan qui en vient t'est attribué.</p>
+    <div class="rounded-2xl border border-slate-200 bg-slate-50/70 p-2 pl-4 flex items-center gap-2">
+      <input readonly value="${esc(lienParrain())}" onclick="this.select()" class="flex-1 bg-transparent text-[13px] text-slate-600 outline-none truncate"/>
+      <button onclick="partager('copy')" class="btn-p rounded-xl px-4 py-2.5 text-[13.5px] shrink-0">Copier</button>
     </div>
-    ${n?`<div class="space-y-2">${items}</div>`:`
-      <div class="text-center py-6">
-        <div class="text-3xl mb-2">🤝</div>
-        <p class="text-[13.5px] text-slate-500 max-w-xs mx-auto">Personne n'a encore utilisé ton lien. Envoie-le à un pro que tu connais — ça lui prend 15 secondes et ça peut lui faire économiser gros.</p>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5 mt-4">
+      <button onclick="partager('wa')" class="sugg flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white py-3.5 text-[14px] font-bold text-slate-700"><span class="text-lg">💬</span> WhatsApp</button>
+      <button onclick="partager('sms')" class="sugg flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white py-3.5 text-[14px] font-bold text-slate-700"><span class="text-lg">📱</span> SMS</button>
+      <button onclick="partager('mail')" class="sugg flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white py-3.5 text-[14px] font-bold text-slate-700"><span class="text-lg">✉️</span> E-mail</button>
+    </div>
+  </section>
+
+  <section class="fade bg-white rounded-3xl shadow-soft p-6 sm:p-7">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-[16px] font-extrabold text-slate-900">Grâce à toi</h3>
+      <span class="text-[13px] font-bold text-primary-700 bg-primary-50 px-3 py-1.5 rounded-full">${n} entreprise${n>1?'s':''}</span>
+    </div>
+    ${n?`<div class="space-y-2.5">${items}</div>`:`
+      <div class="text-center py-10 px-4 rounded-2xl bg-slate-50/70">
+        <div class="text-4xl mb-3">🌱</div>
+        <p class="text-[14.5px] font-semibold text-slate-700">Ton réseau n'attend que ça.</p>
+        <p class="text-[13.5px] text-slate-500 max-w-sm mx-auto mt-1">Personne n'a encore utilisé ton lien. Envoie-le à un pro que tu connais — 15 secondes pour lui, et peut-être gros à la clé.</p>
       </div>`}
-    <p class="text-[11.5px] text-slate-400 mt-3 text-center">Chaque facture checkée via ton lien est comptée ici. Ta récompense se débloque quand une entreprise devient cliente.</p>
+    <p class="text-[12px] text-slate-400 mt-4 text-center">Chaque facture vérifiée via ton lien apparaît ici. Ta récompense se débloque quand une entreprise devient cliente.</p>
   </section>`;
 }
 
@@ -454,42 +471,61 @@ const SUGGESTIONS=["Mon prix est-il bon ?","Comment je résilie ?","Explique ma 
 function toggleChat(){CHAT_OPEN=!CHAT_OPEN;renderChat();}
 function escaladeBoutons(){
   const p=(STATE.conseiller&&STATE.conseiller.nom||'ton conseiller').split(' ')[0];
-  return `<div class="mt-2.5 flex flex-wrap gap-1.5">
-    <button onclick="demanderRappel(this)" class="text-[12px] font-bold bg-white text-primary-700 border border-primary-200 px-2.5 py-1.5 rounded-lg hover:bg-primary-50">📞 Être rappelé</button>
-    <button onclick="demanderRappel(this,'souhaite prendre un rendez-vous')" class="text-[12px] font-bold bg-white text-secondary-600 border border-secondary-100 px-2.5 py-1.5 rounded-lg hover:bg-secondary-50">📅 Prendre RDV avec ${esc(p)}</button>
+  return `<div class="mt-3 flex flex-wrap gap-2">
+    <button onclick="demanderRappel(this)" class="text-[13px] font-bold bg-primary-50 text-primary-700 border border-primary-200 px-3.5 py-2 rounded-xl hover:bg-primary-100 transition">📞 Être rappelé</button>
+    <button onclick="demanderRappel(this,'souhaite prendre un rendez-vous')" class="text-[13px] font-bold bg-secondary-50 text-secondary-600 border border-secondary-100 px-3.5 py-2 rounded-xl hover:bg-secondary-100 transition">📅 Prendre RDV avec ${esc(p)}</button>
+  </div>`;
+}
+function welcomeBloc(){
+  return `<div class="text-center pt-4 sm:pt-14 pop">
+    <div class="ava ava-hero ava-ring floatY mx-auto mb-6">⚡</div>
+    <h1 class="text-[26px] sm:text-[34px] font-extrabold text-slate-900 tracking-tight">Salut ${esc(STATE.prenom||'')} 👋</h1>
+    <p class="text-[15.5px] sm:text-[16px] text-slate-500 mt-3 max-w-lg mx-auto leading-relaxed">Je suis ton assistant énergie, rien que pour toi. Pose-moi n'importe quelle question sur ton contrat, tes factures, ou l'énergie — je te réponds direct.</p>
+    <div class="grid sm:grid-cols-2 gap-3 mt-9 text-left max-w-2xl mx-auto">
+      ${SUGGESTIONS.map(s=>`<button onclick="envoyer('${s.replace(/'/g,"\\'")}')" class="sugg group rounded-2xl border border-slate-200 bg-white p-4 sm:p-5 flex items-center justify-between gap-3">
+        <span class="text-[15px] font-semibold text-slate-700">${esc(s)}</span>
+        <span class="h-8 w-8 rounded-full bg-slate-50 grid place-items-center text-primary-500 shrink-0 group-hover:bg-primary-50 transition">→</span>
+      </button>`).join('')}
+    </div>
   </div>`;
 }
 function renderChat(){
   const p=document.getElementById('chatPanel');if(!p)return;
-  if(!CHAT_OPEN){p.innerHTML='';return;}
+  if(!CHAT_OPEN){p.innerHTML='';document.documentElement.style.overflow='';return;}
+  document.documentElement.style.overflow='hidden';
+  const empty=CHAT.length===0;
   const msgs=CHAT.map(m=>m.typing
-    ?`<div class="bubble bubble-a dots"><span></span><span></span><span></span></div>`
-    :`<div class="fade bubble ${m.role==='user'?'bubble-u':'bubble-a'}">${esc(m.content).replace(/\n/g,'<br>')}${m.rappel?escaladeBoutons():''}</div>`).join('');
-  const chips=CHAT.length?'':`<div class="flex flex-wrap gap-1.5 pt-1">${SUGGESTIONS.map(s=>`<button onclick="envoyer('${s.replace(/'/g,"\\'")}')" class="text-[12px] text-primary-700 bg-white border border-primary-200 rounded-full px-3 py-1.5 hover:bg-primary-50 transition">${esc(s)}</button>`).join('')}</div>`;
+    ?`<div class="flex gap-3"><div class="ava ava-sm">⚡</div><div class="msg msg-a dots"><span></span><span></span><span></span></div></div>`
+    :(m.role==='user'
+      ?`<div class="fade flex justify-end"><div class="msg msg-u">${esc(m.content).replace(/\n/g,'<br>')}</div></div>`
+      :`<div class="fade flex gap-3"><div class="ava ava-sm">⚡</div><div class="msg msg-a">${esc(m.content).replace(/\n/g,'<br>')}${m.rappel?escaladeBoutons():''}</div></div>`)).join('');
   p.innerHTML=`
-  <div class="fixed inset-0 z-40 bg-black/20 sm:bg-transparent" onclick="toggleChat()"></div>
-  <div class="pop fixed z-50 bottom-0 right-0 sm:bottom-24 sm:right-5 w-full sm:w-[390px] h-[86vh] sm:h-[580px] bg-white sm:rounded-3xl shadow-strong flex flex-col overflow-hidden ring-1 ring-black/5">
-    <div class="p-4 text-white flex items-center justify-between" style="background:linear-gradient(135deg,#0e8a57,#0b3d91)">
+  <div class="fixed inset-0 z-[60] flex flex-col" style="background:radial-gradient(1100px 560px at 50% -8%,#ecfdf5,transparent 60%),#f7f9fc">
+    <div class="shrink-0 flex items-center justify-between px-4 sm:px-6 h-16 border-b border-slate-100 bg-white/70" style="backdrop-filter:blur(8px)">
       <div class="flex items-center gap-3">
-        <div class="relative h-10 w-10 rounded-full bg-white/15 grid place-items-center text-[18px]">⚡<span class="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-emerald-400 ring-2 ring-[#0b6c45]"></span></div>
-        <div><div class="font-bold text-[14.5px] leading-tight">Ton assistant énergie</div><div class="text-[11.5px] text-white/80">En ligne · répond à tes questions</div></div>
+        <div class="ava ava-sm">⚡</div>
+        <div><div class="font-extrabold text-[15px] text-slate-900 leading-tight">Ton assistant énergie</div>
+        <div class="text-[12px] text-primary-600 font-semibold flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-emerald-400"></span> En ligne, rien que pour toi</div></div>
       </div>
-      <button onclick="toggleChat()" class="text-white/80 hover:text-white text-xl leading-none">✕</button>
+      <button onclick="toggleChat()" aria-label="Fermer" class="h-10 w-10 rounded-full grid place-items-center text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition text-xl">✕</button>
     </div>
-    <div id="chatMsgs" class="flex-1 overflow-y-auto p-4 space-y-2.5 bg-gradient-to-b from-slate-50 to-white">
-      <div class="bubble bubble-a">Salut ${esc(STATE.prenom||'')} 👋 Je suis ton assistant perso pour ton énergie. Pose-moi une question sur ton contrat, tes factures, ou l'énergie en général — je te réponds direct.</div>
-      ${msgs}
-      ${chips}
+    <div id="chatMsgs" class="flex-1 overflow-y-auto">
+      <div class="max-w-2xl mx-auto w-full px-4 sm:px-6 py-6 sm:py-10 space-y-5">
+        ${empty?welcomeBloc():msgs}
+      </div>
     </div>
-    <form id="chatForm" class="p-3 border-t border-slate-100 flex gap-2 bg-white">
-      <input id="chatIn" autocomplete="off" placeholder="Écris ta question…" class="flex-1 rounded-xl border border-slate-200 focus:border-primary-500 focus:ring-2 focus:ring-primary-100 outline-none px-3.5 py-2.5 text-[13.5px]"/>
-      <button class="btn btn-p px-4 grid place-items-center"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6"/></svg></button>
-    </form>
+    <div class="shrink-0 border-t border-slate-100 bg-white/85" style="backdrop-filter:blur(8px)">
+      <form id="chatForm" class="max-w-2xl mx-auto w-full px-4 sm:px-6 pt-3 flex items-end gap-2.5">
+        <input id="chatIn" autocomplete="off" placeholder="Écris ta question…" class="flex-1 rounded-2xl border border-slate-200 focus:border-primary-500 focus:ring-4 focus:ring-primary-100 outline-none px-4 py-3.5 text-[15px]"/>
+        <button class="btn-p h-[52px] w-[52px] rounded-2xl grid place-items-center shrink-0"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+      </form>
+      <div class="text-center text-[11.5px] text-slate-400 py-2.5">Réponses basées sur ton contrat et tes factures · ton conseiller reste joignable</div>
+    </div>
   </div>`;
   const box=document.getElementById('chatMsgs');if(box)box.scrollTop=box.scrollHeight;
   const form=document.getElementById('chatForm');
   if(form)form.addEventListener('submit',e=>{e.preventDefault();const inp=document.getElementById('chatIn');const q=inp.value;inp.value='';envoyer(q);});
-  const inp=document.getElementById('chatIn');if(inp&&CHAT.length)inp.focus();
+  const inp=document.getElementById('chatIn');if(inp&&!empty)inp.focus();
 }
 async function envoyer(q){
   q=(q||'').trim(); if(!q) return;
