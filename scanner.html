@@ -1664,7 +1664,7 @@
         // Elga plus cher aujourd'hui sur l'énergie : honnête sur le budget, on pointe les autres leviers.
         var trvNow = _e && isTRV(_e);
         sub.textContent = trvNow
-          ? "Votre prix d'énergie est bien placé aujourd'hui. Attention : au Tarif Bleu, il est volatil (+6,2 %/an en moyenne). Les économies passent par d'autres leviers — abonnement, puissance."
+          ? "Votre prix d'énergie est bien placé aujourd'hui. Mais au Tarif Bleu, il est volatil — révisé plusieurs fois par an sans que vous le contrôliez. Les économies passent par d'autres leviers : abonnement, puissance."
           : "Votre prix d'énergie est bien placé aujourd'hui. Les économies passent par d'autres leviers — abonnement, puissance, taxes.";
         if (gauge) gauge.style.width = '15%';
       } else if (_s) {
@@ -1676,7 +1676,7 @@
       }
     }
     var hid = document.getElementById('hiddenSavings');
-    if (hid) hid.value = netPositive ? (formatEuro(total) + '/an (leviers retenus)') : (hasSurcout ? 'Sécurisation (TRV +6,2%/an) · optimisation abo/puissance' : '');
+    if (hid) hid.value = netPositive ? (formatEuro(total) + '/an (leviers retenus)') : (hasSurcout ? 'Sécurisation (TRV volatil, révisé plusieurs fois/an) · optimisation abo/puissance' : '');
   }
 
   // Détail facture 100% personnalisé — groupé, uniquement les lignes présentes.
@@ -1686,10 +1686,19 @@
     var consoMwh = consoMwhOf(e);
     var trv = isTRV(e) || e.est_trv === true;
 
-    // 1. Tarif Réglementé / Tarif Bleu EDF → prix subi, révisé plusieurs fois par an
+    // 1. Tarif Réglementé / Tarif Bleu EDF → prix subi, révisé plusieurs fois par an.
+    //    Stats RÉELLES issues des barèmes CRE 2012-2026 (Option Base) : 21 révisions,
+    //    facture 14↑/7↓, abonnement 15↑/4↓, pics +17/+10/+9,8 % puis −18 %.
     if (trv) {
-      V.push({ t: 'danger', titre: 'Tarif Réglementé (Tarif Bleu EDF)',
-        txt: "Votre prix est fixé par l'État et révisé plusieurs fois par an. Budget volatil et subi : vous ne maîtrisez pas votre coût. Un contrat de marché à prix fixe sécurise votre budget." });
+      V.push({ t: 'danger', titre: 'Tarif Réglementé (Tarif Bleu) — un prix qui bouge sans arrêt',
+        txt: "Sur 14 ans, le tarif réglementé a été révisé 21 fois — environ une fois tous les 8 mois, dans un sens que vous ne contrôlez pas (source CRE) :",
+        stats: [
+          ['2 pour 1', 'hausses / baisse · facture'],
+          ['4 pour 1', 'hausses / baisse · abonnement (réseau)'],
+          ['+17 · +10 · +9,8 %', '3 hausses d’affilée (2023-24)'],
+          ['puis −18 %', 'chute brutale en 2025']
+        ],
+        extra: "Votre prix varie plusieurs fois par an — impossible à anticiper. Un contrat de marché à prix fixe négocié, c’est zéro révision subie : vous savez exactement ce que vous payez, du premier au dernier mois." });
     }
 
     // 2. Pas de date de fin (hors TRV) → tacite reconduction, prix revu chaque an sans accord
@@ -1746,6 +1755,27 @@
         '<div class="min-w-0"><p class="text-[13.5px] font-bold ' + c.ti + '"></p><p class="text-[12.5px] text-slate-600 mt-0.5 leading-relaxed"></p></div>';
       row.querySelectorAll('p')[0].textContent = v.titre;
       row.querySelectorAll('p')[1].textContent = v.txt;
+      // Pastilles de stats (ex : instabilité du TRV) — grille 2/4 colonnes, très lisibles.
+      if (v.stats && v.stats.length) {
+        var inner = row.querySelector('div.min-w-0');
+        var grid = document.createElement('div');
+        grid.className = 'grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2.5';
+        v.stats.forEach(function (st) {
+          var chip = document.createElement('div');
+          chip.className = 'rounded-lg bg-white border ' + c.bd + ' px-2.5 py-2 text-center';
+          var big = document.createElement('div'); big.className = 'text-[14px] font-extrabold ' + c.ti + ' leading-tight'; big.textContent = st[0];
+          var sm = document.createElement('div'); sm.className = 'text-[10.5px] text-slate-500 mt-0.5 leading-snug'; sm.textContent = st[1];
+          chip.append(big, sm); grid.appendChild(chip);
+        });
+        inner.appendChild(grid);
+      }
+      if (v.extra) {
+        var inner2 = row.querySelector('div.min-w-0');
+        var ex = document.createElement('p');
+        ex.className = 'text-[12.5px] font-semibold ' + c.ti + ' mt-2.5 leading-relaxed';
+        ex.textContent = v.extra;
+        inner2.appendChild(ex);
+      }
       box.appendChild(row);
     });
   }
