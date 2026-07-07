@@ -1836,15 +1836,19 @@
     document.getElementById('hiddenSupplier').value = e.supplier || '';
 
     if (s) {
-      // ── Calcul sur la période facturée (pas annualisé) ───────────────────
+      // ── Montant sur la période facturée ──────────────────────────────────
+      // Priorité au VRAI montant imprimé sur la facture (total_ttc_bill) — honnête et exact.
+      // Sinon on projette depuis l'annuel. L'Elga période est proportionnel (même ratio que l'annuel).
       const months = e.billing_months || 1;
-      const clientPeriod  = Math.round(s.client_total_annual / 12 * months);
-      const elgaPeriod    = Math.round(s.elga_total_annual   / 12 * months);
-      const savingsPeriod = Math.round(s.savings_annual      / 12 * months);
+      const ratio  = (s.client_total_annual > 0) ? (s.elga_total_annual / s.client_total_annual) : 1;
+      const clientPeriod  = (e.total_ttc_bill != null)
+        ? Math.round(e.total_ttc_bill)
+        : Math.round(s.client_total_annual / 12 * months);
+      const elgaPeriod    = Math.round(clientPeriod * ratio);
+      const savingsPeriod = Math.max(0, clientPeriod - elgaPeriod);
 
       // Label période
       const periodLabel = months === 1 ? 'sur 1 mois TTC'
-                        : months === 2 ? 'sur 2 mois TTC'
                         : 'sur ' + months + ' mois TTC';
       document.getElementById('resultPeriodLabel').textContent = periodLabel;
 
@@ -1890,13 +1894,16 @@
       document.getElementById('resultPriceBase').classList.remove('hidden');
       document.getElementById('valPriceBase').textContent = bas.toFixed(2) + ' €/MWh HT';
     }
-    if (consoMwh) {
+    if (consoMwh || e.consumption_bill_kwh) {
+      // Vraie conso facturée (brute) si dispo, sinon projection depuis l'annuel.
       const months2 = e.billing_months || 1;
-      const consoPeriod = consoMwh / 12 * months2;
+      const consoPeriodKwh = (e.consumption_bill_kwh != null)
+        ? e.consumption_bill_kwh
+        : (consoMwh / 12 * months2) * 1000;
       document.getElementById('resultConso').classList.remove('hidden');
-      document.getElementById('valConso').textContent = consoPeriod >= 1
-        ? formatNumber(Math.round(consoPeriod)) + ' MWh'
-        : formatNumber(Math.round(consoPeriod * 1000)) + ' kWh';
+      document.getElementById('valConso').textContent = consoPeriodKwh >= 1000
+        ? formatNumber(Math.round(consoPeriodKwh / 1000 * 10) / 10) + ' MWh'
+        : formatNumber(Math.round(consoPeriodKwh)) + ' kWh';
     }
 
     // ── Pipeline rapport premium (grille Elga récupérée AVANT le chiffrage) ──

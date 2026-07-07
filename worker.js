@@ -93,13 +93,12 @@ Tu sais lire les factures de tous les fournisseurs : EDF, Engie, TotalEnergies, 
 
 Analyse cette facture et extrais les informations ci-dessous en JSON valide. Si une valeur est introuvable, utilise null.
 
-⚠️ RÈGLE CRITIQUE — ANNUALISATION :
-- Identifie la période de facturation (ex : "du 16/03/2026 au 15/04/2026" = 1 mois).
-- Tous les montants monétaires (total HT, total TTC, acheminement, taxes) doivent être des VALEURS ANNUELLES.
-- Si la facture couvre N mois, multiplie les montants par (12/N) pour obtenir l'annuel.
-- Si la facture contient plusieurs périodes (plusieurs mois), calcule d'abord la consommation mensuelle moyenne, puis extrapole sur 12 mois.
-- Pour la consommation : si elle n'est pas explicitement annuelle, extrapole aussi sur 12 mois.
-- N'extrais JAMAIS un montant mensuel ou bimestriel comme si c'était un montant annuel.
+⚠️ RÈGLE CRITIQUE — NE PAS ANNUALISER TOI-MÊME. Tu donnes les chiffres BRUTS, tels qu'imprimés sur la facture, + le nombre de mois. L'annualisation est faite APRÈS toi (côté serveur), de façon cohérente. Ton seul job : lire les vrais chiffres.
+- billing_months = nombre de mois couverts, calculé depuis les DATES de la période de CONSOMMATION (ex : "du 07/03/2026 au 06/05/2026" = 2 mois ; "du 16/03 au 15/04" = 1 mois). Sois précis, ne mets pas 1 par défaut.
+- total_ttc_bill / total_ht_bill = les montants TOTAUX EXACTS imprimés sur CETTE facture (ex : "Total TTC pour ce site", "Total Hors TVA pour ce site"), tels quels, SANS multiplier.
+- consumption_bill_kwh = la consommation EXACTE facturée sur cette période, en kWh (somme des kWh de toutes les plages), SANS extrapoler.
+- Les parts d'acheminement, accise, CTA : donne aussi les montants BRUTS de la facture (…_bill_ht), sans annualiser.
+- Les prix unitaires (€/MWh) ne s'annualisent pas — donne-les tels quels.
 
 Réponds UNIQUEMENT avec le JSON, sans texte avant ou après :
 
@@ -109,8 +108,15 @@ Réponds UNIQUEMENT avec le JSON, sans texte avant ou après :
   "contract_type": "ex: MU4, CU4, C4-LU, T2, T3, Tarif Bleu, HC/HP, Base, etc.",
   "segment": "c5_mu4" ou "c5_cu4" ou "c4_lu" ou "c5_hta" ou "t2_p12" ou "t3" ou null,
   "power_kva": puissance souscrite en kVA (nombre seul),
-  "billing_months": nombre de mois couverts par la facture (ex: 1, 2, 3, 12),
-  "annual_consumption_mwh": consommation annuelle en MWh (ANNUALISÉE si besoin),
+  "billing_months": nombre de mois couverts par la facture, calculé depuis les dates de conso (ex: 1, 2, 3, 12),
+  "consumption_bill_kwh": consommation EXACTE facturée sur la période, en kWh (BRUT, non annualisé),
+  "total_ttc_bill": total TTC EXACT imprimé sur la facture en € (BRUT, non annualisé),
+  "total_ht_bill": total HT EXACT imprimé sur la facture en € (BRUT, non annualisé),
+  "acheminement_var_bill_ht": (EDF TARIF BLEU / TRV) part VARIABLE de l'acheminement en € imprimée sur la facture (BRUT), null sinon,
+  "acheminement_fixe_bill_ht": (EDF TARIF BLEU / TRV) part FIXE de l'acheminement en € imprimée sur la facture (BRUT), null sinon,
+  "accise_bill_ht": montant EXACT de l'accise/électricité imprimé sur la facture en € (BRUT), null sinon,
+  "cta_bill_ht": montant EXACT de la CTA imprimé sur la facture en € (BRUT), null sinon,
+  "annual_consumption_mwh": consommation annuelle en MWh (laisse null si tu ne connais pas l'annuel — le serveur le calcule depuis consumption_bill_kwh × 12/billing_months),
   "price_hph_mwh": prix fourniture HPH en €/MWh HT (hors CEE et capa si facturés séparément),
   "price_hch_mwh": prix fourniture HCH en €/MWh HT,
   "price_hpb_mwh": prix fourniture HPB en €/MWh HT (si différent de HPH),
@@ -370,9 +376,13 @@ function calculateSavings(bill, grid) {
     clientEnergyMwh = hp;
   }
 
-  // Ajouter la capa et CEE si facturés séparément (ex: Vattenfall facture capa hors énergie)
-  // La référence Elga inclut déjà capa+CEE → comparaison juste uniquement si on les ajoute
-  if (clientEnergyMwh) {
+  // TRV (Tarif Bleu EDF) : le prix au kWh INCLUT l'acheminement. Pour comparer l'énergie
+  // seule à une offre de marché, on DÉDUIT la part variable de l'acheminement (lue sur la facture).
+  // Sans ça, le TRV paraît (à tort) plus cher que le marché.
+  if (clientEnergyMwh && bill.est_trv && bill.acheminement_var_annual_ht && consumptionMwh) {
+    clientEnergyMwh -= bill.acheminement_var_annual_ht / consumptionMwh;
+  } else if (clientEnergyMwh && !bill.est_trv) {
+    // Offre de marché : la réf Elga inclut capa+CEE → on les ajoute côté client à périmètre égal.
     if (bill.capa_mwh && bill.capa_mwh > 0.1) clientEnergyMwh += bill.capa_mwh;
     if (bill.cee_mwh  && bill.cee_mwh  > 0.1) clientEnergyMwh += bill.cee_mwh;
   }
@@ -542,12 +552,48 @@ async function handleScan(request, env) {
     }
     return b;
   };
-  fixTaxes(extracted);
+
+  // ── Normalisation : l'IA extrait des chiffres BRUTS (période) ; on annualise NOUS-MÊMES,
+  //    de façon COHÉRENTE. Corrige le bug : conso annualisée mais total non annualisé → tout faux.
+  const normalizeBill = (b) => {
+    if (!b) return b;
+    const num = (x) => (typeof x === 'number' && isFinite(x)) ? x : null;
+    let months = Math.round(num(b.billing_months) || 0);
+    if (!months || months < 1) months = 1;
+    if (months > 12) months = 12;
+    b.billing_months = months;
+    const f = 12 / months;
+
+    // Valeurs brutes imprimées sur la facture → on calcule l'annuel (source de vérité)
+    const ttcBill  = num(b.total_ttc_bill);
+    const htBill   = num(b.total_ht_bill);
+    const consoKwh = num(b.consumption_bill_kwh);
+    if (ttcBill  != null) { b.total_ttc_bill = Math.round(ttcBill);  b.total_ttc_annual = Math.round(ttcBill * f); }
+    if (htBill   != null) { b.total_ht_bill  = Math.round(htBill);   b.total_ht_annual  = Math.round(htBill  * f); }
+    if (consoKwh != null) { b.consumption_bill_kwh = Math.round(consoKwh); b.annual_consumption_mwh = Math.round(consoKwh / 1000 * f * 100) / 100; }
+    if (num(b.acheminement_var_bill_ht)  != null) b.acheminement_var_annual_ht  = Math.round(b.acheminement_var_bill_ht  * f);
+    if (num(b.acheminement_fixe_bill_ht) != null) b.acheminement_fixe_annual_ht = Math.round(b.acheminement_fixe_bill_ht * f);
+    if (num(b.accise_bill_ht) != null) b.accise_annual_ht = Math.round(b.accise_bill_ht * f);
+    if (num(b.cta_bill_ht)    != null) b.cta_annual_ht    = Math.round(b.cta_bill_ht    * f);
+
+    // Filet de COHÉRENCE : le prix TTC tout compris doit être plausible
+    // (élec ~120–450 €/MWh, gaz ~55–180). Si le total est incohérent avec la conso
+    // (ex. total de période gardé mais conso annualisée), on NE MENT PAS : on invalide le total
+    // pour basculer sur une estimation prudente plutôt qu'un chiffre absurde.
+    if (b.annual_consumption_mwh && b.total_ttc_annual) {
+      const perMwh = b.total_ttc_annual / b.annual_consumption_mwh;
+      const lo = b.energy_type === 'gas' ? 45 : 80;
+      if (perMwh < lo) { b._total_incoherent = true; b.total_ttc_annual = null; b.total_ht_annual = null; }
+    }
+    fixTaxes(b);
+    return b;
+  };
+  normalizeBill(extracted);
 
   // ── Facture 2 ÉNERGIES (gaz + élec) : on calcule chaque énergie séparément ──
   if (extracted && extracted.energy_type === 'both' && extracted.electricity && extracted.gas) {
-    const elecE = fixTaxes({ ...extracted.electricity, energy_type: 'electricity' });
-    const gasE  = fixTaxes({ ...extracted.gas, energy_type: 'gas' });
+    const elecE = normalizeBill({ ...extracted.electricity, energy_type: 'electricity', billing_months: extracted.electricity.billing_months || extracted.billing_months });
+    const gasE  = normalizeBill({ ...extracted.gas, energy_type: 'gas', billing_months: extracted.gas.billing_months || extracted.billing_months });
     return jsonResponse({
       multi: true,
       energies: {
