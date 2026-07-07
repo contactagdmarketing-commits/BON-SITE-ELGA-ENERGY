@@ -108,7 +108,8 @@
   .reccards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:28px}
   .reccard{border:1px solid var(--line);border-radius:16px;background:#fff;padding:22px}
   .reccard h3{font-size:19px;margin-top:12px} .reccard p{color:var(--ink-soft);font-size:14px;margin-top:8px;line-height:1.55} .reccard b{color:var(--ink)}
-  .reccard.hero{background:linear-gradient(180deg,var(--green-soft),#fff);border-color:#cfe7da}
+  .reccard.hero{background:linear-gradient(160deg,var(--green-soft),#fff 85%);border-color:#cfe7da;box-shadow:0 10px 30px -20px rgba(13,122,82,.45)}
+  .reccard .recfoot{margin-top:12px;font-size:13px;font-weight:600;color:var(--green-deep)}
   .recstats{display:flex;gap:20px;margin-top:14px;flex-wrap:wrap}
   .recstats .n{font-family:var(--serif);font-size:26px;color:var(--green-deep);display:block;line-height:1}
   .recstats small{font-size:11.5px;color:var(--ink-soft);display:block;margin-top:3px;max-width:16ch}
@@ -321,19 +322,19 @@
       Voir le bilan d'origine</button></div>
     <div class="hint reveal"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v.01M11 12h1v4h1"/></svg>Chargez un bilan au démarrage pour remplir ce tableau avec vos vraies données. Sinon, exemple C5.</div>
     <p class="src reveal">Sources : <a href="https://www.cre.fr/documents/open-data/historique-des-tarifs-reglementes-de-vente-delectricite-pour-les-consommateurs-residentiels.html" target="_blank" rel="noopener">CRE, tarifs réglementés</a> · projection fin ARENH, UFC-Que Choisir (+19 %).</p>
-  </div>
-</section>
 
-<!-- CONCLUSION -->
-<section>
-  <div class="wrap">
-    <div class="eyebrow reveal">En résumé</div>
-    <h2 class="sec reveal">Trois leviers, une seule mission : votre budget maîtrisé.</h2>
-    <div class="reccards reveal">
-      <div class="reccard"><div class="pill-ic">⚖️</div><h3>Négociation</h3><p>Appel d'offres auprès de <b>32 fournisseurs</b>. Un prix protégé, <b>fixe</b>.</p></div>
-      <div class="reccard"><div class="pill-ic">🛡️</div><h3>Gestion</h3><p>Espace client, <b>suivi des factures</b>, alertes prix en continu.</p></div>
-      <div class="reccard hero"><div class="pill-ic">🔄</div><h3>Renouvellement</h3>
-        <div class="recstats"><div><span class="n tnum">89 %</span><small>renouvellent avec nous</small></div><div><span class="n tnum">14,2 %</span><small>d'économie moyenne / renouvellement</small></div></div>
+    <div class="reveal" style="margin-top:36px">
+      <div class="eyebrow">En résumé</div>
+      <h3 style="font-family:var(--serif);font-size:clamp(20px,2.8vw,26px);letter-spacing:-.02em;margin-top:2px">Ce qu'on fait pour vous, sur trois leviers.</h3>
+      <div class="reccards" style="margin-top:20px">
+        <div class="reccard hero"><div class="pill-ic">⚖️</div><h3>Négociation</h3>
+          <div class="recstats"><div><span class="n tnum">32</span><small>fournisseurs mis en concurrence, à la même marge</small></div></div>
+          <p class="recfoot">Un prix protégé, fixe.</p></div>
+        <div class="reccard hero"><div class="pill-ic">🛡️</div><h3>Gestion &amp; suivi</h3>
+          <div class="recstats"><div><span class="n tnum">24/7</span><small>espace client, suivi des factures, alertes prix</small></div></div>
+          <p class="recfoot">On surveille le marché à votre place.</p></div>
+        <div class="reccard hero"><div class="pill-ic">🔄</div><h3>Renouvellement</h3>
+          <div class="recstats"><div><span class="n tnum">89 %</span><small>renouvellent avec nous</small></div><div><span class="n tnum">14,2 %</span><small>d'économie moyenne / renouvellement</small></div></div></div>
       </div>
     </div>
   </div>
