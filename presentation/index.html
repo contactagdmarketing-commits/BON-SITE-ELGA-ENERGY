@@ -62,9 +62,11 @@
 
   /* flip card */
   .flip{margin-top:26px;perspective:1600px;cursor:pointer}
-  .flip-inner{position:relative;transition:transform .75s cubic-bezier(.2,.85,.25,1);transform-style:preserve-3d;min-height:390px}
+  .flip-inner{position:relative;transition:transform .75s cubic-bezier(.2,.85,.25,1);transform-style:preserve-3d;min-height:420px}
   .flip.flipped .flip-inner{transform:rotateY(180deg)}
-  .flip-face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border:1px solid var(--line);border-radius:18px;background:#fff;padding:22px 22px 12px;overflow:hidden}
+  .flip-face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border:1px solid var(--line);border-radius:18px;background:#fff;padding:20px 20px 10px;overflow:hidden}
+  .flip-face #trvChart svg,.flip-face #grosChart svg{width:100%;height:320px;display:block}
+  @media(max-width:640px){.flip-inner{min-height:340px}.flip-face #trvChart svg,.flip-face #grosChart svg{height:250px}}
   .flip-face.back{transform:rotateY(180deg)}
   .flip-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
   .flip .cap{font-family:var(--serif);font-size:19px} .flip .capsub{font-size:13px;color:var(--mut);margin:2px 0 8px}
@@ -244,9 +246,13 @@
   <div class="wrap">
     <div class="eyebrow reveal">Votre bilan comparatif</div>
     <h2 class="sec reveal">Une seule chose se négocie : l'énergie.</h2>
-    <p class="sub reveal">L'acheminement et les taxes sont identiques chez tous les fournisseurs, et personne n'y peut rien. Le seul vrai levier, c'est le prix du kWh. Cliquez sur n'importe quelle ligne, y compris la vôtre, pour voir ce que ça change sur la durée.</p>
+    <p class="sub reveal">L'acheminement et les taxes sont identiques chez tous les fournisseurs, et personne n'y peut rien. Le seul vrai levier, c'est le prix du kWh. L'écart affiché est la <b>moyenne des économies sur toute la durée du contrat</b>, pas seulement l'écart du jour. Cliquez une ligne, y compris la vôtre, pour le détail année par année.</p>
+    <div class="reveal" style="display:flex;align-items:center;gap:12px;margin-top:20px;flex-wrap:wrap">
+      <span style="font-size:13px;color:var(--mut)">Hausse du marché retenue pour la projection :</span>
+      <div class="seg" id="bilanSeg"><button onclick="setBilanRate(0.06,this)">+6 %/an</button><button onclick="setBilanRate(0.07,this)" class="on">+7 %/an</button><button onclick="setBilanRate(0.08,this)">+8 %/an</button></div>
+    </div>
     <div class="bilan reveal">
-      <div class="bhead"><div>Fournisseur</div><div>Engagement</div><div class="r">Énergie/an</div><div class="r">Achem.+taxes</div><div class="r">Total HTVA</div><div class="r">Écart /an</div></div>
+      <div class="bhead"><div>Fournisseur</div><div>Engagement</div><div class="r">Énergie/an</div><div class="r">Achem.+taxes</div><div class="r">Total HTVA</div><div class="r">Éco. moy./an</div></div>
       <div id="rows"></div>
     </div>
     <div class="reveal" style="margin-top:16px"><button id="origBtn" class="btn ghost" style="display:none" onclick="showOriginal()">
@@ -267,12 +273,11 @@ const ini=s=>s[0].toUpperCase();
 
 const FOURN=[['EDF','#fe5716'],['Engie','#0aa1dd'],['TotalEnergies','#e2231a'],['Endesa','#0a3c8c'],['Enovos','#e30613'],['Vattenfall','#f7b500'],['Alpiq','#e2001a'],['Eni','#f9c000'],['Alterna','#3aa935'],['Ekwateur','#00b3a4'],['+ 22 autres','#75837e']];
 const ACH=2150,TAXES=1727; let AT=ACH+TAXES;
-let REF={nom:'Votre contrat actuel',energie:6008,kwh:110.4,total:0}; REF.total=REF.energie+AT;
+let REF={nom:'Vattenfall — actuel',energie:6008,kwh:110.5,total:0}; REF.total=REF.energie+AT;
 let OFFRES=[
-  {nom:'TotalEnergies',energie:4700,duree:24,color:'#e2231a',kwh:86.4},
-  {nom:'Endesa',energie:4932,duree:36,color:'#0a3c8c',kwh:90.7},
-  {nom:'Enovos',energie:5089,duree:48,color:'#e30613',kwh:93.5},
-  {nom:'Engie',energie:6250,duree:48,color:'#0aa1dd',kwh:114.9},
+  {nom:'Telecom Énergie',energie:4932,duree:36,color:'#e2231a',kwh:90.7},
+  {nom:'ELMY',energie:5022,duree:37,color:'#3aa935',kwh:92.3},
+  {nom:'ENGIE',energie:5089,duree:36,color:'#0aa1dd',kwh:93.6},
 ].map(o=>({...o,total:o.energie+AT}));
 let RATE=0.07;
 const WORKER='https://elga-scanner.edhy-delaprez.workers.dev';
@@ -364,15 +369,17 @@ function togglePillar(p){const cards=document.querySelectorAll('.pill-card'),det
   if(p===2){const rc=document.getElementById('riskChart');if(rc)drawRisk(rc);}
   setTimeout(()=>det.scrollIntoView({behavior:'smooth',block:'nearest'}),120);}
 
-/* bilan */
+/* bilan — écart affiché = MOYENNE des économies sur la durée du contrat (énergie, +RATE/an) */
+function avgSaving(o){const years=Math.max(1,Math.round(o.duree/12));let s=0;for(let y=1;y<=years;y++)s+=REF.energie*Math.pow(1+RATE,y)-o.energie;return s/years;}
+function setBilanRate(r,btn){RATE=r;document.querySelectorAll('#bilanSeg button').forEach(b=>b.classList.remove('on'));btn.classList.add('on');renderRows();}
 function renderRows(){
   let h=`<div class="brow ref" onclick="openSheet(-1)"><div class="fourn"><div class="fmark" style="background:#75837e">V</div><div><div class="fname">${REF.nom}</div><div class="fsub tnum">${REF.kwh} €/MWh · à renouveler</div></div></div>
     <div class="cell"><span class="pill evo">actuel</span></div><div class="cell r tnum">${euro(REF.energie)}</div><div class="cell r tnum">${euro(AT)}</div><div class="total-c total r tnum">${euro(REF.total)}</div><div class="ec-c ecart r muted">référence</div>
     <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></div>`;
-  OFFRES.forEach((o,k)=>{const eco=REF.energie-o.energie;
+  OFFRES.forEach((o,k)=>{const eco=avgSaving(o);
     h+=`<div class="brow" data-k="${k}" onclick="openSheet(${k})"><div class="fourn"><div class="fmark" style="background:${o.color}">${ini(o.nom)}</div><div><div class="fname">${o.nom}</div><div class="fsub tnum">${o.kwh} €/MWh HT</div></div></div>
       <div class="cell"><span class="pill fixe">Fixe ${o.duree} mois</span></div><div class="cell r tnum">${euro(o.energie)}</div><div class="cell r tnum">${euro(AT)}</div><div class="total-c total r tnum">${euro(o.total)}</div>
-      <div class="ec-c ecart ${eco>=0?'pos':'neg'} r">${eco>=0?'−':'+'}${euro(Math.abs(eco))}/an</div>
+      <div class="ec-c ecart ${eco>=0?'pos':'neg'} r">${eco>=0?'−':'+'}${euro(Math.abs(eco))}<small style="font-weight:400;color:var(--mut);display:block;font-size:10.5px">/an moy. · ${o.duree}m</small></div>
       <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></div>`;});
   document.getElementById('rows').innerHTML=h;
 }
