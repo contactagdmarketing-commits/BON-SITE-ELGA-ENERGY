@@ -3,8 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Bilan comparatif — Elga Energy</title>
+<title>Présentation Elga Energy — R2</title>
 <meta name="robots" content="noindex">
+<link rel="icon" href="/assets/logos/favicon-32.png" sizes="any">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -14,400 +15,537 @@
     --line:#e7ece9; --line-strong:#d3dbd7;
     --bg:#ffffff; --panel:#fbfcfb; --panel-2:#f3f6f4;
     --green:#0d7a52; --green-deep:#0a5c3e; --green-soft:#e8f4ee;
-    --blue:#123a7a; --amber:#a86a12; --rose:#b23a3a; --rose-soft:#fbeeee;
-    --r:14px; --z-modal:60; --z-load:90;
+    --blue:#123a7a; --amber:#a86a12; --rose:#c0392b; --rose-soft:#fbeeee;
+    --r:14px;
     --sans:'Inter',system-ui,sans-serif; --serif:'Fraunces',Georgia,serif;
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html{scroll-behavior:smooth}
   body{font-family:var(--sans);color:var(--ink);background:var(--bg);-webkit-font-smoothing:antialiased;line-height:1.55;font-size:15px}
-  h1,h2,h3{font-family:var(--serif);font-weight:500;letter-spacing:-0.02em;line-height:1.08;text-wrap:balance}
+  h1,h2,h3{font-family:var(--serif);font-weight:500;letter-spacing:-0.02em;line-height:1.1;text-wrap:balance}
   .tnum{font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
-  .wrap{max-width:1080px;margin:0 auto;padding:0 24px}
-  a{color:inherit}
+  .wrap{max-width:1060px;margin:0 auto;padding:0 24px}
   button{font-family:inherit;cursor:pointer}
+  a{color:inherit}
 
-  /* Chargement */
-  #load{position:fixed;inset:0;z-index:var(--z-load);background:var(--bg);display:flex;align-items:center;justify-content:center;transition:opacity .6s ease,visibility .6s}
+  /* Entrée / scanner */
+  #load{position:fixed;inset:0;z-index:90;background:var(--bg);display:flex;align-items:center;justify-content:center;transition:opacity .6s,visibility .6s}
   #load.gone{opacity:0;visibility:hidden}
-  .load-in{width:min(520px,90vw);text-align:center}
-  .load-mark{display:inline-flex;align-items:center;gap:10px;margin-bottom:34px}
-  .load-mark svg{width:34px;height:34px}
-  .load-mark span{font-weight:700;letter-spacing:.14em;font-size:13px;color:var(--ink-soft)}
-  .scan{position:relative;height:3px;border-radius:3px;background:var(--panel-2);overflow:hidden;margin:0 auto 30px}
-  .scan i{position:absolute;inset:0;width:38%;border-radius:3px;background:linear-gradient(90deg,transparent,var(--green),transparent);animation:scan 1.15s cubic-bezier(.5,0,.5,1) infinite}
-  @keyframes scan{0%{left:-40%}100%{left:102%}}
-  .load-title{font-family:var(--serif);font-size:26px;margin-bottom:8px}
-  .load-sub{color:var(--mut);font-size:14px;margin-bottom:26px}
-  .steps{text-align:left;max-width:340px;margin:0 auto;display:flex;flex-direction:column;gap:11px}
+  .load-in{width:min(540px,92vw);text-align:center}
+  .load-logo{height:34px;margin:0 auto 30px;display:block}
+  .drop{border:1.5px dashed var(--line-strong);border-radius:18px;padding:28px 22px;background:var(--panel);transition:border-color .2s,background .2s;cursor:pointer}
+  .drop:hover,.drop.hot{border-color:var(--green);background:var(--green-soft)}
+  .drop .ic{width:40px;height:40px;margin:0 auto 12px;color:var(--green)}
+  .drop .t{font-weight:600;font-size:16px}
+  .drop .s{font-size:13px;color:var(--mut);margin-top:4px}
+  .load-title{font-family:var(--serif);font-size:24px;margin-bottom:6px}
+  .load-sub{color:var(--mut);font-size:14px;margin-bottom:22px}
+  .steps{text-align:left;max-width:330px;margin:20px auto 0;display:flex;flex-direction:column;gap:10px}
   .step{display:flex;align-items:center;gap:11px;font-size:13.5px;color:var(--mut);opacity:.4;transition:opacity .4s,color .4s}
   .step.on{opacity:1;color:var(--ink-soft)}
   .step .tick{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--line-strong);display:grid;place-items:center;flex:0 0 auto;transition:.4s;position:relative}
   .step.on .tick{background:var(--green);border-color:var(--green)}
   .step .tick svg{width:11px;height:11px;stroke:#fff;opacity:0;transition:.3s}
   .step.on .tick svg{opacity:1}
-  .step.on .num{opacity:0}
-  .step .num{font-size:10px;color:var(--mut);position:absolute}
-  .reveal-btn{margin-top:34px;opacity:0;transform:translateY(8px);transition:opacity .5s,transform .5s;pointer-events:none}
+  .scan{position:relative;height:3px;border-radius:3px;background:var(--panel-2);overflow:hidden;margin:22px auto 0;max-width:320px;display:none}
+  .scan.go{display:block}
+  .scan i{position:absolute;inset:0;width:38%;border-radius:3px;background:linear-gradient(90deg,transparent,var(--green),transparent);animation:sc 1.15s cubic-bezier(.5,0,.5,1) infinite}
+  @keyframes sc{0%{left:-40%}100%{left:102%}}
+  .reveal-btn{margin-top:26px;opacity:0;transform:translateY(8px);transition:.5s;pointer-events:none}
   .reveal-btn.show{opacity:1;transform:none;pointer-events:auto}
+  .skip{margin-top:16px;font-size:13px;color:var(--mut);background:none;border:none;text-decoration:underline;text-underline-offset:2px}
   .btn{display:inline-flex;align-items:center;gap:10px;background:var(--green);color:#fff;border:none;border-radius:999px;padding:15px 30px;font-weight:600;font-size:15px;transition:background .2s,transform .15s}
-  .btn:hover{background:var(--green-deep)}
-  .btn:active{transform:scale(.98)}
+  .btn:hover{background:var(--green-deep)} .btn:active{transform:scale(.98)}
   .btn svg{width:17px;height:17px}
 
-  /* En-tête */
-  .topbar{position:sticky;top:0;z-index:40;background:rgba(255,255,255,.86);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
-  .topbar .wrap{display:flex;align-items:center;justify-content:space-between;height:60px}
-  .logo{display:flex;align-items:center;gap:9px;font-weight:700;letter-spacing:.02em}
-  .logo svg{width:26px;height:26px}
+  /* Topbar */
+  .topbar{position:sticky;top:0;z-index:40;background:rgba(255,255,255,.88);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+  .topbar .wrap{display:flex;align-items:center;justify-content:space-between;height:58px}
+  .topbar img{height:26px}
   .topbar .meta{font-size:12.5px;color:var(--mut)}
 
-  section{padding:56px 0}
-  .eyebrow{font-size:12px;font-weight:600;letter-spacing:.02em;color:var(--green);margin-bottom:14px}
-  .lead{font-size:clamp(28px,4.4vw,44px)}
-  .sub{color:var(--ink-soft);font-size:17px;max-width:60ch;margin-top:16px;line-height:1.6}
+  section{padding:60px 0;border-bottom:1px solid var(--line)}
+  .eyebrow{font-size:12px;font-weight:600;color:var(--green);margin-bottom:14px}
+  .lead{font-size:clamp(27px,4.2vw,42px)}
+  h2.sec{font-size:clamp(24px,3.4vw,34px)}
+  .sub{color:var(--ink-soft);font-size:17px;max-width:62ch;margin-top:16px;line-height:1.6}
+  .muted{color:var(--mut)}
 
-  .siteband{display:flex;flex-wrap:wrap;gap:14px;margin-top:30px}
-  .fact{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:14px 18px;flex:1;min-width:150px}
-  .fact .k{font-size:11.5px;color:var(--mut);text-transform:uppercase;letter-spacing:.05em}
-  .fact .v{font-size:20px;font-weight:600;margin-top:3px}
+  .grid3{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-top:30px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:22px}
+  .card .lv{font-size:11.5px;font-weight:700;letter-spacing:.06em;color:var(--green)}
+  .card h3{font-size:20px;margin-top:6px}
+  .card p{color:var(--ink-soft);font-size:14px;margin-top:8px;line-height:1.55}
+  .card.hero-lv{background:linear-gradient(180deg,var(--green-soft),#fff);border-color:#cfe7da}
 
-  /* Tableau bilan */
-  .bilan{margin-top:8px;border:1px solid var(--line);border-radius:18px;overflow:hidden;background:#fff}
-  .bilan-head{display:grid;grid-template-columns:1.7fr .9fr .8fr .8fr .9fr 1fr;gap:8px;padding:13px 20px;background:var(--panel-2);font-size:11px;font-weight:600;letter-spacing:.03em;text-transform:uppercase;color:var(--mut)}
-  .bilan-head .r,.row .r{text-align:right}
-  .row{display:grid;grid-template-columns:1.7fr .9fr .8fr .8fr .9fr 1fr;gap:8px;padding:16px 20px;border-top:1px solid var(--line);align-items:center;cursor:pointer;transition:background .15s;position:relative}
-  .row:hover{background:var(--panel)}
-  .row.sel{background:var(--green-soft)}
-  .row.ref,.row.ref:hover{background:#fff;cursor:default}
+  .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}
+  .flogo{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:#fff;border-radius:10px;padding:7px 13px;font-weight:600;font-size:13.5px}
+  .fdot{width:9px;height:9px;border-radius:50%}
+
+  .figure{margin-top:26px;border:1px solid var(--line);border-radius:18px;background:#fff;padding:22px 22px 12px;overflow:hidden}
+  .figure .cap{font-family:var(--serif);font-size:19px;margin-bottom:2px}
+  .figure .capsub{font-size:13px;color:var(--mut);margin-bottom:12px}
+  .annot{font-size:11px;fill:var(--mut)}
+  .axis{font-size:11px;fill:var(--mut)}
+
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-top:20px}
+  @media(max-width:760px){.two{grid-template-columns:1fr}}
+  .mini{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:16px 18px}
+  .mini .h{display:flex;align-items:center;gap:10px;font-weight:600;font-size:15px}
+  .mini .ic{width:30px;height:30px;border-radius:8px;background:var(--green-soft);color:var(--green-deep);display:grid;place-items:center;flex:0 0 auto}
+  .mini p{color:var(--ink-soft);font-size:13.5px;margin-top:7px;line-height:1.5}
+
+  .statline{display:flex;flex-wrap:wrap;gap:26px;margin-top:26px;padding:20px 24px;background:var(--green-soft);border:1px solid #cfe7da;border-radius:16px}
+  .statline .n{font-family:var(--serif);font-size:32px;color:var(--green-deep);line-height:1}
+  .statline .l{font-size:12.5px;color:var(--ink-soft);margin-top:4px;max-width:26ch}
+
+  /* Projection */
+  .proj-ctrls{display:flex;flex-wrap:wrap;align-items:center;gap:16px;margin-top:26px}
+  .field{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:10px 14px}
+  .field .k{font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.04em}
+  .field .in{display:flex;align-items:baseline;gap:4px}
+  .field input{border:none;background:none;font:600 21px var(--sans);color:var(--ink);width:110px;outline:none;font-variant-numeric:tabular-nums}
+  .field .u{font-size:14px;color:var(--mut)}
+  .seg{display:inline-flex;background:var(--panel);border:1px solid var(--line);border-radius:999px;padding:4px}
+  .seg button{border:none;background:none;padding:7px 15px;border-radius:999px;font-size:13.5px;font-weight:600;color:var(--mut)}
+  .seg button.on{background:var(--green);color:#fff}
+  .seglab{font-size:12px;color:var(--mut);margin-right:2px}
+
+  .projgrid{display:grid;grid-template-columns:1.35fr 1fr;gap:20px;margin-top:24px}
+  @media(max-width:820px){.projgrid{grid-template-columns:1fr}}
+  .ptab{border:1px solid var(--line);border-radius:16px;overflow:hidden;font-size:13.5px}
+  .ptab .tr{display:grid;grid-template-columns:1.3fr repeat(4,1fr);border-top:1px solid var(--line)}
+  .ptab .tr:first-child{border-top:none}
+  .ptab .tr>div{padding:11px 12px;text-align:right}
+  .ptab .tr>div:first-child{text-align:left;color:var(--ink-soft);font-weight:600}
+  .ptab .th{background:var(--panel-2);font-size:11px;text-transform:uppercase;letter-spacing:.03em;color:var(--mut);font-weight:600}
+  .ptab .evo>div{color:var(--rose)}
+  .ptab .fix>div{color:var(--green-deep)}
+  .ptab .eco{background:var(--green-soft);font-weight:700}
+  .ptab .eco>div{color:var(--green-deep)}
+  .globe{margin-top:16px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:18px 22px;background:var(--green);color:#fff;border-radius:16px}
+  .globe .l{font-size:14px;opacity:.92}
+  .globe .v{font-family:var(--serif);font-size:30px}
+
+  /* Bilan */
+  .bilan{margin-top:24px;border:1px solid var(--line);border-radius:18px;overflow:hidden;background:#fff}
+  .bhead,.brow{display:grid;grid-template-columns:1.7fr .9fr .8fr .8fr .9fr 1fr;gap:8px;align-items:center}
+  .bhead{padding:13px 20px;background:var(--panel-2);font-size:11px;font-weight:600;letter-spacing:.03em;text-transform:uppercase;color:var(--mut)}
+  .bhead .r,.brow .r{text-align:right}
+  .brow{padding:15px 20px;border-top:1px solid var(--line);cursor:pointer;transition:background .15s;position:relative}
+  .brow:hover{background:var(--panel)} .brow.sel{background:var(--green-soft)}
+  .brow.ref,.brow.ref:hover{background:#fff;cursor:default}
   .fourn{display:flex;align-items:center;gap:12px;min-width:0}
   .fmark{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;font-weight:700;font-size:13px;color:#fff;flex:0 0 auto}
-  .fname{font-weight:600;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .fmeta{font-size:12px;color:var(--mut)}
+  .fname{font-weight:600;font-size:15px}
+  .fsub{font-size:12px;color:var(--mut)}
   .pill{display:inline-block;font-size:11.5px;font-weight:600;padding:3px 9px;border-radius:999px}
-  .pill.fixe{background:var(--green-soft);color:var(--green-deep)}
-  .pill.evo{background:#fdeede;color:var(--amber)}
+  .pill.fixe{background:var(--green-soft);color:var(--green-deep)} .pill.evo{background:#fdeede;color:var(--amber)}
   .cell{font-size:14px;color:var(--ink-soft)}
-  .total{font-weight:700;font-size:15px}
-  .ecart{font-weight:700;font-size:14px}
-  .ecart.pos{color:var(--green)}
-  .ecart.neg{color:var(--rose)}
-  .chev{position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--mut);opacity:0;transition:.15s}
-  .row:hover .chev{opacity:.6}
-  .hint{font-size:12.5px;color:var(--mut);margin-top:14px;display:flex;align-items:center;gap:7px}
+  .total{font-weight:700;font-size:15px} .ecart{font-weight:700;font-size:14px}
+  .ecart.pos{color:var(--green)} .ecart.neg{color:var(--rose)}
+  .hint{font-size:12.5px;color:var(--mut);margin-top:14px;display:flex;gap:7px;align-items:center}
+  @media(max-width:760px){.bhead{display:none}.brow{grid-template-columns:1fr auto;gap:5px 12px;padding:14px 16px}.brow .cell,.brow .total-c{display:none}.brow .ec-c{grid-column:2;text-align:right}}
 
-  /* Panneau détail */
-  .ov{position:fixed;inset:0;z-index:var(--z-modal);background:rgba(15,26,23,.42);backdrop-filter:blur(3px);display:flex;align-items:flex-end;justify-content:center;opacity:0;visibility:hidden;transition:opacity .3s,visibility .3s}
+  /* Modale détail */
+  .ov{position:fixed;inset:0;z-index:60;background:rgba(15,26,23,.42);backdrop-filter:blur(3px);display:flex;align-items:flex-end;justify-content:center;opacity:0;visibility:hidden;transition:.3s}
   .ov.open{opacity:1;visibility:visible}
-  .sheet{background:#fff;width:min(760px,100%);max-height:92vh;overflow-y:auto;border-radius:20px 20px 0 0;transform:translateY(24px);transition:transform .35s cubic-bezier(.2,.8,.2,1);padding:26px 26px 34px}
+  .sheet{background:#fff;width:min(720px,100%);max-height:92vh;overflow-y:auto;border-radius:20px 20px 0 0;transform:translateY(24px);transition:transform .35s cubic-bezier(.2,.8,.2,1);padding:24px 24px 32px}
   .ov.open .sheet{transform:none}
-  @media(min-width:720px){.ov{align-items:center}.sheet{border-radius:20px;transform:translateY(12px) scale(.99)}}
-  .sheet-top{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:6px}
-  .sheet-x{width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:#fff;display:grid;place-items:center;color:var(--mut)}
-  .sheet-x:hover{background:var(--panel)}
-  .brk{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:18px 0}
-  .brk .b{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:13px 15px}
-  .brk .b .k{font-size:11.5px;color:var(--mut);display:flex;align-items:center;gap:6px}
-  .brk .b .v{font-size:19px;font-weight:600;margin-top:4px}
-  .brk .b .d{font-size:12px;color:var(--mut);margin-top:2px}
-  .proj{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px;margin-top:6px}
-  .proj-h{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:8px}
-  .proj-h .t{font-family:var(--serif);font-size:19px}
-  .seg{display:inline-flex;background:#fff;border:1px solid var(--line);border-radius:999px;padding:3px}
-  .seg button{border:none;background:none;padding:5px 12px;border-radius:999px;font-size:12.5px;font-weight:600;color:var(--mut)}
-  .seg button.on{background:var(--green);color:#fff}
-  .chartwrap{margin-top:16px}
-  .legend{display:flex;gap:18px;font-size:12px;color:var(--ink-soft);margin-bottom:10px;flex-wrap:wrap}
-  .legend i{width:20px;height:3px;border-radius:3px;display:inline-block;vertical-align:middle;margin-right:6px}
-  .verdict{margin-top:18px;padding:16px 18px;border-radius:13px;background:var(--green-soft);border:1px solid #cfe7da}
-  .verdict.warn{background:var(--rose-soft);border-color:#f0d5d5}
-  .verdict .big{font-family:var(--serif);font-size:26px;color:var(--green-deep)}
-  .verdict.warn .big{color:var(--rose)}
-  .verdict p{font-size:13.5px;color:var(--ink-soft);margin-top:4px;line-height:1.55}
-  .verdict b{color:var(--ink)}
+  @media(min-width:720px){.ov{align-items:center}.sheet{border-radius:20px}}
+  .sheet-top{display:flex;align-items:center;justify-content:space-between;gap:14px}
+  .sheet-x{width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:#fff;display:grid;place-items:center;color:var(--mut)}
+  .brk{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}
+  @media(max-width:620px){.brk{grid-template-columns:1fr}}
+  .brk .b{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+  .brk .b .k{font-size:11.5px;color:var(--mut)} .brk .b .v{font-size:18px;font-weight:600;margin-top:3px} .brk .b .d{font-size:12px;color:var(--mut);margin-top:2px}
+  .verdict{margin-top:14px;padding:15px 18px;border-radius:13px;background:var(--green-soft);border:1px solid #cfe7da}
+  .verdict .big{font-family:var(--serif);font-size:25px;color:var(--green-deep)}
+  .verdict p{font-size:13.5px;color:var(--ink-soft);margin-top:4px;line-height:1.5} .verdict b{color:var(--ink)}
 
-  /* Contexte marché */
-  .ctx{background:var(--panel-2);border-top:1px solid var(--line)}
-  .ctxgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-top:28px}
-  .ctxcard{background:#fff;border:1px solid var(--line);border-radius:16px;padding:22px}
-  .ctxcard .n{font-family:var(--serif);font-size:34px;color:var(--green-deep);line-height:1}
-  .ctxcard .l{font-weight:600;margin-top:8px;font-size:15px}
-  .ctxcard p{color:var(--ink-soft);font-size:13.5px;margin-top:6px;line-height:1.55}
-  .src{font-size:12px;color:var(--mut);margin-top:22px;line-height:1.6}
-  .src a{color:var(--green);text-decoration:underline;text-underline-offset:2px}
-
-  .foot{padding:40px 0 60px;text-align:center;color:var(--mut);font-size:13px}
-  .reveal{opacity:0;transform:translateY(14px)}
-  .reveal.in{opacity:1;transform:none;transition:opacity .7s ease,transform .7s cubic-bezier(.2,.8,.2,1)}
-  @media (prefers-reduced-motion:reduce){.reveal,.reveal.in{opacity:1;transform:none;transition:none}.scan i{animation:none;left:0;width:100%;opacity:.5}}
-  @media(max-width:720px){
-    .bilan-head{display:none}
-    .row{grid-template-columns:1fr auto;gap:6px 12px;padding:15px 16px}
-    .row .cell,.row .total-cell{display:none}
-    .row .fourn{grid-column:1}
-    .row .ecart-cell{grid-column:2;text-align:right}
-    .lead{font-size:30px}
-    .brk{grid-template-columns:1fr}
-  }
+  .foot{padding:40px 0 70px;text-align:center;color:var(--mut);font-size:13px;border-bottom:none}
+  .src{font-size:12px;color:var(--mut);margin-top:16px} .src a{color:var(--green);text-decoration:underline;text-underline-offset:2px}
+  .reveal{opacity:0;transform:translateY(14px)} .reveal.in{opacity:1;transform:none;transition:opacity .7s,transform .7s cubic-bezier(.2,.8,.2,1)}
+  @media (prefers-reduced-motion:reduce){.reveal,.reveal.in{opacity:1;transform:none;transition:none}.scan i{animation:none;left:0;width:100%}}
 </style>
 </head>
 <body>
 
-<!-- CHARGEMENT -->
+<!-- ENTRÉE / SCANNER DE BILAN -->
 <div id="load">
   <div class="load-in">
-    <div class="load-mark">
-      <svg viewBox="0 0 32 32" fill="none"><path d="M9 8a8 8 0 100 16M23 24a8 8 0 100-16" stroke="#0d7a52" stroke-width="2.4" stroke-linecap="round"/><path d="M9 8a8 8 0 010 16" stroke="#123a7a" stroke-width="2.4" stroke-linecap="round"/></svg>
-      <span>ELGA ENERGY</span>
-    </div>
-    <div class="scan" style="max-width:300px"><i></i></div>
-    <div class="load-title">Analyse de votre bilan</div>
-    <div class="load-sub">On compare votre facture au marché, en temps réel.</div>
-    <div class="steps" id="steps">
-      <div class="step"><span class="tick"><span class="num">1</span><svg viewBox="0 0 24 24" fill="none" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span>Lecture de votre facture actuelle</div>
-      <div class="step"><span class="tick"><span class="num">2</span><svg viewBox="0 0 24 24" fill="none" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span>Interrogation de 30+ fournisseurs</div>
-      <div class="step"><span class="tick"><span class="num">3</span><svg viewBox="0 0 24 24" fill="none" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span>Projection sur 48 mois (fin de l'ARENH)</div>
-    </div>
-    <div class="reveal-btn" id="revealBtn">
-      <button class="btn" onclick="reveal()">Découvrir votre bilan
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
-      </button>
+    <img src="/assets/logos/elga-energy-logo.png" class="load-logo" alt="Elga Energy">
+    <div id="dropStage">
+      <div class="load-title">On regarde votre situation ensemble</div>
+      <div class="load-sub">Chargez votre bilan comparatif : on le déroule à l'écran.</div>
+      <label class="drop" id="drop">
+        <input type="file" accept="application/pdf,image/*" id="file" hidden>
+        <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5M4 17v2a1 1 0 001 1h14a1 1 0 001-1v-2"/></svg>
+        <div class="t">Déposer le bilan (PDF)</div>
+        <div class="s">ou cliquez pour choisir un fichier</div>
+      </label>
+      <div class="scan" id="scan"><i></i></div>
+      <div class="steps" id="steps">
+        <div class="step"><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span>Lecture du bilan</div>
+        <div class="step"><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span>Comparaison des offres négociées</div>
+        <div class="step"><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span>Projection sur 48 mois (fin de l'ARENH)</div>
+      </div>
+      <div class="reveal-btn" id="revealBtn">
+        <button class="btn" onclick="reveal()">Découvrir votre bilan
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button>
+      </div>
+      <div><button class="skip" onclick="reveal()">Commencer la présentation sans charger</button></div>
     </div>
   </div>
 </div>
 
-<!-- EN-TÊTE -->
+<!-- TOPBAR -->
 <header class="topbar">
   <div class="wrap">
-    <div class="logo">
-      <svg viewBox="0 0 32 32" fill="none"><path d="M9 8a8 8 0 100 16M23 24a8 8 0 100-16" stroke="#0d7a52" stroke-width="2.4" stroke-linecap="round"/><path d="M9 8a8 8 0 010 16" stroke="#123a7a" stroke-width="2.4" stroke-linecap="round"/></svg>
-      <span>Elga Energy</span>
-    </div>
-    <div class="meta tnum">Comparaison des offres · Électricité</div>
+    <img src="/assets/logos/elga-energy-logo.png" alt="Elga Energy">
+    <div class="meta">Présentation · votre budget énergie</div>
   </div>
 </header>
 
-<!-- BILAN -->
+<!-- 1. RÈGLES DU JEU -->
+<section>
+  <div class="wrap">
+    <div class="eyebrow reveal">Avant de commencer</div>
+    <h1 class="lead reveal">On pose les règles du jeu.</h1>
+    <p class="sub reveal">Le métier de courtier, ce n'est pas « trouver un prix ». C'est trois leviers, et deux d'entre eux font toute la différence.</p>
+    <div class="two reveal" style="margin-top:26px">
+      <div class="mini"><div class="h"><span class="ic">1</span>Pas de vente aujourd'hui</div><p>On n'est pas là pour signer un contrat maintenant. On regarde si notre façon de travailler vous correspond.</p></div>
+      <div class="mini"><div class="h"><span class="ic">2</span>La même marge pour tous</div><p>Chaque fournisseur est interrogé à la même marge. C'est le meilleur pour vous qui gagne, pas celui qui nous paie le mieux.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 2. LES 3 LEVIERS -->
+<section>
+  <div class="wrap">
+    <div class="eyebrow reveal">Notre métier</div>
+    <h2 class="sec reveal">Le courtage, c'est trois leviers.</h2>
+    <p class="sub reveal">Le prix n'est que le premier. Les deux autres, personne ne les travaille vraiment.</p>
+    <div class="grid3">
+      <div class="card reveal"><div class="lv">LEVIER 1</div><h3>Négociation</h3><p>Chaque fournisseur, un par un, à la même marge. On compare 30+ offres à votre place.</p></div>
+      <div class="card reveal"><div class="lv">LEVIER 2</div><h3>Gestion &amp; suivi</h3><p>Votre espace, vos factures suivies mois par mois, un agent disponible 24/7.</p></div>
+      <div class="card reveal hero-lv"><div class="lv">LEVIER 3</div><h3>Renouvellement</h3><p>Le plus important, et le plus rentable. On y travaille deux ans à l'avance.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 3. NÉGOCIATION -->
+<section>
+  <div class="wrap">
+    <div class="eyebrow reveal">Levier 1 · Négociation</div>
+    <h2 class="sec reveal">On interroge chaque fournisseur, à la même marge.</h2>
+    <p class="sub reveal">Personne n'est mis en avant parce qu'il nous arrange. Vous, ça vous prendrait 35 heures. Nous, c'est notre métier, chaque jour.</p>
+    <div class="chips reveal" id="fchips"></div>
+    <div class="statline reveal">
+      <div><div class="n tnum">35 h</div><div class="l">le temps qu'il vous faudrait pour tout négocier vous-même</div></div>
+      <div><div class="n tnum">30+</div><div class="l">fournisseurs comparés à chaque bilan</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 4. TRV MONTE — COURBE 2012-2026 -->
+<section>
+  <div class="wrap">
+    <div class="eyebrow reveal">Levier 1 · Pourquoi c'est urgent</div>
+    <h2 class="sec reveal">Le tarif réglementé ne tient pas en place.</h2>
+    <p class="sub reveal">En 14 ans, il a été révisé 21 fois, dans un sens que vous ne contrôlez pas. Il monte, il redescend, mais votre facture, elle, ne profite jamais vraiment des baisses.</p>
+    <div class="figure reveal">
+      <div class="cap">Tarif réglementé de l'électricité, 2012 → 2026</div>
+      <div class="capsub">Prix tout compris, base 100 en 2012 · source CRE</div>
+      <div id="trvChart"></div>
+    </div>
+    <div class="two reveal" style="margin-top:16px">
+      <div class="mini"><div class="h"><span class="ic">↑</span>+83 % sur l'acheminement</div><p>La part réseau de votre facture a pris +83 % depuis 2012. Elle est dans toutes les factures, et ne redescend quasi jamais.</p></div>
+      <div class="mini"><div class="h"><span class="ic">🌾</span>Comme le blé et la farine</div><p>Si le blé baisse sur les marchés, le prix de la farine en rayon, lui, ne baisse pas. Quand la matière première baisse, c'est le vendeur qui garde la marge.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 5. PRIX DE GROS -->
+<section>
+  <div class="wrap">
+    <div class="eyebrow reveal">Ce qui se cache derrière votre prix</div>
+    <h2 class="sec reveal">Le prix de gros, lui, part dans tous les sens.</h2>
+    <p class="sub reveal">C'est le vrai moteur de vos factures. Regardez les 25 dernières années : chaque crise a laissé une cicatrice, et la fin de l'ARENH en 2026 relance la hausse.</p>
+    <div class="figure reveal">
+      <div class="cap">Prix de gros de l'électricité en France (€/MWh)</div>
+      <div class="capsub">Moyenne annuelle du marché · ordre de grandeur</div>
+      <div id="grosChart"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 6. GESTION -->
+<section>
+  <div class="wrap">
+    <div class="eyebrow reveal">Levier 2 · Gestion &amp; suivi</div>
+    <h2 class="sec reveal">La partie dont on est le plus fiers.</h2>
+    <p class="sub reveal">Chaque client a son espace personnel. Tout y est, au même endroit, et un agent qui ne dort jamais.</p>
+    <div class="two reveal">
+      <div class="mini"><div class="h"><span class="ic">📄</span>Votre contrat + les CGV</div><p>Les 20 pages de petites lignes que personne ne lit, mais qui comptent le plus. Toujours à portée de main.</p></div>
+      <div class="mini"><div class="h"><span class="ic">🧾</span>Vos factures, mois par mois</div><p>Au bout de 12 mois, on voit si votre acheminement est bien calibré, et on l'ajuste.</p></div>
+      <div class="mini"><div class="h"><span class="ic">🤖</span>Un agent 24/7</div><p>Une question sur une ligne, une échéance, un engagement ? Réponse immédiate, même à 2 h du matin.</p></div>
+      <div class="mini"><div class="h"><span class="ic">📞</span>Votre conseiller attitré</div><p>Je reste votre interlocuteur. L'agent prend le relais quand je ne peux pas répondre.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- 7. RENOUVELLEMENT -->
+<section>
+  <div class="wrap">
+    <div class="eyebrow reveal">Levier 3 · Renouvellement</div>
+    <h2 class="sec reveal">Le fournisseur vous envoie son offre 15 jours avant la fin.</h2>
+    <p class="sub reveal">À la dernière minute, vous n'avez plus le temps de partir. Vous subissez la reconduction. Ce n'est pas un hasard : c'est calculé. Voici pourquoi.</p>
+    <div class="figure reveal" style="padding:24px">
+      <div class="cap">Un fournisseur, c'est un grossiste. Comme un billet d'avion.</div>
+      <div class="capsub">Il achète vos volumes à l'avance et vous les revend au fil de l'eau.</div>
+      <div class="two" style="margin-top:8px">
+        <div class="mini" style="background:var(--green-soft);border-color:#cfe7da"><div class="h"><span class="ic">🗓️</span>2 ans avant &middot; prix cassé</div><p>Il a tout son temps pour acheter. Zéro risque. Il baisse au maximum.</p></div>
+        <div class="mini" style="background:var(--rose-soft);border-color:#f0d5d5"><div class="h" style="color:var(--rose)"><span class="ic" style="background:#f7d7d3;color:var(--rose)">⏰</span>La veille &middot; prix maximum</div><p>Plus le temps de partir. Il le sait. Il remet toute sa marge.</p></div>
+      </div>
+    </div>
+    <p class="sub reveal" style="margin-top:24px">Nous, on travaille votre renouvellement <b>2 ans à l'avance</b> : des alertes branchées sur les marchés, et dès qu'un prix passe sous le vôtre, on pose une option, comme une pré-commande.</p>
+    <div class="statline reveal">
+      <div><div class="n tnum">15 à 25 %</div><div class="l">d'économie en plus sur nos renouvellements de cet été</div></div>
+      <div><div class="n tnum">90 %</div><div class="l">de nos clients renouvellent avec nous</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- 8. PROJECTION -->
+<section>
+  <div class="wrap">
+    <div class="eyebrow reveal">Bloquer aujourd'hui, ou subir la hausse</div>
+    <h2 class="sec reveal">Votre prix, figé. Le marché, lui, continue de monter.</h2>
+    <p class="sub reveal">On bloque votre prix. Sans nous, il suit le marché, année après année, intérêts composés. La différence, c'est votre économie, et elle se creuse chaque année.</p>
+
+    <div class="proj-ctrls reveal">
+      <div class="field"><div class="k">Votre budget énergie actuel /an</div><div class="in"><input id="budIn" type="text" value="9 885" inputmode="numeric"><span class="u">€</span></div></div>
+      <div><div class="seglab">Hausse annuelle du marché (fin ARENH)</div>
+        <div class="seg" style="margin-top:5px">
+          <button data-r="0.06">+6 %/an</button><button data-r="0.07" class="on">+7 %/an</button><button data-r="0.08">+8 %/an</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="projgrid reveal">
+      <div class="figure" style="margin-top:0">
+        <div style="display:flex;gap:18px;font-size:12.5px;color:var(--ink-soft);margin-bottom:8px;flex-wrap:wrap">
+          <span><span style="display:inline-block;width:20px;height:3px;border-radius:3px;background:var(--rose);vertical-align:middle;margin-right:6px"></span>Sans rien faire (marché)</span>
+          <span><span style="display:inline-block;width:20px;height:3px;border-radius:3px;background:var(--green);vertical-align:middle;margin-right:6px"></span>Prix bloqué avec Elga</span>
+        </div>
+        <div id="projChart"></div>
+      </div>
+      <div>
+        <div class="ptab" id="ptab"></div>
+        <div class="globe"><div class="l">Économie totale sur 4 ans</div><div class="v tnum" id="globe">—</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 9. BILAN COMPARATIF -->
 <section>
   <div class="wrap">
     <div class="eyebrow reveal">Votre bilan comparatif</div>
-    <h1 class="lead reveal">Voici ce que vous payez.<br>Et ce que le marché propose aujourd'hui.</h1>
-    <p class="sub reveal">Chaque offre est négociée à la même marge. Cliquez sur un fournisseur : on projette votre budget sur 4 ans, en tenant compte de la hausse du marché après la fin de l'ARENH.</p>
-
-    <div class="siteband reveal">
-      <div class="fact"><div class="k">Consommation</div><div class="v tnum">54 399 kWh<span style="font-size:13px;color:var(--mut)">/an</span></div></div>
-      <div class="fact"><div class="k">Puissance · segment</div><div class="v">C5 · 24 kVA</div></div>
-      <div class="fact"><div class="k">Ce que vous payez</div><div class="v tnum" id="refTotal">—</div></div>
-      <div class="fact"><div class="k">Meilleure économie /an</div><div class="v tnum" style="color:var(--green)" id="bestEco">—</div></div>
-    </div>
-  </div>
-</section>
-
-<section style="padding-top:0">
-  <div class="wrap">
+    <h2 class="sec reveal">Le prix du jour n'est pas toujours le vrai gagnant.</h2>
+    <p class="sub reveal">Cliquez sur un fournisseur : on projette sur 4 ans. Une offre 48 mois, même un peu plus chère aujourd'hui, peut rapporter plus qu'une 24 mois qui vous ré-expose au marché plus tôt.</p>
     <div class="bilan reveal">
-      <div class="bilan-head">
-        <div>Fournisseur</div><div>Engagement</div><div class="r">Énergie/an</div><div class="r">Achem./an</div><div class="r">Total HTVA</div><div class="r">Écart /an</div>
-      </div>
+      <div class="bhead"><div>Fournisseur</div><div>Engagement</div><div class="r">Énergie/an</div><div class="r">Achem./an</div><div class="r">Total HTVA</div><div class="r">Écart /an</div></div>
       <div id="rows"></div>
     </div>
-    <div class="hint reveal">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v.01M11 12h1v4h1"/></svg>
-      L'offre la moins chère aujourd'hui n'est pas toujours la plus rentable sur 4 ans. Ouvrez chaque offre pour le voir.
-    </div>
+    <div class="hint reveal"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v.01M11 12h1v4h1"/></svg>Exemple, calqué sur un bilan réel C5. On le remplace par votre vrai bilan.</div>
+    <p class="src reveal">Sources : <a href="https://www.cre.fr/documents/open-data/historique-des-tarifs-reglementes-de-vente-delectricite-pour-les-consommateurs-residentiels.html" target="_blank" rel="noopener">CRE, historique des tarifs réglementés</a> · fin de l'ARENH, délibérations CRE 2025-2026.</p>
   </div>
 </section>
 
-<!-- CONTEXTE MARCHÉ -->
-<section class="ctx">
-  <div class="wrap">
-    <div class="eyebrow reveal">Pourquoi bloquer un prix maintenant</div>
-    <h2 class="lead reveal" style="font-size:clamp(24px,3.4vw,34px)">Le prix de l'électricité ne tient pas en place.</h2>
-    <div class="ctxgrid">
-      <div class="ctxcard reveal"><div class="n tnum">21</div><div class="l">révisions en 14 ans</div><p>Le tarif réglementé a changé environ une fois tous les 8 mois, dans un sens que vous ne contrôlez pas.</p></div>
-      <div class="ctxcard reveal"><div class="n tnum">+83 %</div><div class="l">l'acheminement (réseau)</div><p>La part réseau de votre facture a pris +83 % depuis 2012. Elle est dans toutes les factures, chez tous les fournisseurs, et ne redescend quasi jamais.</p></div>
-      <div class="ctxcard reveal"><div class="n tnum">42 → 70</div><div class="l">€/MWh : fin de l'ARENH</div><p>Depuis janvier 2026, le nucléaire régulé passe de 42 à ~70 €/MWh. Les contrats 2026 se signent 35 à 80 % plus cher. C'est la base de notre projection.</p></div>
-    </div>
-    <p class="src reveal">Sources : <a href="https://www.cre.fr/documents/open-data/historique-des-tarifs-reglementes-de-vente-delectricite-pour-les-consommateurs-residentiels.html" target="_blank" rel="noopener">CRE, historique des tarifs réglementés (données ouvertes)</a> · Fin de l'ARENH, délibérations CRE 2025-2026.</p>
-  </div>
-</section>
+<div class="foot">Document confidentiel · Elga Energy · chiffres définitifs calculés sur vos 12 mois réels (Enedis).</div>
 
-<div class="foot">Document confidentiel · établi par Elga Energy · les chiffres définitifs sont calculés sur vos 12 mois réels (données Enedis).</div>
-
-<!-- PANNEAU DÉTAIL -->
-<div class="ov" id="ov" onclick="if(event.target===this)closeSheet()">
-  <div class="sheet" id="sheet"></div>
-</div>
+<div class="ov" id="ov" onclick="if(event.target===this)closeSheet()"><div class="sheet" id="sheet"></div></div>
 
 <script>
-const CONSO = 54.399;
-const HORIZON = 4;
-const ACH = 2150, TAXES = 1727;
-const REF = { nom:'Votre contrat actuel', fournisseur:'Contrat en cours', energie:6008, kwh:110.4, color:'#75837e' };
-REF.total = REF.energie + ACH + TAXES;
-
-const OFFRES = [
-  { nom:'TotalEnergies', energie:4700, duree:24, color:'#e2231a', kwh:86.4 },
-  { nom:'Endesa',        energie:4932, duree:36, color:'#0a3c8c', kwh:90.7 },
-  { nom:'Enovos',        energie:5089, duree:48, color:'#e30613', kwh:93.5 },
-  { nom:'Engie',         energie:6250, duree:48, color:'#0aa1dd', kwh:114.9 },
-].map(o => ({ ...o, total:o.energie+ACH+TAXES }));
-
-let INFLA = 0.07;
 const euro = n => new Intl.NumberFormat('fr-FR',{style:'currency',currency:'EUR',maximumFractionDigits:0}).format(Math.round(n));
 const initiale = s => s[0].toUpperCase();
 
-const refYear = y => REF.total * Math.pow(1+INFLA, y);
-function budget(o){ let s=0; for(let y=0;y<HORIZON;y++){ s += (y < o.duree/12) ? o.total : refYear(y); } return s; }
-function refBudget(){ let s=0; for(let y=0;y<HORIZON;y++) s+=refYear(y); return s; }
+// ── Fournisseurs ──
+const FOURN = [
+  {nom:'EDF', color:'#fe5716'},{nom:'Engie', color:'#0aa1dd'},{nom:'TotalEnergies', color:'#e2231a'},
+  {nom:'Endesa', color:'#0a3c8c'},{nom:'Enovos', color:'#e30613'},{nom:'Vattenfall', color:'#ffda00'},
+  {nom:'Alpiq', color:'#e2001a'},{nom:'+ 10 autres', color:'#75837e'}
+];
+document.getElementById('fchips').innerHTML = FOURN.map(f=>`<span class="flogo"><span class="fdot" style="background:${f.color}"></span>${f.nom}</span>`).join('');
 
-function renderRows(){
-  const rows = document.getElementById('rows');
-  const ecos = OFFRES.map(o => Math.round(REF.total - o.total));
-  document.getElementById('refTotal').textContent = euro(REF.total);
-  document.getElementById('bestEco').textContent = euro(Math.max(...ecos)) + '/an';
-  let html = `<div class="row ref">
-      <div class="fourn"><div class="fmark" style="background:#75837e">${initiale(REF.fournisseur)}</div>
-        <div><div class="fname">${REF.nom}</div><div class="fmeta">Prix actuel · ${REF.kwh} €/MWh</div></div></div>
-      <div class="cell"><span class="pill evo">à renouveler</span></div>
-      <div class="cell r tnum">${euro(REF.energie)}</div>
-      <div class="cell r tnum">${euro(ACH)}</div>
-      <div class="total-cell total r tnum">${euro(REF.total)}</div>
-      <div class="ecart-cell ecart r" style="color:var(--mut)">référence</div>
-    </div>`;
-  OFFRES.forEach((o,k)=>{
-    const eco = REF.total - o.total;
-    html += `<div class="row" data-k="${k}" onclick="openSheet(${k})">
-      <div class="fourn"><div class="fmark" style="background:${o.color}">${initiale(o.nom)}</div>
-        <div><div class="fname">${o.nom}</div><div class="fmeta tnum">${o.kwh} €/MWh HT</div></div></div>
-      <div class="cell"><span class="pill fixe">Fixe ${o.duree} mois</span></div>
-      <div class="cell r tnum">${euro(o.energie)}</div>
-      <div class="cell r tnum">${euro(ACH)}</div>
-      <div class="total-cell total r tnum">${euro(o.total)}</div>
-      <div class="ecart-cell ecart ${eco>=0?'pos':'neg'} r">${eco>=0?'−':'+'}${euro(Math.abs(eco))}/an</div>
-      <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
-    </div>`;
-  });
-  rows.innerHTML = html;
+// ── Données bilan ──
+const ACH=2150, TAXES=1727;
+const REF={ nom:'Votre contrat actuel', energie:6008, kwh:110.4 }; REF.total=REF.energie+ACH+TAXES;
+const OFFRES=[
+  {nom:'TotalEnergies', energie:4700, duree:24, color:'#e2231a', kwh:86.4},
+  {nom:'Endesa',        energie:4932, duree:36, color:'#0a3c8c', kwh:90.7},
+  {nom:'Enovos',        energie:5089, duree:48, color:'#e30613', kwh:93.5},
+  {nom:'Engie',         energie:6250, duree:48, color:'#0aa1dd', kwh:114.9},
+].map(o=>({...o,total:o.energie+ACH+TAXES}));
+
+// ── État projection ──
+let RATE=0.07;
+let BUDGET=9885;
+const HORIZON=4;
+
+// ── Courbe TRV (indice base 100 en 2012, données CRE €/kWh TTC) ──
+const TRV=[ [2012,100],[2013,107],[2014,112],[2015,116],[2016,118],[2017,120],[2018,119],[2019,122],
+  [2020,122],[2021,125],[2022,138],[2023,163],[2024,199],[2025,160],[2026,154] ];
+// ── Prix de gros €/MWh (moyenne annuelle, ordre de grandeur) + annotations ──
+const GROS=[ [2001,20],[2002,22],[2003,30],[2004,28],[2005,46],[2006,49],[2007,41],[2008,69],[2009,43],
+  [2010,47],[2011,49],[2012,47],[2013,43],[2014,35],[2015,38],[2016,37],[2017,45],[2018,50],[2019,39],
+  [2020,32],[2021,109],[2022,276],[2023,97],[2024,58],[2025,72],[2026,80] ];
+const GROS_ANNOT=[ [2008,'Flambée pétrole'],[2009,'Crise financière'],[2020,'Covid'],[2022,'Crise énergie'],[2026,'Fin ARENH'] ];
+
+// ─────────── Graphes SVG (aires + lignes) ───────────
+function lineArea(data, opt){
+  const W=opt.w||660, H=opt.h||230, pl=opt.pl||42, pr=opt.pr||16, pt=18, pb=34;
+  const xs=data.map(d=>d[0]), ys=data.map(d=>d[1]);
+  const minX=Math.min(...xs), maxX=Math.max(...xs);
+  const minY=opt.min!=null?opt.min:0, maxY=(opt.max!=null?opt.max:Math.max(...ys))*1.06;
+  const X=v=>pl+(W-pl-pr)*((v-minX)/(maxX-minX));
+  const Y=v=>H-pb-(H-pt-pb)*((v-minY)/(maxY-minY));
+  const pts=data.map(d=>[X(d[0]),Y(d[1])]);
+  const path=pts.map((p,i)=>`${i?'L':'M'}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ');
+  const area=`${path} L${pts[pts.length-1][0].toFixed(1)},${H-pb} L${pts[0][0].toFixed(1)},${H-pb} Z`;
+  // graduations Y
+  let grid='';
+  const steps=opt.ysteps||4;
+  for(let i=0;i<=steps;i++){ const v=minY+(maxY-minY)*i/steps; const y=Y(v);
+    grid+=`<line x1="${pl}" y1="${y.toFixed(1)}" x2="${W-pr}" y2="${y.toFixed(1)}" stroke="#eef2f0"/>`;
+    grid+=`<text class="axis" x="${pl-8}" y="${(y+3).toFixed(1)}" text-anchor="end">${opt.yfmt?opt.yfmt(v):Math.round(v)}</text>`; }
+  // labels X
+  let xl=''; (opt.xlabels||xs).forEach(xv=>{ xl+=`<text class="axis" x="${X(xv).toFixed(1)}" y="${H-12}" text-anchor="middle">${opt.xfmt?opt.xfmt(xv):xv}</text>`; });
+  return {W,H,path,area,grid,xl,X,Y,pts};
 }
 
-let curK = null;
-function openSheet(k){
-  curK = k;
-  document.querySelectorAll('.row').forEach(r=>r.classList.toggle('sel', r.dataset.k==String(k)));
-  drawSheet();
-  document.getElementById('ov').classList.add('open');
-  document.body.style.overflow='hidden';
+function drawTRV(){
+  const g=lineArea(TRV,{h:230,min:90,max:210,ysteps:4,xlabels:[2012,2015,2018,2021,2024,2026],yfmt:v=>Math.round(v)});
+  const peak=TRV.reduce((m,d)=>d[1]>m[1]?d:m,TRV[0]);
+  document.getElementById('trvChart').innerHTML=`<svg viewBox="0 0 ${g.W} ${g.H}" width="100%" style="display:block">
+    <defs><linearGradient id="tg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#0d7a52" stop-opacity=".16"/><stop offset="1" stop-color="#0d7a52" stop-opacity="0"/></linearGradient></defs>
+    ${g.grid}<path d="${g.area}" fill="url(#tg)"/><path d="${g.path}" fill="none" stroke="#0d7a52" stroke-width="2.6" stroke-linejoin="round"/>
+    ${g.pts.map((p,i)=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="${TRV[i][0]===peak[0]?4.5:2.6}" fill="${TRV[i][0]===peak[0]?'#c0392b':'#0d7a52'}"/>`).join('')}
+    <text class="annot" x="${g.X(peak[0]).toFixed(1)}" y="${(g.Y(peak[1])-10).toFixed(1)}" text-anchor="middle" fill="#c0392b">pic 2024 · doublé</text>
+  </svg>`;
 }
-function closeSheet(){ document.getElementById('ov').classList.remove('open'); document.body.style.overflow=''; document.querySelectorAll('.row').forEach(r=>r.classList.remove('sel')); }
-function setInfla(v,btn){ INFLA=v; btn.parentNode.querySelectorAll('button').forEach(b=>b.classList.remove('on')); btn.classList.add('on'); drawSheet(); }
-
-function drawSheet(){
-  const o = OFFRES[curK];
-  const b = budget(o), rb = refBudget(), eco = rb - b;
-  const ecoNow = REF.total - o.total;
-  const win = eco > 0;
-  document.getElementById('sheet').innerHTML = `
-    <div class="sheet-top">
-      <div style="display:flex;align-items:center;gap:13px">
-        <div class="fmark" style="width:42px;height:42px;background:${o.color};font-size:16px">${initiale(o.nom)}</div>
-        <div><div style="font-family:var(--serif);font-size:22px">${o.nom}</div>
-        <div style="font-size:13px;color:var(--mut)">Prix fixe garanti ${o.duree} mois</div></div>
-      </div>
-      <button class="sheet-x" onclick="closeSheet()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
-    </div>
-
-    <div class="brk">
-      <div class="b"><div class="k">⚡ Énergie (fourniture)</div><div class="v tnum">${o.kwh} €/MWh</div><div class="d tnum">${euro(o.energie)}/an · vous : ${REF.kwh} €/MWh</div></div>
-      <div class="b"><div class="k">🔌 Acheminement (réseau)</div><div class="v tnum">${euro(ACH)}/an</div><div class="d">Régulé (TURPE) · identique partout</div></div>
-      <div class="b"><div class="k">🧾 Taxes (accise, CTA)</div><div class="v tnum">${euro(TAXES)}/an</div><div class="d">Identiques chez tous les fournisseurs</div></div>
-      <div class="b"><div class="k">Σ Total facturé</div><div class="v tnum">${euro(o.total)}/an</div><div class="d">${ecoNow>=0?'−'+euro(ecoNow)+" vs aujourd'hui":'+'+euro(-ecoNow)+" vs aujourd'hui"}</div></div>
-    </div>
-
-    <div class="proj">
-      <div class="proj-h">
-        <div class="t">Projection sur ${HORIZON} ans</div>
-        <div class="seg">
-          <button onclick="setInfla(0.06,this)" class="${INFLA===0.06?'on':''}">+6 %/an</button>
-          <button onclick="setInfla(0.07,this)" class="${INFLA===0.07?'on':''}">+7 %/an</button>
-          <button onclick="setInfla(0.08,this)" class="${INFLA===0.08?'on':''}">+8 %/an</button>
-        </div>
-      </div>
-      <div class="legend" style="margin-top:14px">
-        <span><i style="background:#c0392b"></i>Sans rien faire (marché)</span>
-        <span><i style="background:#0d7a52"></i>${o.nom} (fixe ${o.duree} mois)</span>
-      </div>
-      <div class="chartwrap" id="chart"></div>
-      <div class="verdict ${win?'':'warn'}">
-        <div class="big tnum">${win?euro(eco):'+'+euro(-eco)} <span style="font-size:14px;font-family:var(--sans);color:var(--mut)">${win?'économisés sur '+HORIZON+' ans':'de plus sur '+HORIZON+' ans'}</span></div>
-        <p>${verdictText(o,eco,win)}</p>
-      </div>
-    </div>`;
-  drawChart(o);
-}
-
-function verdictText(o,eco,win){
-  const cheapest = OFFRES.reduce((m,x)=>x.total<m.total?x:m, OFFRES[0]);
-  if(win){
-    let t = `Sur ${HORIZON} ans, cette offre vous fait économiser <b>${euro(eco)}</b> face au « sans rien faire », si le marché monte de +${Math.round(INFLA*100)} %/an.`;
-    if(o.duree>=48 && o.total>cheapest.total){
-      const diff = Math.round(budget(cheapest) - budget(o));
-      if(diff>0) t += ` Elle est un peu plus chère que ${cheapest.nom} aujourd'hui, mais son prix reste bloqué ${o.duree} mois : sur la durée elle rapporte <b>${euro(diff)} de plus</b> que le ${cheapest.duree} mois, qui vous ré-expose au marché plus tôt.`;
-    }
-    return t;
-  }
-  return `À ce prix, l'économie immédiate est faible. L'intérêt, c'est la <b>sécurité</b> : votre budget reste bloqué ${o.duree} mois pendant que le marché monte de +${Math.round(INFLA*100)} %/an.`;
-}
-
-function drawChart(o){
-  const OFF='#0d7a52';
-  const W=680,H=210,pad=34;
-  const years=[]; for(let y=0;y<HORIZON;y++) years.push(y);
-  const refPts = years.map(y=>refYear(y));
-  const offPts = years.map(y=> (y<o.duree/12)?o.total:refYear(y));
-  const maxV = Math.max(...refPts,...offPts)*1.08;
-  const x = y => pad + (W-2*pad)*(y/(HORIZON-1));
-  const yv = v => H-pad - (H-2*pad)*(v/maxV);
-  const line = pts => pts.map((v,i)=>`${i?'L':'M'}${x(i).toFixed(1)},${yv(v).toFixed(1)}`).join(' ');
-  const area = pts => `${line(pts)} L${x(HORIZON-1).toFixed(1)},${(H-pad)} L${x(0).toFixed(1)},${(H-pad)} Z`;
-  const lbl = years.map(y=>`<text x="${x(y).toFixed(1)}" y="${H-12}" text-anchor="middle" font-size="11" fill="#75837e">An ${y+1}</text>`).join('');
-  document.getElementById('chart').innerHTML = `
-  <svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block">
-    <defs>
-      <linearGradient id="gr" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#c0392b" stop-opacity=".14"/><stop offset="1" stop-color="#c0392b" stop-opacity="0"/></linearGradient>
-      <linearGradient id="go" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="${OFF}" stop-opacity=".16"/><stop offset="1" stop-color="${OFF}" stop-opacity="0"/></linearGradient>
-    </defs>
-    <path d="${area(refPts)}" fill="url(#gr)"/>
-    <path d="${area(offPts)}" fill="url(#go)"/>
-    <path d="${line(refPts)}" fill="none" stroke="#c0392b" stroke-width="2.5" stroke-linejoin="round"/>
-    <path d="${line(offPts)}" fill="none" stroke="${OFF}" stroke-width="2.5" stroke-linejoin="round"/>
-    ${refPts.map((v,i)=>`<circle cx="${x(i).toFixed(1)}" cy="${yv(v).toFixed(1)}" r="3.4" fill="#c0392b"/>`).join('')}
-    ${offPts.map((v,i)=>`<circle cx="${x(i).toFixed(1)}" cy="${yv(v).toFixed(1)}" r="3.4" fill="${OFF}" stroke="#fff" stroke-width="1.5"/>`).join('')}
-    ${lbl}
+function drawGros(){
+  const g=lineArea(GROS,{h:250,pr:52,min:0,max:290,ysteps:5,xlabels:[2001,2006,2011,2016,2021,2026]});
+  const anlbl=GROS_ANNOT.map(([yr,txt])=>{ const d=GROS.find(x=>x[0]===yr); if(!d)return'';
+    const px=g.X(yr), py=g.Y(d[1]); const up=d[1]<140;
+    return `<circle cx="${px.toFixed(1)}" cy="${py.toFixed(1)}" r="3.4" fill="#c0392b"/><text class="annot" x="${px.toFixed(1)}" y="${(py+(up?-10:18)).toFixed(1)}" text-anchor="middle" fill="#8a5a12">${txt}</text>`;
+  }).join('');
+  document.getElementById('grosChart').innerHTML=`<svg viewBox="0 0 ${g.W} ${g.H}" width="100%" style="display:block">
+    <defs><linearGradient id="gg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#c0392b" stop-opacity=".14"/><stop offset="1" stop-color="#c0392b" stop-opacity="0"/></linearGradient></defs>
+    ${g.grid}<path d="${g.area}" fill="url(#gg)"/><path d="${g.path}" fill="none" stroke="#c0392b" stroke-width="2.4" stroke-linejoin="round"/>${anlbl}
   </svg>`;
 }
 
-function runLoad(){
-  const steps=[...document.querySelectorAll('#steps .step')];
-  let t=450;
-  steps.forEach((s)=>{ setTimeout(()=>s.classList.add('on'), t); t+=820; });
-  setTimeout(()=>document.getElementById('revealBtn').classList.add('show'), t+250);
+// ─────────── Projection ───────────
+function evolY(y){ return BUDGET*Math.pow(1+RATE,y); }   // y=0 -> budget actuel ; y=1..4 monte
+function drawProjection(){
+  // points année 0..4 : évolutif monte, fixe plat
+  const data0=[]; for(let y=0;y<=HORIZON;y++) data0.push([y, evolY(y)]);
+  const fixe=BUDGET;
+  const g=lineArea(data0,{h:250,min:BUDGET*0.9,max:evolY(HORIZON),ysteps:4,
+    xlabels:[0,1,2,3,4], xfmt:v=>v===0?"Auj.":'An '+v, yfmt:v=>Math.round(v/1000)+'k'});
+  const fy=g.Y(fixe);
+  const areaGap=`${g.path} L${g.X(HORIZON).toFixed(1)},${fy.toFixed(1)} L${g.X(0).toFixed(1)},${fy.toFixed(1)} Z`;
+  document.getElementById('projChart').innerHTML=`<svg viewBox="0 0 ${g.W} ${g.H}" width="100%" style="display:block">
+    <defs><linearGradient id="pg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#0d7a52" stop-opacity=".18"/><stop offset="1" stop-color="#0d7a52" stop-opacity=".02"/></linearGradient></defs>
+    ${g.grid}
+    <path d="${areaGap}" fill="url(#pg)"/>
+    <line x1="${g.X(0).toFixed(1)}" y1="${fy.toFixed(1)}" x2="${g.X(HORIZON).toFixed(1)}" y2="${fy.toFixed(1)}" stroke="#0d7a52" stroke-width="2.6"/>
+    <path d="${g.path}" fill="none" stroke="#c0392b" stroke-width="2.6" stroke-linejoin="round"/>
+    ${g.pts.map(p=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3.2" fill="#c0392b"/>`).join('')}
+    <circle cx="${g.X(HORIZON).toFixed(1)}" cy="${fy.toFixed(1)}" r="3.4" fill="#0d7a52"/>
+    <text class="annot" x="${g.X(HORIZON).toFixed(1)}" y="${(fy+16).toFixed(1)}" text-anchor="end" fill="#0a5c3e">bloqué ${euro(fixe)}</text>
+  </svg>`;
+  // table N1..N4
+  let evoRow='',fixRow='',ecoRow=''; let cumul=0;
+  for(let y=1;y<=HORIZON;y++){ const e=evolY(y), eco=e-fixe; cumul+=eco;
+    evoRow+=`<div class="tnum">${euro(e)}</div>`; fixRow+=`<div class="tnum">${euro(fixe)}</div>`; ecoRow+=`<div class="tnum">${euro(eco)}</div>`; }
+  document.getElementById('ptab').innerHTML=`
+    <div class="tr th"><div>Sur 4 ans</div><div>An 1</div><div>An 2</div><div>An 3</div><div>An 4</div></div>
+    <div class="tr evo"><div>Sans rien faire</div>${evoRow}</div>
+    <div class="tr fix"><div>Prix bloqué</div>${fixRow}</div>
+    <div class="tr eco"><div>Économie</div>${ecoRow}</div>`;
+  document.getElementById('globe').textContent=euro(cumul);
 }
-function reveal(){
-  document.getElementById('load').classList.add('gone');
-  document.body.style.overflow='';
-  setTimeout(()=>{const l=document.getElementById('load'); if(l) l.remove();}, 700);
-  observeReveals();
+function setRate(r,btn){ RATE=r; btn.parentNode.querySelectorAll('button').forEach(b=>b.classList.remove('on')); btn.classList.add('on'); drawProjection(); }
+document.querySelectorAll('.seg button').forEach(b=>b.addEventListener('click',()=>setRate(parseFloat(b.dataset.r),b)));
+const budIn=document.getElementById('budIn');
+budIn.addEventListener('input',()=>{ const v=parseInt(budIn.value.replace(/\s/g,'').replace(/[^\d]/g,''))||0; if(v>0){BUDGET=v; drawProjection();} });
+budIn.addEventListener('blur',()=>{ budIn.value=new Intl.NumberFormat('fr-FR').format(BUDGET); });
+
+// ─────────── Bilan (tableau + détail) ───────────
+function renderRows(){
+  let html=`<div class="brow ref">
+    <div class="fourn"><div class="fmark" style="background:#75837e">${initiale('Votre')}</div><div><div class="fname">${REF.nom}</div><div class="fsub tnum">${REF.kwh} €/MWh · à renouveler</div></div></div>
+    <div class="cell"><span class="pill evo">actuel</span></div>
+    <div class="cell r tnum">${euro(REF.energie)}</div><div class="cell r tnum">${euro(ACH)}</div>
+    <div class="total-c total r tnum">${euro(REF.total)}</div><div class="ec-c ecart r muted">référence</div></div>`;
+  OFFRES.forEach((o,k)=>{ const eco=REF.total-o.total;
+    html+=`<div class="brow" data-k="${k}" onclick="openSheet(${k})">
+      <div class="fourn"><div class="fmark" style="background:${o.color}">${initiale(o.nom)}</div><div><div class="fname">${o.nom}</div><div class="fsub tnum">${o.kwh} €/MWh HT</div></div></div>
+      <div class="cell"><span class="pill fixe">Fixe ${o.duree} mois</span></div>
+      <div class="cell r tnum">${euro(o.energie)}</div><div class="cell r tnum">${euro(ACH)}</div>
+      <div class="total-c total r tnum">${euro(o.total)}</div>
+      <div class="ec-c ecart ${eco>=0?'pos':'neg'} r">${eco>=0?'−':'+'}${euro(Math.abs(eco))}/an</div></div>`; });
+  document.getElementById('rows').innerHTML=html;
 }
-function observeReveals(){
-  const io=new IntersectionObserver((es)=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}})},{threshold:.12});
-  document.querySelectorAll('.reveal').forEach((el,i)=>{ el.style.transitionDelay=(Math.min(i,6)*55)+'ms'; io.observe(el); });
+let curK=null;
+function openSheet(k){ curK=k; document.querySelectorAll('.brow').forEach(r=>r.classList.toggle('sel',r.dataset.k==String(k))); drawSheet(); document.getElementById('ov').classList.add('open'); document.body.style.overflow='hidden'; }
+function closeSheet(){ document.getElementById('ov').classList.remove('open'); document.body.style.overflow=''; document.querySelectorAll('.brow').forEach(r=>r.classList.remove('sel')); }
+function budgetOffre(o){ let s=0; for(let y=0;y<HORIZON;y++) s += (y<o.duree/12)?o.total:REF.total*Math.pow(1+RATE,y); return s; }
+function refBudget(){ let s=0; for(let y=0;y<HORIZON;y++) s+=REF.total*Math.pow(1+RATE,y); return s; }
+function drawSheet(){
+  const o=OFFRES[curK]; const eco=refBudget()-budgetOffre(o); const ecoNow=REF.total-o.total; const win=eco>0;
+  const cheapest=OFFRES.reduce((m,x)=>x.total<m.total?x:m,OFFRES[0]);
+  let extra=''; if(o.duree>=48 && o.total>cheapest.total){ const diff=Math.round(budgetOffre(cheapest)-budgetOffre(o)); if(diff>0) extra=` Un peu plus chère que ${cheapest.nom} aujourd'hui, mais bloquée ${o.duree} mois : sur la durée elle rapporte <b>${euro(diff)} de plus</b> que le ${cheapest.duree} mois, qui vous ré-expose au marché plus tôt.`; }
+  document.getElementById('sheet').innerHTML=`
+    <div class="sheet-top"><div style="display:flex;align-items:center;gap:13px">
+      <div class="fmark" style="width:42px;height:42px;background:${o.color};font-size:16px">${initiale(o.nom)}</div>
+      <div><div style="font-family:var(--serif);font-size:22px">${o.nom}</div><div style="font-size:13px;color:var(--mut)">Prix fixe garanti ${o.duree} mois</div></div></div>
+      <button class="sheet-x" onclick="closeSheet()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="brk">
+      <div class="b"><div class="k">⚡ Énergie</div><div class="v tnum">${o.kwh} €/MWh</div><div class="d tnum">vous : ${REF.kwh} €/MWh</div></div>
+      <div class="b"><div class="k">🔌 Acheminement</div><div class="v tnum">${euro(ACH)}/an</div><div class="d">régulé · identique partout</div></div>
+      <div class="b"><div class="k">🧾 Taxes</div><div class="v tnum">${euro(TAXES)}/an</div><div class="d">identiques partout</div></div>
+      <div class="b"><div class="k">Σ Total</div><div class="v tnum">${euro(o.total)}/an</div><div class="d">${ecoNow>=0?'−'+euro(ecoNow):'+'+euro(-ecoNow)} vs aujourd'hui</div></div>
+    </div>
+    <div class="verdict"><div class="big tnum">${euro(eco)} <span style="font-size:14px;font-family:var(--sans);color:var(--mut)">économisés sur 4 ans</span></div>
+      <p>Sur 4 ans, face au « sans rien faire » (marché à +${Math.round(RATE*100)} %/an).${extra}</p></div>`;
 }
 addEventListener('keydown',e=>{ if(e.key==='Escape') closeSheet(); });
 
-renderRows();
+// ─────────── Entrée / scanner ───────────
+const fileInput=document.getElementById('file'), drop=document.getElementById('drop');
+['dragover','dragenter'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('hot');}));
+['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('hot');}));
+drop.addEventListener('drop',e=>{ if(e.dataTransfer.files[0]) startScan(); });
+fileInput.addEventListener('change',()=>{ if(fileInput.files[0]) startScan(); });
+function startScan(){
+  document.querySelector('.load-title').textContent='Analyse de votre bilan';
+  document.querySelector('.load-sub').textContent='On compare vos offres au marché, en temps réel.';
+  drop.style.display='none'; document.getElementById('scan').classList.add('go');
+  const steps=[...document.querySelectorAll('#steps .step')]; let t=500;
+  steps.forEach(s=>{ setTimeout(()=>s.classList.add('on'),t); t+=800; });
+  setTimeout(()=>document.getElementById('revealBtn').classList.add('show'), t+250);
+}
+function reveal(){ document.getElementById('load').classList.add('gone'); document.body.style.overflow=''; setTimeout(()=>{const l=document.getElementById('load'); if(l)l.remove();},700); observeReveals(); }
+function observeReveals(){ const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}}),{threshold:.12});
+  document.querySelectorAll('.reveal').forEach((el,i)=>{ el.style.transitionDelay=(Math.min(i%6,5)*55)+'ms'; io.observe(el); }); }
+
+drawTRV(); drawGros(); drawProjection(); renderRows();
 document.body.style.overflow='hidden';
-runLoad();
 </script>
 </body>
 </html>
