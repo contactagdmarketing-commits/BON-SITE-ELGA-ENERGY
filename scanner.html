@@ -564,7 +564,7 @@
 
     <!-- Delta en grand — héros : économies annuelles -->
     <div class="result-card bg-gradient-to-br from-primary-500 to-secondary-600 rounded-2xl shadow-strong p-7 text-white text-center space-y-2" style="animation-delay:.2s">
-      <p class="text-xs font-semibold text-white/70 uppercase tracking-widest">Économies estimées sur 12 mois</p>
+      <p id="heroLabel" class="text-xs font-semibold text-white/70 uppercase tracking-widest">Économies estimées sur 12 mois</p>
       <p id="resultSavings" class="text-5xl md:text-6xl font-extrabold"></p>
       <p class="text-white/80 text-sm" id="resultSavingsSubline"></p>
       <div class="mt-3 bg-white/20 rounded-full h-2.5 overflow-hidden">
@@ -574,7 +574,7 @@
       <p class="text-xs text-white/50 mt-2">* Projection basée sur votre facture de <span id="resultPeriodMonths"></span>. Votre consommation réelle peut varier selon les saisons</p>
       <!-- Détail mensuel -->
       <div id="annualProjectionBlock" class="mt-3 bg-white/10 rounded-xl px-4 py-2.5 text-center hidden">
-        <p class="text-xs text-white/60">Soit environ <span id="resultSavingsMonthly" class="font-bold text-white/90"></span> par mois sur cette facture</p>
+        <p class="text-xs text-white/60"><span id="monthlyLabelPrefix">Soit environ</span> <span id="resultSavingsMonthly" class="font-bold text-white/90"></span> <span id="monthlyLabelSuffix">par mois sur cette facture</span></p>
       </div>
     </div>
 
@@ -1391,8 +1391,12 @@
       // le TOTAL : (total HT − acheminement complet − taxes − abonnement) / conso.
       var consoT = consoMwhOf(e);
       if (e.total_ht_annual != null && consoT) {
-        var achT = (e.acheminement_var_annual_ht || 0) + (e.acheminement_fixe_annual_ht || 0);
-        if (achT === 0) achT = acheminementOf(e).val || 0;
+        // Sur le Tarif Bleu, l'acheminement FIXE (TURPE part fixe) est intégré à l'abonnement
+        // régulé : le soustraire EN PLUS de l'abonnement le compterait deux fois. On n'isole
+        // donc que l'acheminement VARIABLE (ligne au kWh), pour une énergie pure réaliste.
+        var achT = (e.acheminement_var_annual_ht != null)
+          ? e.acheminement_var_annual_ht
+          : (acheminementOf(e).val || 0) * 0.45;   // repli : ~45 % variable du TURPE estimé
         var taxT = (e.accise_annual_ht || 0) + (e.cta_annual_ht || 0);
         var aboT = (e.subscription_monthly_ht || 0) * 12;
         var pureTrv = (e.total_ht_annual - achT - taxT - aboT) / consoT;
@@ -1430,13 +1434,13 @@
     // 1. Prix de l'énergie (kWh)
     (function () {
       var cli = clientEnergyAvg(e), elga = elgaEnergyAvg(g);
-      // L'économie du levier énergie = VRAI écart (client − Elga) × conso, jamais négatif.
-      // Elle est cohérente avec le détail affiché (fini le chiffre serveur qui contredisait l'écart).
-      var euro = null, dejaBienPlace = false;
+      // Écart réel (client − Elga) × conso. POSITIF = Elga moins cher (économie).
+      // NÉGATIF = Elga plus cher : on l'affiche en SURCOÛT et on le déduit du net (honnêteté totale).
+      var euro = null, surcout = null;
       if (cli != null && elga != null && consoMwh != null) {
         var diffHT = (cli - elga) * consoMwh;
-        if (diffHT > 0) euro = Math.round(diffHT * 1.20);   // → TTC
-        else dejaBienPlace = true;                            // Elga n'est pas moins cher sur l'énergie
+        if (diffHT > 0) euro = Math.round(diffHT * 1.20);        // Elga moins cher → économie TTC
+        else if (diffHT < 0) surcout = Math.round(-diffHT * 1.20); // Elga plus cher → surcoût TTC
       }
       var lines = [];
       if (cli != null) lines.push(['Votre prix énergie (moy.)', mwhStr(cli)]);
@@ -1445,15 +1449,20 @@
       if (euro != null) {
         lines.push(['Écart énergie (HT)', mwhStr(Math.round((cli - elga) * 10) / 10)]);
         lines.push(['≈ Économie énergie (TTC)', formatEuro(euro) + '/an']);
+      } else if (surcout != null) {
+        lines.push(['Écart énergie (HT)', '+' + mwhStr(Math.round((elga - cli) * 10) / 10)]);
+        lines.push(['≈ Surcoût énergie (TTC)', '+' + formatEuro(surcout) + '/an']);
+        lines.push(['Hausse moyenne du Tarif Bleu', '+6,2 %/an (subie)']);
       }
-      var note = dejaBienPlace
-        ? "Bonne nouvelle : votre prix de l'énergie est déjà compétitif. On va chercher les économies ailleurs — abonnement, puissance, taxes."
+      var note = surcout != null
+        ? "Franchement : sur l'énergie seule, Elga est aujourd'hui plus cher — votre Tarif Bleu est très bien placé. MAIS le tarif réglementé augmente en moyenne de +6,2 %/an et vous le subissez. Un prix de marché fixe sécurise votre budget dans la durée, et les économies se font sur l'abonnement et la puissance."
         : isTRV(e)
           ? "Vous êtes au Tarif Réglementé (Tarif Bleu EDF) : l'acheminement est inclus dans le prix. On l'a isolé pour comparer la part énergie seule."
           : "Économie estimée en comparant votre prix au kWh (capacité + CEE compris) à nos offres négociées. Chiffrage précis au bilan via votre conso réelle (Enedis).";
       L.push({ key: 'energie', icon: 'energie', color: 'primary', titre: "Prix de l'énergie (kWh)",
-        euro: euro, checked: euro != null,
-        badge: dejaBienPlace ? 'déjà bien placé' : null,
+        euro: (surcout != null ? -surcout : euro), surcout: surcout != null,
+        checked: (euro != null || surcout != null),
+        badge: surcout != null ? ('+' + formatEuro(surcout) + '/an') : null,
         lines: lines, note: note });
     })();
 
@@ -1552,12 +1561,13 @@
     _levers.forEach(function (lv, i) {
       var c = LEVER_C[lv.color] || LEVER_C.primary;
       var hasEuro = lv.euro != null;
+      var isSurcout = lv.surcout === true;
       var card = document.createElement('div');
-      card.className = 'lever-in rounded-xl border p-4 transition-colors ' + (hasEuro ? 'border-slate-200 bg-white hover:border-primary-300' : 'border-slate-100 bg-slate-50/60');
+      card.className = 'lever-in rounded-xl border p-4 transition-colors ' + (isSurcout ? 'border-red-200 bg-red-50/50' : hasEuro ? 'border-slate-200 bg-white hover:border-primary-300' : 'border-slate-100 bg-slate-50/60');
       card.style.animationDelay = (i * 70) + 'ms';
       card.innerHTML =
         '<div class="flex items-start gap-3">' +
-          '<input type="checkbox" class="lev-cb mt-1 size-4 shrink-0 rounded border-slate-300 text-primary-600 focus:ring-primary-500" ' + (lv.checked ? 'checked' : '') + (hasEuro ? '' : ' disabled') + ' aria-label="Retenir ce levier">' +
+          '<input type="checkbox" class="lev-cb mt-1 size-4 shrink-0 rounded border-slate-300 ' + (isSurcout ? 'text-red-600 focus:ring-red-500' : 'text-primary-600 focus:ring-primary-500') + '" ' + (lv.checked ? 'checked' : '') + ((hasEuro && !isSurcout) ? '' : ' disabled') + ' aria-label="' + (isSurcout ? 'Surcoût toujours compté' : 'Retenir ce levier') + '">' +
           '<div class="size-10 rounded-lg ' + c[0] + ' ' + c[1] + ' flex items-center justify-center shrink-0"><svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="' + (LEVER_ICONS[lv.icon] || LEVER_ICONS.energie) + '"/></svg></div>' +
           '<button type="button" class="lev-toggle flex-1 min-w-0 text-left">' +
             '<div class="flex items-center justify-between gap-2">' +
@@ -1571,7 +1581,13 @@
         '</div>' +
         '<div class="lev-detail hidden mt-3 ml-7 rounded-lg ' + c[2] + ' p-3 space-y-1.5"></div>';
       card.querySelector('.lv-t').textContent = lv.titre;
-      card.querySelector('.lv-b').textContent = hasEuro ? ('≈ ' + formatEuro(lv.euro) + '/an') : (lv.badge || 'à chiffrer');
+      var badgeEl = card.querySelector('.lv-b');
+      if (isSurcout) {
+        badgeEl.textContent = '+' + formatEuro(Math.abs(lv.euro)) + '/an';
+        badgeEl.className = 'lv-b shrink-0 text-sm font-extrabold text-red-600 bg-red-100 rounded-lg px-2.5 py-1 tabular-nums';
+      } else {
+        badgeEl.textContent = hasEuro ? ('≈ ' + formatEuro(lv.euro) + '/an') : (lv.badge || 'à chiffrer');
+      }
       card.querySelector('.lv-d').textContent = lv.note || '';
       // détail du calcul
       var det = card.querySelector('.lev-detail');
@@ -1595,45 +1611,67 @@
 
   // Recalcule le héros (somme des leviers cochés) + sous-titre + jauge + total retenu.
   function recompute() {
-    var total = 0;
-    _levers.forEach(function (lv) { if (lv.checked && lv.euro != null) total += lv.euro; });
+    var total = 0, hasSurcout = false;
+    _levers.forEach(function (lv) {
+      if (lv.surcout) hasSurcout = true;
+      if (lv.checked && lv.euro != null) total += lv.euro;   // le surcoût (euro négatif) se déduit ici
+    });
     var hero = document.getElementById('resultSavings');
-    // Grille chargée : le bandeau = SOMME réelle des leviers (cohérence carte ↔ bandeau).
-    // Grille pas encore chargée : teaser serveur le temps du chiffrage, puis on bascule sur la somme.
-    if (total <= 0 && !_grid && _s && _s.savings_annual) total = Math.round(_s.savings_annual);
-    if (total > 0) countUp(hero, total);
-    else hero.textContent = "Jusqu'à 30%";
+    // Grille pas encore chargée : teaser serveur le temps du chiffrage, puis somme réelle des leviers.
+    // Sauf TRV déjà compétitif (Elga plus cher sur l'énergie) : pas de faux teaser, on attend la grille.
+    if (total <= 0 && !_grid && !hasSurcout && _s && _s.savings_annual && !_s.trv_competitive) total = Math.round(_s.savings_annual);
+    if (_s && _s.trv_competitive) hasSurcout = true;   // recadrage immédiat « sécurisation » dès le pré-chiffrage
+    var netPositive = total > 0;
+    if (netPositive) countUp(hero, total);
+    else { hero.textContent = "Déjà bien placé"; hero.classList.add('text-4xl', 'sm:text-5xl'); }
+
+    // Libellés du héros : « économies » si net positif, « votre situation » si Elga plus cher aujourd'hui.
+    var heroLabel = document.getElementById('heroLabel');
+    if (heroLabel) heroLabel.textContent = netPositive ? 'Économies estimées sur 12 mois' : 'Votre situation aujourd’hui';
+    var mPrefix = document.getElementById('monthlyLabelPrefix'), mSuffix = document.getElementById('monthlyLabelSuffix');
+    if (mPrefix && mSuffix) {
+      if (netPositive) { mPrefix.textContent = 'Soit environ'; mSuffix.textContent = 'par mois sur cette facture'; }
+      else { mPrefix.textContent = 'Elga serait ≈'; mSuffix.textContent = 'plus cher/mois aujourd’hui — mais fixe, pendant que le TRV monte'; }
+    }
 
     var lt = document.getElementById('leviersTotal');
-    if (lt) lt.textContent = total > 0 ? formatEuro(total) + '/an' : '—';
+    if (lt) {
+      lt.textContent = netPositive ? (formatEuro(total) + '/an') : (hasSurcout ? formatEuro(total) + '/an' : '—');
+      lt.className = 'text-lg font-extrabold tabular-nums ' + (netPositive ? 'text-primary-700' : 'text-red-600');
+    }
 
-    // Cohérence arithmétique : « Avec Elga » et le « /mois » suivent le total retenu.
+    // Cohérence arithmétique : « Avec Elga » et le « /mois » suivent le total retenu (net honnête, même négatif).
     if (_clientAnnual != null) {
       var clientPeriod = Math.round(_clientAnnual / 12 * _months);
       var periodSav = Math.round(total / 12 * _months);
       var perMonth = Math.round(total / 12);
-      var elgaPeriod = Math.max(0, clientPeriod - periodSav);
+      var elgaPeriod = clientPeriod - periodSav;   // net négatif → Elga plus cher : on l'affiche honnêtement
       var elgaEl = document.getElementById('resultElgaTotal'); if (elgaEl) elgaEl.textContent = formatEuro(elgaPeriod);
-      var mEl = document.getElementById('resultSavingsMonthly'); if (mEl) mEl.textContent = formatEuro(perMonth);
+      var mEl = document.getElementById('resultSavingsMonthly'); if (mEl) mEl.textContent = formatEuro(Math.abs(perMonth));
     }
 
     var sub = document.getElementById('resultSavingsSubline');
     var clientAnnual = _s ? _s.client_total_annual : null;
+    var gauge = document.getElementById('gaugeBar');
     if (sub) {
-      if (total > 0 && clientAnnual) {
+      if (netPositive && clientAnnual) {
         var pct = Math.min(60, Math.round(total / clientAnnual * 100));
         sub.textContent = 'soit ≈ ' + pct + '% de votre budget — cible ≈ ' + formatEuro(Math.max(0, clientAnnual - total)) + '/an';
-        document.getElementById('gaugeBar').style.width = Math.min(pct * 2.5, 95) + '%';
+        if (gauge) gauge.style.width = Math.min(pct * 2.5, 95) + '%';
+      } else if (hasSurcout) {
+        // Elga plus cher aujourd'hui sur l'énergie : on assume, on mise sur la sécurisation.
+        sub.textContent = "Sur le prix, vous êtes compétitif aujourd'hui. La vraie valeur : sécuriser votre budget — le Tarif Bleu augmente en moyenne de +6,2 %/an. On optimise aussi l'abonnement et la puissance.";
+        if (gauge) gauge.style.width = '18%';
       } else if (_s) {
         sub.textContent = 'soit ' + _s.savings_pct + '%, budget annuel avec Elga : ' + formatEuro(_s.elga_total_annual);
-        document.getElementById('gaugeBar').style.width = Math.min(_s.savings_pct * 2.5, 95) + '%';
+        if (gauge) gauge.style.width = Math.min(_s.savings_pct * 2.5, 95) + '%';
       } else {
         sub.textContent = "d'économies potentielles sur votre budget annuel";
-        document.getElementById('gaugeBar').style.width = '60%';
+        if (gauge) gauge.style.width = '60%';
       }
     }
     var hid = document.getElementById('hiddenSavings');
-    if (hid && total > 0) hid.value = formatEuro(total) + '/an (leviers retenus)';
+    if (hid) hid.value = netPositive ? (formatEuro(total) + '/an (leviers retenus)') : (hasSurcout ? 'Sécurisation (TRV +6,2%/an) · optimisation abo/puissance' : '');
   }
 
   // Détail facture 100% personnalisé — groupé, uniquement les lignes présentes.

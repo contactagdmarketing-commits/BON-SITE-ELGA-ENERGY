@@ -390,8 +390,12 @@ function calculateSavings(bill, grid) {
   // Méthode 2 : reconstitution depuis le total HT de la facture (source la plus fiable).
   // Prix énergie pur = (total HT − acheminement − taxes − abonnement) / conso.
   if (bill.total_ht_annual && consumptionMwh) {
-    // Pour un TRV, l'acheminement (fixe+variable) est DANS le total → le déduire entièrement.
-    const achTrv = (bill.acheminement_var_annual_ht || 0) + (bill.acheminement_fixe_annual_ht || 0);
+    // TRV : l'acheminement FIXE (TURPE part fixe) est déjà intégré à l'abonnement régulé.
+    // Le soustraire EN PLUS de l'abonnement double-compte et sous-estime l'énergie pure.
+    // → on n'isole que la part VARIABLE (ligne au kWh). Marché : acheminement complet extrait.
+    const achTrv = bill.est_trv
+      ? (bill.acheminement_var_annual_ht || 0)
+      : ((bill.acheminement_var_annual_ht || 0) + (bill.acheminement_fixe_annual_ht || 0));
     const ach  = bill.acheminement_annual_ht || (achTrv > 0 ? achTrv : (ref.acheminement_annual || 0));
     const taxH = bill.taxes_annual_ht        || consumptionMwh * acciseRate(bill.power_kva, taxes);
     const aboH = (bill.subscription_monthly_ht || ref.abo_monthly || 0) * 12;
@@ -418,10 +422,16 @@ function calculateSavings(bill, grid) {
     }
   }
 
-  // Sinon : le client est peut-être déjà sur un bon prix de marché
-  // → économies estimées plus conservatrices (abonnement, CEE, gestion)
+  // Sinon : le client est déjà sur un bon prix d'énergie.
   if (clientEnergyMwh && clientEnergyMwh <= elgaEnergyMwh) {
-    // Client déjà compétitif → estimation conservatrice 5–8%
+    // TRV compétitif : Elga est plus cher sur l'énergie aujourd'hui. On NE fabrique PAS de
+    // fausse économie — on le signale (trv_competitive) et le front recadre sur la sécurisation
+    // (le TRV monte +6,2%/an) + l'abonnement/puissance. Honnêteté totale.
+    if (bill.est_trv) {
+      return { client_total_annual: Math.round(clientTTC), elga_total_annual: Math.round(clientTTC),
+               savings_annual: 0, savings_pct: 0, segment: seg, is_estimate: true, trv_competitive: true };
+    }
+    // Marché déjà bien placé → estimation conservatrice sur les postes annexes.
     const conservativePct = Math.min(avgPct * 0.45, 8);
     return fallbackSavings(clientTTC, Math.round(conservativePct), seg);
   }
