@@ -251,7 +251,7 @@
     <p class="sub reveal">L'acheminement et les taxes sont identiques chez tous les fournisseurs, et personne n'y peut rien. Le seul vrai levier, c'est le prix du kWh. L'écart affiché est la <b>moyenne des économies sur toute la durée du contrat</b>, pas seulement l'écart du jour. Cliquez une ligne, y compris la vôtre, pour le détail année par année.</p>
     <div class="reveal" style="display:flex;align-items:center;gap:12px;margin-top:20px;flex-wrap:wrap">
       <span style="font-size:13px;color:var(--mut)">Hausse du marché retenue pour la projection :</span>
-      <div class="seg" id="bilanSeg"><button onclick="setBilanRate(0.06,this)">+6 %/an</button><button onclick="setBilanRate(0.07,this)" class="on">+7 %/an</button><button onclick="setBilanRate(0.08,this)">+8 %/an</button></div>
+      <div class="seg" id="bilanSeg"><button onclick="setBilanRate(0.08,this)">+8 %/an</button><button onclick="setBilanRate(0.09,this)" class="on">+9 %/an</button><button onclick="setBilanRate(0.10,this)">+10 %/an</button></div>
     </div>
     <div id="bilanInfo"></div>
     <div class="bilan reveal">
@@ -276,13 +276,13 @@ const ini=s=>s[0].toUpperCase();
 
 const FOURN=[['EDF','#fe5716'],['Engie','#0aa1dd'],['TotalEnergies','#e2231a'],['Endesa','#0a3c8c'],['Enovos','#e30613'],['Vattenfall','#f7b500'],['Alpiq','#e2001a'],['Eni','#f9c000'],['Alterna','#3aa935'],['Ekwateur','#00b3a4'],['+ 22 autres','#75837e']];
 const ACH=2150,TAXES=1727; let AT=ACH+TAXES;
-let REF={nom:'Vattenfall — actuel',energie:6008,kwh:110.5,total:0}; REF.total=REF.energie+AT;
+let REF={nom:'Vattenfall — actuel',energie:6008,kwh:181.7,kwhE:110.4,total:0}; REF.total=REF.energie+AT;
 let OFFRES=[
-  {nom:'Telecom Énergie',energie:4932,duree:36,color:'#e2231a',kwh:90.7},
-  {nom:'ELMY',energie:5022,duree:37,color:'#3aa935',kwh:92.3},
-  {nom:'ENGIE',energie:5089,duree:36,color:'#0aa1dd',kwh:93.6},
+  {nom:'Telecom Énergie',energie:4932,duree:36,color:'#e2231a',kwh:161.9,kwhE:90.7},
+  {nom:'ELMY',energie:5022,duree:37,color:'#3aa935',kwh:163.6,kwhE:92.3},
+  {nom:'ENGIE',energie:5089,duree:36,color:'#0aa1dd',kwh:164.8,kwhE:93.6},
 ].map(o=>({...o,total:o.energie+AT}));
-let RATE=0.07;
+let RATE=0.09;
 const WORKER='https://elga-scanner.edhy-delaprez.workers.dev';
 const OCOL=['#e2231a','#0a3c8c','#e30613','#0aa1dd','#3aa935','#f7b500','#8a5a12'];
 let ORIGINAL=null; // {url,type} du bilan chargé
@@ -302,12 +302,13 @@ function applyBilan(b){
   if(atc>0) AT=atc;
   const refTotal=r.total_annuel!=null?Math.round(r.total_annuel):(r.energie_annuel!=null?Math.round(r.energie_annuel)+AT:REF.total);
   const refE=Math.round(refTotal-AT);
-  REF={nom:(r.fournisseur?r.fournisseur+' — actuel':'Votre contrat actuel'),energie:refE,total:refTotal,kwh:kwhOf(refE)||REF.kwh};
+  // kwh = tout compris (total/conso) affiché dans la table pour que le client reconnaisse son prix EDF (acheminement inclus). kwhE = énergie pure (pour la modale, le levier négociable). Le CALCUL reste sur l'énergie pure.
+  REF={nom:(r.fournisseur?r.fournisseur+' — actuel':'Votre contrat actuel'),energie:refE,total:refTotal,kwh:kwhOf(refTotal)||REF.kwh,kwhE:kwhOf(refE)||REF.kwhE};
   BILAN_INFO={client:s.raison_sociale||null,interlocuteur:s.interlocuteur||null,date:s.date_bilan||null,ref:s.reference_bilan||null,conso:s.conso_kwh||null,puissance:s.puissance_kva||null};
   OFFRES=b.offres.filter(x=>x&&(x.total_annuel!=null||x.energie_annuel!=null)).map((x,i)=>{
     const total=Math.round(x.total_annuel!=null?x.total_annuel:(x.energie_annuel+AT));
     const e=Math.round(total-AT);
-    return {nom:x.fournisseur||('Offre '+(i+1)),energie:e,total,duree:x.duree_mois||36,color:OCOL[i%OCOL.length],kwh:kwhOf(e)};
+    return {nom:x.fournisseur||('Offre '+(i+1)),energie:e,total,duree:x.duree_mois||36,color:OCOL[i%OCOL.length],kwh:kwhOf(total),kwhE:kwhOf(e)};
   });
   renderRows(); renderBilanInfo(); return OFFRES.length>0;
 }
@@ -402,13 +403,13 @@ function offerEcoTotal(o){ return offerYears(o).reduce((s,r)=>s+(r.edf-o.energie
 function avgSaving(o){ return offerEcoTotal(o)/(o.duree/12); }
 function setBilanRate(r,btn){RATE=r;document.querySelectorAll('#bilanSeg button').forEach(b=>b.classList.remove('on'));btn.classList.add('on');renderRows();}
 function renderRows(){
-  let h=`<div class="brow ref" onclick="openSheet(-1)"><div class="fourn"><div class="fmark" style="background:#75837e">V</div><div><div class="fname">${REF.nom}</div><div class="fsub tnum">${REF.kwh} €/MWh · à renouveler</div></div></div>
+  let h=`<div class="brow ref" onclick="openSheet(-1)"><div class="fourn"><div class="fmark" style="background:#75837e">V</div><div><div class="fname">${REF.nom}</div><div class="fsub tnum">${REF.kwh} €/MWh tout compris</div></div></div>
     <div class="cell"><span class="pill evo">actuel</span></div><div class="cell r tnum">${euro(REF.energie)}</div><div class="cell r tnum">${euro(AT)}</div><div class="total-c total r tnum">${euro(REF.total)}</div><div class="ec-c ecart r muted">référence</div>
     <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></div>`;
   OFFRES.forEach((o,k)=>{const eco=avgSaving(o), pos=eco>=0;
-    h+=`<div class="brow" data-k="${k}" onclick="openSheet(${k})"><div class="fourn"><div class="fmark" style="background:${o.color}">${ini(o.nom)}</div><div><div class="fname">${o.nom}</div><div class="fsub tnum">${o.kwh} €/MWh HT</div></div></div>
+    h+=`<div class="brow" data-k="${k}" onclick="openSheet(${k})"><div class="fourn"><div class="fmark" style="background:${o.color}">${ini(o.nom)}</div><div><div class="fname">${o.nom}</div><div class="fsub tnum">${o.kwh} €/MWh tout compris</div></div></div>
       <div class="cell"><span class="pill fixe">Fixe ${o.duree} mois</span></div><div class="cell r tnum">${euro(o.energie)}</div><div class="cell r tnum">${euro(AT)}</div><div class="total-c total r tnum">${euro(o.total)}</div>
-      <div class="ec-c ecart ${pos?'pos':'neg'} r">${pos?'+':'−'}${euro(Math.abs(eco))}<small style="font-weight:400;color:var(--mut);display:block;font-size:10.5px">/an moy. · ${o.duree}m</small></div>
+      <div class="ec-c ecart ${pos?'pos':'neg'} r">${pos?'−':'+'}${euro(Math.abs(eco))}<small style="font-weight:400;color:var(--mut);display:block;font-size:10.5px">/an moy. · ${o.duree}m</small></div>
       <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></div>`;});
   document.getElementById('rows').innerHTML=h;
 }
@@ -427,7 +428,7 @@ function projChart(startEnergy,offerEnergy,years,fixed){
   return `<svg viewBox="0 0 ${g.W} ${g.H}" width="100%"><defs><linearGradient id="pg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#0d7a52" stop-opacity=".18"/><stop offset="1" stop-color="#0d7a52" stop-opacity=".02"/></linearGradient></defs>${g.grid}${g.xl}${extra}
     <path d="${g.path}" fill="none" stroke="#c0392b" stroke-width="2.6" stroke-linejoin="round"/>${g.pts.map(p=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3.1" fill="#c0392b"/>`).join('')}</svg>`;
 }
-function segHTML(){return `<div class="seg"><button onclick="setRate(0.06,this)" class="${RATE===0.06?'on':''}">+6 %</button><button onclick="setRate(0.07,this)" class="${RATE===0.07?'on':''}">+7 %</button><button onclick="setRate(0.08,this)" class="${RATE===0.08?'on':''}">+8 %</button></div>`;}
+function segHTML(){return `<div class="seg"><button onclick="setRate(0.08,this)" class="${RATE===0.08?'on':''}">+8 %</button><button onclick="setRate(0.09,this)" class="${RATE===0.09?'on':''}">+9 %</button><button onclick="setRate(0.10,this)" class="${RATE===0.10?'on':''}">+10 %</button></div>`;}
 
 function drawSheet(){
   const sheet=document.getElementById('sheet');
@@ -447,12 +448,12 @@ function drawSheet(){
   const yrs=offerYears(o); let eco=0,rows='';
   yrs.forEach(r=>{ const d=(r.edf-o.energie)*r.months/12; eco+=d; const p=d>=0;
     const lbl=r.months<12?`An ${r.y} · ${r.months} mois`:`An ${r.y}`;
-    rows+=`<div class="tr"><div>${lbl}</div><div class="tnum" style="color:var(--rose)">${euro(r.edf)}</div><div class="tnum" style="color:var(--green-deep)">${euro(o.energie)}</div><div class="tnum" style="color:${p?'var(--green-deep)':'var(--rose)'};font-weight:700">${p?'+':'−'}${euro(Math.abs(d))}</div></div>`;});
+    rows+=`<div class="tr"><div>${lbl}</div><div class="tnum" style="color:var(--rose)">${euro(r.edf)}</div><div class="tnum" style="color:var(--green-deep)">${euro(o.energie)}</div><div class="tnum" style="color:${p?'var(--green-deep)':'var(--rose)'};font-weight:700">${p?'−':'+'}${euro(Math.abs(d))}</div></div>`;});
   sheet.innerHTML=`<div class="sheet-top"><div style="display:flex;align-items:center;gap:13px"><div class="fmark" style="width:42px;height:42px;background:${o.color};font-size:16px">${ini(o.nom)}</div><div><div style="font-family:var(--serif);font-size:22px">${o.nom}</div><div style="font-size:13px;color:var(--mut)">Prix fixe garanti ${o.duree} mois</div></div></div>
     <button class="sheet-x" onclick="closeSheet()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
     <div class="lever">
-      <div class="lvr act"><div class="lh"><div class="lt">⚡ Énergie · le seul vrai levier</div><span class="badge" style="${ecoNow<0?'color:var(--rose);background:#fbeeee':''}">${ecoNow>=0?'+'+euro(ecoNow):'−'+euro(-ecoNow)}/an aujourd'hui</span></div>
-        <div class="cmp"><div><div class="v tnum">${REF.kwh} €/MWh</div><small>votre prix aujourd'hui</small></div><div style="align-self:center;color:var(--mut)">→</div><div><div class="v tnum" style="color:var(--green-deep)">${o.kwh} €/MWh</div><small>bloqué ${o.duree} mois</small></div></div>
+      <div class="lvr act"><div class="lh"><div class="lt">⚡ Énergie · le seul vrai levier</div><span class="badge" style="${ecoNow<0?'color:var(--rose);background:#fbeeee':''}">${ecoNow>=0?'−'+euro(ecoNow):'+'+euro(-ecoNow)}/an aujourd'hui</span></div>
+        <div class="cmp"><div><div class="v tnum">${REF.kwhE} €/MWh</div><small>votre énergie aujourd'hui</small></div><div style="align-self:center;color:var(--mut)">→</div><div><div class="v tnum" style="color:var(--green-deep)">${o.kwhE} €/MWh</div><small>bloquée ${o.duree} mois</small></div></div>
         <p>C'est ici qu'on agit. Votre prix du kWh est gelé pendant ${o.duree} mois, à l'abri des hausses.</p></div>
       <div class="lvr fix"><div class="lh"><div class="lt">🔌 Acheminement + taxes</div><span class="badge">identique · non négociable</span></div><div class="cmp"><div><div class="v tnum">${euro(AT)}/an</div><small>pareil chez tous, personne n'y peut rien</small></div></div></div>
     </div>
@@ -460,7 +461,7 @@ function drawSheet(){
       <div class="legend"><span><i style="background:var(--rose)"></i>Énergie si vous ne changez rien (+${Math.round(RATE*100)} %/an)</span><span><i style="background:var(--green)"></i>Énergie bloquée avec ${o.nom}</span></div>
       ${projChart(REF.energie,o.energie,years,true)}
       <div class="ptab"><div class="tr th"><div>Année</div><div>Sans rien faire</div><div>Prix fixe</div><div>Économie</div></div>${rows}</div>
-      <div class="verdict${eco>=0?'':' warn'}"><div class="big tnum">${eco>=0?'+'+euro(eco):'−'+euro(-eco)} <span style="font-size:14px;font-family:var(--sans);opacity:.85">${eco>=0?'économisés':'de plus'} sur ${o.duree} mois</span></div><p>Uniquement sur l'énergie, la seule chose qui se négocie. L'acheminement et les taxes, vous les payez de toute façon, quel que soit le fournisseur.</p></div></div>`;
+      <div class="verdict${eco>=0?'':' warn'}"><div class="big tnum">${eco>=0?'−'+euro(eco):'+'+euro(-eco)} <span style="font-size:14px;font-family:var(--sans);opacity:.85">${eco>=0?'économisés':'de plus'} sur ${o.duree} mois</span></div><p>Uniquement sur l'énergie, la seule chose qui se négocie. L'acheminement et les taxes, vous les payez de toute façon, quel que soit le fournisseur.</p></div></div>`;
 }
 addEventListener('keydown',e=>{if(e.key==='Escape')closeSheet();});
 
