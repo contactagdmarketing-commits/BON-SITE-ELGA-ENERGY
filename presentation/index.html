@@ -9,6 +9,7 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <style>
   :root{
     --ink:#0f1a17;--ink-soft:#42514c;--mut:#75837e;--line:#e7ece9;--line-strong:#d3dbd7;
@@ -441,8 +442,7 @@ fileInput.addEventListener('change',()=>{if(fileInput.files[0])handleFile(fileIn
 function handleFile(f){
   startScan();
   const reader=new FileReader();
-  reader.onload=()=>{ const url=String(reader.result); ORIGINAL={url,type:f.type||'application/pdf',name:f.name};
-    const b64=url.split(',')[1];
+  reader.onload=()=>{ const url=String(reader.result); const b64=url.split(',')[1]; ORIGINAL={url,type:f.type||'application/pdf',name:f.name,b64};
     fetch(WORKER+'/api/scan-bilan',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({file_data:b64,file_type:f.type,file_name:f.name})})
       .then(r=>r.json()).then(d=>{ if(d&&d.bilan&&applyBilan(d.bilan)){ const ob=document.getElementById('origBtn'); if(ob)ob.style.display='inline-flex'; } })
       .catch(()=>{});
@@ -451,10 +451,23 @@ function handleFile(f){
 }
 function startScan(){document.querySelector('.load-title').textContent='Analyse de votre bilan';document.querySelector('.load-sub').textContent='On lit votre bilan et on prépare la projection.';drop.style.display='none';document.getElementById('scan').classList.add('go');
   const steps=[...document.querySelectorAll('#steps .step')];let t=500;steps.forEach(s=>{setTimeout(()=>s.classList.add('on'),t);t+=800;});setTimeout(()=>document.getElementById('revealBtn').classList.add('show'),t+250);}
-function showOriginal(){ if(!ORIGINAL)return; const s=document.getElementById('sheetOrig');
-  const inner=ORIGINAL.type.startsWith('image/')?`<img src="${ORIGINAL.url}" style="width:100%;border-radius:12px;display:block">`:`<iframe src="${ORIGINAL.url}" style="width:100%;height:78vh;border:none;border-radius:12px"></iframe>`;
-  s.innerHTML=`<div class="sheet-top"><div style="font-family:var(--serif);font-size:20px">Votre bilan d'origine</div><button class="sheet-x" onclick="closeOrig()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>${inner}`;
-  document.getElementById('ovOrig').classList.add('open'); document.body.style.overflow='hidden'; }
+async function showOriginal(){ if(!ORIGINAL)return; const s=document.getElementById('sheetOrig');
+  s.innerHTML=`<div class="sheet-top"><div style="font-family:var(--serif);font-size:20px">Votre bilan d'origine</div><button class="sheet-x" onclick="closeOrig()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div><div id="origBody" style="max-height:80vh;overflow:auto;margin-top:8px"></div>`;
+  document.getElementById('ovOrig').classList.add('open'); document.body.style.overflow='hidden';
+  const body=document.getElementById('origBody');
+  if(ORIGINAL.type.startsWith('image/')){ body.innerHTML=`<img src="${ORIGINAL.url}" style="width:100%;border-radius:12px;display:block">`; return; }
+  // PDF → rendu propre des pages (pas la visionneuse du navigateur)
+  try{
+    const lib=window.pdfjsLib; if(!lib) throw 0;
+    lib.GlobalWorkerOptions.workerSrc='https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    const bin=atob(ORIGINAL.b64), arr=new Uint8Array(bin.length); for(let i=0;i<bin.length;i++)arr[i]=bin.charCodeAt(i);
+    const pdf=await lib.getDocument({data:arr}).promise;
+    for(let p=1;p<=pdf.numPages;p++){ const page=await pdf.getPage(p); const vp=page.getViewport({scale:2});
+      const c=document.createElement('canvas'); c.width=vp.width; c.height=vp.height;
+      c.style.cssText='width:100%;display:block;border-radius:10px;margin-bottom:14px;border:1px solid var(--line)';
+      await page.render({canvasContext:c.getContext('2d'),viewport:vp}).promise; body.appendChild(c); }
+  }catch(_){ body.innerHTML=`<iframe src="${ORIGINAL.url}" style="width:100%;height:78vh;border:none;border-radius:12px"></iframe>`; }
+}
 function closeOrig(){ document.getElementById('ovOrig').classList.remove('open'); document.body.style.overflow=''; }
 function reveal(){document.getElementById('load').classList.add('gone');document.body.style.overflow='';setTimeout(()=>{const l=document.getElementById('load');if(l)l.remove();},700);observeReveals();}
 function observeReveals(){const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}}),{threshold:.1});document.querySelectorAll('.reveal').forEach((el,i)=>{el.style.transitionDelay=(Math.min(i%6,5)*55)+'ms';io.observe(el);});}
