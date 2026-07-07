@@ -1698,7 +1698,8 @@
           ['+17 · +10 · +9,8 %', '3 hausses d’affilée (2023-24)'],
           ['puis −18 %', 'chute brutale en 2025']
         ],
-        extra: "Votre prix varie plusieurs fois par an — impossible à anticiper. Un contrat de marché à prix fixe négocié, c’est zéro révision subie : vous savez exactement ce que vous payez, du premier au dernier mois." });
+        extra: "Votre prix varie plusieurs fois par an — impossible à anticiper. Un contrat de marché à prix fixe négocié, c’est zéro révision subie : vous savez exactement ce que vous payez, du premier au dernier mois.",
+        source: { label: "Source : CRE — Historique des tarifs réglementés de vente d’électricité (données ouvertes)", url: "https://www.cre.fr/documents/open-data/historique-des-tarifs-reglementes-de-vente-delectricite-pour-les-consommateurs-residentiels.html" } });
     }
 
     // 2. Pas de date de fin (hors TRV) → tacite reconduction, prix revu chaque an sans accord
@@ -1775,6 +1776,15 @@
         ex.className = 'text-[12.5px] font-semibold ' + c.ti + ' mt-2.5 leading-relaxed';
         ex.textContent = v.extra;
         inner2.appendChild(ex);
+      }
+      // Source (crédibilité) : petit lien discret cliquable.
+      if (v.source) {
+        var inner3 = row.querySelector('div.min-w-0');
+        var src = document.createElement('a');
+        src.href = v.source.url; src.target = '_blank'; src.rel = 'noopener noreferrer';
+        src.className = 'inline-flex items-center gap-1 text-[11px] text-slate-400 hover:text-slate-600 mt-2 underline decoration-slate-300 underline-offset-2';
+        src.textContent = v.source.label;
+        inner3.appendChild(src);
       }
       box.appendChild(row);
     });
