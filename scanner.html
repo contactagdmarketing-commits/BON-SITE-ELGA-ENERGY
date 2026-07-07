@@ -1452,10 +1452,12 @@
       } else if (surcout != null) {
         lines.push(['Écart énergie (HT)', '+' + mwhStr(Math.round((elga - cli) * 10) / 10)]);
         lines.push(['≈ Surcoût énergie (TTC)', '+' + formatEuro(surcout) + '/an']);
-        lines.push(['Hausse moyenne du Tarif Bleu', '+6,2 %/an (subie)']);
+        if (isTRV(e)) lines.push(['Tarif Bleu — prix volatil', '+6,2 %/an en moyenne']);
       }
       var note = surcout != null
-        ? "Franchement : sur l'énergie seule, Elga est aujourd'hui plus cher — votre Tarif Bleu est très bien placé. MAIS le tarif réglementé augmente en moyenne de +6,2 %/an et vous le subissez. Un prix de marché fixe sécurise votre budget dans la durée, et les économies se font sur l'abonnement et la puissance."
+        ? (isTRV(e)
+            ? "Votre prix de l'énergie est bien placé par rapport au marché actuel. Au Tarif Bleu, il reste toutefois volatil — en moyenne +6,2 %/an. Les économies se situent sur les autres leviers : abonnement, puissance, taxes."
+            : "Votre prix de l'énergie est bien placé par rapport au marché actuel. Les économies se situent sur les autres leviers : abonnement, puissance, taxes.")
         : isTRV(e)
           ? "Vous êtes au Tarif Réglementé (Tarif Bleu EDF) : l'acheminement est inclus dans le prix. On l'a isolé pour comparer la part énergie seule."
           : "Économie estimée en comparant votre prix au kWh (capacité + CEE compris) à nos offres négociées. Chiffrage précis au bilan via votre conso réelle (Enedis).";
@@ -1628,11 +1630,11 @@
     // Libellés du héros : « économies » si net positif, « votre situation » si Elga plus cher aujourd'hui.
     var heroLabel = document.getElementById('heroLabel');
     if (heroLabel) heroLabel.textContent = netPositive ? 'Économies estimées sur 12 mois' : 'Votre situation aujourd’hui';
+    // Ligne « /mois » : seulement quand il y a une vraie économie nette (sinon on reste sobre).
+    var apBlock = document.getElementById('annualProjectionBlock');
+    if (apBlock) apBlock.classList.toggle('hidden', !netPositive);
     var mPrefix = document.getElementById('monthlyLabelPrefix'), mSuffix = document.getElementById('monthlyLabelSuffix');
-    if (mPrefix && mSuffix) {
-      if (netPositive) { mPrefix.textContent = 'Soit environ'; mSuffix.textContent = 'par mois sur cette facture'; }
-      else { mPrefix.textContent = 'Elga serait ≈'; mSuffix.textContent = 'plus cher/mois aujourd’hui — mais fixe, pendant que le TRV monte'; }
-    }
+    if (mPrefix && mSuffix && netPositive) { mPrefix.textContent = 'Soit environ'; mSuffix.textContent = 'par mois sur cette facture'; }
 
     var lt = document.getElementById('leviersTotal');
     if (lt) {
@@ -1659,9 +1661,12 @@
         sub.textContent = 'soit ≈ ' + pct + '% de votre budget — cible ≈ ' + formatEuro(Math.max(0, clientAnnual - total)) + '/an';
         if (gauge) gauge.style.width = Math.min(pct * 2.5, 95) + '%';
       } else if (hasSurcout) {
-        // Elga plus cher aujourd'hui sur l'énergie : on assume, on mise sur la sécurisation.
-        sub.textContent = "Sur le prix, vous êtes compétitif aujourd'hui. La vraie valeur : sécuriser votre budget — le Tarif Bleu augmente en moyenne de +6,2 %/an. On optimise aussi l'abonnement et la puissance.";
-        if (gauge) gauge.style.width = '18%';
+        // Elga plus cher aujourd'hui sur l'énergie : honnête sur le budget, on pointe les autres leviers.
+        var trvNow = _e && isTRV(_e);
+        sub.textContent = trvNow
+          ? "Votre prix d'énergie est bien placé aujourd'hui. Attention : au Tarif Bleu, il est volatil (+6,2 %/an en moyenne). Les économies passent par d'autres leviers — abonnement, puissance."
+          : "Votre prix d'énergie est bien placé aujourd'hui. Les économies passent par d'autres leviers — abonnement, puissance, taxes.";
+        if (gauge) gauge.style.width = '15%';
       } else if (_s) {
         sub.textContent = 'soit ' + _s.savings_pct + '%, budget annuel avec Elga : ' + formatEuro(_s.elga_total_annual);
         if (gauge) gauge.style.width = Math.min(_s.savings_pct * 2.5, 95) + '%';
