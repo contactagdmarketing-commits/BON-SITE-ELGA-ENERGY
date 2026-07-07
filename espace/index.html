@@ -144,6 +144,7 @@ function seDeconnecter(){ history.replaceState(null,'','/espace/'); location.rel
 /* ─── Coquille de l'app (sidebar + contenu + agent) ─── */
 const NAV=[
   {id:'dashboard',label:'Tableau de bord',icon:'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6'},
+  {id:'assistant',label:'Mon assistant',action:'chat',icon:'M8 12h.01M12 12h.01M16 12h.01M21 12a9 9 0 11-4.7-7.9L21 3l-1.1 4.3A8.96 8.96 0 0121 12z'},
   {id:'contrat',label:'Mon contrat',icon:'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'},
   {id:'factures',label:'Mes factures',icon:'M9 14l6-6M9 8h.01M15 14h.01M5 21V5a2 2 0 012-2h10a2 2 0 012 2v16l-3-2-2 2-2-2-2 2-2-2-3 2z'},
   {id:'conseiller',label:'Mon conseiller',icon:'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z'},
@@ -181,18 +182,19 @@ function renderApp(){
     </div>
   </div>
 
-  <!-- Agent flottant -->
-  <button id="agentBtn" onclick="toggleChat()" class="fixed bottom-5 right-5 z-40 h-14 w-14 rounded-full text-white shadow-strong grid place-items-center" style="background:linear-gradient(135deg,#0e8a57,#0b3d91)">
-    <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12a9 9 0 11-4.7-7.9L21 3l-1.1 4.3A8.96 8.96 0 0121 12z"/></svg>
-  </button>
   <div id="chatPanel"></div>`;
   buildNav();
   document.getElementById('consSide').innerHTML=carteConseillerMini();
   renderContent();
 }
 function buildNav(){
-  const item=(n,mobile)=>`<button onclick="setTab('${n.id}')" class="navitem ${TAB===n.id?'navitem-active':'text-slate-600 hover:bg-slate-50'} ${mobile?'shrink-0 px-3 py-2 rounded-lg text-[12.5px] font-semibold whitespace-nowrap flex items-center gap-1.5':'w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[13.5px] font-semibold'}">
-     <svg class="${mobile?'w-4 h-4':'w-[18px] h-[18px]'} shrink-0" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="${n.icon}"/></svg>${esc(n.label)}</button>`;
+  const item=(n,mobile)=>{
+    const chat=n.action==='chat';
+    const active=!chat&&TAB===n.id;
+    const cls=chat?'text-primary-700 font-bold':(active?'navitem-active':'text-slate-600 hover:bg-slate-50');
+    return `<button onclick="${chat?'toggleChat()':`setTab('${n.id}')`}" class="navitem ${cls} ${mobile?'shrink-0 px-3 py-2 rounded-lg text-[12.5px] font-semibold whitespace-nowrap flex items-center gap-1.5':'w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[13.5px] font-semibold'}">
+     <svg class="${mobile?'w-4 h-4':'w-[18px] h-[18px]'} shrink-0" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="${n.icon}"/></svg>${esc(n.label)}${chat?'<span class="ml-auto text-[9px] font-bold bg-primary-100 text-primary-700 px-1.5 py-0.5 rounded-full">IA</span>':''}</button>`;
+  };
   const d=document.getElementById('navD'), m=document.getElementById('navM');
   if(d) d.innerHTML=NAV.map(n=>item(n,false)).join('');
   if(m) m.innerHTML=NAV.map(n=>item(n,true)).join('');
@@ -218,12 +220,14 @@ function bandeauParrainage(){
     <div class="absolute right-16 -top-8 w-20 h-20 rounded-full bg-white/10 pointer-events-none"></div>
     <button aria-label="Fermer" onclick="event.stopPropagation();var b=document.getElementById('bParr');if(b)b.remove();localStorage.setItem('elga_parr_dismiss','1')" class="absolute top-2 right-2.5 z-10 text-white/70 hover:text-white text-xl leading-none">×</button>
     <div class="relative flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 p-4 sm:p-5 cursor-pointer" onclick="setTab('parrainage')">
-      <div class="text-3xl sm:text-4xl shrink-0 leading-none">🎁</div>
-      <div class="flex-1 min-w-0">
-        <div class="font-extrabold text-[15.5px] sm:text-[17px] leading-snug">Tu connais un patron qui râle sur ses factures ?</div>
-        <div class="text-[12.5px] sm:text-[13.5px] text-white/90 mt-1">File-lui ton lien : il check les siennes en 15 secondes — et toi, tu es récompensé quand il devient client.</div>
+      <div class="shrink-0 h-11 w-11 rounded-xl bg-white/15 grid place-items-center">
+        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m6-1.13a4 4 0 10-4-4 4 4 0 004 4zm6 0a3 3 0 10-2-5.24"/></svg>
       </div>
-      <span class="shrink-0 inline-flex items-center gap-1.5 bg-white text-primary-700 font-bold text-[13.5px] rounded-xl px-4 py-2.5 self-start sm:self-center whitespace-nowrap">Partager mon lien <span aria-hidden="true">→</span></span>
+      <div class="flex-1 min-w-0">
+        <div class="font-extrabold text-[15.5px] sm:text-[17px] leading-snug">Un professionnel de votre réseau paie sûrement trop cher son énergie.</div>
+        <div class="text-[12.5px] sm:text-[13.5px] text-white/90 mt-1">Recommandez-lui Elga : il fait vérifier ses factures gratuitement, et vous êtes récompensé dès qu'il devient client.</div>
+      </div>
+      <span class="shrink-0 inline-flex items-center gap-1.5 bg-white text-primary-700 font-bold text-[13.5px] rounded-xl px-4 py-2.5 self-start sm:self-center whitespace-nowrap">Recommander Elga <span aria-hidden="true">→</span></span>
     </div>
   </div>`;
 }
@@ -257,18 +261,30 @@ function vueDashboard(){
     ${resume}
   </section>
 
-  <div class="grid sm:grid-cols-2 gap-4 stagger">
-    <button onclick="setTab('factures')" class="tile bg-white rounded-2xl shadow-soft p-5 text-left">
-      <div class="h-10 w-10 rounded-xl bg-primary-50 grid place-items-center mb-3"><svg class="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16V4m0 0L7 9m5-5l5 5M4 20h16"/></svg></div>
-      <div class="font-bold text-[14.5px] text-slate-900">Vérifier ma facture</div>
-      <div class="text-[12.5px] text-slate-400">Scannez-la, on contrôle qu'elle est en règle en 15 s.</div>
-    </button>
-    <button onclick="toggleChat()" class="tile bg-white rounded-2xl shadow-soft p-5 text-left">
-      <div class="h-10 w-10 rounded-xl bg-secondary-50 grid place-items-center mb-3"><svg class="w-5 h-5 text-secondary-600" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12a9 9 0 11-4.7-7.9L21 3l-1.1 4.3A8.96 8.96 0 0121 12z"/></svg></div>
-      <div class="font-bold text-[14.5px] text-slate-900">Poser une question</div>
-      <div class="text-[12.5px] text-slate-400">Ton assistant énergie te répond direct.</div>
-    </button>
-  </div>
+  <!-- Assistant : mis en avant, pas caché dans une bulle -->
+  <button onclick="toggleChat()" class="fade w-full text-left rounded-3xl p-6 sm:p-7 text-white shadow-strong relative overflow-hidden mb-4 group" style="background:linear-gradient(120deg,#0e8a57 0%,#0b3d91 85%)">
+    <div class="absolute -right-10 -top-12 w-44 h-44 rounded-full bg-white/10 pointer-events-none"></div>
+    <div class="absolute right-20 bottom-0 w-24 h-24 rounded-full bg-white/10 pointer-events-none"></div>
+    <div class="relative flex items-center gap-4">
+      <div class="ava ava-ring floatY shrink-0" style="width:56px;height:56px;border-radius:18px;font-size:26px;background:rgba(255,255,255,.16)">⚡</div>
+      <div class="flex-1 min-w-0">
+        <div class="inline-flex items-center gap-1.5 text-[11.5px] font-bold bg-white/15 rounded-full px-2.5 py-1 mb-1.5"><span class="h-1.5 w-1.5 rounded-full bg-emerald-300"></span> Disponible 24/7</div>
+        <div class="font-extrabold text-[18px] sm:text-[20px] leading-tight">Je suis ton assistant énergie perso.</div>
+        <p class="text-[13.5px] text-white/90 mt-1">Pose-moi n'importe quelle question sur ton contrat, tes factures, l'énergie… Je te réponds direct.</p>
+      </div>
+    </div>
+    <div class="relative mt-4 flex items-center gap-2 bg-white rounded-2xl pl-4 pr-2 py-2.5">
+      <span class="flex-1 text-slate-400 text-[14px]">Pose ta question…</span>
+      <span class="h-9 w-9 rounded-xl grid place-items-center text-white transition group-hover:scale-105" style="background:#0e8a57"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M5 12h14M13 6l6 6-6 6"/></svg></span>
+    </div>
+  </button>
+
+  <button onclick="setTab('factures')" class="tile bg-white rounded-2xl shadow-soft p-5 text-left w-full flex items-center gap-4">
+    <div class="h-11 w-11 rounded-xl bg-primary-50 grid place-items-center shrink-0"><svg class="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16V4m0 0L7 9m5-5l5 5M4 20h16"/></svg></div>
+    <div class="flex-1"><div class="font-bold text-[14.5px] text-slate-900">Vérifier ma facture du mois</div>
+    <div class="text-[12.5px] text-slate-400">Scannez-la, on contrôle qu'elle est en règle en 15 s.</div></div>
+    <span class="text-slate-300 text-xl">→</span>
+  </button>
 
   <div class="mt-5">${carteConseiller(true)}</div>`;
 }
@@ -371,19 +387,19 @@ function vueConseiller(){
 }
 
 function lienParrain(){ return `https://www.elgaenergy.com/scanner.html?parrain=${STATE.parrain_code||''}`; }
-function msgParrain(){ return `Salut 👋 Les factures d'énergie ont bien grimpé en ce moment. J'ai fait checker les miennes gratuitement par Elga Energy (mon courtier) — verdict en 15 secondes, sans engagement. Regarde ce que tu paies en trop : ${lienParrain()}`; }
+function msgParrain(){ return `Bonjour, les prix de l'énergie ont beaucoup augmenté ces derniers temps. J'ai fait vérifier mes factures gratuitement par Elga Energy, mon courtier en énergie — bilan en 15 secondes, sans engagement. Voici le lien si vous souhaitez vérifier les vôtres : ${lienParrain()}`; }
 function partager(canal){
   const url=lienParrain(), txt=msgParrain();
   if(canal==='wa') window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank');
   else if(canal==='sms') window.open('sms:?&body='+encodeURIComponent(txt),'_blank');
-  else if(canal==='mail') window.open('mailto:?subject='+encodeURIComponent('Tes factures d\'énergie sont-elles trop chères ?')+'&body='+encodeURIComponent(txt),'_blank');
-  else if(canal==='copy'){ navigator.clipboard?.writeText(url).then(()=>toast('Lien copié — partage-le 👍')); }
+  else if(canal==='mail') window.open('mailto:?subject='+encodeURIComponent('Vos factures d\'énergie sont-elles au bon prix ?')+'&body='+encodeURIComponent(txt),'_blank');
+  else if(canal==='copy'){ navigator.clipboard?.writeText(url).then(()=>toast('Lien copié — à vous de le partager')); }
 }
 function vueParrainage(){
   const list=STATE.parrainages||[]; const n=list.length;
   const items=list.map(p=>`<div class="flex items-center justify-between gap-2 rounded-xl border border-slate-100 bg-white px-3.5 py-2.5">
-      <div class="flex items-center gap-2.5"><div class="h-8 w-8 rounded-full bg-primary-50 grid place-items-center text-[13px]">🏢</div>
-      <div><div class="text-[13px] font-semibold text-slate-700">${esc(p.qui)}</div><div class="text-[11px] text-slate-400">a checké sa facture · ${esc(p.le)}</div></div></div>
+      <div class="flex items-center gap-2.5"><div class="h-9 w-9 rounded-xl bg-primary-50 grid place-items-center text-primary-600"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 21h18M5 21V7l7-4 7 4v14M9 9h.01M9 13h.01M9 17h.01M15 9h.01M15 13h.01M15 17h.01"/></svg></div>
+      <div><div class="text-[13px] font-semibold text-slate-700">${esc(p.qui)}</div><div class="text-[11px] text-slate-400">a vérifié sa facture · ${esc(p.le)}</div></div></div>
       ${p.eco&&+p.eco>0?`<span class="text-[12px] font-bold text-primary-700">${euro(+p.eco)}/an à gagner</span>`:''}</div>`).join('');
   return `
   <section class="fade relative overflow-hidden rounded-3xl text-white shadow-strong mb-5" style="background:linear-gradient(120deg,#0b3d91 0%,#0e8a57 75%)">
@@ -391,14 +407,14 @@ function vueParrainage(){
     <div class="absolute right-24 bottom-0 w-28 h-28 rounded-full bg-white/10 pointer-events-none"></div>
     <div class="relative p-6 sm:p-9 max-w-2xl">
       <div class="inline-flex items-center gap-2 text-[12px] font-bold bg-white/15 rounded-full px-3 py-1.5 mb-4">Programme de parrainage</div>
-      <h2 class="text-2xl sm:text-4xl font-extrabold leading-tight">Recommande Elga.<br>Fais gagner ton réseau — et toi.</h2>
-      <p class="text-[14.5px] sm:text-[15.5px] text-white/90 mt-3 leading-relaxed">Les factures d'énergie explosent, et la plupart des entreprises paient trop cher sans le savoir. Partage ton lien : un pro que tu connais fait vérifier ses factures en 15 secondes — et dès qu'il devient client, <strong>tu es récompensé</strong>.</p>
+      <h2 class="text-2xl sm:text-4xl font-extrabold leading-tight">Recommandez Elga.<br>Votre réseau y gagne — vous aussi.</h2>
+      <p class="text-[14.5px] sm:text-[15.5px] text-white/90 mt-3 leading-relaxed">Les prix de l'énergie s'envolent, et beaucoup d'entreprises paient trop cher sans le savoir. Partagez votre lien : un professionnel que vous connaissez fait vérifier ses factures en 15 secondes — et dès qu'il devient client, <strong>vous êtes récompensé</strong>.</p>
     </div>
   </section>
 
   <section class="fade bg-white rounded-3xl shadow-soft p-6 sm:p-7 mb-5">
-    <h3 class="text-[16px] font-extrabold text-slate-900">Ton lien personnel</h3>
-    <p class="text-[13px] text-slate-400 mb-4">Un seul lien, à partager où tu veux. Chaque scan qui en vient t'est attribué.</p>
+    <h3 class="text-[16px] font-extrabold text-slate-900">Votre lien personnel</h3>
+    <p class="text-[13px] text-slate-400 mb-4">Un seul lien, à partager où vous voulez. Chaque vérification qui en vient vous est attribuée.</p>
     <div class="rounded-2xl border border-slate-200 bg-slate-50/70 p-2 pl-4 flex items-center gap-2">
       <input readonly value="${esc(lienParrain())}" onclick="this.select()" class="flex-1 bg-transparent text-[13px] text-slate-600 outline-none truncate"/>
       <button onclick="partager('copy')" class="btn-p rounded-xl px-4 py-2.5 text-[13.5px] shrink-0">Copier</button>
@@ -412,16 +428,16 @@ function vueParrainage(){
 
   <section class="fade bg-white rounded-3xl shadow-soft p-6 sm:p-7">
     <div class="flex items-center justify-between mb-4">
-      <h3 class="text-[16px] font-extrabold text-slate-900">Grâce à toi</h3>
+      <h3 class="text-[16px] font-extrabold text-slate-900">Grâce à vous</h3>
       <span class="text-[13px] font-bold text-primary-700 bg-primary-50 px-3 py-1.5 rounded-full">${n} entreprise${n>1?'s':''}</span>
     </div>
     ${n?`<div class="space-y-2.5">${items}</div>`:`
       <div class="text-center py-10 px-4 rounded-2xl bg-slate-50/70">
-        <div class="text-4xl mb-3">🌱</div>
-        <p class="text-[14.5px] font-semibold text-slate-700">Ton réseau n'attend que ça.</p>
-        <p class="text-[13.5px] text-slate-500 max-w-sm mx-auto mt-1">Personne n'a encore utilisé ton lien. Envoie-le à un pro que tu connais — 15 secondes pour lui, et peut-être gros à la clé.</p>
+        <div class="mx-auto mb-3 h-12 w-12 rounded-2xl bg-primary-50 grid place-items-center text-primary-600"><svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m6-1.13a4 4 0 10-4-4 4 4 0 004 4zm6 0a3 3 0 10-2-5.24"/></svg></div>
+        <p class="text-[14.5px] font-semibold text-slate-700">Votre réseau n'attend que ça.</p>
+        <p class="text-[13.5px] text-slate-500 max-w-sm mx-auto mt-1">Personne n'a encore utilisé votre lien. Envoyez-le à un professionnel que vous connaissez — 15 secondes pour lui, et une belle économie à la clé.</p>
       </div>`}
-    <p class="text-[12px] text-slate-400 mt-4 text-center">Chaque facture vérifiée via ton lien apparaît ici. Ta récompense se débloque quand une entreprise devient cliente.</p>
+    <p class="text-[12px] text-slate-400 mt-4 text-center">Chaque facture vérifiée via votre lien apparaît ici. Votre récompense se débloque quand une entreprise devient cliente.</p>
   </section>`;
 }
 
