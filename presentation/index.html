@@ -252,6 +252,7 @@
       <span style="font-size:13px;color:var(--mut)">Hausse du marché retenue pour la projection :</span>
       <div class="seg" id="bilanSeg"><button onclick="setBilanRate(0.06,this)">+6 %/an</button><button onclick="setBilanRate(0.07,this)" class="on">+7 %/an</button><button onclick="setBilanRate(0.08,this)">+8 %/an</button></div>
     </div>
+    <div id="bilanInfo"></div>
     <div class="bilan reveal">
       <div class="bhead"><div>Fournisseur</div><div>Engagement</div><div class="r">Énergie/an</div><div class="r">Achem.+taxes</div><div class="r">Total HTVA</div><div class="r">Éco. moy./an</div></div>
       <div id="rows"></div>
@@ -284,22 +285,40 @@ let RATE=0.07;
 const WORKER='https://elga-scanner.edhy-delaprez.workers.dev';
 const OCOL=['#e2231a','#0a3c8c','#e30613','#0aa1dd','#3aa935','#f7b500','#8a5a12'];
 let ORIGINAL=null; // {url,type} du bilan chargé
-// Remplit REF + OFFRES à partir du bilan extrait par le worker
+let BILAN_INFO=null; // {client,interlocuteur,date,conso...}
+// Remplit REF + OFFRES à partir du bilan extrait par le worker.
+// CLÉ : l'acheminement + taxes est IDENTIQUE pour tous (même site). On le déduit des
+// offres (total − énergie, médiane, robuste). Puis énergie PURE = total − (achem+taxes)
+// pour CHAQUE ligne, y compris EDF. Ça corrige le TRV (dont l'énergie extraite inclut
+// l'acheminement) et garantit que énergie + achem+taxes = total sur chaque ligne.
 function applyBilan(b){
   if(!b||!Array.isArray(b.offres)||!b.offres.length) return false;
-  const r=b.reference||{}, o0=b.offres[0]||{};
-  const ach=(r.acheminement_annuel!=null?r.acheminement_annuel:(o0.acheminement_annuel||0));
-  const tax=(r.taxes_annuel!=null?r.taxes_annuel:(o0.taxes_annuel||0));
-  const at=Math.round((ach||0)+(tax||0)); if(at>0) AT=at;
-  const conso=(b.site&&b.site.conso_kwh)?b.site.conso_kwh/1000:null;
+  const r=b.reference||{}, s=b.site||{};
+  const conso=s.conso_kwh?s.conso_kwh/1000:null;
   const kwhOf=e=>(conso&&e!=null)?Math.round(e/conso*10)/10:null;
-  const refE=r.energie_annuel!=null?Math.round(r.energie_annuel):(r.total_annuel!=null?Math.round(r.total_annuel-AT):REF.energie);
-  REF={nom:(r.fournisseur?r.fournisseur+' — actuel':'Votre contrat actuel'),energie:refE,kwh:kwhOf(refE)||REF.kwh,total:(r.total_annuel!=null?Math.round(r.total_annuel):refE+AT)};
-  OFFRES=b.offres.filter(x=>x&&(x.energie_annuel!=null||x.total_annuel!=null)).map((x,i)=>{
-    const e=x.energie_annuel!=null?Math.round(x.energie_annuel):Math.round(x.total_annuel-AT);
-    return {nom:x.fournisseur||('Offre '+(i+1)),energie:e,duree:x.duree_mois||36,color:OCOL[i%OCOL.length],kwh:kwhOf(e),total:x.total_annuel!=null?Math.round(x.total_annuel):e+AT};
+  const dif=b.offres.filter(x=>x.total_annuel!=null&&x.energie_annuel!=null).map(x=>x.total_annuel-x.energie_annuel).sort((a,c)=>a-c);
+  let atc=dif.length?Math.round(dif[Math.floor(dif.length/2)]):((r.acheminement_annuel||0)+(r.taxes_annuel||0));
+  if(atc>0) AT=atc;
+  const refTotal=r.total_annuel!=null?Math.round(r.total_annuel):(r.energie_annuel!=null?Math.round(r.energie_annuel)+AT:REF.total);
+  const refE=Math.round(refTotal-AT);
+  REF={nom:(r.fournisseur?r.fournisseur+' — actuel':'Votre contrat actuel'),energie:refE,total:refTotal,kwh:kwhOf(refE)||REF.kwh};
+  BILAN_INFO={client:s.raison_sociale||null,interlocuteur:s.interlocuteur||null,date:s.date_bilan||null,ref:s.reference_bilan||null,conso:s.conso_kwh||null,puissance:s.puissance_kva||null};
+  OFFRES=b.offres.filter(x=>x&&(x.total_annuel!=null||x.energie_annuel!=null)).map((x,i)=>{
+    const total=Math.round(x.total_annuel!=null?x.total_annuel:(x.energie_annuel+AT));
+    const e=Math.round(total-AT);
+    return {nom:x.fournisseur||('Offre '+(i+1)),energie:e,total,duree:x.duree_mois||36,color:OCOL[i%OCOL.length],kwh:kwhOf(e)};
   });
-  renderRows(); return OFFRES.length>0;
+  renderRows(); renderBilanInfo(); return OFFRES.length>0;
+}
+function renderBilanInfo(){ const el=document.getElementById('bilanInfo'); if(!el)return; if(!BILAN_INFO||!BILAN_INFO.client){el.innerHTML='';return;}
+  const bi=BILAN_INFO, fr=n=>new Intl.NumberFormat('fr-FR').format(n);
+  const cell=(k,v)=>v?`<div><div style="font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.04em">${k}</div><div style="font-weight:600;font-size:14.5px">${v}</div></div>`:'';
+  el.innerHTML=`<div style="display:flex;flex-wrap:wrap;gap:12px 26px;align-items:center;margin:18px 0 2px;padding:15px 18px;border:1px solid var(--line);border-radius:14px;background:var(--panel)">
+    ${cell('Client',bi.client+(bi.interlocuteur?' · '+bi.interlocuteur:''))}
+    ${cell('Consommation',bi.conso?fr(bi.conso)+' kWh/an':'')}
+    ${cell('Puissance',bi.puissance?bi.puissance+' kVA':'')}
+    ${cell('Bilan du',bi.date)}
+  </div>`;
 }
 
 /* courbes */

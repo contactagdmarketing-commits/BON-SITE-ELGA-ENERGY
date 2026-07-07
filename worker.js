@@ -235,7 +235,7 @@ Tu dois extraire TOUT le tableau : la ligne de référence (actuelle) ET toutes 
 Réponds UNIQUEMENT avec ce JSON valide, sans aucun texte autour :
 {
   "energie_type": "electricity" | "gas",
-  "site": { "raison_sociale": string|null, "conso_kwh": number|null, "puissance_kva": number|null, "segment": string|null },
+  "site": { "raison_sociale": string|null, "interlocuteur": string|null, "siren": string|null, "adresse": string|null, "date_bilan": string|null, "reference_bilan": string|null, "conso_kwh": number|null, "puissance_kva": number|null, "segment": string|null },
   "reference": { "fournisseur": string|null, "energie_annuel": number|null, "acheminement_annuel": number|null, "taxes_annuel": number|null, "total_annuel": number|null },
   "offres": [
     { "fournisseur": string, "duree_mois": number|null, "type": "fixe"|"evolutif"|null, "energie_annuel": number|null, "acheminement_annuel": number|null, "taxes_annuel": number|null, "total_annuel": number|null, "ecart_annuel": number|null }
@@ -244,6 +244,7 @@ Réponds UNIQUEMENT avec ce JSON valide, sans aucun texte autour :
 }
 
 Règles :
+- "raison_sociale", "interlocuteur", "siren", "adresse" : coordonnées du client affichées en haut du bilan (bloc « Votre entreprise »). "date_bilan" : la date du comparatif. "reference_bilan" : la référence du document (ex code en pied de page).
 - "reference" = la ligne « Votre facture » / « Offre de référence » / contrat actuel (souvent la 1ʳᵉ ligne, sans durée).
 - "offres" = TOUTES les autres lignes (fournisseurs proposés), dans l'ordre exact du tableau.
 - Montants ANNUELS en euros HT (€/an), tels qu'affichés. Ne divise ni ne multiplie pas.
