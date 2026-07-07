@@ -139,7 +139,9 @@
   .brow{padding:15px 20px;border-top:1px solid var(--line);cursor:pointer;transition:background .15s;position:relative}
   .brow:hover{background:var(--panel)} .brow.sel{background:var(--green-soft)}
   .fourn{display:flex;align-items:center;gap:12px;min-width:0}
-  .fmark{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;font-weight:700;font-size:13px;color:#fff;flex:0 0 auto}
+  .fmark{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;font-weight:700;font-size:13px;color:#fff;flex:0 0 auto;overflow:hidden}
+  .fmark.logo{background:#fff;border:1px solid var(--line);padding:5px}
+  .fmark.logo img{max-width:100%;max-height:100%;width:auto;height:auto;object-fit:contain;display:block}
   .fname{font-weight:600;font-size:15px} .fsub{font-size:12px;color:var(--mut)}
   .pill{display:inline-block;font-size:11.5px;font-weight:600;padding:3px 9px;border-radius:999px}
   .pill.fixe{background:var(--green-soft);color:var(--green-deep)} .pill.evo{background:#fdeede;color:var(--amber)}
@@ -354,6 +356,18 @@
 const euro=n=>new Intl.NumberFormat('fr-FR',{style:'currency',currency:'EUR',maximumFractionDigits:0}).format(Math.round(n));
 const ini=s=>s[0].toUpperCase();
 
+/* Logo fournisseur — match STRICT : on ne montre un logo que si le fournisseur
+   est reconnu avec certitude. Sinon on garde la pastille + initiale (jamais de faux logo).
+   Noms distinctifs = match par sous-chaîne ; noms courts/ambigus (edf, eni, geg, ohm, total) = match par TOKEN exact. */
+const _sq=s=>(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]/g,'');
+const _tok=s=>(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').split(/[^a-z0-9]+/).filter(Boolean);
+const LOGO_LONG={engie:'engie.svg',vattenfall:'vattenfall.svg',endesa:'endesa-grupo.svg',alpiq:'alpiq.png',alterna:'alterna.png',enovos:'enovos.webp',dyneff:'dyneff.png',energem:'energem.png',primeo:'primeo.png',ilek:'ilek.png',totalenergies:'totalenergies.svg',totalenergie:'totalenergies.svg'};
+const LOGO_SHORT={edf:'edf.svg',eni:'eni.svg',geg:'geg.png',ohm:'ohm.png',total:'totalenergies.svg'};
+function logoFor(name){const sq=_sq(name);if(!sq)return null;for(const k in LOGO_LONG){if(sq.includes(k))return LOGO_LONG[k];}for(const t of _tok(name)){if(LOGO_SHORT[t])return LOGO_SHORT[t];}return null;}
+function fmark(name,color,size){size=size||34;const lf=logoFor(name),st=`width:${size}px;height:${size}px`;
+  if(lf)return `<div class="fmark logo" style="${st}"><img src="/assets/fournisseurs/${lf}" alt="${(name||'').replace(/"/g,'')}" loading="lazy"></div>`;
+  return `<div class="fmark" style="${st};background:${color};font-size:${Math.round(size*0.4)}px">${ini(name||'?')}</div>`;}
+
 const FOURN=[['EDF','edf.svg'],['Engie','engie.svg'],['TotalEnergies','totalenergies.svg'],['Endesa','endesa-grupo.svg'],['Vattenfall','vattenfall.svg'],['Alpiq','alpiq.png'],['Eni','eni.svg'],['Alterna','alterna.png'],['Enovos','enovos.webp'],['Dyneff','dyneff.png'],['Energem','energem.png'],['GEG','geg.png'],['Ilek','ilek.png'],['Ohm Énergie','ohm.png'],['Primeo','primeo.png']];
 const ACH=2150,TAXES=1727; let AT=ACH+TAXES;
 let REF={nom:'Vattenfall — actuel',energie:6008,kwh:181.7,kwhE:110.4,total:0}; REF.total=REF.energie+AT;
@@ -483,11 +497,11 @@ function offerEcoTotal(o){ return offerYears(o).reduce((s,r)=>s+(r.edf-o.energie
 function avgSaving(o){ return offerEcoTotal(o)/(o.duree/12); }
 function setBilanRate(r,btn){RATE=r;document.querySelectorAll('#bilanSeg button').forEach(b=>b.classList.remove('on'));btn.classList.add('on');renderRows();}
 function renderRows(){
-  let h=`<div class="brow ref" onclick="openSheet(-1)"><div class="fourn"><div class="fmark" style="background:#75837e">V</div><div><div class="fname">${REF.nom}</div><div class="fsub tnum">${REF.kwh} €/MWh · acheminement inclus</div></div></div>
+  let h=`<div class="brow ref" onclick="openSheet(-1)"><div class="fourn">${fmark(REF.nom,'#75837e',34)}<div><div class="fname">${REF.nom}</div><div class="fsub tnum">${REF.kwh} €/MWh · acheminement inclus</div></div></div>
     <div class="cell"><span class="pill evo">actuel</span></div><div class="cell r tnum">${euro(REF.energie)}</div><div class="cell r tnum">${euro(AT)}</div><div class="total-c total r tnum">${euro(REF.total)}</div><div class="ec-c ecart r muted">référence</div>
     <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></div>`;
   OFFRES.forEach((o,k)=>{const eco=avgSaving(o), pos=eco>=0;
-    h+=`<div class="brow" data-k="${k}" onclick="openSheet(${k})"><div class="fourn"><div class="fmark" style="background:${o.color}">${ini(o.nom)}</div><div><div class="fname">${o.nom}</div><div class="fsub tnum">${o.kwhE} €/MWh · énergie seule</div></div></div>
+    h+=`<div class="brow" data-k="${k}" onclick="openSheet(${k})"><div class="fourn">${fmark(o.nom,o.color,34)}<div><div class="fname">${o.nom}</div><div class="fsub tnum">${o.kwhE} €/MWh · énergie seule</div></div></div>
       <div class="cell"><span class="pill fixe">Fixe ${o.duree} mois</span></div><div class="cell r tnum">${euro(o.energie)}</div><div class="cell r tnum">${euro(AT)}</div><div class="total-c total r tnum">${euro(o.total)}</div>
       <div class="ec-c ecart ${pos?'pos':'neg'} r">${pos?'−':'+'}${euro(Math.abs(eco))}<small style="font-weight:400;color:var(--mut);display:block;font-size:10.5px">/an moy. · ${o.duree}m</small></div>
       <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></div>`;});
@@ -514,7 +528,7 @@ function drawSheet(){
   const sheet=document.getElementById('sheet');
   if(curK===-1){ // référence : si vous ne changez rien
     const years=4;let tot=0,rows='';for(let y=1;y<=years;y++){const e=REF.energie*Math.pow(1+RATE,y);tot+=e-REF.energie;rows+=`<div class="tr"><div>An ${y}</div><div class="tnum" style="color:var(--rose)">${euro(e)}</div><div class="tnum">${euro(REF.energie)}</div><div class="tnum" style="color:var(--rose);font-weight:700">+${euro(e-REF.energie)}</div></div>`;}
-    sheet.innerHTML=`<div class="sheet-top"><div style="display:flex;align-items:center;gap:13px"><div class="fmark" style="width:42px;height:42px;background:#75837e;font-size:16px">V</div><div><div style="font-family:var(--serif);font-size:22px">Votre contrat actuel</div><div style="font-size:13px;color:var(--mut)">Si vous ne changez rien</div></div></div>
+    sheet.innerHTML=`<div class="sheet-top"><div style="display:flex;align-items:center;gap:13px">${fmark(REF.nom,'#75837e',42)}<div><div style="font-family:var(--serif);font-size:22px">Votre contrat actuel</div><div style="font-size:13px;color:var(--mut)">Si vous ne changez rien</div></div></div>
       <button class="sheet-x" onclick="closeSheet()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
       <div class="lever"><div class="lvr fix"><div class="lh"><div class="lt">🔌 Acheminement + taxes</div><span class="badge">non négociable</span></div><div class="cmp"><div><div class="v tnum">${euro(AT)}/an</div><small>identique chez tous les fournisseurs</small></div></div><p>Régulé par l'État. Personne ne peut agir dessus, ni nous, ni un autre courtier.</p></div></div>
       <div class="proj"><div class="proj-h"><div class="t">Votre énergie si vous ne bougez pas</div>${segHTML()}</div>
@@ -529,7 +543,7 @@ function drawSheet(){
   yrs.forEach(r=>{ const d=(r.edf-o.energie)*r.months/12; eco+=d; const p=d>=0;
     const lbl=r.months<12?`An ${r.y} · ${r.months} mois`:`An ${r.y}`;
     rows+=`<div class="tr"><div>${lbl}</div><div class="tnum" style="color:var(--rose)">${euro(r.edf)}</div><div class="tnum" style="color:var(--green-deep)">${euro(o.energie)}</div><div class="tnum" style="color:${p?'var(--green-deep)':'var(--rose)'};font-weight:700">${p?'−':'+'}${euro(Math.abs(d))}</div></div>`;});
-  sheet.innerHTML=`<div class="sheet-top"><div style="display:flex;align-items:center;gap:13px"><div class="fmark" style="width:42px;height:42px;background:${o.color};font-size:16px">${ini(o.nom)}</div><div><div style="font-family:var(--serif);font-size:22px">${o.nom}</div><div style="font-size:13px;color:var(--mut)">Prix fixe garanti ${o.duree} mois</div></div></div>
+  sheet.innerHTML=`<div class="sheet-top"><div style="display:flex;align-items:center;gap:13px">${fmark(o.nom,o.color,42)}<div><div style="font-family:var(--serif);font-size:22px">${o.nom}</div><div style="font-size:13px;color:var(--mut)">Prix fixe garanti ${o.duree} mois</div></div></div>
     <button class="sheet-x" onclick="closeSheet()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
     <div class="lever">
       <div class="lvr act"><div class="lh"><div class="lt">⚡ Énergie · le seul vrai levier</div><span class="badge" style="${ecoNow<0?'color:var(--rose);background:#fbeeee':''}">${ecoNow>=0?'−'+euro(ecoNow):'+'+euro(-ecoNow)}/an aujourd'hui</span></div>
