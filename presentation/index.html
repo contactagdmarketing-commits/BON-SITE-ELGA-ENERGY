@@ -430,11 +430,11 @@ function offerEcoTotal(o){ return offerYears(o).reduce((s,r)=>s+(r.edf-o.energie
 function avgSaving(o){ return offerEcoTotal(o)/(o.duree/12); }
 function setBilanRate(r,btn){RATE=r;document.querySelectorAll('#bilanSeg button').forEach(b=>b.classList.remove('on'));btn.classList.add('on');renderRows();}
 function renderRows(){
-  let h=`<div class="brow ref" onclick="openSheet(-1)"><div class="fourn"><div class="fmark" style="background:#75837e">V</div><div><div class="fname">${REF.nom}</div><div class="fsub tnum">${REF.kwh} €/MWh tout compris</div></div></div>
+  let h=`<div class="brow ref" onclick="openSheet(-1)"><div class="fourn"><div class="fmark" style="background:#75837e">V</div><div><div class="fname">${REF.nom}</div><div class="fsub tnum">${REF.kwh} €/MWh · acheminement inclus</div></div></div>
     <div class="cell"><span class="pill evo">actuel</span></div><div class="cell r tnum">${euro(REF.energie)}</div><div class="cell r tnum">${euro(AT)}</div><div class="total-c total r tnum">${euro(REF.total)}</div><div class="ec-c ecart r muted">référence</div>
     <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></div>`;
   OFFRES.forEach((o,k)=>{const eco=avgSaving(o), pos=eco>=0;
-    h+=`<div class="brow" data-k="${k}" onclick="openSheet(${k})"><div class="fourn"><div class="fmark" style="background:${o.color}">${ini(o.nom)}</div><div><div class="fname">${o.nom}</div><div class="fsub tnum">${o.kwh} €/MWh tout compris</div></div></div>
+    h+=`<div class="brow" data-k="${k}" onclick="openSheet(${k})"><div class="fourn"><div class="fmark" style="background:${o.color}">${ini(o.nom)}</div><div><div class="fname">${o.nom}</div><div class="fsub tnum">${o.kwhE} €/MWh · énergie seule</div></div></div>
       <div class="cell"><span class="pill fixe">Fixe ${o.duree} mois</span></div><div class="cell r tnum">${euro(o.energie)}</div><div class="cell r tnum">${euro(AT)}</div><div class="total-c total r tnum">${euro(o.total)}</div>
       <div class="ec-c ecart ${pos?'pos':'neg'} r">${pos?'−':'+'}${euro(Math.abs(eco))}<small style="font-weight:400;color:var(--mut);display:block;font-size:10.5px">/an moy. · ${o.duree}m</small></div>
       <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></div>`;});
