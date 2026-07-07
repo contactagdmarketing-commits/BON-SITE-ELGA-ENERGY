@@ -1690,15 +1690,14 @@
     //    Stats RÉELLES issues des barèmes CRE 2012-2026 (Option Base) : 21 révisions,
     //    facture 14↑/7↓, abonnement 15↑/4↓, pics +17/+10/+9,8 % puis −18 %.
     if (trv) {
-      V.push({ t: 'danger', titre: 'Tarif Réglementé (Tarif Bleu) — un prix qui bouge sans arrêt',
-        txt: "Sur 14 ans, le tarif réglementé a été révisé 21 fois — environ une fois tous les 8 mois, dans un sens que vous ne contrôlez pas (source CRE) :",
-        stats: [
-          ['2 pour 1', 'hausses / baisse · facture'],
-          ['4 pour 1', 'hausses / baisse · abonnement (réseau)'],
-          ['+17 · +10 · +9,8 %', '3 hausses d’affilée (2023-24)'],
-          ['puis −18 %', 'chute brutale en 2025']
+      V.push({ t: 'warn', titre: 'Tarif Réglementé (Tarif Bleu) — un prix révisé plusieurs fois par an',
+        txt: "Sur 14 ans, le tarif réglementé a été révisé 21 fois — environ une fois tous les 8 mois, dans un sens que vous ne contrôlez pas (source CRE).",
+        details: [
+          "14 hausses de tarif sur la période.",
+          "L’abonnement — qui porte la part réseau (acheminement) — a connu 15 hausses.",
+          "Dont 3 hausses successives en 2023-2024 : +17 %, +10 %, puis +9,8 %.",
+          "À l’inverse, un contrat de marché à prix fixe reste identique pendant toute sa durée."
         ],
-        extra: "Votre prix varie plusieurs fois par an — impossible à anticiper. Un contrat de marché à prix fixe négocié, c’est zéro révision subie : vous savez exactement ce que vous payez, du premier au dernier mois.",
         source: { label: "Source : CRE — Historique des tarifs réglementés de vente d’électricité (données ouvertes)", url: "https://www.cre.fr/documents/open-data/historique-des-tarifs-reglementes-de-vente-delectricite-pour-les-consommateurs-residentiels.html" } });
     }
 
@@ -1756,35 +1755,35 @@
         '<div class="min-w-0"><p class="text-[13.5px] font-bold ' + c.ti + '"></p><p class="text-[12.5px] text-slate-600 mt-0.5 leading-relaxed"></p></div>';
       row.querySelectorAll('p')[0].textContent = v.titre;
       row.querySelectorAll('p')[1].textContent = v.txt;
-      // Pastilles de stats (ex : instabilité du TRV) — grille 2/4 colonnes, très lisibles.
-      if (v.stats && v.stats.length) {
+      // Détail repliable (sobre) : par défaut masqué, « Voir le détail » le déroule.
+      if (v.details && v.details.length) {
         var inner = row.querySelector('div.min-w-0');
-        var grid = document.createElement('div');
-        grid.className = 'grid grid-cols-2 sm:grid-cols-4 gap-2 mt-2.5';
-        v.stats.forEach(function (st) {
-          var chip = document.createElement('div');
-          chip.className = 'rounded-lg bg-white border ' + c.bd + ' px-2.5 py-2 text-center';
-          var big = document.createElement('div'); big.className = 'text-[14px] font-extrabold ' + c.ti + ' leading-tight'; big.textContent = st[0];
-          var sm = document.createElement('div'); sm.className = 'text-[10.5px] text-slate-500 mt-0.5 leading-snug'; sm.textContent = st[1];
-          chip.append(big, sm); grid.appendChild(chip);
+        var toggle = document.createElement('button');
+        toggle.type = 'button';
+        toggle.className = 'vig-more inline-flex items-center gap-1 mt-2 text-[12px] font-semibold ' + c.ti;
+        toggle.innerHTML = '<span class="vig-lbl">Voir le détail</span><svg class="vig-chev w-3.5 h-3.5 transition-transform" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>';
+        var det = document.createElement('div');
+        det.className = 'vig-detail hidden mt-2 space-y-1.5';
+        v.details.forEach(function (line) {
+          var p = document.createElement('div');
+          p.className = 'flex gap-2 text-[12.5px] text-slate-600 leading-relaxed';
+          var b = document.createElement('span'); b.className = c.dot + ' shrink-0'; b.textContent = '•';
+          var t = document.createElement('span'); t.textContent = line;
+          p.append(b, t); det.appendChild(p);
         });
-        inner.appendChild(grid);
-      }
-      if (v.extra) {
-        var inner2 = row.querySelector('div.min-w-0');
-        var ex = document.createElement('p');
-        ex.className = 'text-[12.5px] font-semibold ' + c.ti + ' mt-2.5 leading-relaxed';
-        ex.textContent = v.extra;
-        inner2.appendChild(ex);
-      }
-      // Source (crédibilité) : petit lien discret cliquable.
-      if (v.source) {
-        var inner3 = row.querySelector('div.min-w-0');
-        var src = document.createElement('a');
-        src.href = v.source.url; src.target = '_blank'; src.rel = 'noopener noreferrer';
-        src.className = 'inline-flex items-center gap-1 text-[11px] text-slate-400 hover:text-slate-600 mt-2 underline decoration-slate-300 underline-offset-2';
-        src.textContent = v.source.label;
-        inner3.appendChild(src);
+        if (v.source) {
+          var src = document.createElement('a');
+          src.href = v.source.url; src.target = '_blank'; src.rel = 'noopener noreferrer';
+          src.className = 'inline-block text-[11px] text-slate-400 hover:text-slate-600 mt-1 underline decoration-slate-300 underline-offset-2';
+          src.textContent = v.source.label;
+          det.appendChild(src);
+        }
+        toggle.addEventListener('click', function () {
+          var hidden = det.classList.toggle('hidden');
+          var chev = toggle.querySelector('.vig-chev'); if (chev) chev.classList.toggle('rotate-180', !hidden);
+          toggle.querySelector('.vig-lbl').textContent = hidden ? 'Voir le détail' : 'Masquer le détail';
+        });
+        inner.append(toggle, det);
       }
       box.appendChild(row);
     });
