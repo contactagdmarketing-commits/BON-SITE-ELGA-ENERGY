@@ -1386,25 +1386,26 @@
         return Math.round(base * 10) / 10;
       }
     } else {
-      // EDF TRV : le prix affiché inclut l'acheminement. RÈGLE EDF : on retire la part VARIABLE
-      // de l'acheminement (lue sur la facture) ramenée au MWh = part_variable / conso.
+      // EDF TRV : le prix au kWh inclut l'acheminement. La moyenne HP/HC est peu fiable
+      // (répartition réelle inconnue). Le plus honnête : reconstituer l'énergie PURE depuis
+      // le TOTAL : (total HT − acheminement complet − taxes − abonnement) / conso.
+      var consoT = consoMwhOf(e);
+      if (e.total_ht_annual != null && consoT) {
+        var achT = (e.acheminement_var_annual_ht || 0) + (e.acheminement_fixe_annual_ht || 0);
+        if (achT === 0) achT = acheminementOf(e).val || 0;
+        var taxT = (e.accise_annual_ht || 0) + (e.cta_annual_ht || 0);
+        var aboT = (e.subscription_monthly_ht || 0) * 12;
+        var pureTrv = (e.total_ht_annual - achT - taxT - aboT) / consoT;
+        if (pureTrv > 0) return Math.round(pureTrv * 10) / 10;
+      }
+      // Repli : prix affiché − part variable d'acheminement ramenée au MWh.
       var trvPrice = (e.price_hph_mwh != null && e.price_hch_mwh != null)
         ? (e.price_hph_mwh * 0.55 + e.price_hch_mwh * 0.45)
         : (e.price_base_mwh != null ? e.price_base_mwh : null);
-      var consoT = consoMwhOf(e);
       if (trvPrice != null && e.acheminement_var_annual_ht != null && consoT) {
-        var pureTrv = trvPrice - (e.acheminement_var_annual_ht / consoT);
-        if (pureTrv > 0) return Math.round(pureTrv * 10) / 10;
+        var pure2 = trvPrice - (e.acheminement_var_annual_ht / consoT);
+        if (pure2 > 0) return Math.round(pure2 * 10) / 10;
       }
-    }
-    // Repli (TRV sans part variable lisible, ou prix non détaillés) : isolation depuis le total.
-    var conso = consoMwhOf(e);
-    if (e.total_ht_annual != null && conso) {
-      var ach = acheminementOf(e).val || 0;
-      var taxes = (e.accise_annual_ht || 0) + (e.cta_annual_ht || 0);
-      var abo = (e.subscription_monthly_ht || 0) * 12;
-      var pure = (e.total_ht_annual - ach - taxes - abo) / conso;
-      if (pure > 0) return Math.round(pure * 10) / 10;
     }
     return e.price_base_mwh != null ? e.price_base_mwh : null;
   }

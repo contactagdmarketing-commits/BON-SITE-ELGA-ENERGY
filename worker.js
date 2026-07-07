@@ -387,20 +387,22 @@ function calculateSavings(bill, grid) {
     if (bill.cee_mwh  && bill.cee_mwh  > 0.1) clientEnergyMwh += bill.cee_mwh;
   }
 
-  // Méthode 2 : reconstitution depuis le total HT de la facture
-  // Avantage : capture capa+CEE même si non extraits unitairement
-  // On l'utilise aussi pour VÉRIFIER la méthode 1 (si M2 > M1 : capa/CEE manquants dans M1)
+  // Méthode 2 : reconstitution depuis le total HT de la facture (source la plus fiable).
+  // Prix énergie pur = (total HT − acheminement − taxes − abonnement) / conso.
   if (bill.total_ht_annual && consumptionMwh) {
-    const ach  = bill.acheminement_annual_ht || (ref.acheminement_annual || 0);
+    // Pour un TRV, l'acheminement (fixe+variable) est DANS le total → le déduire entièrement.
+    const achTrv = (bill.acheminement_var_annual_ht || 0) + (bill.acheminement_fixe_annual_ht || 0);
+    const ach  = bill.acheminement_annual_ht || (achTrv > 0 ? achTrv : (ref.acheminement_annual || 0));
     const taxH = bill.taxes_annual_ht        || consumptionMwh * acciseRate(bill.power_kva, taxes);
     const aboH = (bill.subscription_monthly_ht || ref.abo_monthly || 0) * 12;
     const energyCapaCeeHT = bill.total_ht_annual - ach - taxH;
     if (energyCapaCeeHT > 0) {
       const m2 = (energyCapaCeeHT - aboH) / consumptionMwh;
       if (m2 > 20) {
-        // Si M2 > M1 : la capa/CEE n'étaient pas dans M1 → prendre M2 (plus complet)
-        // Si M1 nul : prendre M2 directement
-        if (!clientEnergyMwh || m2 > clientEnergyMwh) clientEnergyMwh = m2;
+        // TRV : la moyenne HP/HC est peu fiable (répartition réelle inconnue) → le total fait foi.
+        // Marché : on garde le plus complet (M2 capture capa/CEE oubliés dans M1).
+        if (bill.est_trv) clientEnergyMwh = m2;
+        else if (!clientEnergyMwh || m2 > clientEnergyMwh) clientEnergyMwh = m2;
       }
     }
   }
@@ -575,6 +577,13 @@ async function handleScan(request, env) {
     if (num(b.acheminement_fixe_bill_ht) != null) b.acheminement_fixe_annual_ht = Math.round(b.acheminement_fixe_bill_ht * f);
     if (num(b.accise_bill_ht) != null) b.accise_annual_ht = Math.round(b.accise_bill_ht * f);
     if (num(b.cta_bill_ht)    != null) b.cta_annual_ht    = Math.round(b.cta_bill_ht    * f);
+
+    // TRV : garde-fou si l'IA rate la note d'acheminement — estimation TURPE (variable ~34 €/MWh, fixe ~12 €/kVA/an)
+    // pour que la déduction de l'acheminement ait TOUJOURS lieu (sinon le TRV paraît trop cher).
+    if (b.est_trv) {
+      if (b.acheminement_var_annual_ht  == null && b.annual_consumption_mwh) b.acheminement_var_annual_ht  = Math.round(b.annual_consumption_mwh * 34);
+      if (b.acheminement_fixe_annual_ht == null && b.power_kva)              b.acheminement_fixe_annual_ht = Math.round(b.power_kva * 12);
+    }
 
     // Filet de COHÉRENCE : le prix TTC tout compris doit être plausible
     // (élec ~120–450 €/MWh, gaz ~55–180). Si le total est incohérent avec la conso
@@ -946,3 +955,5 @@ export default {
     return out;
   },
 };
+
+export { calculateSavings, getDefaultPrices };
