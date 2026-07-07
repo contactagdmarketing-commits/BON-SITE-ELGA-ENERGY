@@ -11,12 +11,10 @@
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
-    --ink:#0f1a17; --ink-soft:#42514c; --mut:#75837e;
-    --line:#e7ece9; --line-strong:#d3dbd7;
-    --bg:#ffffff; --panel:#fbfcfb; --panel-2:#f3f6f4;
-    --green:#0d7a52; --green-deep:#0a5c3e; --green-soft:#e8f4ee;
-    --blue:#123a7a; --amber:#a86a12; --rose:#c0392b; --rose-soft:#fbeeee;
-    --sans:'Inter',system-ui,sans-serif; --serif:'Fraunces',Georgia,serif;
+    --ink:#0f1a17;--ink-soft:#42514c;--mut:#75837e;--line:#e7ece9;--line-strong:#d3dbd7;
+    --bg:#ffffff;--panel:#fbfcfb;--panel-2:#f3f6f4;--green:#0d7a52;--green-deep:#0a5c3e;--green-soft:#e8f4ee;
+    --blue:#123a7a;--amber:#a86a12;--rose:#c0392b;--rose-soft:#fbeeee;
+    --sans:'Inter',system-ui,sans-serif;--serif:'Fraunces',Georgia,serif;
   }
   *{box-sizing:border-box;margin:0;padding:0}
   html{scroll-behavior:smooth}
@@ -24,10 +22,8 @@
   h1,h2,h3{font-family:var(--serif);font-weight:500;letter-spacing:-0.02em;line-height:1.1;text-wrap:balance}
   .tnum{font-variant-numeric:tabular-nums}
   .wrap{max-width:1060px;margin:0 auto;padding:0 24px}
-  button{font-family:inherit;cursor:pointer}
-  a{color:inherit}
+  button{font-family:inherit;cursor:pointer} a{color:inherit}
 
-  /* Entrée / scanner */
   #load{position:fixed;inset:0;z-index:90;background:var(--bg);display:flex;align-items:center;justify-content:center;transition:opacity .6s,visibility .6s}
   #load.gone{opacity:0;visibility:hidden}
   .load-in{width:min(540px,92vw);text-align:center}
@@ -38,7 +34,7 @@
   .drop .t{font-weight:600;font-size:16px} .drop .s{font-size:13px;color:var(--mut);margin-top:4px}
   .load-title{font-family:var(--serif);font-size:24px;margin-bottom:6px}
   .load-sub{color:var(--mut);font-size:14px;margin-bottom:22px}
-  .steps{text-align:left;max-width:330px;margin:20px auto 0;display:flex;flex-direction:column;gap:10px}
+  .steps{text-align:left;max-width:340px;margin:20px auto 0;display:flex;flex-direction:column;gap:10px}
   .step{display:flex;align-items:center;gap:11px;font-size:13.5px;color:var(--mut);opacity:.4;transition:.4s}
   .step.on{opacity:1;color:var(--ink-soft)}
   .step .tick{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--line-strong);display:grid;place-items:center;flex:0 0 auto;transition:.4s}
@@ -55,29 +51,28 @@
   .btn:hover{background:var(--green-deep)} .btn:active{transform:scale(.98)} .btn svg{width:17px;height:17px}
   .btn.ghost{background:#fff;color:var(--green-deep);border:1px solid var(--line-strong)} .btn.ghost:hover{background:var(--green-soft)}
 
-  /* Rappel présentateur */
-  .presenter{position:sticky;top:0;z-index:45;background:#0f1a17;color:#cfe7da;font-size:12.5px}
-  .presenter .wrap{display:flex;align-items:center;gap:10px;height:34px}
-  .presenter b{color:#fff;font-weight:600} .presenter .x{margin-left:auto;background:none;border:none;color:#8fb3a5;font-size:16px;line-height:1}
-  .presenter.hide{display:none}
-
-  .topbar{position:sticky;top:0;z-index:40;background:rgba(255,255,255,.88);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+  .topbar{position:sticky;top:0;z-index:40;background:rgba(255,255,255,.9);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
   .topbar .wrap{display:flex;align-items:center;justify-content:space-between;height:58px}
   .topbar img{height:26px} .topbar .meta{font-size:12.5px;color:var(--mut)}
 
   section{padding:58px 0;border-bottom:1px solid var(--line)}
   .eyebrow{font-size:12px;font-weight:600;color:var(--green);margin-bottom:12px}
   h2.sec{font-size:clamp(24px,3.4vw,34px)}
-  .sub{color:var(--ink-soft);font-size:16.5px;max-width:62ch;margin-top:14px;line-height:1.6}
-  .muted{color:var(--mut)}
+  .sub{color:var(--ink-soft);font-size:16.5px;max-width:64ch;margin-top:14px;line-height:1.6} .muted{color:var(--mut)}
 
-  .figure{margin-top:24px;border:1px solid var(--line);border-radius:18px;background:#fff;padding:22px 22px 10px;overflow:hidden}
-  .figure .cap{font-family:var(--serif);font-size:19px} .figure .capsub{font-size:13px;color:var(--mut);margin:2px 0 12px}
-  .axis{font-size:11px;fill:var(--mut)} .annot{font-size:11px}
-  .figrow{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-  @media(max-width:820px){.figrow{grid-template-columns:1fr}}
+  /* flip card */
+  .flip{margin-top:26px;perspective:1600px;cursor:pointer}
+  .flip-inner{position:relative;transition:transform .75s cubic-bezier(.2,.85,.25,1);transform-style:preserve-3d;min-height:390px}
+  .flip.flipped .flip-inner{transform:rotateY(180deg)}
+  .flip-face{position:absolute;inset:0;backface-visibility:hidden;-webkit-backface-visibility:hidden;border:1px solid var(--line);border-radius:18px;background:#fff;padding:22px 22px 12px;overflow:hidden}
+  .flip-face.back{transform:rotateY(180deg)}
+  .flip-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+  .flip .cap{font-family:var(--serif);font-size:19px} .flip .capsub{font-size:13px;color:var(--mut);margin:2px 0 8px}
+  .flip-btn{font-size:12px;font-weight:600;color:var(--green);border:1px solid var(--line-strong);background:#fff;border-radius:999px;padding:6px 12px;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
+  .axis{font-size:10px;fill:var(--mut)} .annot{font-size:11px}
+  @media (prefers-reduced-motion:reduce){.flip-inner{transition:none}}
 
-  /* 3 cards piliers */
+  /* piliers */
   .pillars{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:28px}
   @media(max-width:820px){.pillars{grid-template-columns:1fr}}
   .pill-card{border:1px solid var(--line);border-radius:16px;background:#fff;padding:22px;cursor:pointer;transition:transform .25s cubic-bezier(.2,.8,.2,1),border-color .2s,box-shadow .25s;position:relative}
@@ -85,36 +80,44 @@
   .pill-card.on{border-color:var(--green);box-shadow:0 12px 34px -18px rgba(13,122,82,.4)}
   .pill-ic{width:44px;height:44px;border-radius:12px;background:var(--green-soft);color:var(--green-deep);display:grid;place-items:center;font-size:22px}
   .pill-card .lv{font-size:11px;font-weight:700;letter-spacing:.06em;color:var(--green);margin-top:14px}
-  .pill-card h3{font-size:20px;margin-top:3px}
-  .pill-card .d{color:var(--ink-soft);font-size:13.5px;margin-top:7px}
+  .pill-card h3{font-size:20px;margin-top:3px} .pill-card .d{color:var(--ink-soft);font-size:13.5px;margin-top:7px}
   .pill-card .more{margin-top:12px;font-size:12.5px;font-weight:600;color:var(--green);display:inline-flex;align-items:center;gap:5px}
   .pill-card .more svg{width:14px;height:14px;transition:transform .3s} .pill-card.on .more svg{transform:rotate(90deg)}
-  .pill-detail{overflow:hidden;max-height:0;opacity:0;transition:max-height .45s cubic-bezier(.2,.8,.2,1),opacity .35s,margin .3s;margin-top:0}
-  .pill-detail.open{max-height:1400px;opacity:1;margin-top:16px}
+  .pill-detail{overflow:hidden;max-height:0;opacity:0;transition:max-height .5s cubic-bezier(.2,.8,.2,1),opacity .35s,margin .3s;margin-top:0}
+  .pill-detail.open{max-height:1600px;opacity:1;margin-top:16px}
   .panel{border:1px solid var(--line);border-radius:18px;background:var(--panel);padding:24px}
   .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
   .flogo{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:#fff;border-radius:10px;padding:7px 13px;font-weight:600;font-size:13.5px}
   .fdot{width:9px;height:9px;border-radius:50%}
   .kpis{display:flex;flex-wrap:wrap;gap:24px;margin-top:18px}
-  .kpi .n{font-family:var(--serif);font-size:30px;color:var(--green-deep);line-height:1}
-  .kpi .l{font-size:12.5px;color:var(--ink-soft);margin-top:4px;max-width:24ch}
-  .two{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px}
-  @media(max-width:680px){.two{grid-template-columns:1fr}}
+  .kpi .n{font-family:var(--serif);font-size:30px;color:var(--green-deep);line-height:1} .kpi .l{font-size:12.5px;color:var(--ink-soft);margin-top:4px;max-width:24ch}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:16px} @media(max-width:680px){.two{grid-template-columns:1fr}}
   .mini{background:#fff;border:1px solid var(--line);border-radius:13px;padding:15px 17px}
   .mini .h{display:flex;align-items:center;gap:10px;font-weight:600;font-size:14.5px}
   .mini .ic{width:28px;height:28px;border-radius:8px;background:var(--green-soft);color:var(--green-deep);display:grid;place-items:center;flex:0 0 auto}
   .mini p{color:var(--ink-soft);font-size:13px;margin-top:6px;line-height:1.5}
-  .callout{margin-top:16px;padding:15px 18px;border-radius:13px;background:var(--green-soft);border:1px solid #cfe7da;font-size:13.5px;color:var(--green-deep)}
-  .callout b{color:var(--ink)}
+  .alert{margin-top:14px;padding:16px 18px;border-radius:13px;font-size:14px;line-height:1.55;border:1px solid}
+  .alert.warn{background:#fff7ed;border-color:#f5d9b0;color:#7c4a06} .alert.warn b{color:#5c3703}
+  .highlight{margin-top:16px;padding:18px 20px;border-radius:14px;background:linear-gradient(180deg,var(--green-soft),#fff);border:1px solid #cfe7da}
+  .highlight .t{font-family:var(--serif);font-size:17px;color:var(--green-deep)} .highlight p{font-size:13.5px;color:var(--ink-soft);margin-top:6px;line-height:1.55} .highlight b{color:var(--ink)}
+
+  /* 3 questions */
+  .q3{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:28px} @media(max-width:820px){.q3{grid-template-columns:1fr}}
+  .qcard{border:1px solid var(--line);border-radius:16px;background:#fff;padding:22px}
+  .qcard .num{font-family:var(--serif);font-size:15px;color:var(--green);font-weight:600}
+  .qcard .q{font-family:var(--serif);font-size:19px;margin-top:8px;line-height:1.2}
+  .qcard .a{margin-top:12px;font-size:13px;font-weight:600;color:var(--mut)}
+  .qcard.on .a{color:var(--green-deep)}
+  .q-pay{margin-top:20px;padding:20px 24px;border-radius:16px;background:var(--ink);color:#eaf5ef;font-size:16px;line-height:1.5}
+  .q-pay b{color:#fff}
 
   /* Bilan */
   .bilan{margin-top:22px;border:1px solid var(--line);border-radius:18px;overflow:hidden;background:#fff}
   .bhead,.brow{display:grid;grid-template-columns:1.7fr .9fr .8fr .8fr .9fr 1fr;gap:8px;align-items:center}
   .bhead{padding:13px 20px;background:var(--panel-2);font-size:11px;font-weight:600;letter-spacing:.03em;text-transform:uppercase;color:var(--mut)}
   .bhead .r,.brow .r{text-align:right}
-  .brow{padding:15px 20px;border-top:1px solid var(--line);cursor:pointer;transition:background .15s}
+  .brow{padding:15px 20px;border-top:1px solid var(--line);cursor:pointer;transition:background .15s;position:relative}
   .brow:hover{background:var(--panel)} .brow.sel{background:var(--green-soft)}
-  .brow.ref,.brow.ref:hover{background:#fff;cursor:default}
   .fourn{display:flex;align-items:center;gap:12px;min-width:0}
   .fmark{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;font-weight:700;font-size:13px;color:#fff;flex:0 0 auto}
   .fname{font-weight:600;font-size:15px} .fsub{font-size:12px;color:var(--mut)}
@@ -122,31 +125,38 @@
   .pill.fixe{background:var(--green-soft);color:var(--green-deep)} .pill.evo{background:#fdeede;color:var(--amber)}
   .cell{font-size:14px;color:var(--ink-soft)} .total{font-weight:700;font-size:15px} .ecart{font-weight:700;font-size:14px}
   .ecart.pos{color:var(--green)} .ecart.neg{color:var(--rose)}
+  .chev{position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--mut);opacity:0;transition:.15s} .brow:hover .chev{opacity:.55}
   .hint{font-size:12.5px;color:var(--mut);margin-top:14px;display:flex;gap:7px;align-items:center}
   @media(max-width:760px){.bhead{display:none}.brow{grid-template-columns:1fr auto;gap:5px 12px;padding:14px 16px}.brow .cell,.brow .total-c{display:none}.brow .ec-c{grid-column:2;text-align:right}}
 
-  /* Modale détail + projection */
-  .ov{position:fixed;inset:0;z-index:60;background:rgba(15,26,23,.42);backdrop-filter:blur(3px);display:flex;align-items:flex-end;justify-content:center;opacity:0;visibility:hidden;transition:.3s}
+  .ov{position:fixed;inset:0;z-index:60;background:rgba(15,26,23,.44);backdrop-filter:blur(3px);display:flex;align-items:flex-end;justify-content:center;opacity:0;visibility:hidden;transition:.3s}
   .ov.open{opacity:1;visibility:visible}
-  .sheet{background:#fff;width:min(740px,100%);max-height:93vh;overflow-y:auto;border-radius:20px 20px 0 0;transform:translateY(24px);transition:transform .35s cubic-bezier(.2,.8,.2,1);padding:24px 24px 32px}
+  .sheet{background:#fff;width:min(760px,100%);max-height:93vh;overflow-y:auto;border-radius:20px 20px 0 0;transform:translateY(24px);transition:transform .35s cubic-bezier(.2,.8,.2,1);padding:24px 24px 32px}
   .ov.open .sheet{transform:none}
   @media(min-width:720px){.ov{align-items:center}.sheet{border-radius:20px}}
-  .sheet-top{display:flex;align-items:center;justify-content:space-between;gap:14px}
+  .sheet-top{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:4px}
   .sheet-x{width:34px;height:34px;border-radius:50%;border:1px solid var(--line);background:#fff;display:grid;place-items:center;color:var(--mut)}
-  .brk{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:16px 0}
-  @media(max-width:620px){.brk{grid-template-columns:1fr}}
-  .brk .b{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:12px 14px}
-  .brk .b .k{font-size:11.5px;color:var(--mut)} .brk .b .v{font-size:18px;font-weight:600;margin-top:3px} .brk .b .d{font-size:12px;color:var(--mut);margin-top:2px}
+  .lever{display:grid;grid-template-columns:1fr;gap:10px;margin:16px 0}
+  .lvr{border-radius:13px;padding:14px 16px;border:1px solid}
+  .lvr.act{background:var(--green-soft);border-color:#cfe7da} .lvr.fix{background:var(--panel);border-color:var(--line)}
+  .lvr .lh{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+  .lvr .lt{font-weight:600;font-size:14.5px;display:flex;align-items:center;gap:8px}
+  .lvr .badge{font-size:11.5px;font-weight:600;padding:3px 10px;border-radius:999px}
+  .lvr.act .badge{background:#fff;color:var(--green-deep)} .lvr.fix .badge{background:#eef1ef;color:var(--mut)}
+  .lvr .cmp{display:flex;gap:22px;margin-top:8px;font-size:14px;flex-wrap:wrap}
+  .lvr .cmp .v{font-weight:700;font-size:17px} .lvr .cmp small{color:var(--mut);font-weight:400;font-size:12px;display:block}
+  .lvr p{font-size:12.5px;color:var(--ink-soft);margin-top:6px}
   .proj{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px;margin-top:6px}
-  .proj-h{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:8px}
-  .proj-h .t{font-family:var(--serif);font-size:18px}
+  .proj-h{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:8px} .proj-h .t{font-family:var(--serif);font-size:18px}
   .seg{display:inline-flex;background:#fff;border:1px solid var(--line);border-radius:999px;padding:3px}
   .seg button{border:none;background:none;padding:5px 12px;border-radius:999px;font-size:12.5px;font-weight:600;color:var(--mut)} .seg button.on{background:var(--green);color:#fff}
-  .legend{display:flex;gap:16px;font-size:12px;color:var(--ink-soft);margin:12px 0 4px;flex-wrap:wrap}
-  .legend i{width:18px;height:3px;border-radius:3px;display:inline-block;vertical-align:middle;margin-right:6px}
-  .verdict{margin-top:14px;padding:15px 18px;border-radius:13px;background:var(--green-soft);border:1px solid #cfe7da}
-  .verdict .big{font-family:var(--serif);font-size:25px;color:var(--green-deep)}
-  .verdict p{font-size:13.5px;color:var(--ink-soft);margin-top:4px;line-height:1.5} .verdict b{color:var(--ink)}
+  .legend{display:flex;gap:16px;font-size:12px;color:var(--ink-soft);margin:12px 0 4px;flex-wrap:wrap} .legend i{width:18px;height:3px;border-radius:3px;display:inline-block;vertical-align:middle;margin-right:6px}
+  .ptab{margin-top:10px;font-size:13px;border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .ptab .tr{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;border-top:1px solid var(--line)} .ptab .tr:first-child{border-top:none}
+  .ptab .tr>div{padding:9px 12px;text-align:right} .ptab .tr>div:first-child{text-align:left;color:var(--ink-soft)}
+  .ptab .th{background:var(--panel-2);font-size:11px;text-transform:uppercase;color:var(--mut);font-weight:600}
+  .verdict{margin-top:14px;padding:16px 18px;border-radius:13px;background:var(--green);color:#fff}
+  .verdict .big{font-family:var(--serif);font-size:27px} .verdict p{font-size:13px;margin-top:4px;line-height:1.5;color:#dff0e8} .verdict b{color:#fff}
 
   .foot{padding:40px 0 70px;text-align:center;color:var(--mut);font-size:13px;border-bottom:none}
   .src{font-size:12px;color:var(--mut);margin-top:16px} .src a{color:var(--green);text-decoration:underline;text-underline-offset:2px}
@@ -156,73 +166,76 @@
 </head>
 <body>
 
-<!-- ENTRÉE / SCANNER -->
-<div id="load">
-  <div class="load-in">
-    <img src="/assets/logos/elga-energy-logo.png" class="load-logo" alt="Elga Energy">
-    <div class="load-title">On regarde votre situation ensemble</div>
-    <div class="load-sub">Chargez votre bilan comparatif : on le déroule à l'écran.</div>
-    <label class="drop" id="drop"><input type="file" accept="application/pdf,image/*" id="file" hidden>
-      <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5M4 17v2a1 1 0 001 1h14a1 1 0 001-1v-2"/></svg>
-      <div class="t">Déposer le bilan (PDF)</div><div class="s">ou cliquez pour choisir un fichier</div>
-    </label>
-    <div class="scan" id="scan"><i></i></div>
-    <div class="steps" id="steps">
-      <div class="step"><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span>Lecture du bilan</div>
-      <div class="step"><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span>Comparaison des offres négociées</div>
-      <div class="step"><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span>Projection sur la durée du contrat</div>
-    </div>
-    <div class="reveal-btn" id="revealBtn"><button class="btn" onclick="reveal()">Découvrir votre bilan
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></div>
-    <div><button class="skip" onclick="reveal()">Commencer sans charger</button></div>
+<!-- ENTRÉE -->
+<div id="load"><div class="load-in">
+  <img src="/assets/logos/elga-energy-logo.png" class="load-logo" alt="Elga Energy">
+  <div class="load-title">On regarde votre situation ensemble</div>
+  <div class="load-sub">Chargez votre bilan comparatif : on le déroule à l'écran.</div>
+  <label class="drop" id="drop"><input type="file" accept="application/pdf,image/*" id="file" hidden>
+    <svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4M7 9l5-5 5 5M4 17v2a1 1 0 001 1h14a1 1 0 001-1v-2"/></svg>
+    <div class="t">Déposer le bilan (PDF)</div><div class="s">ou cliquez pour choisir un fichier</div></label>
+  <div class="scan" id="scan"><i></i></div>
+  <div class="steps" id="steps">
+    <div class="step"><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span>Lecture du bilan</div>
+    <div class="step"><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span>Comparaison des 32 fournisseurs</div>
+    <div class="step"><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span>Projection sur la durée du contrat</div>
   </div>
-</div>
-
-<!-- RAPPEL PRÉSENTATEUR (pour James) -->
-<div class="presenter" id="presenter"><div class="wrap">
-  <span>🔒 <b>À dire d'abord :</b> « Je ne suis pas là pour vous vendre aujourd'hui. On regarde si notre façon de travailler vous correspond. Chaque fournisseur, à la même marge. »</span>
-  <button class="x" onclick="document.getElementById('presenter').classList.add('hide')" aria-label="Masquer">×</button>
+  <div class="reveal-btn" id="revealBtn"><button class="btn" onclick="reveal()">Découvrir votre bilan
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></div>
+  <div><button class="skip" onclick="reveal()">Commencer sans charger</button></div>
 </div></div>
 
 <header class="topbar"><div class="wrap"><img src="/assets/logos/elga-energy-logo.png" alt="Elga Energy"><div class="meta">Présentation · votre budget énergie</div></div></header>
 
-<!-- CONTEXTE : COURBES -->
+<!-- CONTEXTE : FLIP -->
 <section>
   <div class="wrap">
     <div class="eyebrow reveal">Pour remettre en contexte</div>
     <h2 class="sec reveal">Le prix de l'électricité ne tient pas en place.</h2>
-    <p class="sub reveal">Le tarif réglementé a été révisé 21 fois en 14 ans. Et derrière, le marché de gros part dans tous les sens à chaque crise. Votre facture, elle, ne profite jamais vraiment des baisses.</p>
-    <div class="figrow">
-      <div class="figure reveal"><div class="cap">Tarif réglementé, 2012 → 2026</div><div class="capsub">Indice base 100 en 2012 · source CRE</div><div id="trvChart"></div></div>
-      <div class="figure reveal"><div class="cap">Prix de gros de l'électricité (€/MWh)</div><div class="capsub">Marché de gros · 2001 → 2026</div><div id="grosChart"></div></div>
+    <p class="sub reveal">Le tarif réglementé a été révisé 21 fois en 14 ans. Derrière, le marché de gros part dans tous les sens. Cliquez la carte pour passer d'une courbe à l'autre.</p>
+    <div class="flip reveal" id="flip" onclick="if(!event.target.closest('a'))document.getElementById('flip').classList.toggle('flipped')">
+      <div class="flip-inner">
+        <div class="flip-face front">
+          <div class="flip-top"><div><div class="cap">Tarif réglementé, 2012 → 2027</div><div class="capsub">Indice base 100 en 2012 · source CRE · projection fin ARENH</div></div>
+            <span class="flip-btn">Prix de gros <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M4 12a8 8 0 018-8m8 8a8 8 0 01-8 8"/><path d="M17 4v4h-4M7 20v-4h4"/></svg></span></div>
+          <div id="trvChart"></div>
+        </div>
+        <div class="flip-face back">
+          <div class="flip-top"><div><div class="cap">Prix de gros de l'électricité (€/MWh)</div><div class="capsub">Marché de gros · 2001 → 2026</div></div>
+            <span class="flip-btn">Tarif réglementé <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M4 12a8 8 0 018-8m8 8a8 8 0 01-8 8"/><path d="M17 4v4h-4M7 20v-4h4"/></svg></span></div>
+          <div id="grosChart"></div>
+        </div>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- 3 PILIERS INTERACTIFS -->
+<!-- 3 PILIERS -->
 <section>
   <div class="wrap">
     <div class="eyebrow reveal">Notre métier</div>
     <h2 class="sec reveal">Le courtage, c'est trois leviers. Cliquez pour ouvrir.</h2>
-    <p class="sub reveal">Le prix n'est que le premier. Les deux autres font la vraie différence, surtout le renouvellement.</p>
+    <p class="sub reveal">Le prix n'est que le premier. Le renouvellement, lui, est le plus rentable des trois.</p>
     <div class="pillars reveal">
-      <div class="pill-card" data-p="0" onclick="togglePillar(0)">
-        <div class="pill-ic">⚖️</div><div class="lv">LEVIER 1</div><h3>Négociation</h3>
-        <div class="d">32 fournisseurs interrogés à la même marge.</div>
-        <span class="more">Ouvrir <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg></span>
-      </div>
-      <div class="pill-card" data-p="1" onclick="togglePillar(1)">
-        <div class="pill-ic">🛡️</div><div class="lv">LEVIER 2</div><h3>Gestion &amp; suivi</h3>
-        <div class="d">Espace client, agent 24/7, alertes prix.</div>
-        <span class="more">Ouvrir <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg></span>
-      </div>
-      <div class="pill-card" data-p="2" onclick="togglePillar(2)">
-        <div class="pill-ic">🔄</div><div class="lv">LEVIER 3 · le plus rentable</div><h3>Renouvellement</h3>
-        <div class="d">On anticipe 2 ans à l'avance. ~15 % d'éco en plus.</div>
-        <span class="more">Ouvrir <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg></span>
-      </div>
+      <div class="pill-card" data-p="0" onclick="togglePillar(0)"><div class="pill-ic">⚖️</div><div class="lv">LEVIER 1</div><h3>Négociation</h3><div class="d">Les 32 fournisseurs, sans exception, à la même marge.</div><span class="more">Ouvrir <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg></span></div>
+      <div class="pill-card" data-p="1" onclick="togglePillar(1)"><div class="pill-ic">🛡️</div><div class="lv">LEVIER 2</div><h3>Gestion &amp; suivi</h3><div class="d">Votre prix croisé au marché, tous les jours.</div><span class="more">Ouvrir <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg></span></div>
+      <div class="pill-card" data-p="2" onclick="togglePillar(2)"><div class="pill-ic">🔄</div><div class="lv">LEVIER 3 · le plus rentable</div><h3>Renouvellement</h3><div class="d">On anticipe jusqu'à 2 ans avant l'échéance.</div><span class="more">Ouvrir <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 6l6 6-6 6"/></svg></span></div>
     </div>
     <div class="pill-detail reveal" id="pillDetail"><div class="panel" id="pillPanel"></div></div>
+  </div>
+</section>
+
+<!-- 3 QUESTIONS -->
+<section>
+  <div class="wrap">
+    <div class="eyebrow reveal">Avant de regarder votre bilan</div>
+    <h2 class="sec reveal">Trois questions. Répondez-moi sincèrement.</h2>
+    <div class="q3 reveal">
+      <div class="qcard"><div class="num">Question 1</div><div class="q">Le prix de l'électricité va-t-il continuer de monter ?</div><div class="a">Réponse honnête : oui.</div></div>
+      <div class="qcard"><div class="num">Question 2</div><div class="q">L'énergie est-elle devenue une charge qu'on ne peut plus se permettre de subir ?</div><div class="a">Réponse honnête : oui.</div></div>
+      <div class="qcard"><div class="num">Question 3</div><div class="q">Avez-vous le temps de suivre les marchés vous-même, chaque semaine ?</div><div class="a">Réponse honnête : non.</div></div>
+    </div>
+    <div class="q-pay reveal">Oui, oui, non. On parle le même langage. <b>Suivre les marchés à votre place, anticiper vos renouvellements, négocier chaque année : c'est exactement notre métier.</b></div>
   </div>
 </section>
 
@@ -230,14 +243,14 @@
 <section>
   <div class="wrap">
     <div class="eyebrow reveal">Votre bilan comparatif</div>
-    <h2 class="sec reveal">Ce que vous payez, et ce qu'on négocie pour vous.</h2>
-    <p class="sub reveal">Cliquez sur un fournisseur : on projette sur <b>la vraie durée du contrat</b> (24, 36 ou 48 mois), pas une durée arbitraire. On compare « rester chez vous » (prix qui monte) à l'offre à prix fixe.</p>
+    <h2 class="sec reveal">Une seule chose se négocie : l'énergie.</h2>
+    <p class="sub reveal">L'acheminement et les taxes sont identiques chez tous les fournisseurs, et personne n'y peut rien. Le seul vrai levier, c'est le prix du kWh. Cliquez sur n'importe quelle ligne, y compris la vôtre, pour voir ce que ça change sur la durée.</p>
     <div class="bilan reveal">
-      <div class="bhead"><div>Fournisseur</div><div>Engagement</div><div class="r">Énergie/an</div><div class="r">Achem./an</div><div class="r">Total HTVA</div><div class="r">Écart /an</div></div>
+      <div class="bhead"><div>Fournisseur</div><div>Engagement</div><div class="r">Énergie/an</div><div class="r">Achem.+taxes</div><div class="r">Total HTVA</div><div class="r">Écart /an</div></div>
       <div id="rows"></div>
     </div>
     <div class="hint reveal"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v.01M11 12h1v4h1"/></svg>Exemple, calqué sur un bilan réel C5. On le remplace par votre vrai bilan.</div>
-    <p class="src reveal">Sources : <a href="https://www.cre.fr/documents/open-data/historique-des-tarifs-reglementes-de-vente-delectricite-pour-les-consommateurs-residentiels.html" target="_blank" rel="noopener">CRE, tarifs réglementés</a> · fin de l'ARENH, délibérations CRE 2025-2026.</p>
+    <p class="src reveal">Sources : <a href="https://www.cre.fr/documents/open-data/historique-des-tarifs-reglementes-de-vente-delectricite-pour-les-consommateurs-residentiels.html" target="_blank" rel="noopener">CRE, tarifs réglementés</a> · projection fin ARENH, UFC-Que Choisir (+19 %).</p>
   </div>
 </section>
 
@@ -248,166 +261,157 @@
 const euro=n=>new Intl.NumberFormat('fr-FR',{style:'currency',currency:'EUR',maximumFractionDigits:0}).format(Math.round(n));
 const ini=s=>s[0].toUpperCase();
 
-/* ── Données ── */
 const FOURN=[['EDF','#fe5716'],['Engie','#0aa1dd'],['TotalEnergies','#e2231a'],['Endesa','#0a3c8c'],['Enovos','#e30613'],['Vattenfall','#f7b500'],['Alpiq','#e2001a'],['Eni','#f9c000'],['Alterna','#3aa935'],['Ekwateur','#00b3a4'],['+ 22 autres','#75837e']];
-const ACH=2150,TAXES=1727;
-const REF={nom:'Votre contrat actuel',energie:6008,kwh:110.4}; REF.total=REF.energie+ACH+TAXES;
+const ACH=2150,TAXES=1727,AT=ACH+TAXES;
+const REF={nom:'Votre contrat actuel',energie:6008,kwh:110.4}; REF.total=REF.energie+AT;
 const OFFRES=[
   {nom:'TotalEnergies',energie:4700,duree:24,color:'#e2231a',kwh:86.4},
   {nom:'Endesa',energie:4932,duree:36,color:'#0a3c8c',kwh:90.7},
   {nom:'Enovos',energie:5089,duree:48,color:'#e30613',kwh:93.5},
   {nom:'Engie',energie:6250,duree:48,color:'#0aa1dd',kwh:114.9},
-].map(o=>({...o,total:o.energie+ACH+TAXES}));
+].map(o=>({...o,total:o.energie+AT}));
 let RATE=0.07;
 
-/* ── Courbes ── */
+/* courbes */
 const TRV=[[2012,100],[2013,107],[2014,112],[2015,116],[2016,118],[2017,120],[2018,119],[2019,122],[2020,122],[2021,125],[2022,138],[2023,163],[2024,199],[2025,160],[2026,154]];
-// prix de gros : ancres annuelles -> ligne dense (mensuelle) recréée
+const TRV_PROJ=[2027,Math.round(154*1.19)];  // fin ARENH +19% (UFC-Que Choisir)
 const GROS_ANCH={2001:23,2002:25,2003:31,2004:34,2005:48,2006:52,2007:43,2008:70,2009:44,2010:49,2011:53,2012:48,2013:44,2014:38,2015:41,2016:34,2017:47,2018:53,2019:43,2020:33,2021:55,2022:120,2023:70,2024:58,2025:72,2026:82};
-const GROS_ANNOT=[[2003.5,'Flambée des prix\ndu pétrole',1],[2008.6,'Crise financière\nmondiale',1],[2015,'Boom du gaz\nde schiste',0],[2019,'Reprise & incertitudes\nnucléaire',1],[2020.5,'Covid',0],[2026,'Fin ARENH',1]];
-function grosDense(){
-  const yrs=Object.keys(GROS_ANCH).map(Number); const out=[];
-  for(let i=0;i<yrs.length-1;i++){ const a=GROS_ANCH[yrs[i]],b=GROS_ANCH[yrs[i+1]];
-    for(let m=0;m<12;m++){ const t=m/12, base=a+(b-a)*t, yr=yrs[i]+t;
-      const wig=Math.sin(yr*7.3)*3+Math.sin(yr*23.1)*1.8+Math.sin(yr*3.7)*2.4;
-      let v=base+wig; if(Math.abs(yr-2008.5)<0.25) v+=22*(1-Math.abs(yr-2008.5)/0.25); // pic crise
-      out.push([yr,Math.max(18,v)]); } }
-  out.push([2026,GROS_ANCH[2026]]); return out;
-}
-function frame(data,o){ const W=o.w||640,H=o.h||230,pl=o.pl||42,pr=o.pr||16,pt=16,pb=32;
-  const xs=data.map(d=>d[0]),minX=Math.min(...xs),maxX=Math.max(...xs);
+const GROS_ANNOT=[[2003.5,'Flambée pétrole',1],[2008.6,'Crise financière',1],[2015,'Boom gaz de schiste',0],[2019,'Reprise nucléaire',1],[2020.4,'Covid',0]];
+function grosDense(){const yrs=Object.keys(GROS_ANCH).map(Number),out=[];
+  for(let i=0;i<yrs.length-1;i++){const a=GROS_ANCH[yrs[i]],b=GROS_ANCH[yrs[i+1]];
+    for(let m=0;m<12;m++){const t=m/12,base=a+(b-a)*t,yr=yrs[i]+t,wig=Math.sin(yr*7.3)*3+Math.sin(yr*23.1)*1.8+Math.sin(yr*3.7)*2.4;let v=base+wig;if(Math.abs(yr-2008.5)<0.25)v+=22*(1-Math.abs(yr-2008.5)/0.25);out.push([yr,Math.max(18,v)]);}}
+  out.push([2026,GROS_ANCH[2026]]);return out;}
+function frame(data,o){const W=o.w||700,H=o.h||300,pl=o.pl||40,pr=o.pr||20,pt=16,pb=o.pb||34;
+  const xs=data.map(d=>d[0]),minX=o.minX!=null?o.minX:Math.min(...xs),maxX=o.maxX!=null?o.maxX:Math.max(...xs);
   const minY=o.min!=null?o.min:0,maxY=(o.max!=null?o.max:Math.max(...data.map(d=>d[1])))*1.05;
-  const X=v=>pl+(W-pl-pr)*((v-minX)/(maxX-minX)), Y=v=>H-pb-(H-pt-pb)*((v-minY)/(maxY-minY));
-  const pts=data.map(d=>[X(d[0]),Y(d[1])]); const path=pts.map((p,i)=>`${i?'L':'M'}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ');
+  const X=v=>pl+(W-pl-pr)*((v-minX)/(maxX-minX)),Y=v=>H-pb-(H-pt-pb)*((v-minY)/(maxY-minY));
+  const pts=data.map(d=>[X(d[0]),Y(d[1])]),path=pts.map((p,i)=>`${i?'L':'M'}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ');
   const area=`${path} L${pts[pts.length-1][0].toFixed(1)},${H-pb} L${pts[0][0].toFixed(1)},${H-pb} Z`;
-  let grid=''; const st=o.ysteps||4;
-  for(let i=0;i<=st;i++){ const v=minY+(maxY-minY)*i/st,y=Y(v); grid+=`<line x1="${pl}" y1="${y.toFixed(1)}" x2="${W-pr}" y2="${y.toFixed(1)}" stroke="#eef2f0"/><text class="axis" x="${pl-8}" y="${(y+3).toFixed(1)}" text-anchor="end">${o.yfmt?o.yfmt(v):Math.round(v)}</text>`; }
-  let xl=''; (o.xlabels||xs).forEach(xv=>{ xl+=`<text class="axis" x="${X(xv).toFixed(1)}" y="${H-11}" text-anchor="middle">${o.xfmt?o.xfmt(xv):xv}</text>`; });
-  return{W,H,path,area,grid,xl,X,Y,pts,minY,maxY};
-}
-function drawTRV(){ const g=frame(TRV,{h:220,min:90,max:210,xlabels:[2012,2016,2020,2024,2026]}); const pk=TRV.reduce((m,d)=>d[1]>m[1]?d:m,TRV[0]);
-  document.getElementById('trvChart').innerHTML=`<svg viewBox="0 0 ${g.W} ${g.H}" width="100%"><defs><linearGradient id="tg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#0d7a52" stop-opacity=".16"/><stop offset="1" stop-color="#0d7a52" stop-opacity="0"/></linearGradient></defs>${g.grid}${g.xl}<path d="${g.area}" fill="url(#tg)"/><path d="${g.path}" fill="none" stroke="#0d7a52" stroke-width="2.6" stroke-linejoin="round"/><circle cx="${g.X(pk[0]).toFixed(1)}" cy="${g.Y(pk[1]).toFixed(1)}" r="4.5" fill="#c0392b"/><text class="annot" x="${g.X(pk[0]).toFixed(1)}" y="${(g.Y(pk[1])-10).toFixed(1)}" text-anchor="middle" fill="#c0392b">pic 2024 · doublé</text></svg>`; }
-function drawGros(){ const data=grosDense(); const g=frame(data,{h:250,pr:20,min:15,max:135,ysteps:5,xlabels:[2001,2006,2011,2016,2021,2026]});
-  const ann=GROS_ANNOT.map(([yr,txt,up])=>{ const px=g.X(yr), anch=g.X(yr); const lines=txt.split('\n');
-    const py=up?38:g.H-52; const col='#8a5a12';
-    return lines.map((ln,k)=>`<text class="annot" x="${anch.toFixed(1)}" y="${(py+k*13).toFixed(1)}" text-anchor="middle" fill="${col}">${ln}</text>`).join(''); }).join('');
-  document.getElementById('grosChart').innerHTML=`<svg viewBox="0 0 ${g.W} ${g.H}" width="100%"><defs><linearGradient id="gg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#c0392b" stop-opacity=".13"/><stop offset="1" stop-color="#c0392b" stop-opacity="0"/></linearGradient></defs>${g.grid}${g.xl}<path d="${g.area}" fill="url(#gg)"/><path d="${g.path}" fill="none" stroke="#c0392b" stroke-width="1.6" stroke-linejoin="round"/>${ann}</svg>`; }
+  let grid='';const st=o.ysteps||4;
+  for(let i=0;i<=st;i++){const v=minY+(maxY-minY)*i/st,y=Y(v);grid+=`<line x1="${pl}" y1="${y.toFixed(1)}" x2="${W-pr}" y2="${y.toFixed(1)}" stroke="#eef2f0"/><text class="axis" x="${pl-7}" y="${(y+3).toFixed(1)}" text-anchor="end">${o.yfmt?o.yfmt(v):Math.round(v)}</text>`;}
+  let xl='';(o.xlabels||xs).forEach(xv=>{xl+=`<text class="axis" x="${X(xv).toFixed(1)}" y="${H-12}" text-anchor="middle" ${o.xrot?`transform="rotate(-42 ${X(xv).toFixed(1)} ${H-12})"`:''}>${o.xfmt?o.xfmt(xv):xv}</text>`;});
+  return{W,H,path,area,grid,xl,X,Y,pts,minY,maxY,pb};}
+function drawTRV(){const all=TRV.concat([TRV_PROJ]);
+  const g=frame(TRV,{h:330,pb:44,min:90,max:200,minX:2012,maxX:2027,xlabels:all.map(d=>d[0]),xrot:1});
+  const pk=TRV.reduce((m,d)=>d[1]>m[1]?d:m,TRV[0]);
+  const last=g.pts[g.pts.length-1],pj=[g.X(TRV_PROJ[0]),g.Y(TRV_PROJ[1])];
+  document.getElementById('trvChart').innerHTML=`<svg viewBox="0 0 ${g.W} ${g.H}" width="100%"><defs><linearGradient id="tg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#0d7a52" stop-opacity=".16"/><stop offset="1" stop-color="#0d7a52" stop-opacity="0"/></linearGradient></defs>${g.grid}${g.xl}
+    <path d="${g.area}" fill="url(#tg)"/><path d="${g.path}" fill="none" stroke="#0d7a52" stroke-width="2.6" stroke-linejoin="round"/>
+    <line x1="${last[0].toFixed(1)}" y1="${last[1].toFixed(1)}" x2="${pj[0].toFixed(1)}" y2="${pj[1].toFixed(1)}" stroke="#c0392b" stroke-width="2.6" stroke-dasharray="5 4"/>
+    <circle cx="${pj[0].toFixed(1)}" cy="${pj[1].toFixed(1)}" r="4.5" fill="#c0392b"/>
+    <circle cx="${g.X(pk[0]).toFixed(1)}" cy="${g.Y(pk[1]).toFixed(1)}" r="4" fill="#0d7a52"/><text class="annot" x="${g.X(pk[0]).toFixed(1)}" y="${(g.Y(pk[1])-9).toFixed(1)}" text-anchor="middle" fill="#0a5c3e">pic 2024</text>
+    <g transform="translate(${(pj[0]-6).toFixed(1)},${(pj[1]-30).toFixed(1)})"><rect x="-92" y="-14" width="96" height="30" rx="7" fill="#fbeeee" stroke="#e6b3ad"/><text class="annot" x="-44" y="-1" text-anchor="middle" fill="#c0392b" font-weight="600">⚠ Fin ARENH</text><text class="annot" x="-44" y="11" text-anchor="middle" fill="#c0392b">+19 % attendu</text></g>
+  </svg>`;}
+function drawGros(){const data=grosDense();const g=frame(data,{h:330,pb:34,pr:20,min:15,max:135,ysteps:5,xlabels:[2001,2006,2011,2016,2021,2026]});
+  const ann=GROS_ANNOT.map(([yr,txt,up])=>{const px=g.X(yr),py=up?36:g.H-58;return `<text class="annot" x="${px.toFixed(1)}" y="${py}" text-anchor="middle" fill="#8a5a12">${txt}</text>`;}).join('');
+  document.getElementById('grosChart').innerHTML=`<svg viewBox="0 0 ${g.W} ${g.H}" width="100%"><defs><linearGradient id="gg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#c0392b" stop-opacity=".13"/><stop offset="1" stop-color="#c0392b" stop-opacity="0"/></linearGradient></defs>${g.grid}${g.xl}<path d="${g.area}" fill="url(#gg)"/><path d="${g.path}" fill="none" stroke="#c0392b" stroke-width="1.5" stroke-linejoin="round"/>${ann}</svg>`;}
 
-/* ── Brique de risque (renouvellement) ── */
-function drawRisk(el){
-  // x = mois d'anticipation avant la fin (24 -> 0). y = prime de risque €/MWh (0 -> 10).
-  const data=[]; for(let t=24;t>=0;t--){ const prime=10*Math.pow((24-t)/24,2); data.push([t,prime]); }
-  const g=frame(data.map(d=>[24-d[0],d[1]]),{h:220,pr:20,min:0,max:11,ysteps:4,xlabels:[0,6,12,18,24],xfmt:v=>v===0?'2 ans':v===24?'Fin':v+' m',yfmt:v=>'+'+Math.round(v)});
-  // marqueurs : Elga (24m avant => x=0) et Client (2 semaines => x~=24)
-  const elga=g.pts[0], cli=g.pts[g.pts.length-1];
+function drawRisk(el){const data=[];for(let t=24;t>=0;t--){data.push([24-t,10*Math.pow((24-t)/24,2)]);}
+  const g=frame(data,{h:230,pr:20,min:0,max:11,ysteps:4,xlabels:[0,6,12,18,24],xfmt:v=>v===0?'2 ans avant':v===24?'Échéance':v+' mois',yfmt:v=>'+'+Math.round(v)});
+  const elga=g.pts[0],cli=g.pts[g.pts.length-1];
   el.innerHTML=`<svg viewBox="0 0 ${g.W} ${g.H}" width="100%"><defs><linearGradient id="rg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#c0392b" stop-opacity=".14"/><stop offset="1" stop-color="#c0392b" stop-opacity="0"/></linearGradient></defs>${g.grid}${g.xl}
     <path d="${g.area}" fill="url(#rg)"/><path d="${g.path}" fill="none" stroke="#c0392b" stroke-width="2.6" stroke-linejoin="round"/>
-    <circle cx="${elga[0].toFixed(1)}" cy="${elga[1].toFixed(1)}" r="5" fill="#0d7a52"/><text class="annot" x="${(elga[0]+6).toFixed(1)}" y="${(elga[1]-8).toFixed(1)}" fill="#0a5c3e">Elga · 2 ans avant → prime ≈ 0</text>
-    <circle cx="${cli[0].toFixed(1)}" cy="${cli[1].toFixed(1)}" r="5" fill="#c0392b"/><text class="annot" x="${(cli[0]-4).toFixed(1)}" y="${(cli[1]-8).toFixed(1)}" text-anchor="end" fill="#c0392b">Client seul · 2 sem. → +10 €/MWh</text>
-    <text class="axis" x="${g.X(12).toFixed(1)}" y="14" text-anchor="middle">prime de risque du fournisseur (€/MWh)</text></svg>`;
-}
+    <circle cx="${elga[0].toFixed(1)}" cy="${elga[1].toFixed(1)}" r="5" fill="#0d7a52"/><text class="annot" x="${(elga[0]+7).toFixed(1)}" y="${(elga[1]-8).toFixed(1)}" fill="#0a5c3e" font-weight="600">Elga · prime ≈ 0</text>
+    <circle cx="${cli[0].toFixed(1)}" cy="${cli[1].toFixed(1)}" r="5" fill="#c0392b"/><text class="annot" x="${(cli[0]-6).toFixed(1)}" y="${(cli[1]-8).toFixed(1)}" text-anchor="end" fill="#c0392b" font-weight="600">Client seul · +10 €/MWh</text>
+    <text class="axis" x="${g.X(12).toFixed(1)}" y="14" text-anchor="middle">prime de risque ajoutée par le fournisseur (€/MWh)</text></svg>`;}
 
-/* ── Piliers ── */
+/* piliers */
 let openP=-1;
 function pillarHTML(p){
-  if(p===0) return `<div style="font-family:var(--serif);font-size:20px">On interroge chaque fournisseur, à la même marge.</div>
-    <p class="sub" style="margin-top:8px">Personne n'est mis en avant parce qu'il nous arrange. Vous, ça vous prendrait 35 heures. Nous, c'est notre métier, chaque jour.</p>
+  if(p===0)return `<div style="font-family:var(--serif);font-size:20px">Un seul fournisseur oublié, et le bilan est faussé.</div>
+    <div class="alert warn"><b>⚠ Un comparatif n'a de valeur que s'il est complet.</b> Il suffit qu'un fournisseur manque pour que le « meilleur prix » n'en soit pas un. Nous les interrogeons <b>tous les 32</b>, à la même marge, sans exception. C'est la seule façon d'obtenir le vrai meilleur prix, celui qui vous arrange, vous.</div>
     <div class="chips">${FOURN.map(f=>`<span class="flogo"><span class="fdot" style="background:${f[1]}"></span>${f[0]}</span>`).join('')}</div>
-    <div class="kpis"><div class="kpi"><div class="n tnum">32</div><div class="l">fournisseurs comparés à chaque bilan</div></div><div class="kpi"><div class="n tnum">35 h</div><div class="l">le temps qu'il vous faudrait pour tout négocier seul</div></div></div>`;
-  if(p===1) return `<div style="font-family:var(--serif);font-size:20px">Un espace à vous, et un œil qui ne dort jamais sur le marché.</div>
-    <div class="two"><div class="mini"><div class="h"><span class="ic">📄</span>Contrat + CGV + factures</div><p>Tout au même endroit. Au bout de 12 mois, on voit si votre acheminement est bien calibré.</p></div>
+    <div class="kpis"><div class="kpi"><div class="n tnum">32</div><div class="l">fournisseurs interrogés à chaque bilan</div></div><div class="kpi"><div class="n tnum">35 h</div><div class="l">le temps qu'il vous faudrait pour le faire seul</div></div></div>`;
+  if(p===1)return `<div style="font-family:var(--serif);font-size:20px">On surveille votre prix face au marché, tous les jours.</div>
+    <div class="highlight"><div class="t">La partie la plus importante de notre métier</div><p>On connaît votre prix. On connaît les prix du marché, mis à jour <b>chaque jour</b>. On croise les deux en continu pour rester vigilant aux variations. Dès qu'une opportunité passe sous votre tarif, une <b>alerte automatique</b> se déclenche, et on prépare votre renouvellement au bon moment. Vous n'avez rien à faire.</p></div>
+    <div class="two"><div class="mini"><div class="h"><span class="ic">📄</span>Contrat, CGV, factures</div><p>Tout au même endroit. Au bout de 12 mois, on vérifie si votre acheminement est bien calibré.</p></div>
       <div class="mini"><div class="h"><span class="ic">🤖</span>Un agent 24/7</div><p>Une question sur une ligne, une échéance, un engagement ? Réponse immédiate, même à 2 h du matin.</p></div></div>
     <div style="margin-top:14px"><a class="btn ghost" href="/espace/?c=76A544DB" target="_blank" rel="noopener">Voir une démo de l'espace client
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M7 17L17 7M7 7h10v10"/></svg></a></div>
-    <div class="callout"><b>Notre vraie valeur ajoutée :</b> on surveille le marché en continu par rapport à VOTRE prix. Dès qu'une opportunité passe sous votre tarif, une alerte automatique se déclenche pour anticiper votre renouvellement. C'est la partie la plus importante de notre métier.</div>`;
-  if(p===2) return `<div style="font-family:var(--serif);font-size:20px">La « brique de risque » : là où se cache le vrai gain.</div>
-    <p class="sub" style="margin-top:8px">Un fournisseur ajoute une marge pour se couvrir du risque d'acheter vos volumes. Plus on anticipe, plus cette brique fond. 2 ans à l'avance, elle est quasi nulle. La veille, elle explose.</p>
-    <div class="figure" style="margin-top:14px;background:#fff"><div id="riskChart"></div></div>
-    <div class="two"><div class="mini"><div class="h"><span class="ic">✅</span>Nous : 2 ans à l'avance</div><p>Des alertes branchées sur les marchés. Dès qu'un prix passe sous le vôtre, on pose une option, comme une pré-commande. Prime de risque ≈ 0.</p></div>
-      <div class="mini" style="border-color:#f0d5d5;background:var(--rose-soft)"><div class="h" style="color:var(--rose)"><span class="ic" style="background:#f7d7d3;color:var(--rose)">⏰</span>Client seul : 2 semaines avant</div><p>Prix de dernière minute, tacite reconduction. Pas le temps, ni l'envie de tout recommencer. Il subit la prime pleine.</p></div></div>
-    <div class="callout"><b>~15 % d'économie en plus</b> se jouent ici, sur le renouvellement anticipé. C'est le levier le plus rentable des trois.</div>`;
-}
-function togglePillar(p){
-  const cards=document.querySelectorAll('.pill-card'), det=document.getElementById('pillDetail');
-  if(openP===p){ openP=-1; det.classList.remove('open'); cards.forEach(c=>c.classList.remove('on')); return; }
-  openP=p; cards.forEach(c=>c.classList.toggle('on',+c.dataset.p===p));
-  document.getElementById('pillPanel').innerHTML=pillarHTML(p);
-  det.classList.add('open');
-  if(p===2){ const rc=document.getElementById('riskChart'); if(rc) drawRisk(rc); }
-  setTimeout(()=>det.scrollIntoView({behavior:'smooth',block:'nearest'}),120);
-}
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M7 17L17 7M7 7h10v10"/></svg></a></div>`;
+  if(p===2)return `<div style="font-family:var(--serif);font-size:20px">La « brique de risque » : là où se cache le vrai gain.</div>
+    <p class="sub" style="margin-top:8px">Un fournisseur ajoute une marge pour se couvrir du risque d'acheter vos volumes à l'avance. Plus on anticipe, plus cette brique fond. Deux ans avant, elle est quasi nulle. La veille, elle explose.</p>
+    <div style="margin-top:14px;border:1px solid var(--line);border-radius:16px;background:#fff;padding:16px"><div id="riskChart"></div></div>
+    <div class="alert warn" style="margin-top:16px"><b>Exemple concret.</b> Sur 100 MWh, une brique de risque de 10 €/MWh, c'est <b>1 000 € par an payés pour rien</b>. Au départ, tout le monde négocie bien son contrat. Puis on n'y pense plus : pas le temps, pas l'envie de suivre les marchés. Deux, trois, quatre ans passent vite quand on dirige une entreprise. Et un jour, l'offre de renouvellement arrive, quinze jours avant l'échéance. Trop tard : vous êtes déjà réengagé.</div>
+    <div class="highlight"><div class="t">Notre fenêtre : jusqu'à 2 ans avant l'échéance</div><p>On surveille les marchés pour <b>précommander votre renouvellement</b> au bon moment, en réinterrogeant les 32 fournisseurs, sans que vous ayez à y penser. C'est là qu'on récupère <b>environ 15 % d'économie en plus</b>. Le levier le plus rentable des trois.</p></div>`;}
+function togglePillar(p){const cards=document.querySelectorAll('.pill-card'),det=document.getElementById('pillDetail');
+  if(openP===p){openP=-1;det.classList.remove('open');cards.forEach(c=>c.classList.remove('on'));return;}
+  openP=p;cards.forEach(c=>c.classList.toggle('on',+c.dataset.p===p));document.getElementById('pillPanel').innerHTML=pillarHTML(p);det.classList.add('open');
+  if(p===2){const rc=document.getElementById('riskChart');if(rc)drawRisk(rc);}
+  setTimeout(()=>det.scrollIntoView({behavior:'smooth',block:'nearest'}),120);}
 
-/* ── Bilan ── */
+/* bilan */
 function renderRows(){
-  let h=`<div class="brow ref"><div class="fourn"><div class="fmark" style="background:#75837e">V</div><div><div class="fname">${REF.nom}</div><div class="fsub tnum">${REF.kwh} €/MWh · à renouveler</div></div></div>
-    <div class="cell"><span class="pill evo">actuel</span></div><div class="cell r tnum">${euro(REF.energie)}</div><div class="cell r tnum">${euro(ACH)}</div><div class="total-c total r tnum">${euro(REF.total)}</div><div class="ec-c ecart r muted">référence</div></div>`;
-  OFFRES.forEach((o,k)=>{ const eco=REF.total-o.total;
+  let h=`<div class="brow ref" onclick="openSheet(-1)"><div class="fourn"><div class="fmark" style="background:#75837e">V</div><div><div class="fname">${REF.nom}</div><div class="fsub tnum">${REF.kwh} €/MWh · à renouveler</div></div></div>
+    <div class="cell"><span class="pill evo">actuel</span></div><div class="cell r tnum">${euro(REF.energie)}</div><div class="cell r tnum">${euro(AT)}</div><div class="total-c total r tnum">${euro(REF.total)}</div><div class="ec-c ecart r muted">référence</div>
+    <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></div>`;
+  OFFRES.forEach((o,k)=>{const eco=REF.energie-o.energie;
     h+=`<div class="brow" data-k="${k}" onclick="openSheet(${k})"><div class="fourn"><div class="fmark" style="background:${o.color}">${ini(o.nom)}</div><div><div class="fname">${o.nom}</div><div class="fsub tnum">${o.kwh} €/MWh HT</div></div></div>
-      <div class="cell"><span class="pill fixe">Fixe ${o.duree} mois</span></div><div class="cell r tnum">${euro(o.energie)}</div><div class="cell r tnum">${euro(ACH)}</div><div class="total-c total r tnum">${euro(o.total)}</div>
-      <div class="ec-c ecart ${eco>=0?'pos':'neg'} r">${eco>=0?'−':'+'}${euro(Math.abs(eco))}/an</div></div>`; });
+      <div class="cell"><span class="pill fixe">Fixe ${o.duree} mois</span></div><div class="cell r tnum">${euro(o.energie)}</div><div class="cell r tnum">${euro(AT)}</div><div class="total-c total r tnum">${euro(o.total)}</div>
+      <div class="ec-c ecart ${eco>=0?'pos':'neg'} r">${eco>=0?'−':'+'}${euro(Math.abs(eco))}/an</div>
+      <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></div>`;});
   document.getElementById('rows').innerHTML=h;
 }
 let curK=null;
-function openSheet(k){ curK=k; document.querySelectorAll('.brow').forEach(r=>r.classList.toggle('sel',r.dataset.k==String(k))); drawSheet(); document.getElementById('ov').classList.add('open'); document.body.style.overflow='hidden'; }
-function closeSheet(){ document.getElementById('ov').classList.remove('open'); document.body.style.overflow=''; document.querySelectorAll('.brow').forEach(r=>r.classList.remove('sel')); }
-function setRate(r,btn){ RATE=r; btn.parentNode.querySelectorAll('button').forEach(b=>b.classList.remove('on')); btn.classList.add('on'); drawSheet(); }
+function openSheet(k){curK=k;document.querySelectorAll('.brow').forEach(r=>r.classList.toggle('sel',r.dataset.k==String(k)||(k===-1&&r.classList.contains('ref'))));drawSheet();document.getElementById('ov').classList.add('open');document.body.style.overflow='hidden';}
+function closeSheet(){document.getElementById('ov').classList.remove('open');document.body.style.overflow='';document.querySelectorAll('.brow').forEach(r=>r.classList.remove('sel'));}
+function setRate(r,btn){RATE=r;btn.parentNode.querySelectorAll('button').forEach(b=>b.classList.remove('on'));btn.classList.add('on');drawSheet();}
 
-// PROJECTION sur la DURÉE RÉELLE du contrat
-function drawSheet(){
-  const o=OFFRES[curK]; const years=o.duree/12;               // 2, 3 ou 4 ans
-  const ecoNow=REF.total-o.total;
-  let edfTot=0, fixTot=0, rows='', edfPts=[[0,REF.total]];
-  for(let y=1;y<=years;y++){ const edf=REF.total*Math.pow(1+RATE,y); edfTot+=edf; fixTot+=o.total; edfPts.push([y,edf]);
-    rows+=`<div class="tr"><div>An ${y}</div><div class="tnum" style="color:var(--rose)">${euro(edf)}</div><div class="tnum" style="color:var(--green-deep)">${euro(o.total)}</div><div class="tnum" style="color:var(--green-deep);font-weight:700">${euro(edf-o.total)}</div></div>`; }
-  const eco=edfTot-fixTot; const win=eco>0;
-  // graphe : edf monte vs fixe plat, sur `years`
-  const g=frame(edfPts,{h:200,pr:20,min:Math.min(o.total,REF.total)*0.94,max:REF.total*Math.pow(1+RATE,years),ysteps:3,xlabels:Array.from({length:years+1},(_,i)=>i),xfmt:v=>v===0?'Auj.':'An '+v,yfmt:v=>Math.round(v/1000)+'k'});
-  const fy=g.Y(o.total);
-  const areaGap=`${g.path} L${g.X(years).toFixed(1)},${fy.toFixed(1)} L${g.X(0).toFixed(1)},${fy.toFixed(1)} Z`;
-  const chart=`<svg viewBox="0 0 ${g.W} ${g.H}" width="100%"><defs><linearGradient id="pg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#0d7a52" stop-opacity=".18"/><stop offset="1" stop-color="#0d7a52" stop-opacity=".02"/></linearGradient></defs>${g.grid}${g.xl}
-    <path d="${areaGap}" fill="url(#pg)"/>
-    <line x1="${g.X(0).toFixed(1)}" y1="${fy.toFixed(1)}" x2="${g.X(years).toFixed(1)}" y2="${fy.toFixed(1)}" stroke="#0d7a52" stroke-width="2.6"/>
-    <path d="${g.path}" fill="none" stroke="#c0392b" stroke-width="2.6" stroke-linejoin="round"/>
-    ${g.pts.map(p=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3.1" fill="#c0392b"/>`).join('')}
-    <circle cx="${g.X(years).toFixed(1)}" cy="${fy.toFixed(1)}" r="3.4" fill="#0d7a52"/></svg>`;
-  document.getElementById('sheet').innerHTML=`
-    <div class="sheet-top"><div style="display:flex;align-items:center;gap:13px"><div class="fmark" style="width:42px;height:42px;background:${o.color};font-size:16px">${ini(o.nom)}</div>
-      <div><div style="font-family:var(--serif);font-size:22px">${o.nom}</div><div style="font-size:13px;color:var(--mut)">Prix fixe garanti ${o.duree} mois</div></div></div>
-      <button class="sheet-x" onclick="closeSheet()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
-    <div class="brk">
-      <div class="b"><div class="k">⚡ Énergie</div><div class="v tnum">${o.kwh} €/MWh</div><div class="d tnum">vous : ${REF.kwh} €/MWh</div></div>
-      <div class="b"><div class="k">🔌 Acheminement</div><div class="v tnum">${euro(ACH)}/an</div><div class="d">régulé · identique partout</div></div>
-      <div class="b"><div class="k">🧾 Taxes</div><div class="v tnum">${euro(TAXES)}/an</div><div class="d">identiques partout</div></div>
-      <div class="b"><div class="k">Σ Total /an</div><div class="v tnum">${euro(o.total)}</div><div class="d">${ecoNow>=0?'−'+euro(ecoNow):'+'+euro(-ecoNow)} vs aujourd'hui</div></div>
-    </div>
-    <div class="proj">
-      <div class="proj-h"><div class="t">Projection sur ${o.duree} mois (la durée réelle du contrat)</div>
-        <div class="seg"><button onclick="setRate(0.06,this)" class="${RATE===0.06?'on':''}">+6 %</button><button onclick="setRate(0.07,this)" class="${RATE===0.07?'on':''}">+7 %</button><button onclick="setRate(0.08,this)" class="${RATE===0.08?'on':''}">+8 %</button></div></div>
-      <div class="legend"><span><i style="background:var(--rose)"></i>Si vous ne changez rien (prix qui monte +${Math.round(RATE*100)} %/an)</span><span><i style="background:var(--green)"></i>Prix fixe ${o.nom}</span></div>
-      ${chart}
-      <div class="ptab" style="margin-top:10px;font-size:13px;border:1px solid var(--line);border-radius:12px;overflow:hidden">
-        <style>.ptab .tr{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;border-top:1px solid var(--line)}.ptab .tr:first-child{border-top:none}.ptab .tr>div{padding:9px 12px;text-align:right}.ptab .tr>div:first-child{text-align:left;color:var(--ink-soft)}.ptab .th{background:var(--panel-2);font-size:11px;text-transform:uppercase;color:var(--mut);font-weight:600}</style>
-        <div class="tr th"><div>Année</div><div>Sans rien faire</div><div>Prix fixe</div><div>Économie</div></div>${rows}</div>
-      <div class="verdict"><div class="big tnum">${euro(eco)} <span style="font-size:14px;font-family:var(--sans);color:var(--mut)">économisés sur ${o.duree} mois</span></div>
-        <p>Sur la durée réelle du contrat (${years} an${years>1?'s':''}), si votre prix suit le marché à +${Math.round(RATE*100)} %/an. On ne compte que la période où le prix est bloqué, jamais au-delà.</p></div>
-    </div>`;
+function projChart(startEnergy,offerEnergy,years,fixed){
+  const pts=[[0,startEnergy]];for(let y=1;y<=years;y++)pts.push([y,startEnergy*Math.pow(1+RATE,y)]);
+  const maxY=startEnergy*Math.pow(1+RATE,years);
+  const g=frame(pts,{h:200,pr:20,min:Math.min(fixed?offerEnergy:startEnergy,startEnergy)*0.9,max:maxY,ysteps:3,xlabels:Array.from({length:years+1},(_,i)=>i),xfmt:v=>v===0?'Auj.':'An '+v,yfmt:v=>Math.round(v/1000)+'k'});
+  let extra='';
+  if(fixed){const fy=g.Y(offerEnergy);const gap=`${g.path} L${g.X(years).toFixed(1)},${fy.toFixed(1)} L${g.X(0).toFixed(1)},${fy.toFixed(1)} Z`;
+    extra=`<path d="${gap}" fill="url(#pg)"/><line x1="${g.X(0).toFixed(1)}" y1="${fy.toFixed(1)}" x2="${g.X(years).toFixed(1)}" y2="${fy.toFixed(1)}" stroke="#0d7a52" stroke-width="2.6"/><circle cx="${g.X(years).toFixed(1)}" cy="${fy.toFixed(1)}" r="3.4" fill="#0d7a52"/>`;}
+  return `<svg viewBox="0 0 ${g.W} ${g.H}" width="100%"><defs><linearGradient id="pg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#0d7a52" stop-opacity=".18"/><stop offset="1" stop-color="#0d7a52" stop-opacity=".02"/></linearGradient></defs>${g.grid}${g.xl}${extra}
+    <path d="${g.path}" fill="none" stroke="#c0392b" stroke-width="2.6" stroke-linejoin="round"/>${g.pts.map(p=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3.1" fill="#c0392b"/>`).join('')}</svg>`;
 }
-addEventListener('keydown',e=>{ if(e.key==='Escape') closeSheet(); });
+function segHTML(){return `<div class="seg"><button onclick="setRate(0.06,this)" class="${RATE===0.06?'on':''}">+6 %</button><button onclick="setRate(0.07,this)" class="${RATE===0.07?'on':''}">+7 %</button><button onclick="setRate(0.08,this)" class="${RATE===0.08?'on':''}">+8 %</button></div>`;}
 
-/* ── Entrée ── */
+function drawSheet(){
+  const sheet=document.getElementById('sheet');
+  if(curK===-1){ // référence : si vous ne changez rien
+    const years=4;let tot=0,rows='';for(let y=1;y<=years;y++){const e=REF.energie*Math.pow(1+RATE,y);tot+=e-REF.energie;rows+=`<div class="tr"><div>An ${y}</div><div class="tnum" style="color:var(--rose)">${euro(e)}</div><div class="tnum">${euro(REF.energie)}</div><div class="tnum" style="color:var(--rose);font-weight:700">+${euro(e-REF.energie)}</div></div>`;}
+    sheet.innerHTML=`<div class="sheet-top"><div style="display:flex;align-items:center;gap:13px"><div class="fmark" style="width:42px;height:42px;background:#75837e;font-size:16px">V</div><div><div style="font-family:var(--serif);font-size:22px">Votre contrat actuel</div><div style="font-size:13px;color:var(--mut)">Si vous ne changez rien</div></div></div>
+      <button class="sheet-x" onclick="closeSheet()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+      <div class="lever"><div class="lvr fix"><div class="lh"><div class="lt">🔌 Acheminement + taxes</div><span class="badge">non négociable</span></div><div class="cmp"><div><div class="v tnum">${euro(AT)}/an</div><small>identique chez tous les fournisseurs</small></div></div><p>Régulé par l'État. Personne ne peut agir dessus, ni nous, ni un autre courtier.</p></div></div>
+      <div class="proj"><div class="proj-h"><div class="t">Votre énergie si vous ne bougez pas</div>${segHTML()}</div>
+        <div class="legend"><span><i style="background:var(--rose)"></i>Votre prix du kWh, qui monte de +${Math.round(RATE*100)} %/an</span></div>${projChart(REF.energie,REF.energie,years,false)}
+        <div class="ptab"><div class="tr th"><div>Année</div><div>Votre énergie</div><div>Aujourd'hui</div><div>De plus</div></div>${rows}</div>
+        <div class="verdict" style="background:var(--rose)"><div class="big tnum">+${euro(tot)}</div><p>C'est ce que les hausses vous coûtent en 4 ans, sur l'énergie seule, si vous restez sans rien faire. Un prix fixe gèle ce montant.</p></div></div>`;
+    return;
+  }
+  const o=OFFRES[curK],years=o.duree/12;
+  const ecoNow=REF.energie-o.energie;
+  let eco=0,rows='';for(let y=1;y<=years;y++){const e=REF.energie*Math.pow(1+RATE,y);eco+=e-o.energie;rows+=`<div class="tr"><div>An ${y}</div><div class="tnum" style="color:var(--rose)">${euro(e)}</div><div class="tnum" style="color:var(--green-deep)">${euro(o.energie)}</div><div class="tnum" style="color:var(--green-deep);font-weight:700">${euro(e-o.energie)}</div></div>`;}
+  sheet.innerHTML=`<div class="sheet-top"><div style="display:flex;align-items:center;gap:13px"><div class="fmark" style="width:42px;height:42px;background:${o.color};font-size:16px">${ini(o.nom)}</div><div><div style="font-family:var(--serif);font-size:22px">${o.nom}</div><div style="font-size:13px;color:var(--mut)">Prix fixe garanti ${o.duree} mois</div></div></div>
+    <button class="sheet-x" onclick="closeSheet()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
+    <div class="lever">
+      <div class="lvr act"><div class="lh"><div class="lt">⚡ Énergie · le seul vrai levier</div><span class="badge">${ecoNow>=0?'−'+euro(ecoNow)+'/an':'+'+euro(-ecoNow)+'/an'}</span></div>
+        <div class="cmp"><div><div class="v tnum">${REF.kwh} €/MWh</div><small>votre prix aujourd'hui</small></div><div style="align-self:center;color:var(--mut)">→</div><div><div class="v tnum" style="color:var(--green-deep)">${o.kwh} €/MWh</div><small>bloqué ${o.duree} mois</small></div></div>
+        <p>C'est ici qu'on agit. Votre prix du kWh est gelé pendant ${o.duree} mois, à l'abri des hausses.</p></div>
+      <div class="lvr fix"><div class="lh"><div class="lt">🔌 Acheminement + taxes</div><span class="badge">identique · non négociable</span></div><div class="cmp"><div><div class="v tnum">${euro(AT)}/an</div><small>pareil chez tous, personne n'y peut rien</small></div></div></div>
+    </div>
+    <div class="proj"><div class="proj-h"><div class="t">Projection sur ${o.duree} mois, la durée réelle du contrat</div>${segHTML()}</div>
+      <div class="legend"><span><i style="background:var(--rose)"></i>Énergie si vous ne changez rien (+${Math.round(RATE*100)} %/an)</span><span><i style="background:var(--green)"></i>Énergie bloquée avec ${o.nom}</span></div>
+      ${projChart(REF.energie,o.energie,years,true)}
+      <div class="ptab"><div class="tr th"><div>Année</div><div>Sans rien faire</div><div>Prix fixe</div><div>Économie</div></div>${rows}</div>
+      <div class="verdict"><div class="big tnum">${euro(eco)} <span style="font-size:14px;font-family:var(--sans);color:#dff0e8">économisés sur ${o.duree} mois</span></div><p>Uniquement sur l'énergie, la seule chose qui se négocie. L'acheminement et les taxes, vous les payez de toute façon, quel que soit le fournisseur.</p></div></div>`;
+}
+addEventListener('keydown',e=>{if(e.key==='Escape')closeSheet();});
+
+/* entrée */
 const fileInput=document.getElementById('file'),drop=document.getElementById('drop');
 ['dragover','dragenter'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('hot');}));
 ['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('hot');}));
-drop.addEventListener('drop',e=>{ if(e.dataTransfer.files[0]) startScan(); });
-fileInput.addEventListener('change',()=>{ if(fileInput.files[0]) startScan(); });
-function startScan(){ document.querySelector('.load-title').textContent='Analyse de votre bilan'; document.querySelector('.load-sub').textContent='On compare vos offres au marché, en temps réel.';
-  drop.style.display='none'; document.getElementById('scan').classList.add('go');
-  const steps=[...document.querySelectorAll('#steps .step')]; let t=500; steps.forEach(s=>{setTimeout(()=>s.classList.add('on'),t);t+=800;});
-  setTimeout(()=>document.getElementById('revealBtn').classList.add('show'),t+250); }
-function reveal(){ document.getElementById('load').classList.add('gone'); document.body.style.overflow=''; setTimeout(()=>{const l=document.getElementById('load');if(l)l.remove();},700); observeReveals(); }
-function observeReveals(){ const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}}),{threshold:.1}); document.querySelectorAll('.reveal').forEach((el,i)=>{el.style.transitionDelay=(Math.min(i%6,5)*55)+'ms';io.observe(el);}); }
+drop.addEventListener('drop',e=>{if(e.dataTransfer.files[0])startScan();});
+fileInput.addEventListener('change',()=>{if(fileInput.files[0])startScan();});
+function startScan(){document.querySelector('.load-title').textContent='Analyse de votre bilan';document.querySelector('.load-sub').textContent='On compare vos offres au marché, en temps réel.';drop.style.display='none';document.getElementById('scan').classList.add('go');
+  const steps=[...document.querySelectorAll('#steps .step')];let t=500;steps.forEach(s=>{setTimeout(()=>s.classList.add('on'),t);t+=800;});setTimeout(()=>document.getElementById('revealBtn').classList.add('show'),t+250);}
+function reveal(){document.getElementById('load').classList.add('gone');document.body.style.overflow='';setTimeout(()=>{const l=document.getElementById('load');if(l)l.remove();},700);observeReveals();}
+function observeReveals(){const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}}),{threshold:.1});document.querySelectorAll('.reveal').forEach((el,i)=>{el.style.transitionDelay=(Math.min(i%6,5)*55)+'ms';io.observe(el);});}
 
-drawTRV(); drawGros(); renderRows();
+drawTRV();drawGros();renderRows();
 document.body.style.overflow='hidden';
 </script>
 </body>
