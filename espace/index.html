@@ -484,7 +484,7 @@ async function demanderRappel(btn,msg){
 
 /* ─── Assistant énergie (agent moderne) ─── */
 const SUGGESTIONS=["Mon prix est-il bon ?","Comment je résilie ?","Explique ma dernière facture","Quand finit mon contrat ?"];
-function toggleChat(){CHAT_OPEN=!CHAT_OPEN;renderChat();}
+function toggleChat(){CHAT_OPEN=!CHAT_OPEN; if(!CHAT_OPEN)CHAT=[]; /* quitter la conversation → on repart à neuf à la réouverture */ renderChat();}
 function escaladeBoutons(){
   const p=(STATE.conseiller&&STATE.conseiller.nom||'ton conseiller').split(' ')[0];
   return `<div class="mt-3 flex flex-wrap gap-2">
