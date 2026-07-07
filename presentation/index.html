@@ -1,297 +1,413 @@
 <!doctype html>
-<html lang="fr-FR" class="scroll-smooth">
+<html lang="fr">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Présentation Elga Energy — R2</title>
-  <meta name="robots" content="noindex, nofollow" />
-  <link rel="icon" href="/assets/logos/favicon.ico" sizes="any" />
-  <link rel="icon" type="image/png" sizes="32x32" href="/assets/logos/favicon-32.png" />
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = { theme: { extend: { colors: {
-      primary: { 50:'#ecfdf5',100:'#d1fae5',200:'#a7f3d0',300:'#6ee7b7',400:'#34d399',500:'#10b981',600:'#0e8a57',700:'#0b6c45',800:'#0a5336',900:'#083f2a' },
-      secondary: { 50:'#eef2ff',100:'#e0e7ff',600:'#0b3d91',700:'#0a357e' } } } } }
-  </script>
-  <style>
-    html,body{height:100%}
-    body{background:#0a1626;color:#e8eef6;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;overflow:hidden}
-    .deck{position:fixed;inset:0}
-    .slide{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:5vh 6vw;opacity:0;visibility:hidden;transition:opacity .5s ease;pointer-events:none}
-    .slide.active{opacity:1;visibility:visible;pointer-events:auto}
-    .slide-inner{width:100%;max-width:980px}
-    /* reveals — jouées quand la slide devient active */
-    .r{opacity:0;transform:translateY(22px)}
-    .active .r{animation:rise .7s cubic-bezier(.16,1,.3,1) forwards}
-    .active .r.d1{animation-delay:.10s}.active .r.d2{animation-delay:.24s}.active .r.d3{animation-delay:.38s}
-    .active .r.d4{animation-delay:.52s}.active .r.d5{animation-delay:.66s}.active .r.d6{animation-delay:.80s}
-    @keyframes rise{to{opacity:1;transform:none}}
-    .pop{opacity:0;transform:scale(.9)}.active .pop{animation:pop .6s cubic-bezier(.16,1,.3,1) forwards}
-    @keyframes pop{to{opacity:1;transform:none}}
-    .glass{background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);backdrop-filter:blur(6px)}
-    .glow{box-shadow:0 30px 90px -40px rgba(16,185,129,.6)}
-    .grad-text{background:linear-gradient(100deg,#34d399,#7dd3fc);-webkit-background-clip:text;background-clip:text;color:transparent}
-    .float{animation:fl 5s ease-in-out infinite}@keyframes fl{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
-    /* pilotage */
-    .ctrl{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:50;display:flex;align-items:center;gap:10px}
-    .btn-n{width:44px;height:44px;border-radius:999px;display:grid;place-items:center;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);color:#fff;cursor:pointer;transition:background .15s,transform .15s}
-    .btn-n:hover{background:rgba(255,255,255,.16);transform:translateY(-1px)}
-    .dots{display:flex;gap:6px}
-    .dot{width:8px;height:8px;border-radius:999px;background:rgba(255,255,255,.22);cursor:pointer;transition:all .2s}
-    .dot.on{width:22px;background:#34d399}
-    .brand{position:fixed;top:18px;left:22px;z-index:50;display:flex;align-items:center;gap:8px;opacity:.9}
-    .count{position:fixed;top:20px;right:22px;z-index:50;font-size:12px;color:rgba(255,255,255,.5);font-variant-numeric:tabular-nums}
-    .chip{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:700;padding:5px 11px;border-radius:999px;background:rgba(16,185,129,.14);color:#6ee7b7;border:1px solid rgba(16,185,129,.25)}
-    .draw{stroke-dasharray:1600;stroke-dashoffset:1600}.active .draw{animation:draw 2s ease forwards .3s}@keyframes draw{to{stroke-dashoffset:0}}
-    .bar{transition:height .8s cubic-bezier(.16,1,.3,1),background .3s}
-    .furn{cursor:pointer;transition:transform .2s,border-color .2s,background .2s}
-    .furn:hover{transform:translateY(-2px)}
-    .furn.sel{border-color:#34d399;background:rgba(16,185,129,.12)}
-    @media (prefers-reduced-motion: reduce){.r,.pop,.draw,.float{animation:none!important;opacity:1!important;transform:none!important;stroke-dashoffset:0!important}}
-    kbd{background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:5px;padding:1px 6px;font-size:11px}
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bilan comparatif — Elga Energy</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0f1a17; --ink-soft:#42514c; --mut:#75837e;
+    --line:#e7ece9; --line-strong:#d3dbd7;
+    --bg:#ffffff; --panel:#fbfcfb; --panel-2:#f3f6f4;
+    --green:#0d7a52; --green-deep:#0a5c3e; --green-soft:#e8f4ee;
+    --blue:#123a7a; --amber:#a86a12; --rose:#b23a3a; --rose-soft:#fbeeee;
+    --r:14px; --z-modal:60; --z-load:90;
+    --sans:'Inter',system-ui,sans-serif; --serif:'Fraunces',Georgia,serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:var(--sans);color:var(--ink);background:var(--bg);-webkit-font-smoothing:antialiased;line-height:1.55;font-size:15px}
+  h1,h2,h3{font-family:var(--serif);font-weight:500;letter-spacing:-0.02em;line-height:1.08;text-wrap:balance}
+  .tnum{font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+  a{color:inherit}
+  button{font-family:inherit;cursor:pointer}
+
+  /* Chargement */
+  #load{position:fixed;inset:0;z-index:var(--z-load);background:var(--bg);display:flex;align-items:center;justify-content:center;transition:opacity .6s ease,visibility .6s}
+  #load.gone{opacity:0;visibility:hidden}
+  .load-in{width:min(520px,90vw);text-align:center}
+  .load-mark{display:inline-flex;align-items:center;gap:10px;margin-bottom:34px}
+  .load-mark svg{width:34px;height:34px}
+  .load-mark span{font-weight:700;letter-spacing:.14em;font-size:13px;color:var(--ink-soft)}
+  .scan{position:relative;height:3px;border-radius:3px;background:var(--panel-2);overflow:hidden;margin:0 auto 30px}
+  .scan i{position:absolute;inset:0;width:38%;border-radius:3px;background:linear-gradient(90deg,transparent,var(--green),transparent);animation:scan 1.15s cubic-bezier(.5,0,.5,1) infinite}
+  @keyframes scan{0%{left:-40%}100%{left:102%}}
+  .load-title{font-family:var(--serif);font-size:26px;margin-bottom:8px}
+  .load-sub{color:var(--mut);font-size:14px;margin-bottom:26px}
+  .steps{text-align:left;max-width:340px;margin:0 auto;display:flex;flex-direction:column;gap:11px}
+  .step{display:flex;align-items:center;gap:11px;font-size:13.5px;color:var(--mut);opacity:.4;transition:opacity .4s,color .4s}
+  .step.on{opacity:1;color:var(--ink-soft)}
+  .step .tick{width:18px;height:18px;border-radius:50%;border:1.5px solid var(--line-strong);display:grid;place-items:center;flex:0 0 auto;transition:.4s;position:relative}
+  .step.on .tick{background:var(--green);border-color:var(--green)}
+  .step .tick svg{width:11px;height:11px;stroke:#fff;opacity:0;transition:.3s}
+  .step.on .tick svg{opacity:1}
+  .step.on .num{opacity:0}
+  .step .num{font-size:10px;color:var(--mut);position:absolute}
+  .reveal-btn{margin-top:34px;opacity:0;transform:translateY(8px);transition:opacity .5s,transform .5s;pointer-events:none}
+  .reveal-btn.show{opacity:1;transform:none;pointer-events:auto}
+  .btn{display:inline-flex;align-items:center;gap:10px;background:var(--green);color:#fff;border:none;border-radius:999px;padding:15px 30px;font-weight:600;font-size:15px;transition:background .2s,transform .15s}
+  .btn:hover{background:var(--green-deep)}
+  .btn:active{transform:scale(.98)}
+  .btn svg{width:17px;height:17px}
+
+  /* En-tête */
+  .topbar{position:sticky;top:0;z-index:40;background:rgba(255,255,255,.86);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+  .topbar .wrap{display:flex;align-items:center;justify-content:space-between;height:60px}
+  .logo{display:flex;align-items:center;gap:9px;font-weight:700;letter-spacing:.02em}
+  .logo svg{width:26px;height:26px}
+  .topbar .meta{font-size:12.5px;color:var(--mut)}
+
+  section{padding:56px 0}
+  .eyebrow{font-size:12px;font-weight:600;letter-spacing:.02em;color:var(--green);margin-bottom:14px}
+  .lead{font-size:clamp(28px,4.4vw,44px)}
+  .sub{color:var(--ink-soft);font-size:17px;max-width:60ch;margin-top:16px;line-height:1.6}
+
+  .siteband{display:flex;flex-wrap:wrap;gap:14px;margin-top:30px}
+  .fact{background:var(--panel);border:1px solid var(--line);border-radius:var(--r);padding:14px 18px;flex:1;min-width:150px}
+  .fact .k{font-size:11.5px;color:var(--mut);text-transform:uppercase;letter-spacing:.05em}
+  .fact .v{font-size:20px;font-weight:600;margin-top:3px}
+
+  /* Tableau bilan */
+  .bilan{margin-top:8px;border:1px solid var(--line);border-radius:18px;overflow:hidden;background:#fff}
+  .bilan-head{display:grid;grid-template-columns:1.7fr .9fr .8fr .8fr .9fr 1fr;gap:8px;padding:13px 20px;background:var(--panel-2);font-size:11px;font-weight:600;letter-spacing:.03em;text-transform:uppercase;color:var(--mut)}
+  .bilan-head .r,.row .r{text-align:right}
+  .row{display:grid;grid-template-columns:1.7fr .9fr .8fr .8fr .9fr 1fr;gap:8px;padding:16px 20px;border-top:1px solid var(--line);align-items:center;cursor:pointer;transition:background .15s;position:relative}
+  .row:hover{background:var(--panel)}
+  .row.sel{background:var(--green-soft)}
+  .row.ref,.row.ref:hover{background:#fff;cursor:default}
+  .fourn{display:flex;align-items:center;gap:12px;min-width:0}
+  .fmark{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;font-weight:700;font-size:13px;color:#fff;flex:0 0 auto}
+  .fname{font-weight:600;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .fmeta{font-size:12px;color:var(--mut)}
+  .pill{display:inline-block;font-size:11.5px;font-weight:600;padding:3px 9px;border-radius:999px}
+  .pill.fixe{background:var(--green-soft);color:var(--green-deep)}
+  .pill.evo{background:#fdeede;color:var(--amber)}
+  .cell{font-size:14px;color:var(--ink-soft)}
+  .total{font-weight:700;font-size:15px}
+  .ecart{font-weight:700;font-size:14px}
+  .ecart.pos{color:var(--green)}
+  .ecart.neg{color:var(--rose)}
+  .chev{position:absolute;right:14px;top:50%;transform:translateY(-50%);color:var(--mut);opacity:0;transition:.15s}
+  .row:hover .chev{opacity:.6}
+  .hint{font-size:12.5px;color:var(--mut);margin-top:14px;display:flex;align-items:center;gap:7px}
+
+  /* Panneau détail */
+  .ov{position:fixed;inset:0;z-index:var(--z-modal);background:rgba(15,26,23,.42);backdrop-filter:blur(3px);display:flex;align-items:flex-end;justify-content:center;opacity:0;visibility:hidden;transition:opacity .3s,visibility .3s}
+  .ov.open{opacity:1;visibility:visible}
+  .sheet{background:#fff;width:min(760px,100%);max-height:92vh;overflow-y:auto;border-radius:20px 20px 0 0;transform:translateY(24px);transition:transform .35s cubic-bezier(.2,.8,.2,1);padding:26px 26px 34px}
+  .ov.open .sheet{transform:none}
+  @media(min-width:720px){.ov{align-items:center}.sheet{border-radius:20px;transform:translateY(12px) scale(.99)}}
+  .sheet-top{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:6px}
+  .sheet-x{width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:#fff;display:grid;place-items:center;color:var(--mut)}
+  .sheet-x:hover{background:var(--panel)}
+  .brk{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:18px 0}
+  .brk .b{background:var(--panel);border:1px solid var(--line);border-radius:12px;padding:13px 15px}
+  .brk .b .k{font-size:11.5px;color:var(--mut);display:flex;align-items:center;gap:6px}
+  .brk .b .v{font-size:19px;font-weight:600;margin-top:4px}
+  .brk .b .d{font-size:12px;color:var(--mut);margin-top:2px}
+  .proj{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px;margin-top:6px}
+  .proj-h{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:8px}
+  .proj-h .t{font-family:var(--serif);font-size:19px}
+  .seg{display:inline-flex;background:#fff;border:1px solid var(--line);border-radius:999px;padding:3px}
+  .seg button{border:none;background:none;padding:5px 12px;border-radius:999px;font-size:12.5px;font-weight:600;color:var(--mut)}
+  .seg button.on{background:var(--green);color:#fff}
+  .chartwrap{margin-top:16px}
+  .legend{display:flex;gap:18px;font-size:12px;color:var(--ink-soft);margin-bottom:10px;flex-wrap:wrap}
+  .legend i{width:20px;height:3px;border-radius:3px;display:inline-block;vertical-align:middle;margin-right:6px}
+  .verdict{margin-top:18px;padding:16px 18px;border-radius:13px;background:var(--green-soft);border:1px solid #cfe7da}
+  .verdict.warn{background:var(--rose-soft);border-color:#f0d5d5}
+  .verdict .big{font-family:var(--serif);font-size:26px;color:var(--green-deep)}
+  .verdict.warn .big{color:var(--rose)}
+  .verdict p{font-size:13.5px;color:var(--ink-soft);margin-top:4px;line-height:1.55}
+  .verdict b{color:var(--ink)}
+
+  /* Contexte marché */
+  .ctx{background:var(--panel-2);border-top:1px solid var(--line)}
+  .ctxgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-top:28px}
+  .ctxcard{background:#fff;border:1px solid var(--line);border-radius:16px;padding:22px}
+  .ctxcard .n{font-family:var(--serif);font-size:34px;color:var(--green-deep);line-height:1}
+  .ctxcard .l{font-weight:600;margin-top:8px;font-size:15px}
+  .ctxcard p{color:var(--ink-soft);font-size:13.5px;margin-top:6px;line-height:1.55}
+  .src{font-size:12px;color:var(--mut);margin-top:22px;line-height:1.6}
+  .src a{color:var(--green);text-decoration:underline;text-underline-offset:2px}
+
+  .foot{padding:40px 0 60px;text-align:center;color:var(--mut);font-size:13px}
+  .reveal{opacity:0;transform:translateY(14px)}
+  .reveal.in{opacity:1;transform:none;transition:opacity .7s ease,transform .7s cubic-bezier(.2,.8,.2,1)}
+  @media (prefers-reduced-motion:reduce){.reveal,.reveal.in{opacity:1;transform:none;transition:none}.scan i{animation:none;left:0;width:100%;opacity:.5}}
+  @media(max-width:720px){
+    .bilan-head{display:none}
+    .row{grid-template-columns:1fr auto;gap:6px 12px;padding:15px 16px}
+    .row .cell,.row .total-cell{display:none}
+    .row .fourn{grid-column:1}
+    .row .ecart-cell{grid-column:2;text-align:right}
+    .lead{font-size:30px}
+    .brk{grid-template-columns:1fr}
+  }
+</style>
 </head>
 <body>
-  <div class="brand"><img src="/assets/logos/favicon-32.png" class="h-6 w-6" alt=""/><span class="text-[13px] font-bold tracking-wide">ELGA ENERGY</span></div>
-  <div class="count"><span id="cur">1</span> / <span id="tot">9</span></div>
 
-  <div class="deck" id="deck">
-
-    <!-- 1. RÈGLES DU JEU -->
-    <section class="slide" data-s="1">
-      <div class="slide-inner text-center">
-        <div class="r d1 chip mb-6">Avant de commencer</div>
-        <h1 class="r d2 text-4xl sm:text-6xl font-extrabold leading-[1.05]">On fixe <span class="grad-text">les règles du jeu.</span></h1>
-        <div class="r d3 max-w-2xl mx-auto mt-7 space-y-3 text-left">
-          <div class="glass rounded-2xl p-4 flex items-start gap-3"><span class="text-xl">🚫</span><p class="text-[15px] text-slate-200">Je ne suis pas là pour vous vendre un contrat aujourd'hui.</p></div>
-          <div class="glass rounded-2xl p-4 flex items-start gap-3"><span class="text-xl">🤝</span><p class="text-[15px] text-slate-200">On regarde ensemble si <strong>notre façon de travailler</strong> vous correspond. C'est tout.</p></div>
-          <div class="glass rounded-2xl p-4 flex items-start gap-3"><span class="text-xl">🎯</span><p class="text-[15px] text-slate-200">Le métier de courtier, ce n'est pas « trouver un prix ». C'est <strong>trois leviers</strong>.</p></div>
-        </div>
-        <div class="r d4 mt-7 inline-flex items-center gap-3 text-[13px] text-slate-400">
-          <span class="inline-block w-4 h-4 rounded-full border-2 border-emerald-400 border-t-transparent animate-spin"></span>
-          On charge votre bilan pendant qu'on en parle…
-        </div>
-      </div>
-    </section>
-
-    <!-- 2. LES 3 LEVIERS -->
-    <section class="slide" data-s="2">
-      <div class="slide-inner">
-        <h2 class="r d1 text-3xl sm:text-4xl font-extrabold text-center mb-2">Le courtier, c'est <span class="grad-text">3 leviers.</span></h2>
-        <p class="r d2 text-center text-slate-400 mb-9">Le prix, c'est juste le premier. Les deux autres font toute la différence.</p>
-        <div class="grid sm:grid-cols-3 gap-4">
-          <div class="r d3 glass rounded-3xl p-6 text-center"><div class="text-4xl float mb-3">⚖️</div><div class="text-[13px] font-bold text-emerald-400">LEVIER 1</div><div class="text-xl font-extrabold mt-1">Négociation</div><p class="text-[13px] text-slate-400 mt-2">Chaque fournisseur, un par un, à la même marge pour tous.</p></div>
-          <div class="r d4 glass rounded-3xl p-6 text-center"><div class="text-4xl float mb-3" style="animation-delay:.5s">🛡️</div><div class="text-[13px] font-bold text-emerald-400">LEVIER 2</div><div class="text-xl font-extrabold mt-1">Gestion</div><p class="text-[13px] text-slate-400 mt-2">Votre espace, vos factures suivies, un agent 24/7.</p></div>
-          <div class="r d5 glass rounded-3xl p-6 text-center glow"><div class="text-4xl float mb-3" style="animation-delay:1s">🔄</div><div class="text-[13px] font-bold text-emerald-400">LEVIER 3</div><div class="text-xl font-extrabold mt-1">Renouvellement</div><p class="text-[13px] text-slate-400 mt-2">Le plus important. On y travaille 2 ans à l'avance.</p></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 3. NÉGOCIATION -->
-    <section class="slide" data-s="3">
-      <div class="slide-inner">
-        <div class="r d1 chip mb-4">Levier 1 · Négociation</div>
-        <h2 class="r d2 text-3xl sm:text-4xl font-extrabold">On interroge chaque fournisseur, <span class="grad-text">à la même marge.</span></h2>
-        <p class="r d3 text-slate-300 mt-3 max-w-2xl">Personne n'est mis en avant parce qu'il nous arrange. On met <strong>la même marge pour tous</strong> — comme ça, c'est le meilleur pour <em>vous</em> qui gagne, pas celui qui nous rémunère le mieux.</p>
-        <div class="r d4 flex flex-wrap gap-2 mt-6">
-          <span class="glass rounded-xl px-3 py-2 text-[13px]">EDF</span><span class="glass rounded-xl px-3 py-2 text-[13px]">Engie</span><span class="glass rounded-xl px-3 py-2 text-[13px]">TotalEnergies</span><span class="glass rounded-xl px-3 py-2 text-[13px]">Endesa</span><span class="glass rounded-xl px-3 py-2 text-[13px]">Enovos</span><span class="glass rounded-xl px-3 py-2 text-[13px]">Vattenfall</span><span class="glass rounded-xl px-3 py-2 text-[13px]">+ 10 autres</span>
-        </div>
-        <div class="r d5 mt-7 glass rounded-2xl p-5 flex items-center gap-4 max-w-lg">
-          <div class="text-4xl font-extrabold grad-text">≈35 h</div>
-          <p class="text-[14px] text-slate-300">C'est le temps qu'il vous faudrait pour négocier vous-même avec tous les fournisseurs. Nous, c'est notre métier — et on le fait chaque jour.</p>
-        </div>
-      </div>
-    </section>
-
-    <!-- 4. TRV vs MARCHÉ -->
-    <section class="slide" data-s="4">
-      <div class="slide-inner">
-        <div class="r d1 chip mb-4">Levier 1 · Pourquoi c'est urgent</div>
-        <h2 class="r d2 text-2xl sm:text-3xl font-extrabold">Le Tarif Réglementé EDF ne fait que <span class="grad-text">monter.</span></h2>
-        <div class="r d3 mt-5 glass rounded-3xl p-5">
-          <svg viewBox="0 0 640 260" class="w-full h-[42vh]">
-            <g stroke="rgba(255,255,255,.08)"><line x1="40" y1="220" x2="620" y2="220"/><line x1="40" y1="160" x2="620" y2="160"/><line x1="40" y1="100" x2="620" y2="100"/><line x1="40" y1="40" x2="620" y2="40"/></g>
-            <!-- marché : volatil -->
-            <polyline class="draw" fill="none" stroke="#7dd3fc" stroke-width="2.5" stroke-linejoin="round" points="40,150 110,120 180,175 250,95 320,165 390,110 460,150 530,90 600,130"/>
-            <!-- TRV : monte tout le temps -->
-            <polyline class="draw" fill="none" stroke="#34d399" stroke-width="3.5" stroke-linejoin="round" points="40,205 110,196 180,183 250,168 320,150 390,128 460,104 530,78 600,48"/>
-            <text x="606" y="44" fill="#34d399" font-size="12" text-anchor="end">TRV EDF ↑</text>
-            <text x="606" y="145" fill="#7dd3fc" font-size="12" text-anchor="end">Prix de marché</text>
-          </svg>
-          <div class="grid sm:grid-cols-2 gap-3 mt-2">
-            <div class="text-[13px] text-slate-300"><span class="text-emerald-400 font-bold">+6,2 %/an</span> en moyenne sur 14 ans. Le TRV monte, encore et encore.</div>
-            <div class="text-[13px] text-slate-300">Le marché fait des hauts et des bas — mais <strong>votre facture ne suit jamais les baisses.</strong></div>
-          </div>
-        </div>
-        <p class="r d4 mt-4 text-[14px] text-slate-300 max-w-2xl">💡 C'est comme le <strong>blé et la farine</strong> : si le blé baisse sur les marchés, le prix de la farine à Intermarché, lui, ne baisse pas. Quand la matière première baisse, c'est le vendeur qui garde la marge.</p>
-      </div>
-    </section>
-
-    <!-- 5. GESTION -->
-    <section class="slide" data-s="5">
-      <div class="slide-inner">
-        <div class="r d1 chip mb-4">Levier 2 · Gestion & suivi</div>
-        <h2 class="r d2 text-3xl sm:text-4xl font-extrabold">La partie dont on est <span class="grad-text">le plus fiers.</span></h2>
-        <p class="r d3 text-slate-300 mt-3 max-w-2xl">Chaque client a son <strong>espace personnel</strong>. Tout y est, au même endroit — et un agent qui ne dort jamais.</p>
-        <div class="grid sm:grid-cols-2 gap-3 mt-6">
-          <div class="r d4 glass rounded-2xl p-4 flex gap-3"><span class="text-2xl">📄</span><div><div class="font-bold text-[15px]">Votre contrat + les CGV</div><p class="text-[13px] text-slate-400">Les 20 pages de petites lignes que personne ne lit — mais qui comptent le plus.</p></div></div>
-          <div class="r d4 glass rounded-2xl p-4 flex gap-3"><span class="text-2xl">🧾</span><div><div class="font-bold text-[15px]">Vos factures, mois par mois</div><p class="text-[13px] text-slate-400">Au bout de 12 mois, on voit si votre acheminement est bien calibré.</p></div></div>
-          <div class="r d5 glass rounded-2xl p-4 flex gap-3"><span class="text-2xl">🤖</span><div><div class="font-bold text-[15px]">Un agent 24/7</div><p class="text-[13px] text-slate-400">Une question sur une ligne, une échéance, un engagement ? Réponse immédiate, même à 2 h du matin.</p></div></div>
-          <div class="r d5 glass rounded-2xl p-4 flex gap-3"><span class="text-2xl">📞</span><div><div class="font-bold text-[15px]">Moi, votre conseiller attitré</div><p class="text-[13px] text-slate-400">Je reste votre interlocuteur. L'agent prend le relais quand je ne peux pas répondre.</p></div></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 6. RENOUVELLEMENT — LE PIÈGE -->
-    <section class="slide" data-s="6">
-      <div class="slide-inner text-center">
-        <div class="r d1 chip mb-5">Levier 3 · Renouvellement</div>
-        <h2 class="r d2 text-3xl sm:text-4xl font-extrabold leading-tight">Le fournisseur vous envoie son renouvellement<br><span class="grad-text">15 jours avant la fin.</span></h2>
-        <p class="r d3 text-slate-300 mt-5 max-w-2xl mx-auto">À la dernière minute, vous n'avez plus le temps de partir. Vous êtes déjà engagé. Vous <strong>subissez</strong> la reconduction — parce que vous n'avez ni le temps ni l'envie de tout recommencer. Et c'est normal.</p>
-        <div class="r d4 mt-8 glass rounded-2xl px-6 py-5 inline-block"><p class="text-[15px] text-slate-200">Ce n'est pas un hasard. <strong class="text-emerald-400">C'est calculé.</strong> Et je vais vous montrer pourquoi.</p></div>
-      </div>
-    </section>
-
-    <!-- 7. RENOUVELLEMENT — LE MÉCANISME (billet d'avion) -->
-    <section class="slide" data-s="7">
-      <div class="slide-inner">
-        <div class="r d1 chip mb-4">Le secret que 99 % des dirigeants ignorent</div>
-        <h2 class="r d2 text-2xl sm:text-3xl font-extrabold">Un fournisseur, ce n'est pas un magasin. C'est un <span class="grad-text">grossiste.</span></h2>
-        <p class="r d3 text-slate-300 mt-3 max-w-2xl">Il achète d'énormes volumes d'électricité à l'avance et vous les revend au fil de l'eau. Vous signez 4 ans à 100 MWh/an ? Il <strong>réserve 400 MWh</strong> pour vous. Son seul job : vous les livrer.</p>
-        <div class="r d4 mt-6 glass rounded-3xl p-6 glow">
-          <div class="text-center text-[13px] text-emerald-400 font-bold mb-3">✈️ C'est exactement comme un billet d'avion</div>
-          <div class="grid grid-cols-2 gap-4">
-            <div class="rounded-2xl p-4 text-center" style="background:rgba(16,185,129,.10)"><div class="text-2xl">🗓️ 2 ans avant</div><div class="text-emerald-400 font-extrabold text-lg mt-1">Prix cassé</div><p class="text-[12.5px] text-slate-300 mt-1">Le fournisseur a tout son temps pour acheter → zéro risque → il baisse au maximum.</p></div>
-            <div class="rounded-2xl p-4 text-center" style="background:rgba(248,113,113,.10)"><div class="text-2xl">⏰ La veille</div><div class="text-rose-300 font-extrabold text-lg mt-1">Prix maximum</div><p class="text-[12.5px] text-slate-300 mt-1">Plus le temps de partir. Il le sait. Il remet toute sa marge.</p></div>
-          </div>
-        </div>
-        <p class="r d5 mt-4 text-[14px] text-slate-300 max-w-2xl">Le fournisseur <strong>compte sur le fait</strong> que vous vous y prendrez à la dernière minute. C'est pour ça qu'il attend 15 jours avant.</p>
-      </div>
-    </section>
-
-    <!-- 8. RENOUVELLEMENT — CE QU'ON FAIT -->
-    <section class="slide" data-s="8">
-      <div class="slide-inner">
-        <div class="r d1 chip mb-4">Levier 3 · Ce qu'on fait, nous</div>
-        <h2 class="r d2 text-3xl sm:text-4xl font-extrabold">On travaille votre renouvellement <span class="grad-text">2 ans à l'avance.</span></h2>
-        <div class="grid sm:grid-cols-3 gap-3 mt-6">
-          <div class="r d3 glass rounded-2xl p-4"><div class="text-2xl mb-1">🔔</div><div class="font-bold text-[14px]">Des alertes en place</div><p class="text-[13px] text-slate-400">Branchés en direct sur les marchés, avec vos tarifs et vos conditions.</p></div>
-          <div class="r d4 glass rounded-2xl p-4"><div class="text-2xl mb-1">🎯</div><div class="font-bold text-[14px]">On pose une option</div><p class="text-[13px] text-slate-400">Dès qu'un prix passe sous le vôtre, on le verrouille — comme une pré-commande.</p></div>
-          <div class="r d5 glass rounded-2xl p-4"><div class="text-2xl mb-1">📈</div><div class="font-bold text-[14px]">Vous profitez des baisses</div><p class="text-[13px] text-slate-400">Sans jamais subir une hausse au renouvellement.</p></div>
-        </div>
-        <div class="r d6 mt-7 flex flex-wrap items-center gap-6 glass rounded-2xl p-5">
-          <div><div class="text-3xl font-extrabold grad-text">15 à 25 %</div><div class="text-[12.5px] text-slate-400">d'économie en plus sur nos renouvellements de cet été</div></div>
-          <div class="h-10 w-px bg-white/10 hidden sm:block"></div>
-          <div><div class="text-3xl font-extrabold grad-text">90 %</div><div class="text-[12.5px] text-slate-400">de nos clients renouvellent avec nous</div></div>
-        </div>
-      </div>
-    </section>
-
-    <!-- 9. BILAN COMPARATIF INTERACTIF -->
-    <section class="slide" data-s="9">
-      <div class="slide-inner">
-        <div class="flex items-center justify-between flex-wrap gap-2 mb-3">
-          <div><div class="r d1 chip mb-2">Votre bilan comparatif</div><h2 class="r d2 text-2xl sm:text-3xl font-extrabold">Le prix du jour n'est pas <span class="grad-text">le vrai gagnant.</span></h2></div>
-          <span class="r d2 text-[11px] text-slate-500">Exemple — sera calqué sur votre vrai bilan</span>
-        </div>
-        <p class="r d3 text-[13.5px] text-slate-400 mb-4 max-w-2xl">Cliquez sur une offre : on projette votre budget sur <strong>4 ans</strong>. Un prix fixe vous protège des +6,2 %/an — même s'il est un peu plus cher aujourd'hui.</p>
-        <div class="r d4 grid lg:grid-cols-2 gap-4">
-          <div id="offres" class="space-y-2"></div>
-          <div class="glass rounded-3xl p-5">
-            <div class="flex items-end justify-between mb-1"><div class="text-[12px] text-slate-400">Budget cumulé sur 4 ans</div><div id="ecoBadge" class="text-[13px] font-bold text-emerald-400"></div></div>
-            <div id="chart" class="flex items-end gap-3 h-[26vh] mt-3"></div>
-            <div id="detail" class="text-[12.5px] text-slate-300 mt-3"></div>
-          </div>
-        </div>
-      </div>
-    </section>
-
+<!-- CHARGEMENT -->
+<div id="load">
+  <div class="load-in">
+    <div class="load-mark">
+      <svg viewBox="0 0 32 32" fill="none"><path d="M9 8a8 8 0 100 16M23 24a8 8 0 100-16" stroke="#0d7a52" stroke-width="2.4" stroke-linecap="round"/><path d="M9 8a8 8 0 010 16" stroke="#123a7a" stroke-width="2.4" stroke-linecap="round"/></svg>
+      <span>ELGA ENERGY</span>
+    </div>
+    <div class="scan" style="max-width:300px"><i></i></div>
+    <div class="load-title">Analyse de votre bilan</div>
+    <div class="load-sub">On compare votre facture au marché, en temps réel.</div>
+    <div class="steps" id="steps">
+      <div class="step"><span class="tick"><span class="num">1</span><svg viewBox="0 0 24 24" fill="none" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span>Lecture de votre facture actuelle</div>
+      <div class="step"><span class="tick"><span class="num">2</span><svg viewBox="0 0 24 24" fill="none" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span>Interrogation de 30+ fournisseurs</div>
+      <div class="step"><span class="tick"><span class="num">3</span><svg viewBox="0 0 24 24" fill="none" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span>Projection sur 48 mois (fin de l'ARENH)</div>
+    </div>
+    <div class="reveal-btn" id="revealBtn">
+      <button class="btn" onclick="reveal()">Découvrir votre bilan
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </button>
+    </div>
   </div>
+</div>
 
-  <!-- Pilotage -->
-  <div class="ctrl">
-    <button class="btn-n" onclick="go(-1)" aria-label="Précédent">‹</button>
-    <div class="dots" id="dots"></div>
-    <button class="btn-n" onclick="go(1)" aria-label="Suivant">›</button>
+<!-- EN-TÊTE -->
+<header class="topbar">
+  <div class="wrap">
+    <div class="logo">
+      <svg viewBox="0 0 32 32" fill="none"><path d="M9 8a8 8 0 100 16M23 24a8 8 0 100-16" stroke="#0d7a52" stroke-width="2.4" stroke-linecap="round"/><path d="M9 8a8 8 0 010 16" stroke="#123a7a" stroke-width="2.4" stroke-linecap="round"/></svg>
+      <span>Elga Energy</span>
+    </div>
+    <div class="meta tnum">Comparaison des offres · Électricité</div>
   </div>
+</header>
+
+<!-- BILAN -->
+<section>
+  <div class="wrap">
+    <div class="eyebrow reveal">Votre bilan comparatif</div>
+    <h1 class="lead reveal">Voici ce que vous payez.<br>Et ce que le marché propose aujourd'hui.</h1>
+    <p class="sub reveal">Chaque offre est négociée à la même marge. Cliquez sur un fournisseur : on projette votre budget sur 4 ans, en tenant compte de la hausse du marché après la fin de l'ARENH.</p>
+
+    <div class="siteband reveal">
+      <div class="fact"><div class="k">Consommation</div><div class="v tnum">54 399 kWh<span style="font-size:13px;color:var(--mut)">/an</span></div></div>
+      <div class="fact"><div class="k">Puissance · segment</div><div class="v">C5 · 24 kVA</div></div>
+      <div class="fact"><div class="k">Ce que vous payez</div><div class="v tnum" id="refTotal">—</div></div>
+      <div class="fact"><div class="k">Meilleure économie /an</div><div class="v tnum" style="color:var(--green)" id="bestEco">—</div></div>
+    </div>
+  </div>
+</section>
+
+<section style="padding-top:0">
+  <div class="wrap">
+    <div class="bilan reveal">
+      <div class="bilan-head">
+        <div>Fournisseur</div><div>Engagement</div><div class="r">Énergie/an</div><div class="r">Achem./an</div><div class="r">Total HTVA</div><div class="r">Écart /an</div>
+      </div>
+      <div id="rows"></div>
+    </div>
+    <div class="hint reveal">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v.01M11 12h1v4h1"/></svg>
+      L'offre la moins chère aujourd'hui n'est pas toujours la plus rentable sur 4 ans. Ouvrez chaque offre pour le voir.
+    </div>
+  </div>
+</section>
+
+<!-- CONTEXTE MARCHÉ -->
+<section class="ctx">
+  <div class="wrap">
+    <div class="eyebrow reveal">Pourquoi bloquer un prix maintenant</div>
+    <h2 class="lead reveal" style="font-size:clamp(24px,3.4vw,34px)">Le prix de l'électricité ne tient pas en place.</h2>
+    <div class="ctxgrid">
+      <div class="ctxcard reveal"><div class="n tnum">21</div><div class="l">révisions en 14 ans</div><p>Le tarif réglementé a changé environ une fois tous les 8 mois, dans un sens que vous ne contrôlez pas.</p></div>
+      <div class="ctxcard reveal"><div class="n tnum">+83 %</div><div class="l">l'acheminement (réseau)</div><p>La part réseau de votre facture a pris +83 % depuis 2012. Elle est dans toutes les factures, chez tous les fournisseurs, et ne redescend quasi jamais.</p></div>
+      <div class="ctxcard reveal"><div class="n tnum">42 → 70</div><div class="l">€/MWh : fin de l'ARENH</div><p>Depuis janvier 2026, le nucléaire régulé passe de 42 à ~70 €/MWh. Les contrats 2026 se signent 35 à 80 % plus cher. C'est la base de notre projection.</p></div>
+    </div>
+    <p class="src reveal">Sources : <a href="https://www.cre.fr/documents/open-data/historique-des-tarifs-reglementes-de-vente-delectricite-pour-les-consommateurs-residentiels.html" target="_blank" rel="noopener">CRE, historique des tarifs réglementés (données ouvertes)</a> · Fin de l'ARENH, délibérations CRE 2025-2026.</p>
+  </div>
+</section>
+
+<div class="foot">Document confidentiel · établi par Elga Energy · les chiffres définitifs sont calculés sur vos 12 mois réels (données Enedis).</div>
+
+<!-- PANNEAU DÉTAIL -->
+<div class="ov" id="ov" onclick="if(event.target===this)closeSheet()">
+  <div class="sheet" id="sheet"></div>
+</div>
 
 <script>
-/* ─── Deck ─── */
-const slides=[...document.querySelectorAll('.slide')];
-const N=slides.length; let i=0;
-document.getElementById('tot').textContent=N;
-const dotsEl=document.getElementById('dots');
-slides.forEach((_,k)=>{const d=document.createElement('div');d.className='dot';d.onclick=()=>show(k);dotsEl.appendChild(d);});
-const dots=[...dotsEl.children];
-function show(k){ i=Math.max(0,Math.min(N-1,k)); slides.forEach((s,x)=>s.classList.toggle('active',x===i)); dots.forEach((d,x)=>d.classList.toggle('on',x===i)); document.getElementById('cur').textContent=i+1; if(i===8) initBilan(); }
-function go(d){ show(i+d); }
-addEventListener('keydown',e=>{ if(e.key==='ArrowRight'||e.key===' '||e.key==='PageDown'){e.preventDefault();go(1);} if(e.key==='ArrowLeft'||e.key==='PageUp'){e.preventDefault();go(-1);} });
-let sx=null; addEventListener('touchstart',e=>sx=e.touches[0].clientX,{passive:true});
-addEventListener('touchend',e=>{ if(sx==null)return; const dx=e.changedTouches[0].clientX-sx; if(Math.abs(dx)>50) go(dx<0?1:-1); sx=null; });
-show(0);
+const CONSO = 54.399;
+const HORIZON = 4;
+const ACH = 2150, TAXES = 1727;
+const REF = { nom:'Votre contrat actuel', fournisseur:'Contrat en cours', energie:6008, kwh:110.4, color:'#75837e' };
+REF.total = REF.energie + ACH + TAXES;
 
-/* ─── Bilan comparatif interactif (démo) ─── */
-const CONSO=100;            // MWh / an
-const INFLA=0.062;          // +6,2 %/an sur l'évolutif
-const ANS=4;
-// offres démo — prix €/MWh HT
-const OFFRES=[
-  {nom:'EDF — Tarif actuel', type:'evolutif', prix:95, duree:0,  ref:true},
-  {nom:'Endesa',  type:'fixe', prix:88, duree:36},
-  {nom:'Enovos',  type:'fixe', prix:90, duree:48},
-  {nom:'Engie',   type:'fixe', prix:91, duree:48},
-];
-function budget4(o){
-  // budget cumulé sur 4 ans. Fixe pendant `duree` mois, puis on repasse en évolutif (+6,2%/an).
-  let tot=0, dureeAns=o.type==='evolutif'?0:Math.round(o.duree/12);
-  for(let y=0;y<ANS;y++){
-    let pu;
-    if(o.type==='evolutif') pu=o.prix*Math.pow(1+INFLA,y);
-    else if(y<dureeAns) pu=o.prix;                                   // verrouillé
-    else pu=OFFRES[0].prix*Math.pow(1+INFLA,y);                      // après la fin du fixe → exposé à l'évolutif
-    tot+=pu*CONSO;
-  }
-  return Math.round(tot);
-}
-const REF=budget4(OFFRES[0]);
-let sel=1;
-function euro(n){return new Intl.NumberFormat('fr-FR',{style:'currency',currency:'EUR',maximumFractionDigits:0}).format(n);}
-function initBilan(){
-  const wrap=document.getElementById('offres'); if(!wrap||wrap.dataset.done)return; wrap.dataset.done='1';
-  wrap.innerHTML=OFFRES.map((o,k)=>{
-    const b=budget4(o), eco=REF-b;
-    return `<div class="furn glass rounded-2xl p-3.5 flex items-center justify-between" data-k="${k}" onclick="selFourn(${k})">
-      <div><div class="font-bold text-[14.5px]">${o.nom}</div>
-      <div class="text-[12px] text-slate-400">${o.type==='fixe'?('Prix fixe '+o.duree+' mois'):'Prix évolutif'} · ${o.prix} €/MWh</div></div>
-      <div class="text-right">${o.ref?'<span class="text-[12px] text-slate-500">référence</span>':`<span class="text-[13px] font-bold ${eco>0?'text-emerald-400':'text-rose-300'}">${eco>0?'−'+euro(eco):'+'+euro(-eco)}<span class="text-[10px] text-slate-500">/4 ans</span></span>`}</div>
+const OFFRES = [
+  { nom:'TotalEnergies', energie:4700, duree:24, color:'#e2231a', kwh:86.4 },
+  { nom:'Endesa',        energie:4932, duree:36, color:'#0a3c8c', kwh:90.7 },
+  { nom:'Enovos',        energie:5089, duree:48, color:'#e30613', kwh:93.5 },
+  { nom:'Engie',         energie:6250, duree:48, color:'#0aa1dd', kwh:114.9 },
+].map(o => ({ ...o, total:o.energie+ACH+TAXES }));
+
+let INFLA = 0.07;
+const euro = n => new Intl.NumberFormat('fr-FR',{style:'currency',currency:'EUR',maximumFractionDigits:0}).format(Math.round(n));
+const initiale = s => s[0].toUpperCase();
+
+const refYear = y => REF.total * Math.pow(1+INFLA, y);
+function budget(o){ let s=0; for(let y=0;y<HORIZON;y++){ s += (y < o.duree/12) ? o.total : refYear(y); } return s; }
+function refBudget(){ let s=0; for(let y=0;y<HORIZON;y++) s+=refYear(y); return s; }
+
+function renderRows(){
+  const rows = document.getElementById('rows');
+  const ecos = OFFRES.map(o => Math.round(REF.total - o.total));
+  document.getElementById('refTotal').textContent = euro(REF.total);
+  document.getElementById('bestEco').textContent = euro(Math.max(...ecos)) + '/an';
+  let html = `<div class="row ref">
+      <div class="fourn"><div class="fmark" style="background:#75837e">${initiale(REF.fournisseur)}</div>
+        <div><div class="fname">${REF.nom}</div><div class="fmeta">Prix actuel · ${REF.kwh} €/MWh</div></div></div>
+      <div class="cell"><span class="pill evo">à renouveler</span></div>
+      <div class="cell r tnum">${euro(REF.energie)}</div>
+      <div class="cell r tnum">${euro(ACH)}</div>
+      <div class="total-cell total r tnum">${euro(REF.total)}</div>
+      <div class="ecart-cell ecart r" style="color:var(--mut)">référence</div>
     </div>`;
-  }).join('');
-  selFourn(2); // Enovos 48m — illustre que le 48m bat le 36m sur 4 ans
+  OFFRES.forEach((o,k)=>{
+    const eco = REF.total - o.total;
+    html += `<div class="row" data-k="${k}" onclick="openSheet(${k})">
+      <div class="fourn"><div class="fmark" style="background:${o.color}">${initiale(o.nom)}</div>
+        <div><div class="fname">${o.nom}</div><div class="fmeta tnum">${o.kwh} €/MWh HT</div></div></div>
+      <div class="cell"><span class="pill fixe">Fixe ${o.duree} mois</span></div>
+      <div class="cell r tnum">${euro(o.energie)}</div>
+      <div class="cell r tnum">${euro(ACH)}</div>
+      <div class="total-cell total r tnum">${euro(o.total)}</div>
+      <div class="ecart-cell ecart ${eco>=0?'pos':'neg'} r">${eco>=0?'−':'+'}${euro(Math.abs(eco))}/an</div>
+      <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg>
+    </div>`;
+  });
+  rows.innerHTML = html;
 }
-function selFourn(k){
-  sel=k;
-  [...document.querySelectorAll('.furn')].forEach(f=>f.classList.toggle('sel',+f.dataset.k===k));
-  const o=OFFRES[k], b=budget4(o), eco=REF-b;
-  // barres : référence vs offre
-  const max=Math.max(REF,b);
-  const chart=document.getElementById('chart');
-  chart.innerHTML=`
-    <div class="flex-1 flex flex-col items-center justify-end h-full">
-      <div class="text-[12px] text-slate-400 mb-1">${euro(REF)}</div>
-      <div class="bar w-full rounded-t-lg" style="height:0;background:linear-gradient(#f87171,#b91c1c)"></div>
-      <div class="text-[11px] text-slate-400 mt-2 text-center">Sans rien changer<br>(évolutif)</div>
+
+let curK = null;
+function openSheet(k){
+  curK = k;
+  document.querySelectorAll('.row').forEach(r=>r.classList.toggle('sel', r.dataset.k==String(k)));
+  drawSheet();
+  document.getElementById('ov').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeSheet(){ document.getElementById('ov').classList.remove('open'); document.body.style.overflow=''; document.querySelectorAll('.row').forEach(r=>r.classList.remove('sel')); }
+function setInfla(v,btn){ INFLA=v; btn.parentNode.querySelectorAll('button').forEach(b=>b.classList.remove('on')); btn.classList.add('on'); drawSheet(); }
+
+function drawSheet(){
+  const o = OFFRES[curK];
+  const b = budget(o), rb = refBudget(), eco = rb - b;
+  const ecoNow = REF.total - o.total;
+  const win = eco > 0;
+  document.getElementById('sheet').innerHTML = `
+    <div class="sheet-top">
+      <div style="display:flex;align-items:center;gap:13px">
+        <div class="fmark" style="width:42px;height:42px;background:${o.color};font-size:16px">${initiale(o.nom)}</div>
+        <div><div style="font-family:var(--serif);font-size:22px">${o.nom}</div>
+        <div style="font-size:13px;color:var(--mut)">Prix fixe garanti ${o.duree} mois</div></div>
+      </div>
+      <button class="sheet-x" onclick="closeSheet()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
     </div>
-    <div class="flex-1 flex flex-col items-center justify-end h-full">
-      <div class="text-[12px] text-emerald-300 mb-1 font-bold">${euro(b)}</div>
-      <div class="bar w-full rounded-t-lg" style="height:0;background:linear-gradient(#34d399,#0e8a57)"></div>
-      <div class="text-[11px] text-slate-300 mt-2 text-center font-semibold">${o.nom}</div>
+
+    <div class="brk">
+      <div class="b"><div class="k">⚡ Énergie (fourniture)</div><div class="v tnum">${o.kwh} €/MWh</div><div class="d tnum">${euro(o.energie)}/an · vous : ${REF.kwh} €/MWh</div></div>
+      <div class="b"><div class="k">🔌 Acheminement (réseau)</div><div class="v tnum">${euro(ACH)}/an</div><div class="d">Régulé (TURPE) · identique partout</div></div>
+      <div class="b"><div class="k">🧾 Taxes (accise, CTA)</div><div class="v tnum">${euro(TAXES)}/an</div><div class="d">Identiques chez tous les fournisseurs</div></div>
+      <div class="b"><div class="k">Σ Total facturé</div><div class="v tnum">${euro(o.total)}/an</div><div class="d">${ecoNow>=0?'−'+euro(ecoNow)+" vs aujourd'hui":'+'+euro(-ecoNow)+" vs aujourd'hui"}</div></div>
+    </div>
+
+    <div class="proj">
+      <div class="proj-h">
+        <div class="t">Projection sur ${HORIZON} ans</div>
+        <div class="seg">
+          <button onclick="setInfla(0.06,this)" class="${INFLA===0.06?'on':''}">+6 %/an</button>
+          <button onclick="setInfla(0.07,this)" class="${INFLA===0.07?'on':''}">+7 %/an</button>
+          <button onclick="setInfla(0.08,this)" class="${INFLA===0.08?'on':''}">+8 %/an</button>
+        </div>
+      </div>
+      <div class="legend" style="margin-top:14px">
+        <span><i style="background:#c0392b"></i>Sans rien faire (marché)</span>
+        <span><i style="background:#0d7a52"></i>${o.nom} (fixe ${o.duree} mois)</span>
+      </div>
+      <div class="chartwrap" id="chart"></div>
+      <div class="verdict ${win?'':'warn'}">
+        <div class="big tnum">${win?euro(eco):'+'+euro(-eco)} <span style="font-size:14px;font-family:var(--sans);color:var(--mut)">${win?'économisés sur '+HORIZON+' ans':'de plus sur '+HORIZON+' ans'}</span></div>
+        <p>${verdictText(o,eco,win)}</p>
+      </div>
     </div>`;
-  requestAnimationFrame(()=>{const bars=chart.querySelectorAll('.bar');bars[0].style.height=(REF/max*100)+'%';bars[1].style.height=(b/max*100)+'%';});
-  document.getElementById('ecoBadge').textContent = eco>0 ? ('Vous gagnez '+euro(eco)+' sur 4 ans') : '';
-  document.getElementById('detail').innerHTML = o.ref
-    ? `Si vous ne changez rien, votre budget suit le TRV : <strong>+6,2 %/an</strong>. En 4 ans, vous payez <strong>${euro(REF)}</strong>.`
-    : `${o.type==='fixe'?`Prix bloqué ${o.duree} mois à <strong>${o.prix} €/MWh</strong>`:''}. Même ${o.prix>OFFRES[1].prix?'un peu plus cher aujourd\'hui':'à ce prix'}, sur 4 ans vous économisez <strong class="text-emerald-400">${euro(eco)}</strong> face au « sans rien faire ».`;
+  drawChart(o);
 }
+
+function verdictText(o,eco,win){
+  const cheapest = OFFRES.reduce((m,x)=>x.total<m.total?x:m, OFFRES[0]);
+  if(win){
+    let t = `Sur ${HORIZON} ans, cette offre vous fait économiser <b>${euro(eco)}</b> face au « sans rien faire », si le marché monte de +${Math.round(INFLA*100)} %/an.`;
+    if(o.duree>=48 && o.total>cheapest.total){
+      const diff = Math.round(budget(cheapest) - budget(o));
+      if(diff>0) t += ` Elle est un peu plus chère que ${cheapest.nom} aujourd'hui, mais son prix reste bloqué ${o.duree} mois : sur la durée elle rapporte <b>${euro(diff)} de plus</b> que le ${cheapest.duree} mois, qui vous ré-expose au marché plus tôt.`;
+    }
+    return t;
+  }
+  return `À ce prix, l'économie immédiate est faible. L'intérêt, c'est la <b>sécurité</b> : votre budget reste bloqué ${o.duree} mois pendant que le marché monte de +${Math.round(INFLA*100)} %/an.`;
+}
+
+function drawChart(o){
+  const OFF='#0d7a52';
+  const W=680,H=210,pad=34;
+  const years=[]; for(let y=0;y<HORIZON;y++) years.push(y);
+  const refPts = years.map(y=>refYear(y));
+  const offPts = years.map(y=> (y<o.duree/12)?o.total:refYear(y));
+  const maxV = Math.max(...refPts,...offPts)*1.08;
+  const x = y => pad + (W-2*pad)*(y/(HORIZON-1));
+  const yv = v => H-pad - (H-2*pad)*(v/maxV);
+  const line = pts => pts.map((v,i)=>`${i?'L':'M'}${x(i).toFixed(1)},${yv(v).toFixed(1)}`).join(' ');
+  const area = pts => `${line(pts)} L${x(HORIZON-1).toFixed(1)},${(H-pad)} L${x(0).toFixed(1)},${(H-pad)} Z`;
+  const lbl = years.map(y=>`<text x="${x(y).toFixed(1)}" y="${H-12}" text-anchor="middle" font-size="11" fill="#75837e">An ${y+1}</text>`).join('');
+  document.getElementById('chart').innerHTML = `
+  <svg viewBox="0 0 ${W} ${H}" width="100%" style="display:block">
+    <defs>
+      <linearGradient id="gr" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#c0392b" stop-opacity=".14"/><stop offset="1" stop-color="#c0392b" stop-opacity="0"/></linearGradient>
+      <linearGradient id="go" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="${OFF}" stop-opacity=".16"/><stop offset="1" stop-color="${OFF}" stop-opacity="0"/></linearGradient>
+    </defs>
+    <path d="${area(refPts)}" fill="url(#gr)"/>
+    <path d="${area(offPts)}" fill="url(#go)"/>
+    <path d="${line(refPts)}" fill="none" stroke="#c0392b" stroke-width="2.5" stroke-linejoin="round"/>
+    <path d="${line(offPts)}" fill="none" stroke="${OFF}" stroke-width="2.5" stroke-linejoin="round"/>
+    ${refPts.map((v,i)=>`<circle cx="${x(i).toFixed(1)}" cy="${yv(v).toFixed(1)}" r="3.4" fill="#c0392b"/>`).join('')}
+    ${offPts.map((v,i)=>`<circle cx="${x(i).toFixed(1)}" cy="${yv(v).toFixed(1)}" r="3.4" fill="${OFF}" stroke="#fff" stroke-width="1.5"/>`).join('')}
+    ${lbl}
+  </svg>`;
+}
+
+function runLoad(){
+  const steps=[...document.querySelectorAll('#steps .step')];
+  let t=450;
+  steps.forEach((s)=>{ setTimeout(()=>s.classList.add('on'), t); t+=820; });
+  setTimeout(()=>document.getElementById('revealBtn').classList.add('show'), t+250);
+}
+function reveal(){
+  document.getElementById('load').classList.add('gone');
+  document.body.style.overflow='';
+  setTimeout(()=>{const l=document.getElementById('load'); if(l) l.remove();}, 700);
+  observeReveals();
+}
+function observeReveals(){
+  const io=new IntersectionObserver((es)=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}})},{threshold:.12});
+  document.querySelectorAll('.reveal').forEach((el,i)=>{ el.style.transitionDelay=(Math.min(i,6)*55)+'ms'; io.observe(el); });
+}
+addEventListener('keydown',e=>{ if(e.key==='Escape') closeSheet(); });
+
+renderRows();
+document.body.style.overflow='hidden';
+runLoad();
 </script>
 </body>
 </html>
