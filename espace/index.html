@@ -101,8 +101,17 @@ async function boot(){
   vueLogin();
 }
 function onState(d){
-  if(d&&d.ok){ STATE=d; TOKEN=d.token; renderApp(); }
+  if(d&&d.ok){ STATE=d; TOKEN=d.token; maybeDemo(params.get('c')); renderApp(); }
   else vueLogin(d&&d.error);
+}
+// Espace de DÉMONSTRATION (code 76A544DB) : on injecte des recommandations fictives
+// pour montrer à quoi ressemble la cagnotte de parrainage. N'écrit RIEN en base.
+function maybeDemo(code){
+  if((code||'').toUpperCase()!=='76A544DB') return;
+  const val=[['Boulangerie Martin','12 janv.'],['Garage du Centre','23 janv.'],['Pharmacie des Halles','4 févr.'],['Restaurant Le Terroir','18 févr.'],['Menuiserie Dubois','2 mars'],['Cabinet Dentaire Rey','15 mars'],['Fleuriste Élise','29 mars'],['Auto-École Volant','11 avr.'],['Cave Bacchus','26 avr.'],['Coiffure Néo','7 mai']];
+  const enc=[['Boucherie Sanzot','21 mai'],['Opticien Regard','28 mai'],['Camping Les Pins','3 juin'],['Hôtel du Parc','12 juin'],['Épicerie Gusto','24 juin']];
+  STATE.parr_val=val.map(x=>({qui:x[0],le:x[1]}));
+  STATE.parr_enc=enc.map(x=>({qui:x[0],le:x[1]}));
 }
 function loading(txt){return `<div class="min-h-screen grid place-items-center"><div class="text-center"><div class="spin mx-auto mb-3"></div><p class="text-slate-400 text-sm">${esc(txt)}</p></div></div>`;}
 
@@ -134,7 +143,7 @@ function vueLogin(err){
   document.getElementById('fLog').addEventListener('submit',async ev=>{
     ev.preventDefault();b.disabled=true;b.textContent='Connexion…';
     const d=await rpc('espace_par_code',{p_code:code.value});
-    if(d&&d.ok){ STATE=d;TOKEN=d.token; history.replaceState(null,'', '/espace/?c='+encodeURIComponent(code.value)); renderApp(); }
+    if(d&&d.ok){ STATE=d;TOKEN=d.token; maybeDemo(code.value); history.replaceState(null,'', '/espace/?c='+encodeURIComponent(code.value)); renderApp(); }
     else{ e.textContent="Ce code ne correspond à aucun espace. Vérifiez-le, ou contactez votre conseiller."; e.classList.remove('hidden'); b.textContent='Accéder à mon espace'; b.disabled=false; }
   });
 }
@@ -395,7 +404,13 @@ function partager(canal){
   else if(canal==='mail') window.open('mailto:?subject='+encodeURIComponent('Vos factures d\'énergie sont-elles au bon prix ?')+'&body='+encodeURIComponent(txt),'_blank');
   else if(canal==='copy'){ navigator.clipboard?.writeText(url).then(()=>toast('Lien copié — à vous de le partager')); }
 }
+function recoLine(p,ok){return `<div class="flex items-center justify-between gap-2 rounded-xl border ${ok?'border-primary-100 bg-primary-50/50':'border-amber-100 bg-amber-50/50'} px-3.5 py-2.5">
+  <div class="flex items-center gap-2.5"><div class="h-9 w-9 rounded-xl ${ok?'bg-primary-100 text-primary-700':'bg-amber-100 text-amber-700'} grid place-items-center"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 21h18M5 21V7l7-4 7 4v14M9 9h.01M9 13h.01M9 17h.01M15 9h.01M15 13h.01M15 17h.01"/></svg></div>
+  <div><div class="text-[13px] font-semibold text-slate-700">${esc(p.qui)}</div><div class="text-[11px] text-slate-400">${ok?'devenue cliente · '+esc(p.le):'a vérifié sa facture · '+esc(p.le)}</div></div></div>
+  <span class="text-[12px] font-bold ${ok?'text-primary-700':'text-amber-600'}">${ok?'+ 100 € crédités':'100 € en attente'}</span></div>`;}
 function vueParrainage(){
+  const val=STATE.parr_val||[], enc=STATE.parr_enc||[], RECO=100;
+  const cagnotte=val.length*RECO, attente=enc.length*RECO, rich=(val.length||enc.length);
   const list=STATE.parrainages||[]; const n=list.length;
   const items=list.map(p=>`<div class="flex items-center justify-between gap-2 rounded-xl border border-slate-100 bg-white px-3.5 py-2.5">
       <div class="flex items-center gap-2.5"><div class="h-9 w-9 rounded-xl bg-primary-50 grid place-items-center text-primary-600"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 21h18M5 21V7l7-4 7 4v14M9 9h.01M9 13h.01M9 17h.01M15 9h.01M15 13h.01M15 17h.01"/></svg></div>
@@ -426,6 +441,25 @@ function vueParrainage(){
     </div>
   </section>
 
+  ${rich?`
+  <section class="fade bg-white rounded-3xl shadow-soft p-6 sm:p-7">
+    <div class="grid grid-cols-2 gap-3 mb-6">
+      <div class="rounded-2xl p-4 sm:p-5 text-white" style="background:linear-gradient(120deg,#0e8a57,#0b6c45)">
+        <div class="text-[12px] text-white/80">Votre cagnotte</div>
+        <div class="text-3xl sm:text-4xl font-extrabold mt-1 tabular-nums">${euro(cagnotte)}</div>
+        <div class="text-[12px] text-white/85 mt-1">${val.length} recommandation${val.length>1?'s':''} validée${val.length>1?'s':''}</div>
+      </div>
+      <div class="rounded-2xl p-4 sm:p-5 bg-amber-50 border border-amber-100">
+        <div class="text-[12px] text-amber-700">En attente</div>
+        <div class="text-3xl sm:text-4xl font-extrabold mt-1 tabular-nums text-amber-700">${euro(attente)}</div>
+        <div class="text-[12px] text-amber-600 mt-1">${enc.length} en cours de validation</div>
+      </div>
+    </div>
+    <h3 class="text-[15px] font-extrabold text-slate-900 mb-2.5">Recommandations validées <span class="text-slate-400 font-semibold">· 100 € chacune</span></h3>
+    <div class="space-y-2">${val.map(p=>recoLine(p,true)).join('')}</div>
+    ${enc.length?`<h3 class="text-[15px] font-extrabold text-slate-900 mt-6 mb-2.5">En cours</h3><div class="space-y-2">${enc.map(p=>recoLine(p,false)).join('')}</div>`:''}
+    <p class="text-[12px] text-slate-400 mt-5 text-center">Chaque professionnel que vous recommandez vous rapporte 100 €, crédités dès qu'il devient client.</p>
+  </section>`:`
   <section class="fade bg-white rounded-3xl shadow-soft p-6 sm:p-7">
     <div class="flex items-center justify-between mb-4">
       <h3 class="text-[16px] font-extrabold text-slate-900">Grâce à vous</h3>
@@ -438,7 +472,7 @@ function vueParrainage(){
         <p class="text-[13.5px] text-slate-500 max-w-sm mx-auto mt-1">Personne n'a encore utilisé votre lien. Envoyez-le à un professionnel que vous connaissez — 15 secondes pour lui, et une belle économie à la clé.</p>
       </div>`}
     <p class="text-[12px] text-slate-400 mt-4 text-center">Chaque facture vérifiée via votre lien apparaît ici. Votre récompense se débloque quand une entreprise devient cliente.</p>
-  </section>`;
+  </section>`}`;
 }
 
 /* ─── Helpers d'affichage ─── */
