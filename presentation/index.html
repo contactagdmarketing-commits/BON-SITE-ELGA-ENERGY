@@ -159,6 +159,7 @@
   .ptab .tr>div{padding:9px 12px;text-align:right} .ptab .tr>div:first-child{text-align:left;color:var(--ink-soft)}
   .ptab .th{background:var(--panel-2);font-size:11px;text-transform:uppercase;color:var(--mut);font-weight:600}
   .verdict{margin-top:14px;padding:16px 18px;border-radius:13px;background:var(--green);color:#fff}
+  .verdict.warn{background:var(--rose)}
   .verdict .big{font-family:var(--serif);font-size:27px} .verdict p{font-size:13px;margin-top:4px;line-height:1.5;color:#dff0e8} .verdict b{color:#fff}
 
   .foot{padding:40px 0 70px;text-align:center;color:var(--mut);font-size:13px;border-bottom:none}
@@ -389,17 +390,25 @@ function togglePillar(p){const cards=document.querySelectorAll('.pill-card'),det
   if(p===2){const rc=document.getElementById('riskChart');if(rc)drawRisk(rc);}
   setTimeout(()=>det.scrollIntoView({behavior:'smooth',block:'nearest'}),120);}
 
-/* bilan — écart affiché = MOYENNE des économies sur la durée du contrat (énergie, +RATE/an) */
-function avgSaving(o){const years=Math.max(1,Math.round(o.duree/12));let s=0;for(let y=1;y<=years;y++)s+=REF.energie*Math.pow(1+RATE,y)-o.energie;return s/years;}
+/* Économie ÉNERGIE d'une offre, calculée sur la DURÉE EXACTE du contrat (intérêts composés).
+   Chaque année : énergie EDF = énergie_actuelle × (1+RATE)^année (dès l'année 1).
+   L'offre est un prix fixe. Delta annuel = EDF(année) − prix fixe. La dernière année
+   partielle (ex 41 mois = 3 ans + 5 mois) est comptée au prorata des mois. */
+function offerYears(o){ const yf=Math.floor(o.duree/12), rem=o.duree-yf*12, a=[];
+  for(let y=1;y<=yf;y++) a.push({y,months:12,edf:REF.energie*Math.pow(1+RATE,y)});
+  if(rem>0) a.push({y:yf+1,months:rem,edf:REF.energie*Math.pow(1+RATE,yf+1)});
+  return a; }
+function offerEcoTotal(o){ return offerYears(o).reduce((s,r)=>s+(r.edf-o.energie)*r.months/12,0); }
+function avgSaving(o){ return offerEcoTotal(o)/(o.duree/12); }
 function setBilanRate(r,btn){RATE=r;document.querySelectorAll('#bilanSeg button').forEach(b=>b.classList.remove('on'));btn.classList.add('on');renderRows();}
 function renderRows(){
   let h=`<div class="brow ref" onclick="openSheet(-1)"><div class="fourn"><div class="fmark" style="background:#75837e">V</div><div><div class="fname">${REF.nom}</div><div class="fsub tnum">${REF.kwh} €/MWh · à renouveler</div></div></div>
     <div class="cell"><span class="pill evo">actuel</span></div><div class="cell r tnum">${euro(REF.energie)}</div><div class="cell r tnum">${euro(AT)}</div><div class="total-c total r tnum">${euro(REF.total)}</div><div class="ec-c ecart r muted">référence</div>
     <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></div>`;
-  OFFRES.forEach((o,k)=>{const eco=avgSaving(o);
+  OFFRES.forEach((o,k)=>{const eco=avgSaving(o), pos=eco>=0;
     h+=`<div class="brow" data-k="${k}" onclick="openSheet(${k})"><div class="fourn"><div class="fmark" style="background:${o.color}">${ini(o.nom)}</div><div><div class="fname">${o.nom}</div><div class="fsub tnum">${o.kwh} €/MWh HT</div></div></div>
       <div class="cell"><span class="pill fixe">Fixe ${o.duree} mois</span></div><div class="cell r tnum">${euro(o.energie)}</div><div class="cell r tnum">${euro(AT)}</div><div class="total-c total r tnum">${euro(o.total)}</div>
-      <div class="ec-c ecart ${eco>=0?'pos':'neg'} r">${eco>=0?'−':'+'}${euro(Math.abs(eco))}<small style="font-weight:400;color:var(--mut);display:block;font-size:10.5px">/an moy. · ${o.duree}m</small></div>
+      <div class="ec-c ecart ${pos?'pos':'neg'} r">${pos?'+':'−'}${euro(Math.abs(eco))}<small style="font-weight:400;color:var(--mut);display:block;font-size:10.5px">/an moy. · ${o.duree}m</small></div>
       <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></div>`;});
   document.getElementById('rows').innerHTML=h;
 }
@@ -435,11 +444,14 @@ function drawSheet(){
   }
   const o=OFFRES[curK],years=o.duree/12;
   const ecoNow=REF.energie-o.energie;
-  let eco=0,rows='';for(let y=1;y<=years;y++){const e=REF.energie*Math.pow(1+RATE,y);eco+=e-o.energie;rows+=`<div class="tr"><div>An ${y}</div><div class="tnum" style="color:var(--rose)">${euro(e)}</div><div class="tnum" style="color:var(--green-deep)">${euro(o.energie)}</div><div class="tnum" style="color:var(--green-deep);font-weight:700">${euro(e-o.energie)}</div></div>`;}
+  const yrs=offerYears(o); let eco=0,rows='';
+  yrs.forEach(r=>{ const d=(r.edf-o.energie)*r.months/12; eco+=d; const p=d>=0;
+    const lbl=r.months<12?`An ${r.y} · ${r.months} mois`:`An ${r.y}`;
+    rows+=`<div class="tr"><div>${lbl}</div><div class="tnum" style="color:var(--rose)">${euro(r.edf)}</div><div class="tnum" style="color:var(--green-deep)">${euro(o.energie)}</div><div class="tnum" style="color:${p?'var(--green-deep)':'var(--rose)'};font-weight:700">${p?'+':'−'}${euro(Math.abs(d))}</div></div>`;});
   sheet.innerHTML=`<div class="sheet-top"><div style="display:flex;align-items:center;gap:13px"><div class="fmark" style="width:42px;height:42px;background:${o.color};font-size:16px">${ini(o.nom)}</div><div><div style="font-family:var(--serif);font-size:22px">${o.nom}</div><div style="font-size:13px;color:var(--mut)">Prix fixe garanti ${o.duree} mois</div></div></div>
     <button class="sheet-x" onclick="closeSheet()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
     <div class="lever">
-      <div class="lvr act"><div class="lh"><div class="lt">⚡ Énergie · le seul vrai levier</div><span class="badge">${ecoNow>=0?'−'+euro(ecoNow)+'/an':'+'+euro(-ecoNow)+'/an'}</span></div>
+      <div class="lvr act"><div class="lh"><div class="lt">⚡ Énergie · le seul vrai levier</div><span class="badge" style="${ecoNow<0?'color:var(--rose);background:#fbeeee':''}">${ecoNow>=0?'+'+euro(ecoNow):'−'+euro(-ecoNow)}/an aujourd'hui</span></div>
         <div class="cmp"><div><div class="v tnum">${REF.kwh} €/MWh</div><small>votre prix aujourd'hui</small></div><div style="align-self:center;color:var(--mut)">→</div><div><div class="v tnum" style="color:var(--green-deep)">${o.kwh} €/MWh</div><small>bloqué ${o.duree} mois</small></div></div>
         <p>C'est ici qu'on agit. Votre prix du kWh est gelé pendant ${o.duree} mois, à l'abri des hausses.</p></div>
       <div class="lvr fix"><div class="lh"><div class="lt">🔌 Acheminement + taxes</div><span class="badge">identique · non négociable</span></div><div class="cmp"><div><div class="v tnum">${euro(AT)}/an</div><small>pareil chez tous, personne n'y peut rien</small></div></div></div>
@@ -448,7 +460,7 @@ function drawSheet(){
       <div class="legend"><span><i style="background:var(--rose)"></i>Énergie si vous ne changez rien (+${Math.round(RATE*100)} %/an)</span><span><i style="background:var(--green)"></i>Énergie bloquée avec ${o.nom}</span></div>
       ${projChart(REF.energie,o.energie,years,true)}
       <div class="ptab"><div class="tr th"><div>Année</div><div>Sans rien faire</div><div>Prix fixe</div><div>Économie</div></div>${rows}</div>
-      <div class="verdict"><div class="big tnum">${euro(eco)} <span style="font-size:14px;font-family:var(--sans);color:#dff0e8">économisés sur ${o.duree} mois</span></div><p>Uniquement sur l'énergie, la seule chose qui se négocie. L'acheminement et les taxes, vous les payez de toute façon, quel que soit le fournisseur.</p></div></div>`;
+      <div class="verdict${eco>=0?'':' warn'}"><div class="big tnum">${eco>=0?'+'+euro(eco):'−'+euro(-eco)} <span style="font-size:14px;font-family:var(--sans);opacity:.85">${eco>=0?'économisés':'de plus'} sur ${o.duree} mois</span></div><p>Uniquement sur l'énergie, la seule chose qui se négocie. L'acheminement et les taxes, vous les payez de toute façon, quel que soit le fournisseur.</p></div></div>`;
 }
 addEventListener('keydown',e=>{if(e.key==='Escape')closeSheet();});
 
