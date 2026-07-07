@@ -49,6 +49,8 @@ function corsHeaders(request) {
 // budget devient critique → migrer le compteur global sur un Durable Object (atomique).
 const SCAN_LIMITS  = { maxHour: 8,  maxDay: 20, maxGlobalDay: 500 };
 const ADMIN_LIMITS = { maxHour: 15, maxDay: 60, maxGlobalDay: 200 };
+// Bilan comparatif = outil de PRÉSENTATION piloté par le courtier en direct (pas surface publique) : limite généreuse.
+const BILAN_LIMITS = { maxHour: 80, maxDay: 300, maxGlobalDay: 2000 };
 
 async function checkRateLimit(request, env, scope, limits) {
   if (!env.ELGA_KV) { console.error('checkRateLimit: binding ELGA_KV absent → aucune limite appliquée'); return null; }
@@ -770,8 +772,8 @@ async function handleExtractPrices(request, env) {
 
 // ─── Extraction COMPLÈTE du bilan comparatif (présentation R2, public) ────────
 async function handleScanBilan(request, env) {
-  const retry = await checkRateLimit(request, env, 'scan', SCAN_LIMITS);
-  if (retry) return jsonResponse({ error: 'Trop de scans pour le moment. Réessayez plus tard.' }, 429);
+  const retry = await checkRateLimit(request, env, 'bilan', BILAN_LIMITS);
+  if (retry) return jsonResponse({ error: 'Trop de lectures de bilan pour le moment. Réessayez dans quelques minutes.' }, 429);
 
   let body;
   try { body = await request.json(); } catch { return jsonResponse({ error: 'Corps de requête invalide' }, 400); }

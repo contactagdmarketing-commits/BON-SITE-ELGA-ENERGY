@@ -214,6 +214,7 @@
     <div class="step"><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span>Comparaison des 32 fournisseurs</div>
     <div class="step"><span class="tick"><svg viewBox="0 0 24 24" fill="none" stroke-width="3"><path d="M5 13l4 4L19 7"/></svg></span>Projection sur la durée du contrat</div>
   </div>
+  <div id="scanStatus" style="display:none;margin-top:16px;font-size:13.5px;padding:11px 14px;border-radius:12px"></div>
   <div class="reveal-btn" id="revealBtn"><button class="btn" onclick="reveal()">Découvrir votre bilan
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></svg></button></div>
   <div><button class="skip" onclick="reveal()">Commencer sans charger</button></div>
@@ -548,10 +549,22 @@ function handleFile(f){
   const reader=new FileReader();
   reader.onload=()=>{ const url=String(reader.result); const b64=url.split(',')[1]; ORIGINAL={url,type:f.type||'application/pdf',name:f.name,b64};
     fetch(WORKER+'/api/scan-bilan',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({file_data:b64,file_type:f.type,file_name:f.name})})
-      .then(r=>r.json()).then(d=>{ if(d&&d.bilan&&applyBilan(d.bilan)){ const ob=document.getElementById('origBtn'); if(ob)ob.style.display='inline-flex'; } })
-      .catch(()=>{});
+      .then(r=>r.json()).then(d=>{
+        if(d&&d.bilan&&applyBilan(d.bilan)){
+          const ob=document.getElementById('origBtn'); if(ob)ob.style.display='inline-flex';
+          const n=(d.bilan.offres||[]).length, cl=(d.bilan.site||{}).raison_sociale;
+          scanStatus('ok', 'Bilan lu'+(cl?' — '+cl:'')+' · '+n+' offre'+(n>1?'s':'')+' importée'+(n>1?'s':''));
+        } else {
+          scanStatus('err', (d&&d.error)||"On n'a pas réussi à lire ce bilan. Réessayez, ou continuez avec l'exemple.");
+        }
+      })
+      .catch(()=>scanStatus('err', "Lecture impossible (connexion). Réessayez, ou continuez avec l'exemple."));
   };
   reader.readAsDataURL(f);
+}
+function scanStatus(kind, msg){ const el=document.getElementById('scanStatus'); if(!el)return; el.style.display='block'; el.textContent=msg;
+  if(kind==='ok'){ el.style.background='var(--green-soft)'; el.style.color='var(--green-deep)'; }
+  else { el.style.background='#fbeeee'; el.style.color='var(--rose)'; document.getElementById('scan').classList.remove('go'); }
 }
 function startScan(){document.querySelector('.load-title').textContent='Analyse de votre bilan';document.querySelector('.load-sub').textContent='On lit votre bilan et on prépare la projection.';drop.style.display='none';document.getElementById('scan').classList.add('go');
   const steps=[...document.querySelectorAll('#steps .step')];let t=500;steps.forEach(s=>{setTimeout(()=>s.classList.add('on'),t);t+=800;});setTimeout(()=>document.getElementById('revealBtn').classList.add('show'),t+250);}
