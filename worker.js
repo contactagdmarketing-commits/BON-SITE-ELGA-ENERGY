@@ -227,6 +227,31 @@ Notes :
 - Si le bilan ne montre qu'un seul segment (ex. C5-MU4), laisse les autres à null.
 - average_savings_pct = % d'économie moyen affiché pour le fournisseur N°1 si visible.`;
 
+// ─── Prompt extraction COMPLÈTE d'un bilan comparatif (pour la présentation R2) ─
+const BILAN_FULL_PROMPT = `Tu es un expert du courtage d'énergie B2B en France. On te fournit un BILAN COMPARATIF de fourniture (électricité ou gaz) édité par un courtier : un tableau qui compare l'offre ACTUELLE du client (souvent « Votre facture » / « Offre de référence », en haut) à PLUSIEURS offres de fournisseurs (2 à 5). Chaque ligne donne en général : le fournisseur, la durée d'engagement, le type (fixe/évolutif), l'énergie €/an, l'acheminement €/an, les taxes €/an, le total HTVA €/an, et l'écart vs l'actuelle.
+
+Tu dois extraire TOUT le tableau : la ligne de référence (actuelle) ET toutes les offres comparées, dans l'ordre. N'invente JAMAIS : mets null si une valeur est absente.
+
+Réponds UNIQUEMENT avec ce JSON valide, sans aucun texte autour :
+{
+  "energie_type": "electricity" | "gas",
+  "site": { "raison_sociale": string|null, "conso_kwh": number|null, "puissance_kva": number|null, "segment": string|null },
+  "reference": { "fournisseur": string|null, "energie_annuel": number|null, "acheminement_annuel": number|null, "taxes_annuel": number|null, "total_annuel": number|null },
+  "offres": [
+    { "fournisseur": string, "duree_mois": number|null, "type": "fixe"|"evolutif"|null, "energie_annuel": number|null, "acheminement_annuel": number|null, "taxes_annuel": number|null, "total_annuel": number|null, "ecart_annuel": number|null }
+  ],
+  "confiance": "haute"|"moyenne"|"basse"
+}
+
+Règles :
+- "reference" = la ligne « Votre facture » / « Offre de référence » / contrat actuel (souvent la 1ʳᵉ ligne, sans durée).
+- "offres" = TOUTES les autres lignes (fournisseurs proposés), dans l'ordre exact du tableau.
+- Montants ANNUELS en euros HT (€/an), tels qu'affichés. Ne divise ni ne multiplie pas.
+- "duree_mois" : durée d'engagement en mois (ex « 36 mois » → 36 ; « Fin au 30/11/2029 » avec début « 01/12/2026 » → 36). Sinon null.
+- "type" : "fixe" si prix fixe/bloqué, sinon "evolutif".
+- "conso_kwh" : consommation annuelle totale en kWh (si donnée en MWh, ×1000).
+- Si l'acheminement et les taxes ne sont pas détaillés par ligne mais globaux, mets la même valeur pour chaque offre.`;
+
 // ─── Grille de prix par défaut (valeurs 2026 issues des bilans réels) ─────────
 
 function getDefaultPrices() {
@@ -742,6 +767,43 @@ async function handleExtractPrices(request, env) {
   return jsonResponse({ extracted });
 }
 
+// ─── Extraction COMPLÈTE du bilan comparatif (présentation R2, public) ────────
+async function handleScanBilan(request, env) {
+  const retry = await checkRateLimit(request, env, 'scan', SCAN_LIMITS);
+  if (retry) return jsonResponse({ error: 'Trop de scans pour le moment. Réessayez plus tard.' }, 429);
+
+  let body;
+  try { body = await request.json(); } catch { return jsonResponse({ error: 'Corps de requête invalide' }, 400); }
+
+  let { file_data, file_type, file_name } = body;
+  if (!file_type && file_name && file_name.toLowerCase().endsWith('.pdf')) file_type = 'application/pdf';
+  if (!file_type && file_name && /\.(jpe?g)$/i.test(file_name)) file_type = 'image/jpeg';
+  if (!file_type && file_name && /\.png$/i.test(file_name))     file_type = 'image/png';
+  if (typeof file_data === 'string' && file_data.length > 14_000_000) return jsonResponse({ error: 'Fichier trop volumineux (max ~10 Mo).' }, 413);
+  if (!file_data || !file_type) return jsonResponse({ error: 'file_data et file_type requis' }, 400);
+
+  const isImage = file_type.startsWith('image/');
+  const isPdf   = file_type === 'application/pdf' || file_type === 'application/octet-stream';
+  if (!isImage && !isPdf) return jsonResponse({ error: 'Format non supporté (PDF, JPG, PNG).' }, 400);
+
+  const contentBlock = isImage
+    ? { type: 'image', source: { type: 'base64', media_type: file_type, data: file_data } }
+    : { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: file_data } };
+
+  const res = await fetch(ANTHROPIC_API, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-api-key': env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01', 'anthropic-beta': 'pdfs-2024-09-25' },
+    body: JSON.stringify({ model: CLAUDE_MODEL, max_tokens: 2048, messages: [{ role: 'user', content: [contentBlock, { type: 'text', text: BILAN_FULL_PROMPT }] }] }),
+  });
+  if (!res.ok) { const t = await res.text(); return jsonResponse({ error: 'Erreur IA', detail: t.slice(0, 300) }, 502); }
+
+  const data = await res.json();
+  let bilan;
+  try { const text = data.content[0].text.trim(); const m = text.match(/\{[\s\S]*\}/); bilan = JSON.parse(m ? m[0] : text); }
+  catch { return jsonResponse({ error: 'Impossible de lire le bilan' }, 502); }
+  return jsonResponse({ bilan });
+}
+
 // ─── Extraction FICHE CRM (compléter une fiche prospect/client) ───────────────
 const CRM_FICHE_PROMPT = `Tu es un expert des factures d'énergie professionnelle françaises (électricité et gaz), tous fournisseurs (EDF, Engie, TotalEnergies, Vattenfall, Endesa, GEG, Elmy, ilek, Primeo, SEFE…).
 
@@ -961,6 +1023,8 @@ export default {
       res = await handleScanFiche(request, env);
     } else if (pathname === '/api/scan-contrat' && method === 'POST') {
       res = await handleScanContrat(request, env);
+    } else if (pathname === '/api/scan-bilan' && method === 'POST') {
+      res = await handleScanBilan(request, env);
     } else if (pathname === '/api/espace-agent' && method === 'POST') {
       res = await handleEspaceAgent(request, env);
     } else if (pathname === '/api/prices' && method === 'GET') {

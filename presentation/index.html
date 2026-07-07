@@ -249,28 +249,52 @@
       <div class="bhead"><div>Fournisseur</div><div>Engagement</div><div class="r">Énergie/an</div><div class="r">Achem.+taxes</div><div class="r">Total HTVA</div><div class="r">Écart /an</div></div>
       <div id="rows"></div>
     </div>
-    <div class="hint reveal"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v.01M11 12h1v4h1"/></svg>Exemple, calqué sur un bilan réel C5. On le remplace par votre vrai bilan.</div>
+    <div class="reveal" style="margin-top:16px"><button id="origBtn" class="btn ghost" style="display:none" onclick="showOriginal()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></svg>
+      Voir le bilan d'origine</button></div>
+    <div class="hint reveal"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v.01M11 12h1v4h1"/></svg>Chargez un bilan au démarrage pour remplir ce tableau avec vos vraies données. Sinon, exemple C5.</div>
     <p class="src reveal">Sources : <a href="https://www.cre.fr/documents/open-data/historique-des-tarifs-reglementes-de-vente-delectricite-pour-les-consommateurs-residentiels.html" target="_blank" rel="noopener">CRE, tarifs réglementés</a> · projection fin ARENH, UFC-Que Choisir (+19 %).</p>
   </div>
 </section>
 
 <div class="foot">Document confidentiel · Elga Energy · chiffres définitifs calculés sur vos 12 mois réels (Enedis).</div>
 <div class="ov" id="ov" onclick="if(event.target===this)closeSheet()"><div class="sheet" id="sheet"></div></div>
+<div class="ov" id="ovOrig" onclick="if(event.target===this)closeOrig()"><div class="sheet" id="sheetOrig" style="max-width:940px"></div></div>
 
 <script>
 const euro=n=>new Intl.NumberFormat('fr-FR',{style:'currency',currency:'EUR',maximumFractionDigits:0}).format(Math.round(n));
 const ini=s=>s[0].toUpperCase();
 
 const FOURN=[['EDF','#fe5716'],['Engie','#0aa1dd'],['TotalEnergies','#e2231a'],['Endesa','#0a3c8c'],['Enovos','#e30613'],['Vattenfall','#f7b500'],['Alpiq','#e2001a'],['Eni','#f9c000'],['Alterna','#3aa935'],['Ekwateur','#00b3a4'],['+ 22 autres','#75837e']];
-const ACH=2150,TAXES=1727,AT=ACH+TAXES;
-const REF={nom:'Votre contrat actuel',energie:6008,kwh:110.4}; REF.total=REF.energie+AT;
-const OFFRES=[
+const ACH=2150,TAXES=1727; let AT=ACH+TAXES;
+let REF={nom:'Votre contrat actuel',energie:6008,kwh:110.4,total:0}; REF.total=REF.energie+AT;
+let OFFRES=[
   {nom:'TotalEnergies',energie:4700,duree:24,color:'#e2231a',kwh:86.4},
   {nom:'Endesa',energie:4932,duree:36,color:'#0a3c8c',kwh:90.7},
   {nom:'Enovos',energie:5089,duree:48,color:'#e30613',kwh:93.5},
   {nom:'Engie',energie:6250,duree:48,color:'#0aa1dd',kwh:114.9},
 ].map(o=>({...o,total:o.energie+AT}));
 let RATE=0.07;
+const WORKER='https://elga-scanner.edhy-delaprez.workers.dev';
+const OCOL=['#e2231a','#0a3c8c','#e30613','#0aa1dd','#3aa935','#f7b500','#8a5a12'];
+let ORIGINAL=null; // {url,type} du bilan chargé
+// Remplit REF + OFFRES à partir du bilan extrait par le worker
+function applyBilan(b){
+  if(!b||!Array.isArray(b.offres)||!b.offres.length) return false;
+  const r=b.reference||{}, o0=b.offres[0]||{};
+  const ach=(r.acheminement_annuel!=null?r.acheminement_annuel:(o0.acheminement_annuel||0));
+  const tax=(r.taxes_annuel!=null?r.taxes_annuel:(o0.taxes_annuel||0));
+  const at=Math.round((ach||0)+(tax||0)); if(at>0) AT=at;
+  const conso=(b.site&&b.site.conso_kwh)?b.site.conso_kwh/1000:null;
+  const kwhOf=e=>(conso&&e!=null)?Math.round(e/conso*10)/10:null;
+  const refE=r.energie_annuel!=null?Math.round(r.energie_annuel):(r.total_annuel!=null?Math.round(r.total_annuel-AT):REF.energie);
+  REF={nom:(r.fournisseur?r.fournisseur+' — actuel':'Votre contrat actuel'),energie:refE,kwh:kwhOf(refE)||REF.kwh,total:(r.total_annuel!=null?Math.round(r.total_annuel):refE+AT)};
+  OFFRES=b.offres.filter(x=>x&&(x.energie_annuel!=null||x.total_annuel!=null)).map((x,i)=>{
+    const e=x.energie_annuel!=null?Math.round(x.energie_annuel):Math.round(x.total_annuel-AT);
+    return {nom:x.fournisseur||('Offre '+(i+1)),energie:e,duree:x.duree_mois||36,color:OCOL[i%OCOL.length],kwh:kwhOf(e),total:x.total_annuel!=null?Math.round(x.total_annuel):e+AT};
+  });
+  renderRows(); return OFFRES.length>0;
+}
 
 /* courbes */
 const TRV=[[2012,100],[2013,107],[2014,112],[2015,116],[2016,118],[2017,120],[2018,119],[2019,122],[2020,122],[2021,125],[2022,138],[2023,163],[2024,199],[2025,160],[2026,154]];
@@ -332,7 +356,8 @@ function pillarHTML(p){
     <p class="sub" style="margin-top:8px">Un fournisseur ajoute une marge pour se couvrir du risque d'acheter vos volumes à l'avance. Plus on anticipe, plus cette brique fond. Deux ans avant, elle est quasi nulle. La veille, elle explose.</p>
     <div style="margin-top:14px;border:1px solid var(--line);border-radius:16px;background:#fff;padding:16px"><div id="riskChart"></div></div>
     <div class="alert warn" style="margin-top:16px"><b>Exemple concret.</b> Sur 100 MWh, une brique de risque de 10 €/MWh, c'est <b>1 000 € par an payés pour rien</b>. Au départ, tout le monde négocie bien son contrat. Puis on n'y pense plus : pas le temps, pas l'envie de suivre les marchés. Deux, trois, quatre ans passent vite quand on dirige une entreprise. Et un jour, l'offre de renouvellement arrive, quinze jours avant l'échéance. Trop tard : vous êtes déjà réengagé.</div>
-    <div class="highlight"><div class="t">Notre fenêtre : jusqu'à 2 ans avant l'échéance</div><p>On surveille les marchés pour <b>précommander votre renouvellement</b> au bon moment, en réinterrogeant les 32 fournisseurs, sans que vous ayez à y penser. C'est là qu'on récupère <b>environ 15 % d'économie en plus</b>. Le levier le plus rentable des trois.</p></div>`;}
+    <div class="highlight"><div class="t">Notre fenêtre : jusqu'à 2 ans avant l'échéance</div><p>On surveille les marchés pour <b>précommander votre renouvellement</b> au bon moment, en réinterrogeant les 32 fournisseurs, sans que vous ayez à y penser. C'est le levier le plus rentable des trois.</p></div>
+    <div class="kpis"><div class="kpi"><div class="n tnum">90 %</div><div class="l">de nos clients renouvellent avec nous</div></div><div class="kpi"><div class="n tnum">~15 %</div><div class="l">d'économie en plus sur un renouvellement anticipé</div></div></div>`;}
 function togglePillar(p){const cards=document.querySelectorAll('.pill-card'),det=document.getElementById('pillDetail');
   if(openP===p){openP=-1;det.classList.remove('open');cards.forEach(c=>c.classList.remove('on'));return;}
   openP=p;cards.forEach(c=>c.classList.toggle('on',+c.dataset.p===p));document.getElementById('pillPanel').innerHTML=pillarHTML(p);det.classList.add('open');
@@ -404,10 +429,26 @@ addEventListener('keydown',e=>{if(e.key==='Escape')closeSheet();});
 const fileInput=document.getElementById('file'),drop=document.getElementById('drop');
 ['dragover','dragenter'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.add('hot');}));
 ['dragleave','drop'].forEach(ev=>drop.addEventListener(ev,e=>{e.preventDefault();drop.classList.remove('hot');}));
-drop.addEventListener('drop',e=>{if(e.dataTransfer.files[0])startScan();});
-fileInput.addEventListener('change',()=>{if(fileInput.files[0])startScan();});
-function startScan(){document.querySelector('.load-title').textContent='Analyse de votre bilan';document.querySelector('.load-sub').textContent='On compare vos offres au marché, en temps réel.';drop.style.display='none';document.getElementById('scan').classList.add('go');
+drop.addEventListener('drop',e=>{if(e.dataTransfer.files[0])handleFile(e.dataTransfer.files[0]);});
+fileInput.addEventListener('change',()=>{if(fileInput.files[0])handleFile(fileInput.files[0]);});
+function handleFile(f){
+  startScan();
+  const reader=new FileReader();
+  reader.onload=()=>{ const url=String(reader.result); ORIGINAL={url,type:f.type||'application/pdf',name:f.name};
+    const b64=url.split(',')[1];
+    fetch(WORKER+'/api/scan-bilan',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({file_data:b64,file_type:f.type,file_name:f.name})})
+      .then(r=>r.json()).then(d=>{ if(d&&d.bilan&&applyBilan(d.bilan)){ const ob=document.getElementById('origBtn'); if(ob)ob.style.display='inline-flex'; } })
+      .catch(()=>{});
+  };
+  reader.readAsDataURL(f);
+}
+function startScan(){document.querySelector('.load-title').textContent='Analyse de votre bilan';document.querySelector('.load-sub').textContent='On lit votre bilan et on prépare la projection.';drop.style.display='none';document.getElementById('scan').classList.add('go');
   const steps=[...document.querySelectorAll('#steps .step')];let t=500;steps.forEach(s=>{setTimeout(()=>s.classList.add('on'),t);t+=800;});setTimeout(()=>document.getElementById('revealBtn').classList.add('show'),t+250);}
+function showOriginal(){ if(!ORIGINAL)return; const s=document.getElementById('sheetOrig');
+  const inner=ORIGINAL.type.startsWith('image/')?`<img src="${ORIGINAL.url}" style="width:100%;border-radius:12px;display:block">`:`<iframe src="${ORIGINAL.url}" style="width:100%;height:78vh;border:none;border-radius:12px"></iframe>`;
+  s.innerHTML=`<div class="sheet-top"><div style="font-family:var(--serif);font-size:20px">Votre bilan d'origine</div><button class="sheet-x" onclick="closeOrig()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>${inner}`;
+  document.getElementById('ovOrig').classList.add('open'); document.body.style.overflow='hidden'; }
+function closeOrig(){ document.getElementById('ovOrig').classList.remove('open'); document.body.style.overflow=''; }
 function reveal(){document.getElementById('load').classList.add('gone');document.body.style.overflow='';setTimeout(()=>{const l=document.getElementById('load');if(l)l.remove();},700);observeReveals();}
 function observeReveals(){const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}}),{threshold:.1});document.querySelectorAll('.reveal').forEach((el,i)=>{el.style.transitionDelay=(Math.min(i%6,5)*55)+'ms';io.observe(el);});}
 
