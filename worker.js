@@ -15,6 +15,9 @@
  */
 
 const CLAUDE_MODEL   = 'claude-haiku-4-5-20251001';
+// Scan FACTURE : Sonnet 5 (vision haute résolution — indispensable sur les photos de factures,
+// Haiku confond les colonnes prix/montant et rate des lignes). Haiku = filet si Sonnet indispo.
+const SCAN_MODEL = 'claude-sonnet-5';
 const ANTHROPIC_API  = 'https://api.anthropic.com/v1/messages';
 
 // Domaines autorisés à appeler l'API depuis un navigateur (CORS).
@@ -95,6 +98,20 @@ Tu sais lire les factures de tous les fournisseurs : EDF, Engie, TotalEnergies, 
 
 Analyse cette facture et extrais les informations ci-dessous en JSON valide. Si une valeur est introuvable, utilise null.
 
+🔍 LECTURE DES TABLEAUX — RÈGLE ABSOLUE (l'erreur à ne JAMAIS commettre) :
+Les tableaux de facture ont 3 colonnes de chiffres : « conso (kWh/Qté) » | « prix unitaire HT (€) » | « montant HT (€) ».
+- Le PRIX est dans la colonne « prix unitaire » : un PETIT nombre en €/kWh (entre 0,03 et 0,45 — ex : 0,07566).
+- Le MONTANT = conso × prix (ex : 3021 kWh × 0,07566 = 228,57 €). Un montant N'EST JAMAIS un prix.
+- CONTRÔLE OBLIGATOIRE pour CHAQUE plage extraite : prix_unitaire × conso ≈ montant de la ligne (±2 %). Si ton candidat « prix » est en fait égal au montant de la ligne, tu as pris la mauvaise colonne : corrige avant de répondre.
+- Conversion : €/kWh × 1000 = €/MWh (0,07566 €/kWh = 75,66 €/MWh). Plausibilité : fourniture élec entre 30 et 450 €/MWh, gaz entre 15 et 200 €/MWh.
+
+📐 PLAGES ET LIGNES SPÉCIALES :
+- « Heure Pleine Saison Haute » = HPH ; « Heure Creuse Saison Haute » = HCH ; « Heure Pleine Saison Basse » = HPB ; « Heure Creuse Saison Basse » = HCB ; « Pointe » = PTE. Si la facture n'affiche que certaines plages (ex. saison basse uniquement), ne remplis QUE celles-là.
+- price_base_mwh UNIQUEMENT s'il y a une seule plage « Base » — jamais quand il existe des lignes HP/HC.
+- « Obligations » / « Obligation de capacité » / « Mécanisme de capacité » (petit prix ~0,001-0,015 €/kWh) → capa_mwh (converti en €/MWh). Ce n'est PAS le prix de l'énergie.
+- « Garanties d'Origine » / option verte (très petit prix ~0,0005 €/kWh) : à EXCLURE du prix de l'énergie (ni price_*, ni capa).
+- Les lignes de la section « Acheminement » (abonnement acheminement + conso acheminement) vont dans l'acheminement, JAMAIS dans le prix de fourniture.
+
 ⚠️ RÈGLE CRITIQUE — NE PAS ANNUALISER TOI-MÊME. Tu donnes les chiffres BRUTS, tels qu'imprimés sur la facture, + le nombre de mois. L'annualisation est faite APRÈS toi (côté serveur), de façon cohérente. Ton seul job : lire les vrais chiffres.
 - billing_months = nombre de mois couverts, calculé depuis les DATES de la période de CONSOMMATION (ex : "du 07/03/2026 au 06/05/2026" = 2 mois ; "du 16/03 au 15/04" = 1 mois). Sois précis, ne mets pas 1 par défaut.
 - total_ttc_bill / total_ht_bill = les montants TOTAUX EXACTS imprimés sur CETTE facture (ex : "Total TTC pour ce site", "Total Hors TVA pour ce site"), tels quels, SANS multiplier.
@@ -105,13 +122,15 @@ Analyse cette facture et extrais les informations ci-dessous en JSON valide. Si 
 Réponds UNIQUEMENT avec le JSON, sans texte avant ou après :
 
 {
-  "supplier": "nom du fournisseur",
+  "supplier": "nom du FOURNISSEUR émetteur de la facture (logo/enseigne : EDF, ENGIE, TotalEnergies, Vattenfall…) — PAS le nom de l'offre commerciale (ex. « ActiVert » est une offre ENGIE → supplier = ENGIE)",
   "energy_type": "electricity" ou "gas" ou "both",
+  "consumption_lines": [ {"label": "libellé EXACT de la ligne (ex 'Heure Pleine Saison Basse')", "kwh": conso kWh de la ligne, "unit_price_eur_kwh": prix unitaire €/kWh (colonne prix), "amount_ht": montant HT € de la ligne} ] — liste de TOUTES les lignes de CONSOMMATION d'énergie de la section fourniture (toutes plages HP/HC/Base/Pointe, toutes saisons), SANS abonnement, SANS garanties d'origine, SANS capacité/obligations, SANS acheminement, SANS taxes,
   "contract_type": "ex: MU4, CU4, C4-LU, T2, T3, Tarif Bleu, HC/HP, Base, etc.",
   "segment": "c5_mu4" ou "c5_cu4" ou "c4_lu" ou "c5_hta" ou "t2_p12" ou "t3" ou null,
   "power_kva": puissance souscrite en kVA (nombre seul),
   "billing_months": nombre de mois couverts par la facture, calculé depuis les dates de conso (ex: 1, 2, 3, 12),
   "consumption_bill_kwh": consommation EXACTE facturée sur la période, en kWh (BRUT, non annualisé),
+  "energy_amount_bill_ht": somme des MONTANTS HT (€) des seules lignes de CONSOMMATION d'énergie de la période (HP+HC+Base+Pointe de la section fourniture/électricité ou gaz) — SANS abonnement, SANS garanties d'origine, SANS capacité/obligations, SANS acheminement, SANS taxes (BRUT, non annualisé),
   "total_ttc_bill": total TTC EXACT imprimé sur la facture en € (BRUT, non annualisé),
   "total_ht_bill": total HT EXACT imprimé sur la facture en € (BRUT, non annualisé),
   "acheminement_var_bill_ht": (EDF TARIF BLEU / TRV) part VARIABLE de l'acheminement en € imprimée sur la facture (BRUT), null sinon,
@@ -127,7 +146,7 @@ Réponds UNIQUEMENT avec le JSON, sans texte avant ou après :
   "price_base_mwh": prix Base en €/MWh HT (si tarif de base, pas HP/HC),
   "capa_mwh": coût du mécanisme de capacité en €/MWh (chercher "mécanisme de capacité" ou "capacité"),
   "cee_mwh": coût des CEE en €/MWh (si facturé séparément, sinon null),
-  "subscription_monthly_ht": abonnement mensuel en € HT,
+  "subscription_monthly_ht": abonnement FOURNITURE mensuel en € HT (la ligne « Abonnement » de la section Électricité/fourniture — PAS les Garanties d'Origine, PAS l'abonnement de la section Acheminement),
   "acheminement_annual_ht": coût annuel d'acheminement/TURPE en € HT (ANNUALISÉ),
   "acheminement_var_annual_ht": (EDF TARIF BLEU / TRV UNIQUEMENT) part VARIABLE de l'acheminement en € HT ANNUALISÉE — null sinon,
   "acheminement_fixe_annual_ht": (EDF TARIF BLEU / TRV UNIQUEMENT) part FIXE de l'acheminement en € HT ANNUALISÉE — null sinon,
@@ -151,7 +170,8 @@ Notes importantes :
 - acheminement = "Utilisation du réseau" ou "TURPE" ou "Coûts d'utilisation du réseau".
 - EDF Tarif Bleu / TRV : la facture contient TOUJOURS une phrase du type « La part fixe de l'acheminement versé par EDF au gestionnaire de réseau est de X €, et la part variable est de Y € ». Extrais X → acheminement_fixe_annual_ht et Y → acheminement_var_annual_ht (ANNUALISÉS : ×12/N si la facture couvre N mois). Ces deux champs ne concernent QUE les factures EDF au Tarif Réglementé.
 - accise = "Accise sur l'électricité" / "Accise sur les énergies" / ancien "TICFE" / "CSPE" (proportionnelle aux kWh).
-- cta = "CTA" / "Contribution Tarifaire d'Acheminement" (assise sur la part fixe de l'acheminement).
+- cta = "CTA" / "Contribution Tarifaire d'Acheminement" (assise sur la part fixe de l'acheminement). Chez ENGIE : ligne « Contribution tarifaire d'acheminement (X € x 0,15) » dans la section Taxes et Contributions — son montant HT n'est jamais 0 si la ligne existe.
+- consumption_bill_kwh = SOMME des kWh de TOUTES les lignes de consommation (toutes plages HP+HC+Base+Pointe, toutes saisons). Vérifie avec l'« Historique de vos consommations » si présent : la barre du mois facturé doit correspondre à ce total.
 - taxes_annual_ht = accise + cta (PAS la TVA). Sépare accise et cta si la facture les détaille ; sinon mets-les dans taxes_annual_ht.
 
 ⚡🔥 FACTURE 2 ÉNERGIES — RÈGLE IMPORTANTE :
@@ -391,12 +411,17 @@ function calculateSavings(bill, grid) {
   // On reconstitue le coût énergie client = total HT - acheminement - taxes - abo
   let clientEnergyMwh = null;
 
-  // Méthode 1 : prix unitaires extraits directement
+  // Méthode 1 : prix unitaires extraits directement.
+  // PRIORITÉ au prix moyen VÉRIFIÉ PAR L'ARGENT (montant énergie ÷ conso, calculé serveur) :
+  // c'est la vraie moyenne pondérée par la conso réelle, insensible aux erreurs de colonne.
   const hp  = bill.price_hph_mwh || bill.price_hpb_mwh;
   const hc  = bill.price_hch_mwh || bill.price_hcb_mwh;
   const bas = bill.price_base_mwh;
+  const verifiedAvg = (typeof bill.price_avg_mwh === 'number' && bill.price_avg_mwh > 20) ? bill.price_avg_mwh : null;
 
-  if (bas && bas > 30) {
+  if (verifiedAvg) {
+    clientEnergyMwh = verifiedAvg;
+  } else if (bas && bas > 30) {
     clientEnergyMwh = bas;
   } else if (hp && hc && hp > 30 && hc > 15) {
     clientEnergyMwh = hp * 0.55 + hc * 0.45;
@@ -432,9 +457,11 @@ function calculateSavings(bill, grid) {
       const m2 = (energyCapaCeeHT - aboH) / consumptionMwh;
       if (m2 > 20) {
         // TRV : la moyenne HP/HC est peu fiable (répartition réelle inconnue) → le total fait foi.
-        // Marché : on garde le plus complet (M2 capture capa/CEE oubliés dans M1).
+        // Marché : si on a un prix moyen VÉRIFIÉ par les montants (M1), il fait foi — M2 ne sert
+        // que de filet quand M1 manque (le « max » aveugle amplifiait les erreurs de lecture).
         if (bill.est_trv) clientEnergyMwh = m2;
-        else if (!clientEnergyMwh || m2 > clientEnergyMwh) clientEnergyMwh = m2;
+        else if (!clientEnergyMwh) clientEnergyMwh = m2;
+        else if (!verifiedAvg && m2 > clientEnergyMwh) clientEnergyMwh = m2;
       }
     }
   }
@@ -555,35 +582,37 @@ async function handleScan(request, env) {
     ? 'CONTEXTE : facture d\'un PARTICULIER (résidentiel, ≤36 kVA, prix souvent en c€/kWh, montants TTC, TVA NON récupérable). Raisonne en cohérence.\n\n'
     : 'CONTEXTE : facture d\'un PROFESSIONNEL (TVA récupérable, raisonner en € HT)' + (secteur ? `, secteur : ${secteur}` : '') + '.\n\n';
 
-  const claudeRes = await fetch(ANTHROPIC_API, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': env.ANTHROPIC_API_KEY,
-      'anthropic-version': '2023-06-01',
-      'anthropic-beta': 'pdfs-2024-09-25',
-    },
-    body: JSON.stringify({
-      model: CLAUDE_MODEL,
-      max_tokens: 1024,
-      messages: [{ role: 'user', content: [contentBlock, { type: 'text', text: profilContext + EXTRACTION_PROMPT }] }],
-    }),
-  });
+  // Appel modèle factorisé : 1ʳᵉ passe Haiku (rapide/éco), 2ᵉ passe Sonnet si lecture suspecte.
+  const callModel = async (model) => {
+    const res = await fetch(ANTHROPIC_API, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': env.ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01',
+        'anthropic-beta': 'pdfs-2024-09-25',
+      },
+      body: JSON.stringify({
+        model,
+        max_tokens: 2000,
+        messages: [{ role: 'user', content: [contentBlock, { type: 'text', text: profilContext + EXTRACTION_PROMPT }] }],
+      }),
+    });
+    if (!res.ok) return { err: await res.text() };
+    const data = await res.json();
+    try {
+      const text  = data.content[0].text.trim();
+      const match = text.match(/\{[\s\S]*\}/);
+      return { extracted: JSON.parse(match ? match[0] : text) };
+    } catch { return { err: 'parse', raw: data }; }
+  };
 
-  if (!claudeRes.ok) {
-    const errText = await claudeRes.text();
-    return jsonResponse({ error: 'Erreur IA', detail: errText }, 502);
+  let first = await callModel(SCAN_MODEL);
+  if (first.err) first = await callModel(CLAUDE_MODEL); // filet si Sonnet indisponible
+  if (first.err) {
+    return jsonResponse({ error: 'Erreur IA', detail: first.err }, 502);
   }
-
-  const claudeData = await claudeRes.json();
-  let extracted;
-  try {
-    const text  = claudeData.content[0].text.trim();
-    const match = text.match(/\{[\s\S]*\}/);
-    extracted   = JSON.parse(match ? match[0] : text);
-  } catch {
-    return jsonResponse({ error: 'Impossible de lire la réponse IA', raw: claudeData }, 502);
-  }
+  let extracted = first.extracted;
 
   // Filet taxes : si accise/cta séparés mais total vide, on le reconstitue (le calcul s'en sert).
   const fixTaxes = (b) => {
@@ -603,6 +632,38 @@ async function handleScan(request, env) {
     if (months > 12) months = 12;
     b.billing_months = months;
     const f = 12 / months;
+
+    // ── LECTURE PROFONDE : les LIGNES de consommation font foi (le modèle lit, le serveur calcule).
+    // Conso totale = Σ kWh des lignes ; montant énergie = Σ montants ; prix par plage = montant/kWh.
+    if (Array.isArray(b.consumption_lines) && b.consumption_lines.length) {
+      const isGasL = b.energy_type === 'gas';
+      const pLo = isGasL ? 10 : 25, pHi = isGasL ? 300 : 600;
+      let sumK = 0, sumA = 0;
+      for (const L of b.consumption_lines) {
+        const k = num(L && L.kwh), a = num(L && L.amount_ht);
+        if (k == null || k <= 0) continue;
+        sumK += k;
+        if (a != null) sumA += a;
+        const price = a != null ? a / k * 1000 : (num(L.unit_price_eur_kwh) != null ? L.unit_price_eur_kwh * 1000 : null);
+        if (price == null || price < pLo || price > pHi) continue;
+        const lbl = String(L.label || '').toLowerCase();
+        let key = null;
+        if (/pointe|\bpte\b/.test(lbl)) key = 'price_pte_mwh';
+        else if (/pleine[\s\S]*haute|\bhph\b/.test(lbl)) key = 'price_hph_mwh';
+        else if (/creuse[\s\S]*haute|\bhch\b/.test(lbl)) key = 'price_hch_mwh';
+        else if (/pleine[\s\S]*basse|\bhpb\b/.test(lbl)) key = 'price_hpb_mwh';
+        else if (/creuse[\s\S]*basse|\bhcb\b/.test(lbl)) key = 'price_hcb_mwh';
+        else if (/pleine|\bhp\b/.test(lbl)) key = 'price_hph_mwh';
+        else if (/creuse|\bhc\b/.test(lbl)) key = 'price_hch_mwh';
+        else if (/base|unique|molécule|molecule/.test(lbl)) key = 'price_base_mwh';
+        if (key) b[key] = Math.round(price * 100) / 100;
+      }
+      if (sumK > 0) {
+        const declared = num(b.consumption_bill_kwh);
+        if (declared == null || Math.abs(sumK - declared) / sumK > 0.02) b.consumption_bill_kwh = Math.round(sumK);
+        if (sumA > 0) b.energy_amount_bill_ht = Math.round(sumA * 100) / 100;
+      }
+    }
 
     // Valeurs brutes imprimées sur la facture → on calcule l'annuel (source de vérité)
     const ttcBill  = num(b.total_ttc_bill);
@@ -631,6 +692,24 @@ async function handleScan(request, env) {
       const perMwh = b.total_ttc_annual / b.annual_consumption_mwh;
       const lo = b.energy_type === 'gas' ? 45 : 80;
       if (perMwh < lo) { b._total_incoherent = true; b.total_ttc_annual = null; b.total_ht_annual = null; }
+    }
+
+    // ── GARDE-FOUS PRIX (bug facture ENGIE : montant HT 228,57 € lu comme prix €/MWh) ──
+    // 1) Plausibilité absolue de chaque plage. 2) Contrôle par l'ARGENT : le prix moyen
+    // vrai = montant énergie de la période / conso — toute plage qui s'en écarte trop
+    // est une erreur de lecture (mauvaise colonne) → on l'invalide et on retombe sur le moyen.
+    const PRICE_KEYS = ['price_pte_mwh','price_hph_mwh','price_hch_mwh','price_hpb_mwh','price_hcb_mwh','price_base_mwh'];
+    const isGasB = b.energy_type === 'gas';
+    const absLo = isGasB ? 10 : 25, absHi = isGasB ? 300 : 600;
+    PRICE_KEYS.forEach(k => { const v = num(b[k]); if (v != null && (v < absLo || v > absHi)) { b[k] = null; b._price_out_of_range = true; } });
+    const eAmt = num(b.energy_amount_bill_ht);
+    if (eAmt != null && eAmt > 0 && consoKwh > 0) {
+      const avg = Math.round(eAmt / consoKwh * 1000 * 100) / 100; // €/MWh, vérifié par l'argent
+      if (avg >= absLo && avg <= absHi) {
+        b.price_avg_mwh = avg;
+        PRICE_KEYS.forEach(k => { const v = num(b[k]); if (v != null && (v < avg * 0.5 || v > avg * 2.2)) { b[k] = null; b._price_fixed = true; } });
+        if (PRICE_KEYS.every(k => num(b[k]) == null)) b.price_base_mwh = avg;
+      }
     }
     fixTaxes(b);
     return b;
@@ -967,6 +1046,12 @@ TON :
 - Tu réponds UNIQUEMENT à partir des DONNÉES ci-dessous (contrat, conditions/CGV, factures). Tu n'INVENTES jamais, tu ne SUPPOSES jamais, tu n'es JAMAIS "arrangeant" pour faire plaisir. Une réponse fausse qui fait plaisir est GRAVE.
 - Si une information n'est pas clairement écrite dans les données, tu ne l'affirmes pas. En cas de doute, tu ne devines pas : tu dis honnêtement que tu préfères que le conseiller confirme, et tu mets "rappel": true.
 
+🔎 MÉTHODE — LIS AVANT DE PARLER (règle n°1, ta valeur ajoutée) :
+- Avant CHAQUE réponse, EXAMINE réellement les données JSON ci-dessous et appuie ta réponse sur les chiffres exacts que tu y lis (cite-les : prix, dates, montants).
+- « Ma facture correspond-elle à mon contrat ? » → c'est TON travail, pas celui du conseiller : COMPARE toi-même le prix unitaire de la facture (price_hph/hch/hpb/hcb/base_mwh ou price_avg_mwh, en €/MWh HT) au prix du contrat, l'abonnement facturé à celui du contrat, et la période/conso. Puis rends un VERDICT clair : « Oui, tout est cohérent : ta facture est bien à X €/MWh, comme ton contrat 😊 » ou « J'ai repéré un petit écart sur … : … ».
+- Plus généralement : tout ce qui se LIT (dates, prix, préavis, montants, lignes de facture) ou se CALCULE simplement (comparaison, différence, total) depuis les données → tu réponds DIRECTEMENT, avec les chiffres. Ne renvoie JAMAIS vers le conseiller une question dont la réponse est sous tes yeux.
+- Structure des données factures : chaque entrée = une facture déposée par le client, avec ses valeurs extraites (extracted : prix en €/MWh HT, consommation kWh, totaux HT/TTC de la période, dates) et la vérification Elga (savings : savings_annual = écart détecté vs sa grille, faible ou nul = facture en règle).
+
 ⛔ RÉSILIATION / RUPTURE D'ENGAGEMENT (point sensible — sois EXACT, ne te trompe jamais là-dessus) :
 - Un contrat de fourniture professionnel à durée déterminée est un ENGAGEMENT FERME jusqu'à son terme. On ne le rompt PAS librement avant la fin.
 - Donc à la question "puis-je rompre / résilier / partir avant la fin de mon engagement ?", la réponse par défaut est NON : l'engagement court jusqu'à la date de fin. Une rupture anticipée n'est possible QUE dans les cas expressément prévus par les CGV (ex : cessation ou liquidation d'activité, fermeture définitive du site) et entraîne le plus souvent des pénalités. Tu ne réponds JAMAIS "oui, tu peux rompre" si les CGV ne l'autorisent pas EXPLICITEMENT.
@@ -974,10 +1059,12 @@ TON :
 - Résiliation NORMALE (à l'échéance) : indique simplement la date de fin et le préavis lus dans les données.
 
 CE QUE TU FAIS TOI-MÊME (rappel=false) :
-- Tu réponds directement à toute question dont la réponse EST dans les données : prix, dates de début/fin, préavis, reconduction, puissance, lignes/montant d'une facture, une notion d'énergie expliquée simplement.
+- Tu réponds directement à toute question dont la réponse EST dans les données : prix, dates de début/fin, préavis, reconduction, puissance, lignes/montant d'une facture, cohérence facture ↔ contrat, une notion d'énergie expliquée simplement.
+- RASSURE toujours quand c'est vrai : si tout est en règle, dis-le franchement et positivement (« Tout est bon ✅ »). Jamais de « je ne peux pas vérifier » quand les chiffres sont dans les données.
 
-QUAND TU ESCALADES (rappel=true) :
-- Info absente des données, cas particulier, vraie négociation, réclamation, OU toute rupture anticipée non explicitement autorisée par les CGV → réponds honnêtement ce que tu peux, puis "rappel": true.
+QUAND TU ESCALADES (rappel=true) — EN DERNIER RECOURS UNIQUEMENT :
+- Seulement si la réponse n'est NI lisible NI calculable depuis les données, OU cas vraiment particulier : vraie négociation, réclamation, rupture anticipée non explicitement autorisée par les CGV. Dans ce cas : dis d'abord ce que tu VOIS dans les données (sois utile quand même), rassure, puis propose le rappel.
+- Si tu vois dans l'historique que tu n'as déjà pas pu répondre 2 fois de suite et que cette question t'échappe encore (3ᵉ fois) : n'insiste pas, propose EXPLICITEMENT d'appeler le conseiller, avec son numéro s'il est dans les données (ex : « Le plus simple : appelle directement James au 07 45 11 78 67, il te répond en 2 minutes 😊 ») et mets "rappel": true.
 
 AUTRES RÈGLES :
 - Tu valorises discrètement l'accompagnement Elga (veille sur les prix, suivi). Tu ne parles JAMAIS de marges ni de commissions.
