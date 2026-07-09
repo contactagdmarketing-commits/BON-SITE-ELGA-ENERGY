@@ -431,10 +431,7 @@ const TRV_PROJ=[2027,Math.round(154*1.19)];  // fin ARENH +19% (UFC-Que Choisir)
 const GROS_ANCH={2001:23,2002:25,2003:31,2004:34,2005:48,2006:52,2007:43,2008:70,2009:44,2010:49,2011:53,2012:48,2013:44,2014:38,2015:41,2016:34,2017:47,2018:53,2019:43,2020:33,2021:55,2022:120,2023:70,2024:58,2025:72,2026:82};
 const GROS_ANNOT=[[2003.5,'Flambée pétrole',1],[2008.6,'Crise financière',1],[2015,'Boom gaz de schiste',0],[2019,'Reprise nucléaire',1],[2020.4,'Covid',0]];
 
-/* Prix de gros RÉELS 2025 — moyennes journalières spot day-ahead France (ENTSO-E via energy-charts.info),
-   365 points calculés depuis 15 390 relevés 15 min. GROS25_ALERTS = index des 6 creux principaux (détection minima locaux). */
-const GROS25=[[0,23.7],[1,110.4],[2,115.9],[3,121.4],[4,44.3],[5,35.8],[6,76.5],[7,103.8],[8,86.7],[9,114.0],[10,106.6],[11,108.3],[12,125.7],[13,136.6],[14,160.8],[15,139.9],[16,142.9],[17,131.5],[18,127.0],[19,197.3],[20,159.4],[21,146.6],[22,108.7],[23,77.3],[24,61.6],[25,36.6],[26,29.0],[27,31.0],[28,74.4],[29,110.1],[30,132.2],[31,130.1],[32,132.0],[33,150.8],[34,140.9],[35,145.5],[36,142.3],[37,129.0],[38,124.5],[39,133.3],[40,144.0],[41,142.0],[42,154.3],[43,150.6],[44,147.7],[45,121.6],[46,125.0],[47,145.1],[48,129.1],[49,116.7],[50,98.9],[51,63.2],[52,76.8],[53,67.6],[54,89.0],[55,104.2],[56,101.8],[57,115.3],[58,112.3],[59,97.6],[60,90.6],[61,118.3],[62,108.0],[63,87.7],[64,71.8],[65,60.2],[66,35.0],[67,48.6],[68,93.2],[69,101.4],[70,111.9],[71,121.7],[72,115.9],[73,87.7],[74,73.4],[75,97.3],[76,76.0],[77,68.1],[78,44.8],[79,30.6],[80,29.7],[81,51.9],[82,102.7],[83,93.7],[84,98.6],[85,80.3],[86,61.5],[87,42.0],[88,19.7],[89,62.2],[90,50.8],[91,28.2],[92,51.1],[93,38.3],[94,25.8],[95,10.2],[96,66.4],[97,58.3],[98,33.6],[99,28.8],[100,37.9],[101,25.1],[102,19.2],[103,33.9],[104,19.8],[105,58.0],[106,61.1],[107,30.9],[108,25.9],[109,31.5],[110,54.2],[111,71.5],[112,67.9],[113,78.3],[114,65.3],[115,37.4],[116,34.1],[117,45.9],[118,29.4],[119,42.9],[120,8.3],[121,17.7],[122,18.7],[123,11.6],[124,11.8],[125,14.0],[126,22.3],[127,10.2],[128,15.8],[129,-2.3],[130,-5.2],[131,29.0],[132,46.5],[133,31.8],[134,13.7],[135,12.3],[136,15.3],[137,13.5],[138,24.5],[139,23.5],[140,32.8],[141,19.7],[142,17.5],[143,12.4],[144,4.6],[145,21.8],[146,29.9],[147,28.6],[148,30.2],[149,46.2],[150,25.9],[151,13.9],[152,35.8],[153,17.3],[154,19.0],[155,7.2],[156,23.7],[157,13.3],[158,3.5],[159,15.8],[160,28.2],[161,27.5],[162,31.3],[163,50.6],[164,26.7],[165,16.0],[166,36.7],[167,51.7],[168,63.6],[169,47.2],[170,73.7],[171,67.9],[172,21.1],[173,30.2],[174,56.7],[175,80.2],[176,79.9],[177,83.2],[178,45.8],[179,58.0],[180,100.9],[181,118.3],[182,91.5],[183,82.1],[184,68.2],[185,34.6],[186,28.4],[187,37.7],[188,37.8],[189,49.6],[190,65.1],[191,56.7],[192,56.8],[193,49.2],[194,52.3],[195,58.1],[196,67.7],[197,90.8],[198,91.9],[199,42.3],[200,20.7],[201,26.6],[202,60.0],[203,83.8],[204,74.4],[205,70.6],[206,43.6],[207,37.4],[208,40.7],[209,42.9],[210,51.3],[211,65.9],[212,63.9],[213,41.7],[214,30.5],[215,41.1],[216,16.6],[217,50.8],[218,52.9],[219,54.7],[220,37.6],[221,29.7],[222,57.0],[223,80.1],[224,96.6],[225,89.0],[226,57.0],[227,46.3],[228,41.1],[229,71.5],[230,70.7],[231,59.5],[232,35.7],[233,53.5],[234,63.6],[235,56.8],[236,75.9],[237,77.2],[238,87.5],[239,56.7],[240,34.7],[241,31.7],[242,19.9],[243,34.2],[244,26.5],[245,18.6],[246,34.6],[247,56.8],[248,15.4],[249,18.7],[250,63.7],[251,49.0],[252,14.4],[253,9.0],[254,19.0],[255,11.7],[256,12.2],[257,3.7],[258,32.0],[259,56.0],[260,54.9],[261,48.4],[262,20.0],[263,16.6],[264,12.6],[265,13.4],[266,36.5],[267,64.2],[268,86.7],[269,53.1],[270,45.5],[271,59.1],[272,78.3],[273,62.9],[274,54.6],[275,44.4],[276,4.2],[277,11.1],[278,75.3],[279,89.2],[280,95.1],[281,83.5],[282,83.5],[283,67.9],[284,58.6],[285,80.7],[286,94.0],[287,89.2],[288,87.1],[289,92.5],[290,74.7],[291,29.0],[292,32.5],[293,58.5],[294,64.6],[295,11.2],[296,36.8],[297,17.9],[298,15.9],[299,49.5],[300,56.7],[301,82.0],[302,53.0],[303,22.4],[304,27.1],[305,26.3],[306,44.5],[307,21.3],[308,21.7],[309,63.9],[310,67.0],[311,56.1],[312,59.3],[313,49.0],[314,22.4],[315,21.1],[316,31.4],[317,26.1],[318,31.8],[319,37.3],[320,65.1],[321,88.1],[322,87.7],[323,102.1],[324,113.1],[325,85.8],[326,69.3],[327,77.4],[328,71.0],[329,96.8],[330,82.8],[331,78.9],[332,73.6],[333,78.5],[334,77.1],[335,84.2],[336,88.9],[337,76.9],[338,78.2],[339,25.1],[340,19.5],[341,35.4],[342,28.8],[343,68.9],[344,80.2],[345,84.1],[346,75.9],[347,68.9],[348,74.4],[349,92.0],[350,83.2],[351,33.2],[352,70.5],[353,68.7],[354,60.9],[355,74.3],[356,75.8],[357,36.3],[358,50.1],[359,87.2],[360,80.2],[361,84.3],[362,94.0],[363,84.8],[364,88.5]];
-const GROS25_ALERTS=[25, 127, 218, 255, 305, 340];function grosDense(){const yrs=Object.keys(GROS_ANCH).map(Number),out=[];
+function grosDense(){const yrs=Object.keys(GROS_ANCH).map(Number),out=[];
   for(let i=0;i<yrs.length-1;i++){const a=GROS_ANCH[yrs[i]],b=GROS_ANCH[yrs[i+1]];
     for(let m=0;m<12;m++){const t=m/12,base=a+(b-a)*t,yr=yrs[i]+t,wig=Math.sin(yr*7.3)*3+Math.sin(yr*23.1)*1.8+Math.sin(yr*3.7)*2.4;let v=base+wig;if(Math.abs(yr-2008.5)<0.25)v+=22*(1-Math.abs(yr-2008.5)/0.25);out.push([yr,Math.max(18,v)]);}}
   out.push([2026,GROS_ANCH[2026]]);return out;}
@@ -463,22 +460,32 @@ function drawGros(){const data=grosDense();const g=frame(data,{h:330,pb:34,pr:20
   const ann=GROS_ANNOT.map(([yr,txt,up])=>{const px=g.X(yr),py=up?36:g.H-58;return `<text class="annot" x="${px.toFixed(1)}" y="${py}" text-anchor="middle" fill="#8a5a12">${txt}</text>`;}).join('');
   document.getElementById('grosChart').innerHTML=`<svg viewBox="0 0 ${g.W} ${g.H}" width="100%"><defs><linearGradient id="gg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#c0392b" stop-opacity=".13"/><stop offset="1" stop-color="#c0392b" stop-opacity="0"/></linearGradient></defs>${g.grid}${g.xl}<path d="${g.area}" fill="url(#gg)"/><path d="${g.path}" fill="none" stroke="#c0392b" stroke-width="1.5" stroke-linejoin="round"/>${ann}</svg>`;}
 
+/* Prix de gros 2025 — moyennes MENSUELLES réelles du spot day-ahead France (€/MWh),
+   calculées depuis 15 390 relevés 15 min (source ENTSO-E / energy-charts.info). */
+const GROS25M=[102.5,122.6,76.8,42.1,19.4,40.9,58.0,54.2,35.5,57.4,59.2,68.7];
+const GROS25M_CREUX=[4,8]; // mai & septembre : les 2 grands creux de l'année
 function drawRenew(el){
-  const MO=['janv','févr','mars','avr','mai','juin','juil','août','sept','oct','nov','déc'],M1=[0,31,59,90,120,151,181,212,243,273,304,334];
-  const g=frame(GROS25,{h:300,pb:36,pl:44,pr:20,min:-10,max:200,ysteps:7,xlabels:M1,xfmt:i=>MO[M1.indexOf(i)]});
-  const TARIF=85, ty=g.Y(TARIF);
-  const alerts=GROS25_ALERTS.map((idx,k)=>{
-    const x=g.X(idx), y=g.Y(GROS25[idx][1]);
-    const py=Math.max(20, y-(k%2? 30:54)); // pastilles en quinconce pour rester lisibles
-    return `<line x1="${x.toFixed(1)}" y1="${(py+9).toFixed(1)}" x2="${x.toFixed(1)}" y2="${(y-5).toFixed(1)}" stroke="#0d7a52" stroke-width="1" stroke-dasharray="2 3"/>
-      <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="4.5" fill="#0d7a52" stroke="#fff" stroke-width="1.5"/>
-      <g transform="translate(${x.toFixed(1)},${py.toFixed(1)})"><rect x="-27" y="-9" width="54" height="18" rx="9" fill="#e7f4ee" stroke="#bfe0d0"/><text class="annot" y="4" text-anchor="middle" fill="#0a5c3e" font-size="10.5">⚠ alerte</text></g>`;
+  const MO=['janv','févr','mars','avr','mai','juin','juil','août','sept','oct','nov','déc'];
+  const data=GROS25M.map((v,i)=>[i,v]);
+  const g=frame(data,{h:330,pb:64,pl:44,pr:24,min:0,max:133.34,ysteps:7,xlabels:data.map(d=>d[0]),xfmt:i=>MO[i]}); // max×1,05 (frame) = 140 → graduations rondes 0/20/…/140
+  const TARIF=85, ty=g.Y(TARIF), axisY=g.H-g.pb, hs=(g.X(1)-g.X(0))/2;
+  // fenêtres d'achat (zones de creux) : bandes vertes discrètes avr→juin et sept
+  const band=(a,b)=>`<rect x="${(g.X(a)-hs).toFixed(1)}" y="16" width="${(g.X(b)-g.X(a)+2*hs).toFixed(1)}" height="${(axisY-16).toFixed(1)}" fill="#0d7a52" opacity=".055"/>`;
+  // points mensuels + creux marqués en vert
+  const dots=data.map(d=>`<circle cx="${g.X(d[0]).toFixed(1)}" cy="${g.Y(d[1]).toFixed(1)}" r="3" fill="#c0392b" stroke="#fff" stroke-width="1.2"/>`).join('');
+  const creux=GROS25M_CREUX.map(i=>{
+    const x=g.X(i), y=g.Y(GROS25M[i]);
+    return `<line x1="${x.toFixed(1)}" y1="${(y+7).toFixed(1)}" x2="${x.toFixed(1)}" y2="${(axisY+14).toFixed(1)}" stroke="#0d7a52" stroke-width="1.2" stroke-dasharray="3 3" opacity=".7"/>
+      <circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="5.5" fill="#0d7a52" stroke="#fff" stroke-width="2"/>
+      <text class="annot" x="${(x+10).toFixed(1)}" y="${(y+4).toFixed(1)}" fill="#0a5c3e" font-weight="600">${String(GROS25M[i]).replace('.',',')} €</text>
+      <g transform="translate(${x.toFixed(1)},${(axisY+24).toFixed(1)})"><rect x="-31" y="-10" width="62" height="20" rx="10" fill="#e7f4ee" stroke="#bfe0d0"/><text class="annot" y="4" text-anchor="middle" fill="#0a5c3e" font-weight="600">⚠ alerte</text></g>`;
   }).join('');
-  el.innerHTML=`<svg viewBox="0 0 ${g.W} ${g.H}" width="100%"><defs><linearGradient id="rg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#c0392b" stop-opacity=".12"/><stop offset="1" stop-color="#c0392b" stop-opacity="0"/></linearGradient></defs>${g.grid}${g.xl}
-    <path d="${g.area}" fill="url(#rg)"/><path d="${g.path}" fill="none" stroke="#c0392b" stroke-width="1.4" stroke-linejoin="round"/>
-    <line x1="${g.X(0).toFixed(1)}" y1="${ty.toFixed(1)}" x2="${g.X(364).toFixed(1)}" y2="${ty.toFixed(1)}" stroke="#12211c" stroke-width="1.6" stroke-dasharray="6 5" opacity=".65"/>
-    <text class="annot" x="${(g.X(364)-2).toFixed(1)}" y="${(ty-7).toFixed(1)}" text-anchor="end" fill="#12211c" opacity=".75">votre tarif (ex. ${TARIF} €/MWh)</text>
-    ${alerts}</svg>`;}
+  el.innerHTML=`<svg viewBox="0 0 ${g.W} ${g.H}" width="100%"><defs><linearGradient id="rg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#c0392b" stop-opacity=".13"/><stop offset="1" stop-color="#c0392b" stop-opacity="0"/></linearGradient></defs>
+    ${band(3,5)}${band(8,8)}${g.grid}${g.xl}
+    <path d="${g.area}" fill="url(#rg)"/><path d="${g.path}" fill="none" stroke="#c0392b" stroke-width="2.6" stroke-linejoin="round" stroke-linecap="round"/>
+    <line x1="${g.X(0).toFixed(1)}" y1="${ty.toFixed(1)}" x2="${g.X(11).toFixed(1)}" y2="${ty.toFixed(1)}" stroke="#12211c" stroke-width="1.6" stroke-dasharray="6 5" opacity=".6"/>
+    <text class="annot" x="${g.X(11).toFixed(1)}" y="${(ty-9).toFixed(1)}" text-anchor="end" fill="#12211c" opacity=".8" font-weight="600">votre tarif — ex. ${TARIF} €/MWh</text>
+    ${dots}${creux}</svg>`;}
 
 /* piliers */
 let openP=-1;
@@ -498,11 +505,12 @@ function pillarHTML(p){
     <div style="margin-top:14px;border:1px solid var(--line);border-radius:16px;background:#fff;padding:16px 16px 8px">
       <div id="renewChart"></div>
       <div style="display:flex;flex-wrap:wrap;gap:8px 18px;font-size:12px;color:var(--mut);padding:6px 2px 8px">
-        <span><i style="display:inline-block;width:14px;height:2px;background:#c0392b;vertical-align:middle;margin-right:5px"></i>prix de gros réel 2025 (spot journalier France)</span>
-        <span><i style="display:inline-block;width:14px;height:0;border-top:2px dashed #12211c;vertical-align:middle;margin-right:5px;opacity:.65"></i>votre tarif</span>
-        <span><i style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#0d7a52;vertical-align:middle;margin-right:5px"></i>alerte → fournisseurs sollicités</span>
+        <span><i style="display:inline-block;width:14px;height:2.5px;background:#c0392b;vertical-align:middle;margin-right:5px"></i>prix de gros réel 2025 (moyenne mensuelle, France)</span>
+        <span><i style="display:inline-block;width:14px;height:0;border-top:2px dashed #12211c;vertical-align:middle;margin-right:5px;opacity:.6"></i>votre tarif</span>
+        <span><i style="display:inline-block;width:12px;height:12px;border-radius:3px;background:#0d7a52;opacity:.14;vertical-align:middle;margin-right:5px"></i>fenêtre d'achat (creux)</span>
+        <span><i style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#0d7a52;vertical-align:middle;margin-right:5px"></i>alerte → 32 fournisseurs sollicités</span>
       </div>
-      <div style="font-size:11px;color:var(--mut);padding:0 2px 6px">Source : ENTSO-E / energy-charts.info — moyennes journalières day-ahead France, année 2025 complète.</div>
+      <div style="font-size:11px;color:var(--mut);padding:0 2px 6px">Source : ENTSO-E / energy-charts.info — marché de gros day-ahead France, année 2025 complète.</div>
     </div>
     <div class="highlight"><div class="t">Une relation long terme, pas opportuniste</div><p>Vous n'avez rien à surveiller : les alertes travaillent toute l'année, et votre renouvellement se prépare <b>aux creux du marché</b>, jusqu'à 2 ans avant l'échéance. C'est le levier le plus rentable des trois.</p></div>
     <div class="kpis"><div class="kpi"><div class="n tnum">89 %</div><div class="l">de nos clients renouvellent avec nous</div></div><div class="kpi"><div class="n tnum">−14,2 %</div><div class="l">en moyenne sur les renouvellements 2026</div></div></div>`;}
