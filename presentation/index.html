@@ -381,6 +381,7 @@ const WORKER='https://elga-scanner.edhy-delaprez.workers.dev';
 const OCOL=['#e2231a','#0a3c8c','#e30613','#0aa1dd','#3aa935','#f7b500','#8a5a12'];
 let ORIGINAL=null; // {url,type} du bilan chargé
 let BILAN_INFO=null; // {client,interlocuteur,date,conso...}
+let BILAN_ERR=null;  // message d'erreur spécifique du dernier applyBilan (ex : bilan sans référence)
 // Remplit REF + OFFRES à partir du bilan extrait par le worker.
 // CLÉ : l'acheminement + taxes est IDENTIQUE pour tous (même site). On le déduit des
 // offres (total − énergie, médiane, robuste). Puis énergie PURE = total − (achem+taxes)
@@ -389,6 +390,12 @@ let BILAN_INFO=null; // {client,interlocuteur,date,conso...}
 function applyBilan(b){
   if(!b||!Array.isArray(b.offres)||!b.offres.length) return false;
   const r=b.reference||{}, s=b.site||{};
+  // Bilan de RENOUVELLEMENT (offres seules, pas de ligne « votre facture actuelle ») :
+  // on REFUSE proprement plutôt que d'afficher une fausse référence — jamais mélanger démo et réel.
+  if(r.total_annuel==null && r.energie_annuel==null){
+    BILAN_ERR="Ce bilan ne contient pas de ligne « offre actuelle / votre facture » (bilan de renouvellement). Sans référence, la comparaison n'aurait pas de sens ici — charge un bilan avec l'offre actuelle du client.";
+    return false;
+  }
   const conso=s.conso_kwh?s.conso_kwh/1000:null;
   const kwhOf=e=>(conso&&e!=null)?Math.round(e/conso*10)/10:null;
   const dif=b.offres.filter(x=>x.total_annuel!=null&&x.energie_annuel!=null).map(x=>x.total_annuel-x.energie_annuel).sort((a,c)=>a-c);
@@ -398,7 +405,7 @@ function applyBilan(b){
   const refE=Math.round(refTotal-AT);
   // kwh = tout compris (total/conso) affiché dans la table pour que le client reconnaisse son prix EDF (acheminement inclus). kwhE = énergie pure (pour la modale, le levier négociable). Le CALCUL reste sur l'énergie pure.
   REF={nom:(r.fournisseur?r.fournisseur+' — actuel':'Votre contrat actuel'),energie:refE,total:refTotal,kwh:kwhOf(refTotal)||REF.kwh,kwhE:kwhOf(refE)||REF.kwhE};
-  BILAN_INFO={client:s.raison_sociale||null,interlocuteur:s.interlocuteur||null,date:s.date_bilan||null,ref:s.reference_bilan||null,conso:s.conso_kwh||null,puissance:s.puissance_kva||null};
+  BILAN_INFO={client:s.raison_sociale||null,interlocuteur:s.interlocuteur||null,date:s.date_bilan||null,ref:s.reference_bilan||null,conso:s.conso_kwh||null,puissance:s.puissance_kva||null,segment:s.segment||null};
   OFFRES=b.offres.filter(x=>x&&(x.total_annuel!=null||x.energie_annuel!=null)).map((x,i)=>{
     const total=Math.round(x.total_annuel!=null?x.total_annuel:(x.energie_annuel+AT));
     const e=Math.round(total-AT);
@@ -411,6 +418,7 @@ function renderBilanInfo(){ const el=document.getElementById('bilanInfo'); if(!e
   const cell=(k,v)=>v?`<div><div style="font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.04em">${k}</div><div style="font-weight:600;font-size:14.5px">${v}</div></div>`:'';
   el.innerHTML=`<div style="display:flex;flex-wrap:wrap;gap:12px 26px;align-items:center;margin:18px 0 2px;padding:15px 18px;border:1px solid var(--line);border-radius:14px;background:var(--panel)">
     ${cell('Client',bi.client+(bi.interlocuteur?' · '+bi.interlocuteur:''))}
+    ${cell('Segment',bi.segment)}
     ${cell('Consommation',bi.conso?fr(bi.conso)+' kWh/an':'')}
     ${cell('Puissance',bi.puissance?bi.puissance+' kVA':'')}
     ${cell('Bilan du',bi.date)}
@@ -566,7 +574,7 @@ const fileInput=document.getElementById('file'),drop=document.getElementById('dr
 drop.addEventListener('drop',e=>{if(e.dataTransfer.files[0])handleFile(e.dataTransfer.files[0]);});
 fileInput.addEventListener('change',()=>{if(fileInput.files[0])handleFile(fileInput.files[0]);});
 function handleFile(f){
-  startScan();
+  startScan(); BILAN_ERR=null;
   const reader=new FileReader();
   reader.onload=()=>{ const url=String(reader.result); const b64=url.split(',')[1]; ORIGINAL={url,type:f.type||'application/pdf',name:f.name,b64};
     fetch(WORKER+'/api/scan-bilan',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({file_data:b64,file_type:f.type,file_name:f.name})})
@@ -576,7 +584,7 @@ function handleFile(f){
           const n=(d.bilan.offres||[]).length, cl=(d.bilan.site||{}).raison_sociale;
           scanStatus('ok', 'Bilan lu'+(cl?' — '+cl:'')+' · '+n+' offre'+(n>1?'s':'')+' importée'+(n>1?'s':''));
         } else {
-          scanStatus('err', (d&&d.error)||"On n'a pas réussi à lire ce bilan. Réessayez, ou continuez avec l'exemple.");
+          scanStatus('err', BILAN_ERR||(d&&d.error)||"On n'a pas réussi à lire ce bilan. Réessayez, ou continuez avec l'exemple.");
         }
       })
       .catch(()=>scanStatus('err', "Lecture impossible (connexion). Réessayez, ou continuez avec l'exemple."));

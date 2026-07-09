@@ -126,7 +126,7 @@ Réponds UNIQUEMENT avec le JSON, sans texte avant ou après :
   "energy_type": "electricity" ou "gas" ou "both",
   "consumption_lines": [ {"label": "libellé EXACT de la ligne (ex 'Heure Pleine Saison Basse')", "kwh": conso kWh de la ligne, "unit_price_eur_kwh": prix unitaire €/kWh (colonne prix), "amount_ht": montant HT € de la ligne} ] — liste de TOUTES les lignes de CONSOMMATION d'énergie de la section fourniture (toutes plages HP/HC/Base/Pointe, toutes saisons), SANS abonnement, SANS garanties d'origine, SANS capacité/obligations, SANS acheminement, SANS taxes,
   "contract_type": "ex: MU4, CU4, C4-LU, T2, T3, Tarif Bleu, HC/HP, Base, etc.",
-  "segment": "c5_mu4" ou "c5_cu4" ou "c4_lu" ou "c5_hta" ou "t2_p12" ou "t3" ou null,
+  "segment": "c5_mu4" ou "c5_cu4" ou "c4_lu" ou "c4_cu" ou "c5_hta" ou "t2_p12" ou "t3" ou null,
   "power_kva": puissance souscrite en kVA (nombre seul),
   "billing_months": nombre de mois couverts par la facture, calculé depuis les dates de conso (ex: 1, 2, 3, 12),
   "consumption_bill_kwh": consommation EXACTE facturée sur la période, en kWh (BRUT, non annualisé),
@@ -165,7 +165,7 @@ Réponds UNIQUEMENT avec le JSON, sans texte avant ou après :
 Notes importantes :
 - Les prix unitaires (€/MWh) ne s'annualisent PAS — ce sont des prix fixes au contrat.
 - Sur les factures EDF/certains fournisseurs, prix en centimes/kWh → convertir : diviser par 10 pour obtenir €/MWh.
-- segment : c5_mu4 = ≤36 kVA (C5) usage moyen, c5_cu4 = ≤36 kVA (C5) usage court, c4_lu = 36-250 kVA (C4) longue utilisation, c5_hta = >250 kVA / HTA (C3 et au-delà). Gaz : t2_p12 = ≤200 MWh/an, t3 = 200-600 MWh/an.
+- segment : c5_mu4 = ≤36 kVA (C5) usage moyen, c5_cu4 = ≤36 kVA (C5) usage court, c4_lu = 36-250 kVA (C4) LONGUE utilisation, c4_cu = 36-250 kVA (C4) COURTE utilisation (mention « Courte utilisation » / « CU » sur la facture), c5_hta = >250 kVA / HTA (C3 et au-delà). Gaz : t2_p12 = ≤200 MWh/an, t3 = 200-600 MWh/an. ⚠️ C4 ≠ C5 : classe TOUJOURS dans le bon segment, les tarifs ne sont pas comparables entre segments.
 - capa_mwh : chercher "mécanisme de capacité", souvent entre 0,50 et 15 €/MWh. Chez certains fournisseurs il est inclus dans le prix énergie (mettre null dans ce cas).
 - acheminement = "Utilisation du réseau" ou "TURPE" ou "Coûts d'utilisation du réseau".
 - EDF Tarif Bleu / TRV : la facture contient TOUJOURS une phrase du type « La part fixe de l'acheminement versé par EDF au gestionnaire de réseau est de X €, et la part variable est de Y € ». Extrais X → acheminement_fixe_annual_ht et Y → acheminement_var_annual_ht (ANNUALISÉS : ×12/N si la facture couvre N mois). Ces deux champs ne concernent QUE les factures EDF au Tarif Réglementé.
@@ -191,9 +191,11 @@ Le bilan compare PLUSIEURS fournisseurs (souvent 2 à 4), généralement classé
 
 Structure des prix électricité (en €/MWh HT) :
 - C4-LU (Longue Utilisation, 36-250 kVA) : 5 plages Pte / HPH / HCH / HPB / HCB + mécanisme de capacité (capa) + CEE
+- C4-CU (Courte Utilisation, 36-250 kVA) : 4 plages HPH / HCH / HPB / HCB + capa + CEE
 - C5-MU4 (Moyenne Utilisation, ≤36 kVA) : 4 plages HPH / HCH / HPB / HCB + capa + CEE
 - C5-CU4 (Courte Utilisation, ≤36 kVA) : 4 plages HPH / HCH / HPB / HCB + capa + CEE
 - C5-HTA (>36 kVA haute tension) : 4 plages HPH / HCH / HPB / HCB + capa + CEE
+⚠️ SEGMENT : lis la colonne « Acheminement » du bilan (ex « C4 - CU », « C4 - LU », « C5 - MU4 ») et range les prix dans le BON segment — les tarifs C4 et C5 sont totalement différents, ne les mélange jamais.
 
 Structure des prix gaz (en €/MWh HT) :
 - T2 (≤200 MWh/an) : molécule + CEE + CPB + acheminement réseau
@@ -205,6 +207,11 @@ Réponds UNIQUEMENT avec ce JSON valide (null si non trouvé) :
   "electricity": {
     "c4_lu": {
       "pte": null, "hph": null, "hch": null, "hpb": null, "hcb": null,
+      "cee": null, "capa": null,
+      "acheminement_annual": null, "abo_monthly": null
+    },
+    "c4_cu": {
+      "hph": null, "hch": null, "hpb": null, "hcb": null,
       "cee": null, "capa": null,
       "acheminement_annual": null, "abo_monthly": null
     },
@@ -267,7 +274,8 @@ Réponds UNIQUEMENT avec ce JSON valide, sans aucun texte autour :
 
 Règles :
 - "raison_sociale", "interlocuteur", "siren", "adresse" : coordonnées du client affichées en haut du bilan (bloc « Votre entreprise »). "date_bilan" : la date du comparatif. "reference_bilan" : la référence du document (ex code en pied de page).
-- "reference" = la ligne « Votre facture » / « Offre de référence » / contrat actuel (souvent la 1ʳᵉ ligne, sans durée).
+- "reference" = la ligne « Votre facture » / « Offre de référence » / contrat actuel (souvent la 1ʳᵉ ligne, sans durée). ⚠️ Si le bilan ne contient PAS de ligne d'offre actuelle (cas des bilans de RENOUVELLEMENT : uniquement des offres), mets "reference" avec tous ses champs à null — n'utilise JAMAIS une des offres comme référence.
+- "segment" : lis la colonne « Acheminement » du tableau site ou des offres (ex « C4 - CU », « C5 - MU4 », « BT > 36 kVA ») et recopie-la telle quelle (ex "C4 - CU"). C'est CRUCIAL : les tarifs C4 et C5 ne sont pas comparables entre eux.
 - "offres" = TOUTES les autres lignes (fournisseurs proposés), dans l'ordre exact du tableau.
 - Montants ANNUELS en euros HT (€/an), tels qu'affichés. Ne divise ni ne multiplie pas.
 - "duree_mois" : durée d'engagement en mois (ex « 36 mois » → 36 ; « Fin au 30/11/2029 » avec début « 01/12/2026 » → 36). Sinon null.
@@ -284,6 +292,12 @@ function getDefaultPrices() {
         pte: 121.00, hph: 121.00, hch: 86.00, hpb: 57.00, hcb: 45.00,
         cee: 11.00, capa: 0.66,
         acheminement_annual: 4610, abo_monthly: 0
+      },
+      // C4 Courte Utilisation — seed : bilan réel DELSUC oct. 2025 (offre Mint, CEE inclus dans l'énergie)
+      c4_cu: {
+        hph: 127.90, hch: 92.54, hpb: 66.80, hcb: 66.34,
+        cee: 0, capa: 0.64,
+        acheminement_annual: 1945, abo_monthly: 0
       },
       c5_mu4: {
         hph: 87.00, hch: 74.00, hpb: 87.00, hcb: 74.00,
@@ -390,18 +404,34 @@ function calculateSavings(bill, grid) {
   // ─── Électricité ─────────────────────────────────────────────────────────
   if (!grid.electricity) return fallbackSavings(clientTTC, avgPct, seg);
 
-  const ref   = grid.electricity[seg];
+  // c4_cu absent des anciennes grilles KV → repli sur c4_lu (même famille C4, jamais C5)
+  const ref   = grid.electricity[seg] || (seg === 'c4_cu' ? grid.electricity.c4_lu : null);
   const taxes = grid.electricity.taxes || {};
   const tva   = 1 + (taxes.tva_pct || 20) / 100;
 
   if (!ref || !consumptionMwh) return fallbackSavings(clientTTC, avgPct, seg);
 
   // ── Prix moyen pondéré ELGA (fourniture + CEE + capa) ───────────────────
-  let elgaEnergyMwh;
-  if (seg === 'c4_lu' && ref.pte) {
-    elgaEnergyMwh = ref.pte * 0.05 + ref.hph * 0.25 + ref.hch * 0.15 + ref.hpb * 0.30 + ref.hcb * 0.25;
-  } else {
-    elgaEnergyMwh = (ref.hph || ref.hpb || 0) * 0.55 + (ref.hch || ref.hcb || 0) * 0.45;
+  // COMPARER CE QUI EST COMPARABLE : si la facture donne les kWh réels par plage
+  // (consumption_lines), on pondère la grille Elga par la VRAIE répartition du client
+  // (ex. site 100 % saison basse → seuls HPB/HCB comptent). Sinon, pondération standard.
+  let elgaEnergyMwh = null;
+  const pk = bill.plage_kwh;
+  if (pk && typeof pk === 'object') {
+    const refOf = { pte: ref.pte, hph: ref.hph, hch: ref.hch, hpb: ref.hpb, hcb: ref.hcb, base: ref.hph || ref.hpb };
+    let wSum = 0, kSum = 0;
+    for (const [plage, kwh] of Object.entries(pk)) {
+      const rp = refOf[plage];
+      if (typeof rp === 'number' && rp > 0 && kwh > 0) { wSum += rp * kwh; kSum += kwh; }
+    }
+    if (kSum > 0) elgaEnergyMwh = wSum / kSum;
+  }
+  if (elgaEnergyMwh == null) {
+    if (seg === 'c4_lu' && ref.pte) {
+      elgaEnergyMwh = ref.pte * 0.05 + ref.hph * 0.25 + ref.hch * 0.15 + ref.hpb * 0.30 + ref.hcb * 0.25;
+    } else {
+      elgaEnergyMwh = (ref.hph || ref.hpb || 0) * 0.55 + (ref.hch || ref.hcb || 0) * 0.45;
+    }
   }
   elgaEnergyMwh += (ref.cee || 0) + (ref.capa || 0);
 
@@ -639,6 +669,7 @@ async function handleScan(request, env) {
       const isGasL = b.energy_type === 'gas';
       const pLo = isGasL ? 10 : 25, pHi = isGasL ? 300 : 600;
       let sumK = 0, sumA = 0;
+      const dist = {}; // kWh réels par plage → sert à comparer ce qui est comparable
       for (const L of b.consumption_lines) {
         const k = num(L && L.kwh), a = num(L && L.amount_ht);
         if (k == null || k <= 0) continue;
@@ -656,12 +687,17 @@ async function handleScan(request, env) {
         else if (/pleine|\bhp\b/.test(lbl)) key = 'price_hph_mwh';
         else if (/creuse|\bhc\b/.test(lbl)) key = 'price_hch_mwh';
         else if (/base|unique|molécule|molecule/.test(lbl)) key = 'price_base_mwh';
-        if (key) b[key] = Math.round(price * 100) / 100;
+        if (key) {
+          b[key] = Math.round(price * 100) / 100;
+          const plage = key.replace('price_', '').replace('_mwh', '');
+          dist[plage] = (dist[plage] || 0) + k;
+        }
       }
       if (sumK > 0) {
         const declared = num(b.consumption_bill_kwh);
         if (declared == null || Math.abs(sumK - declared) / sumK > 0.02) b.consumption_bill_kwh = Math.round(sumK);
         if (sumA > 0) b.energy_amount_bill_ht = Math.round(sumA * 100) / 100;
+        if (Object.keys(dist).length) b.plage_kwh = dist;
       }
     }
 
