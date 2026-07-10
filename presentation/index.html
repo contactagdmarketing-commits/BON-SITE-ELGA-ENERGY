@@ -138,6 +138,9 @@
   .bhead .r,.brow .r{text-align:right}
   .brow{padding:15px 20px;border-top:1px solid var(--line);cursor:pointer;transition:background .15s;position:relative}
   .brow:hover{background:var(--panel)} .brow.sel{background:var(--green-soft)}
+  /* meilleure économie moyenne annuelle : entourée en vert */
+  .brow.best{box-shadow:inset 0 0 0 2px var(--green);border-radius:14px;background:#f6fbf8}
+  .bestb{display:inline-block;margin-left:8px;font-size:10.5px;font-weight:700;color:var(--green-deep);background:#e7f4ee;border:1px solid #bfe0d0;border-radius:999px;padding:2px 8px;vertical-align:1px;white-space:nowrap}
   .fourn{display:flex;align-items:center;gap:12px;min-width:0}
   .fmark{width:34px;height:34px;border-radius:9px;display:grid;place-items:center;font-weight:700;font-size:13px;color:#fff;flex:0 0 auto;overflow:hidden}
   .fmark.logo{background:#fff;border:1px solid var(--line);padding:5px}
@@ -532,11 +535,16 @@ function offerEcoTotal(o){ return offerYears(o).reduce((s,r)=>s+(r.edf-o.energie
 function avgSaving(o){ return offerEcoTotal(o)/(o.duree/12); }
 function setBilanRate(r,btn){RATE=r;document.querySelectorAll('#bilanSeg button').forEach(b=>b.classList.remove('on'));btn.classList.add('on');renderRows();}
 function renderRows(){
+  // Perte moyenne annuelle EDF/actuel si rien ne change (mêmes maths que la modale « référence », lissée sur 4 ans)
+  let perte=0; for(let y=1;y<=4;y++) perte+=REF.energie*(Math.pow(1+RATE,y)-1); perte/=4;
+  // Meilleure économie moyenne annuelle → entourée en vert
+  let bestK=-1,bestEco=0; OFFRES.forEach((o,k)=>{const e=avgSaving(o); if(e>bestEco){bestEco=e;bestK=k;}});
   let h=`<div class="brow ref" onclick="openSheet(-1)"><div class="fourn">${fmark(REF.nom,'#75837e',34)}<div><div class="fname">${REF.nom}</div><div class="fsub tnum">${REF.kwh} €/MWh · acheminement inclus</div></div></div>
-    <div class="cell"><span class="pill evo">actuel</span></div><div class="cell r tnum">${euro(REF.energie)}</div><div class="cell r tnum">${euro(AT)}</div><div class="total-c total r tnum">${euro(REF.total)}</div><div class="ec-c ecart r muted">référence</div>
+    <div class="cell"><span class="pill evo">actuel</span></div><div class="cell r tnum">${euro(REF.energie)}</div><div class="cell r tnum">${euro(AT)}</div><div class="total-c total r tnum">${euro(REF.total)}</div>
+    <div class="ec-c ecart neg r">+${euro(perte)}<small style="font-weight:400;color:var(--mut);display:block;font-size:10.5px">/an moy. · si rien ne change (4 ans)</small></div>
     <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></div>`;
-  OFFRES.forEach((o,k)=>{const eco=avgSaving(o), pos=eco>=0;
-    h+=`<div class="brow" data-k="${k}" onclick="openSheet(${k})"><div class="fourn">${fmark(o.nom,o.color,34)}<div><div class="fname">${o.nom}</div><div class="fsub tnum">${o.kwhE} €/MWh · énergie seule</div></div></div>
+  OFFRES.forEach((o,k)=>{const eco=avgSaving(o), pos=eco>=0, best=k===bestK;
+    h+=`<div class="brow${best?' best':''}" data-k="${k}" onclick="openSheet(${k})"><div class="fourn">${fmark(o.nom,o.color,34)}<div><div class="fname">${o.nom}${best?'<span class="bestb">★ meilleure éco</span>':''}</div><div class="fsub tnum">${o.kwhE} €/MWh · énergie seule</div></div></div>
       <div class="cell"><span class="pill fixe">Fixe ${o.duree} mois</span></div><div class="cell r tnum">${euro(o.energie)}</div><div class="cell r tnum">${euro(AT)}</div><div class="total-c total r tnum">${euro(o.total)}</div>
       <div class="ec-c ecart ${pos?'pos':'neg'} r">${pos?'−':'+'}${euro(Math.abs(eco))}<small style="font-weight:400;color:var(--mut);display:block;font-size:10.5px">/an moy. · ${o.duree}m</small></div>
       <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></div>`;});
