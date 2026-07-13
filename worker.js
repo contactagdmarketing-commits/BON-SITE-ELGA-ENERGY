@@ -126,7 +126,11 @@ Réponds UNIQUEMENT avec le JSON, sans texte avant ou après :
   "energy_type": "electricity" ou "gas" ou "both",
   "consumption_lines": [ {"label": "libellé EXACT de la ligne (ex 'Heure Pleine Saison Basse')", "kwh": conso kWh de la ligne, "unit_price_eur_kwh": prix unitaire €/kWh (colonne prix), "amount_ht": montant HT € de la ligne} ] — liste de TOUTES les lignes de CONSOMMATION d'énergie de la section fourniture (toutes plages HP/HC/Base/Pointe, toutes saisons), SANS abonnement, SANS garanties d'origine, SANS capacité/obligations, SANS acheminement, SANS taxes,
   "contract_type": "ex: MU4, CU4, C4-LU, T2, T3, Tarif Bleu, HC/HP, Base, etc.",
-  "segment": "c5_mu4" ou "c5_cu4" ou "c4_lu" ou "c4_cu" ou "c5_hta" ou "t2_p12" ou "t3" ou null,
+  "segment": "c5_mu4" ou "c5_cu4" ou "c4_lu" ou "c4_cu" ou "c3" ou "c2" ou "c1" ou "t1" ou "t2_p12" ou "t3" ou "t4" ou null,
+  "historical_annual_kwh": consommation ANNUELLE réelle lue sur l'historique 12 mois de la facture si affiché (kWh), sinon null,
+  "multi_site": true si facture multi-sites/multi-PDL (n'extraire QUE le 1er site), sinon false,
+  "is_installment": true si échéancier/mensualisation/acompte (pas une facture de conso), sinon false,
+  "is_regularisation": true si facture de régularisation (lignes négatives estimé/réel), sinon false,
   "power_kva": puissance souscrite en kVA (nombre seul),
   "billing_months": nombre de mois couverts par la facture, calculé depuis les dates de conso (ex: 1, 2, 3, 12),
   "consumption_bill_kwh": consommation EXACTE facturée sur la période, en kWh (BRUT, non annualisé),
@@ -164,8 +168,12 @@ Réponds UNIQUEMENT avec le JSON, sans texte avant ou après :
 
 Notes importantes :
 - Les prix unitaires (€/MWh) ne s'annualisent PAS — ce sont des prix fixes au contrat.
-- Sur les factures EDF/certains fournisseurs, prix en centimes/kWh → convertir : diviser par 10 pour obtenir €/MWh.
-- segment : c5_mu4 = ≤36 kVA (C5) usage moyen, c5_cu4 = ≤36 kVA (C5) usage court, c4_lu = 36-250 kVA (C4) LONGUE utilisation, c4_cu = 36-250 kVA (C4) COURTE utilisation (mention « Courte utilisation » / « CU » sur la facture), c5_hta = >250 kVA / HTA (C3 et au-delà). Gaz : t2_p12 = ≤200 MWh/an, t3 = 200-600 MWh/an. ⚠️ C4 ≠ C5 : classe TOUJOURS dans le bon segment, les tarifs ne sont pas comparables entre segments.
+- Sur les factures EDF/certains fournisseurs, prix en centimes/kWh → convertir : MULTIPLIER par 10 pour obtenir €/MWh (ex : 7,566 c€/kWh = 75,66 €/MWh). En €/kWh → multiplier par 1000 (0,07566 €/kWh = 75,66 €/MWh).
+- Les champs "(ANNUALISÉ)" sont SECONDAIRES : le serveur recalcule l'annuel depuis les champs BRUTS (_bill) + billing_months. Ne remplis un champ annualisé QUE si la facture affiche elle-même une valeur annuelle ; sinon laisse null — ne fais JAMAIS la multiplication toi-même.
+- segment ÉLEC : c5_mu4 = ≤36 kVA (C5) usage moyen, c5_cu4 = ≤36 kVA (C5) usage court, c4_lu = 36-250 kVA (C4) LONGUE utilisation, c4_cu = 36-250 kVA (C4) COURTE utilisation (mention « Courte utilisation » / « CU »), c3 = HTA (>250 kVA, mention « HTA » / « C3 »), c2 = HTA longue utilisation (« C2 »), c1 = HTB (« C1 »). segment GAZ (tranches GRDF réelles) : t1 = <6 MWh/an, t2_p12 = 6-300 MWh/an, t3 = 300-5 000 MWh/an, t4 = >5 000 MWh/an. ⚠️ C4 ≠ C5 ≠ C3 : classe TOUJOURS dans le bon segment, les tarifs ET les abonnements ne sont pas comparables entre segments/tranches.
+- "historical_annual_kwh" : si la facture affiche un HISTORIQUE de consommation couvrant 12 MOIS COMPLETS (histogramme ou « votre consommation annuelle »), mets la SOMME des 12 mois en kWh (JAMAIS la valeur d'une seule barre/mois). Si l'historique couvre moins de 12 mois → null.
+- ⚠️ energy_type = "both" UNIQUEMENT si la facture facture RÉELLEMENT du GAZ NATUREL en plus de l'électricité (kWh de gaz, PCE, GRDF, PCS). La section « Acheminement » d'une facture d'électricité (TURPE/Enedis, prix ~0,01-0,03 €/kWh) n'est PAS du gaz : c'est la part réseau de l'ÉLECTRICITÉ. Une facture avec sections « Électricité » + « Acheminement » + « Taxes » = electricity, PAS both.
+- CAS PIÈGES (remplis ces drapeaux, le serveur en a besoin) : "multi_site": true si la facture regroupe PLUSIEURS sites/PDL/points de livraison (dans ce cas n'extrais QUE le premier site) ; "is_installment": true si c'est un échéancier/mensualisation/acompte (pas une facture de consommation) ; "is_regularisation": true si c'est une facture de régularisation avec des lignes négatives estimé/réel.
 - capa_mwh : chercher "mécanisme de capacité", souvent entre 0,50 et 15 €/MWh. Chez certains fournisseurs il est inclus dans le prix énergie (mettre null dans ce cas).
 - acheminement = "Utilisation du réseau" ou "TURPE" ou "Coûts d'utilisation du réseau".
 - EDF Tarif Bleu / TRV : la facture contient TOUJOURS une phrase du type « La part fixe de l'acheminement versé par EDF au gestionnaire de réseau est de X €, et la part variable est de Y € ». Extrais X → acheminement_fixe_annual_ht et Y → acheminement_var_annual_ht (ANNUALISÉS : ×12/N si la facture couvre N mois). Ces deux champs ne concernent QUE les factures EDF au Tarif Réglementé.
@@ -194,12 +202,14 @@ Structure des prix électricité (en €/MWh HT) :
 - C4-CU (Courte Utilisation, 36-250 kVA) : 4 plages HPH / HCH / HPB / HCB + capa + CEE
 - C5-MU4 (Moyenne Utilisation, ≤36 kVA) : 4 plages HPH / HCH / HPB / HCB + capa + CEE
 - C5-CU4 (Courte Utilisation, ≤36 kVA) : 4 plages HPH / HCH / HPB / HCB + capa + CEE
-- C5-HTA (>36 kVA haute tension) : 4 plages HPH / HCH / HPB / HCB + capa + CEE
-⚠️ SEGMENT : lis la colonne « Acheminement » du bilan (ex « C4 - CU », « C4 - LU », « C5 - MU4 ») et range les prix dans le BON segment — les tarifs C4 et C5 sont totalement différents, ne les mélange jamais.
+- C5-HTA = HTA (>250 kVA — C3/C2/C1) : 5 plages Pte / HPH / HCH / HPB / HCB + capa + CEE
+⚠️ SEGMENT : lis la colonne « Acheminement » du bilan (ex « C4 - CU », « C4 - LU », « C5 - MU4 », « C3 », « HTA ») et range les prix dans le BON segment — les tarifs ET abonnements C5/C4/C3 sont totalement différents, ne les mélange jamais.
 
-Structure des prix gaz (en €/MWh HT) :
-- T2 (≤200 MWh/an) : molécule + CEE + CPB + acheminement réseau
-- T3 (200-600 MWh/an) : idem
+Structure des prix gaz (en €/MWh HT) — tranches GRDF réelles, l'ABONNEMENT dépend de la tranche :
+- T1 (<6 MWh/an) : molécule + CEE + CPB + acheminement réseau + abonnement
+- T2 (6-300 MWh/an) : idem
+- T3 (300-5 000 MWh/an) : idem (abonnement bien plus élevé)
+- T4 (>5 000 MWh/an) : idem
 
 Réponds UNIQUEMENT avec ce JSON valide (null si non trouvé) :
 
@@ -226,18 +236,26 @@ Réponds UNIQUEMENT avec ce JSON valide (null si non trouvé) :
       "acheminement_annual": null, "abo_monthly": null
     },
     "c5_hta": {
-      "hph": null, "hch": null, "hpb": null, "hcb": null,
+      "pte": null, "hph": null, "hch": null, "hpb": null, "hcb": null,
       "cee": null, "capa": null,
       "acheminement_annual": null, "abo_monthly": null
     },
-    "taxes": { "accise_mwh": null, "cta_annual": null, "tva_pct": null }
+    "taxes": { "accise_mwh": null, "accise_mwh_high": null, "cta_annual": null, "tva_pct": null }
   },
   "gas": {
+    "t1": {
+      "molecule_mwh": null, "cee_mwh": null, "cpb_mwh": null, "acheminement_mwh": null,
+      "abo_monthly": null, "cta_annual": null, "accise_mwh": null, "tva_pct": null
+    },
     "t2_p12": {
       "molecule_mwh": null, "cee_mwh": null, "cpb_mwh": null, "acheminement_mwh": null,
       "abo_monthly": null, "cta_annual": null, "accise_mwh": null, "tva_pct": null
     },
     "t3": {
+      "molecule_mwh": null, "cee_mwh": null, "cpb_mwh": null, "acheminement_mwh": null,
+      "abo_monthly": null, "cta_annual": null, "accise_mwh": null, "tva_pct": null
+    },
+    "t4": {
       "molecule_mwh": null, "cee_mwh": null, "cpb_mwh": null, "acheminement_mwh": null,
       "abo_monthly": null, "cta_annual": null, "accise_mwh": null, "tva_pct": null
     }
@@ -309,8 +327,9 @@ function getDefaultPrices() {
         cee: 11.00, capa: 0.66,
         acheminement_annual: 1707, abo_monthly: 0
       },
+      // HTA (>250 kVA — C3/C2/C1 s'y replient) : 5 plages dont Pointe
       c5_hta: {
-        hph: 82.27, hch: 69.38, hpb: 82.27, hcb: 69.38,
+        pte: 95.00, hph: 82.27, hch: 69.38, hpb: 82.27, hcb: 69.38,
         cee: 11.22, capa: 0.66,
         acheminement_annual: 1530, abo_monthly: 12.60
       },
@@ -323,6 +342,12 @@ function getDefaultPrices() {
       }
     },
     gas: {
+      // Tranches GRDF réelles : T1 <6 MWh · T2 6-300 MWh · T3 300-5000 MWh · T4 >5 GWh
+      // L'ABONNEMENT dépend de la tranche de conso (point clé ATRD) — audit 2026-07-10.
+      t1: {
+        molecule_mwh: 56.00, cee_mwh: 12.43, cpb_mwh: 0.41, acheminement_mwh: 16.00,
+        abo_monthly: 8.50, cta_annual: 20, accise_mwh: 16.39, tva_pct: 20
+      },
       t2_p12: {
         molecule_mwh: 54.00, cee_mwh: 12.43, cpb_mwh: 0.41, acheminement_mwh: 12.08,
         abo_monthly: 22.06, cta_annual: 46, accise_mwh: 16.39, tva_pct: 20
@@ -330,6 +355,10 @@ function getDefaultPrices() {
       t3: {
         molecule_mwh: 52.00, cee_mwh: 12.00, cpb_mwh: 0.41, acheminement_mwh: 9.00,
         abo_monthly: 200.00, cta_annual: 200, accise_mwh: 16.39, tva_pct: 20
+      },
+      t4: {
+        molecule_mwh: 50.00, cee_mwh: 11.50, cpb_mwh: 0.41, acheminement_mwh: 6.50,
+        abo_monthly: 750.00, cta_annual: 700, accise_mwh: 16.39, tva_pct: 20
       }
     },
     meta: {
@@ -356,19 +385,28 @@ function calculateSavings(bill, grid) {
   const clientTTC  = bill.total_ttc_annual;
   const avgPct     = grid.meta?.average_savings_pct || 15;
 
-  if (!clientTTC) return null;
+  // Avoirs / factures de crédit / valeurs aberrantes : pas de calcul (audit 2026-07-10)
+  if (!clientTTC || clientTTC <= 0) return null;
+  if (consumptionMwh != null && consumptionMwh <= 0) return null;
+  // Lecture peu fiable assumée par l'IA → estimation indicative, jamais un chiffre ferme
+  if (bill.confidence === 'low') return fallbackSavings(clientTTC, Math.min(avgPct, 12), bill.segment || 'inconnu');
 
   // ─── Détermination du segment ────────────────────────────────────────────
   let seg = bill.segment;
+  // C3/C2/C1 (HTA/HTB) lus sur la facture → grille HTA commune (c5_hta), en attendant des grilles dédiées
+  if (seg === 'c3' || seg === 'c2' || seg === 'c1') seg = 'c5_hta';
   if (!seg) {
     const kva = bill.power_kva;
     if (isGas) {
-      seg = consumptionMwh > 200 ? 't3' : 't2_p12';
+      // Tranches GRDF réelles : T1 <6 MWh · T2 6-300 · T3 300-5000 · T4 >5000 (audit : bornes corrigées)
+      seg = consumptionMwh > 5000 ? 't4' : consumptionMwh > 300 ? 't3' : consumptionMwh >= 6 ? 't2_p12' : 't1';
     } else if (kva) {
       // Nomenclature Enedis : ≤36 kVA = C5 ; 36-250 kVA = C4 (BT) ; >250 kVA / HTA = C3 et au-delà
       seg = kva > 250 ? 'c5_hta' : kva > 36 ? 'c4_lu' : 'c5_mu4';
     } else if (consumptionMwh) {
-      seg = consumptionMwh > 300 ? 'c5_hta' : consumptionMwh > 50 ? 'c4_lu' : 'c5_mu4';
+      // Sans kVA, un gros site est bien plus probablement C4 (BT) que HTA → ne jamais deviner HTA
+      // (la grille HTA est la moins chère : la choisir à tort surestime l'économie)
+      seg = consumptionMwh > 50 ? 'c4_lu' : 'c5_mu4';
     } else {
       seg = 'c5_mu4';
     }
@@ -376,27 +414,41 @@ function calculateSavings(bill, grid) {
 
   // ─── Gaz ─────────────────────────────────────────────────────────────────
   if (isGas && grid.gas) {
-    const ref = grid.gas[seg === 't3' ? 't3' : 't2_p12'];
+    // Tranche exacte si la grille l'a (t1..t4), sinon repli vers la tranche voisine
+    const ref = grid.gas[seg] || grid.gas[seg === 't4' ? 't3' : 't2_p12'] || grid.gas.t2_p12;
     if (!ref || !consumptionMwh) return fallbackSavings(clientTTC, avgPct, seg);
 
     // L'acheminement gaz est réglementé : même coût pour tous les fournisseurs
-    // Les économies portent uniquement sur la molécule + CEE + CPB
+    // Les économies portent uniquement sur la molécule + CEE + CPB (+ écart d'abonnement)
+    // Audit 2026-07-10 : taxes jamais à 0 (fallback accise gaz ~16,39 €/MWh + CTA) —
+    // sinon la molécule client est gonflée et l'économie surestimée de 10-20 %.
     const clientMoleculeHT = bill.total_ht_annual
       ? bill.total_ht_annual
         - (bill.acheminement_annual_ht || consumptionMwh * (ref.acheminement_mwh || 12))
-        - (bill.taxes_annual_ht || 0)
+        - (bill.taxes_annual_ht || (consumptionMwh * (ref.accise_mwh || 16.39) + (ref.cta_annual || 0)))
         - (bill.subscription_monthly_ht || ref.abo_monthly || 0) * 12
       : null;
 
     const elgaMoleculeHT = consumptionMwh * ((ref.molecule_mwh || 0) + (ref.cee_mwh || 0) + (ref.cpb_mwh || 0));
 
     if (clientMoleculeHT && clientMoleculeHT > elgaMoleculeHT && clientMoleculeHT > 100) {
-      const savingsHT  = clientMoleculeHT - elgaMoleculeHT;
-      const savingsTTC = savingsHT * 1.20;
+      let savingsHT = clientMoleculeHT - elgaMoleculeHT;
+      // Écart d'abonnement : comparé UNIQUEMENT si les deux sont réellement connus
+      // (en gaz T3 l'abo ~200 €/mois — un écart de 100 €/mois = 1 200 €/an, non négligeable)
+      if (bill.subscription_monthly_ht != null && ref.abo_monthly != null) {
+        savingsHT += (bill.subscription_monthly_ht - ref.abo_monthly) * 12;
+      }
+      const tvaGaz = 1 + (ref.tva_pct || 20) / 100;
+      const savingsTTC = savingsHT * tvaGaz;
       const pct = (savingsTTC / clientTTC) * 100;
       if (pct >= 1 && pct <= 45) {
         return makeResult(clientTTC, savingsTTC, pct, seg, false);
       }
+    }
+    // Client gaz déjà bien placé → on le DIT (même honnêteté que le TRV), on n'invente pas 6-8 %
+    if (clientMoleculeHT && clientMoleculeHT <= elgaMoleculeHT) {
+      return { client_total_annual: Math.round(clientTTC), elga_total_annual: Math.round(clientTTC),
+               savings_annual: 0, savings_pct: 0, segment: seg, is_estimate: true, market_competitive: true };
     }
     return fallbackSavings(clientTTC, avgPct, seg);
   }
@@ -499,7 +551,11 @@ function calculateSavings(bill, grid) {
   // ── Calcul de l'économie ─────────────────────────────────────────────────
   if (clientEnergyMwh && clientEnergyMwh > elgaEnergyMwh && clientEnergyMwh > 20) {
     // Elga est moins cher sur l'énergie → calcul précis
-    const savingsHT  = (clientEnergyMwh - elgaEnergyMwh) * consumptionMwh;
+    let savingsHT = (clientEnergyMwh - elgaEnergyMwh) * consumptionMwh;
+    // Écart d'abonnement fourniture : comparé UNIQUEMENT si les deux sont réellement connus
+    if (!bill.est_trv && bill.subscription_monthly_ht != null && ref.abo_monthly != null) {
+      savingsHT += (bill.subscription_monthly_ht - ref.abo_monthly) * 12;
+    }
     const savingsTTC = savingsHT * tva;
     const pct        = (savingsTTC / clientTTC) * 100;
     if (pct >= 1 && pct <= 50) {
@@ -511,14 +567,15 @@ function calculateSavings(bill, grid) {
   if (clientEnergyMwh && clientEnergyMwh <= elgaEnergyMwh) {
     // TRV compétitif : Elga est plus cher sur l'énergie aujourd'hui. On NE fabrique PAS de
     // fausse économie — on le signale (trv_competitive) et le front recadre sur la sécurisation
-    // (le TRV monte +6,2%/an) + l'abonnement/puissance. Honnêteté totale.
+    // (instabilité du TRV : 21 révisions en 14 ans) + l'abonnement/puissance. Honnêteté totale.
     if (bill.est_trv) {
       return { client_total_annual: Math.round(clientTTC), elga_total_annual: Math.round(clientTTC),
                savings_annual: 0, savings_pct: 0, segment: seg, is_estimate: true, trv_competitive: true };
     }
-    // Marché déjà bien placé → estimation conservatrice sur les postes annexes.
-    const conservativePct = Math.min(avgPct * 0.45, 8);
-    return fallbackSavings(clientTTC, Math.round(conservativePct), seg);
+    // Marché déjà bien placé → MÊME honnêteté que le TRV (audit 2026-07-10) : on ne fabrique
+    // plus 6-8 % « conservateurs » alors que le calcul vient de prouver le contraire.
+    return { client_total_annual: Math.round(clientTTC), elga_total_annual: Math.round(clientTTC),
+             savings_annual: 0, savings_pct: 0, segment: seg, is_estimate: true, market_competitive: true };
   }
 
   return fallbackSavings(clientTTC, avgPct, seg);
@@ -612,7 +669,7 @@ async function handleScan(request, env) {
     ? 'CONTEXTE : facture d\'un PARTICULIER (résidentiel, ≤36 kVA, prix souvent en c€/kWh, montants TTC, TVA NON récupérable). Raisonne en cohérence.\n\n'
     : 'CONTEXTE : facture d\'un PROFESSIONNEL (TVA récupérable, raisonner en € HT)' + (secteur ? `, secteur : ${secteur}` : '') + '.\n\n';
 
-  // Appel modèle factorisé : 1ʳᵉ passe Haiku (rapide/éco), 2ᵉ passe Sonnet si lecture suspecte.
+  // Appel modèle factorisé : 1ʳᵉ passe SONNET 5 (vision haute résolution, fiabilité), Haiku en filet si indispo.
   const callModel = async (model) => {
     const res = await fetch(ANTHROPIC_API, {
       method: 'POST',
@@ -708,6 +765,22 @@ async function handleScan(request, env) {
     if (ttcBill  != null) { b.total_ttc_bill = Math.round(ttcBill);  b.total_ttc_annual = Math.round(ttcBill * f); }
     if (htBill   != null) { b.total_ht_bill  = Math.round(htBill);   b.total_ht_annual  = Math.round(htBill  * f); }
     if (consoKwh != null) { b.consumption_bill_kwh = Math.round(consoKwh); b.annual_consumption_mwh = Math.round(consoKwh / 1000 * f * 100) / 100; }
+    // Saisonnalité (audit 2026-07-10) : l'historique 12 mois de la facture, quand il existe,
+    // est BEAUCOUP plus fiable qu'un mois ×12 → il devient la conso annuelle de référence,
+    // et les totaux € sont recalés sur le même ratio (janvier gaz ×12 ≠ année réelle).
+    const histK = num(b.historical_annual_kwh);
+    if (histK != null && histK > 0 && consoKwh > 0 && months < 12) {
+      const extrapol = consoKwh * f;
+      const ratio = histK / extrapol;
+      if (ratio > 0.4 && ratio < 2.5) { // plausible → on recale ; sinon on ignore l'historique
+        b.annual_consumption_mwh = Math.round(histK / 1000 * 100) / 100;
+        if (b.total_ttc_annual != null) b.total_ttc_annual = Math.round(b.total_ttc_annual * ratio);
+        if (b.total_ht_annual  != null) b.total_ht_annual  = Math.round(b.total_ht_annual  * ratio);
+        b._saisonnalite_corrigee = true;
+      }
+    } else if (b.energy_type === 'gas' && months <= 2) {
+      b._seasonality_risk = true; // gaz sur 1-2 mois sans historique : montant annuel à prendre avec prudence
+    }
     if (num(b.acheminement_var_bill_ht)  != null) b.acheminement_var_annual_ht  = Math.round(b.acheminement_var_bill_ht  * f);
     if (num(b.acheminement_fixe_bill_ht) != null) b.acheminement_fixe_annual_ht = Math.round(b.acheminement_fixe_bill_ht * f);
     if (num(b.accise_bill_ht) != null) b.accise_annual_ht = Math.round(b.accise_bill_ht * f);
@@ -727,7 +800,8 @@ async function handleScan(request, env) {
     if (b.annual_consumption_mwh && b.total_ttc_annual) {
       const perMwh = b.total_ttc_annual / b.annual_consumption_mwh;
       const lo = b.energy_type === 'gas' ? 45 : 80;
-      if (perMwh < lo) { b._total_incoherent = true; b.total_ttc_annual = null; b.total_ht_annual = null; }
+      const hi = b.energy_type === 'gas' ? 250 : 600; // borne HAUTE (audit) : attrape les doubles ×12
+      if (perMwh < lo || perMwh > hi) { b._total_incoherent = true; b.total_ttc_annual = null; b.total_ht_annual = null; }
     }
 
     // ── GARDE-FOUS PRIX (bug facture ENGIE : montant HT 228,57 € lu comme prix €/MWh) ──
@@ -752,7 +826,19 @@ async function handleScan(request, env) {
   };
   normalizeBill(extracted);
 
+  // ── CAS PIÈGES (audit 2026-07-10) : refus PROPRE plutôt qu'un chiffre faux ──
+  if (extracted && extracted.is_installment) {
+    return jsonResponse({ error: "Cette facture est un échéancier de mensualisation (acompte), pas une facture de consommation — impossible d'estimer honnêtement vos économies dessus. Envoyez une facture de régularisation annuelle ou une facture de consommation réelle." }, 422);
+  }
+  if (extracted && extracted.multi_site) {
+    extracted._multi_site_partiel = true; // seule l'analyse du 1er site est retenue (consigne prompt)
+  }
+
   // ── Facture 2 ÉNERGIES (gaz + élec) : on calcule chaque énergie séparément ──
+  if (extracted && extracted.energy_type === 'both' && (!extracted.electricity || !extracted.gas)) {
+    // Bi-énergie sans les 2 sous-objets : NE PAS traiter les totaux mélangés comme de l'élec pure
+    return jsonResponse({ error: "Facture double énergie (électricité + gaz) détectée mais impossible à séparer proprement. Envoyez la ou les pages détaillant chaque énergie séparément pour une estimation fiable." }, 422);
+  }
   if (extracted && extracted.energy_type === 'both' && extracted.electricity && extracted.gas) {
     const elecE = normalizeBill({ ...extracted.electricity, energy_type: 'electricity', billing_months: extracted.electricity.billing_months || extracted.billing_months });
     const gasE  = normalizeBill({ ...extracted.gas, energy_type: 'gas', billing_months: extracted.gas.billing_months || extracted.billing_months });

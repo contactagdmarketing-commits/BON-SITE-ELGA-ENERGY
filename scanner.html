@@ -571,7 +571,7 @@
         <div id="gaugeBar" class="gauge-fill h-full bg-white rounded-full" style="width:0%"></div>
       </div>
       <!-- Disclaimer estimation -->
-      <p class="text-xs text-white/50 mt-2">* Projection basée sur votre facture de <span id="resultPeriodMonths"></span>. Votre consommation réelle peut varier selon les saisons</p>
+      <p class="text-xs text-white/60 mt-2">* Estimation la plus juste possible depuis votre facture de <span id="resultPeriodMonths"></span> — un ordre d'idée fiable, pas une promesse : votre consommation varie selon les saisons, et l'acheminement (TURPE) est estimé selon votre puissance. <span class="font-semibold text-white/80">La certitude, c'est l'analyse de vos 12 mois réels (Enedis) — gratuite, juste en dessous.</span></p>
       <!-- Détail mensuel -->
       <div id="annualProjectionBlock" class="mt-3 bg-white/10 rounded-xl px-4 py-2.5 text-center hidden">
         <p class="text-xs text-white/60"><span id="monthlyLabelPrefix">Soit environ</span> <span id="resultSavingsMonthly" class="font-bold text-white/90"></span> <span id="monthlyLabelSuffix">par mois sur cette facture</span></p>
@@ -1452,11 +1452,11 @@
       } else if (surcout != null) {
         lines.push(['Écart énergie (HT)', '+' + mwhStr(Math.round((elga - cli) * 10) / 10)]);
         lines.push(['≈ Surcoût énergie (TTC)', '+' + formatEuro(surcout) + '/an']);
-        if (isTRV(e)) lines.push(['Tarif Bleu — prix volatil', '+6,2 %/an en moyenne']);
+        if (isTRV(e)) lines.push(['Tarif Bleu — prix instable', '21 révisions en 14 ans']);
       }
       var note = surcout != null
         ? (isTRV(e)
-            ? "Votre prix de l'énergie est bien placé par rapport au marché actuel. Au Tarif Bleu, il reste toutefois volatil — en moyenne +6,2 %/an. Les économies se situent sur les autres leviers : abonnement, puissance, taxes."
+            ? "Votre prix de l'énergie est bien placé par rapport au marché actuel. Au Tarif Bleu, il reste toutefois instable : 21 révisions en 14 ans, deux hausses pour une baisse (source CRE). Les économies se situent sur les autres leviers : abonnement, puissance, taxes."
             : "Votre prix de l'énergie est bien placé par rapport au marché actuel. Les économies se situent sur les autres leviers : abonnement, puissance, taxes.")
         : isTRV(e)
           ? "Vous êtes au Tarif Réglementé (Tarif Bleu EDF) : l'acheminement est inclus dans le prix. On l'a isolé pour comparer la part énergie seule."
@@ -1621,8 +1621,8 @@
     var hero = document.getElementById('resultSavings');
     // Grille pas encore chargée : teaser serveur le temps du chiffrage, puis somme réelle des leviers.
     // Sauf TRV déjà compétitif (Elga plus cher sur l'énergie) : pas de faux teaser, on attend la grille.
-    if (total <= 0 && !_grid && !hasSurcout && _s && _s.savings_annual && !_s.trv_competitive) total = Math.round(_s.savings_annual);
-    if (_s && _s.trv_competitive) hasSurcout = true;   // recadrage immédiat « sécurisation » dès le pré-chiffrage
+    if (total <= 0 && !_grid && !hasSurcout && _s && _s.savings_annual && !_s.trv_competitive && !_s.market_competitive) total = Math.round(_s.savings_annual);
+    if (_s && (_s.trv_competitive || _s.market_competitive)) hasSurcout = true;   // recadrage immédiat « sécurisation » dès le pré-chiffrage
     var netPositive = total > 0;
     if (netPositive) countUp(hero, total);
     else { hero.textContent = "Déjà bien placé"; hero.classList.add('text-4xl', 'sm:text-5xl'); }
@@ -1664,7 +1664,7 @@
         // Elga plus cher aujourd'hui sur l'énergie : honnête sur le budget, on pointe les autres leviers.
         var trvNow = _e && isTRV(_e);
         sub.textContent = trvNow
-          ? "Votre prix d'énergie est bien placé aujourd'hui. Mais au Tarif Bleu, il est volatil — révisé plusieurs fois par an sans que vous le contrôliez. Les économies passent par d'autres leviers : abonnement, puissance."
+          ? "Votre prix d'énergie est bien placé aujourd'hui. Mais au Tarif Bleu, il est révisé en moyenne tous les 8 mois — 21 révisions en 14 ans, deux hausses pour une baisse (source CRE) — sans que vous le contrôliez. Les économies passent par d'autres leviers : abonnement, puissance."
           : "Votre prix d'énergie est bien placé aujourd'hui. Les économies passent par d'autres leviers — abonnement, puissance, taxes.";
         if (gauge) gauge.style.width = '15%';
       } else if (_s) {
@@ -1720,7 +1720,10 @@
     // 4. Facture sur une courte période → estimation à fiabiliser
     if (e.billing_months && e.billing_months < 12) {
       V.push({ t: 'info', titre: 'Estimation sur ' + e.billing_months + ' mois de facture',
-        txt: "Les chiffres sont annualisés depuis cette facture. Vos 12 mois réels (Enedis) donneront le budget exact." });
+        txt: "Les chiffres sont annualisés depuis cette facture : un ordre d'idée fiable, pas une promesse — votre consommation varie selon les saisons et l'acheminement dépend de votre puissance. Vos 12 mois réels (Enedis) donneront le budget exact." });
+    } else if (!e.billing_months) {
+      V.push({ t: 'info', titre: 'Période de facturation non détectée',
+        txt: "La facture n'indique pas clairement sa période : l'annualisation est notre meilleure estimation. Vos 12 mois réels (Enedis) donneront le budget exact." });
     }
 
     // 5. Puissance souscrite probablement surdimensionnée (élec)

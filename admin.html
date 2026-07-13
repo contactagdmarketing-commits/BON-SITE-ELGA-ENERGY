@@ -40,6 +40,11 @@
     .col-label{font-size:.7rem;font-weight:600;color:#64748b;text-transform:uppercase;letter-spacing:.04em;text-align:right;padding-right:.25rem}
     .row-label{font-size:.78rem;font-weight:600;color:#374151;padding-top:.45rem}
     .unit{font-size:.65rem;color:#94a3b8;display:block;text-align:right}
+    .inp.chg{border-color:#10b981;background:#ecfdf5;box-shadow:0 0 0 2px rgba(16,185,129,.25)}
+    .cc-row{display:flex;align-items:center;justify-content:space-between;gap:.75rem;padding:.45rem .25rem;border-bottom:1px solid #e2e8f0;font-size:.8rem}
+    .cc-row:last-child{border-bottom:none}
+    .cc-badge{font-size:.7rem;font-weight:700;border-radius:999px;padding:.15rem .6rem;white-space:nowrap}
+    .cc-ok{background:#d1fae5;color:#065f46}.cc-part{background:#fef3c7;color:#92400e}.cc-abs{background:#f1f5f9;color:#94a3b8}
   </style>
 </head>
 <body class="antialiased text-slate-800 bg-slate-100 min-h-screen">
@@ -158,6 +163,37 @@
         </div>
       </div>
 
+      <!-- ── C4-CU ───────────────────────────────────────────────────────── -->
+      <div class="bg-white rounded-2xl shadow-soft p-6">
+        <div class="seg-title">C4 — Courte Utilisation (36–250 kVA, 4 plages)</div>
+        <p class="text-xs text-slate-500 mb-4">Sites 36–250 kVA à usage court/saisonnier. Options : HPH · HCH · HPB · HCB</p>
+
+        <div class="grid grid-cols-6 gap-2 mb-1 pl-[7rem]">
+          <div class="col-label">HPH</div><div class="col-label">HCH</div>
+          <div class="col-label">HPB</div><div class="col-label">HCB</div>
+          <div class="col-label">CEE</div><div class="col-label">Méca Capa</div>
+        </div>
+        <div class="grid grid-cols-[7rem_1fr_1fr_1fr_1fr_1fr_1fr] gap-2 items-center mb-2">
+          <div class="row-label">Prix énergie<span class="unit">€/MWh</span></div>
+          <input class="inp" id="c4cu_hph" type="number" step="0.01" value="127.90" />
+          <input class="inp" id="c4cu_hch" type="number" step="0.01" value="92.54" />
+          <input class="inp" id="c4cu_hpb" type="number" step="0.01" value="66.80" />
+          <input class="inp" id="c4cu_hcb" type="number" step="0.01" value="66.34" />
+          <input class="inp" id="c4cu_cee" type="number" step="0.01" value="0" />
+          <input class="inp" id="c4cu_capa" type="number" step="0.01" value="0.64" />
+        </div>
+        <div class="grid grid-cols-2 gap-4 mt-4 pt-4 border-t border-slate-100">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Acheminement TURPE <span class="font-normal text-slate-400">(€/an)</span></label>
+            <input class="inp text-left" id="c4cu_ach" type="number" step="1" value="1945" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Abonnement fournisseur <span class="font-normal text-slate-400">(€/mois)</span></label>
+            <input class="inp text-left" id="c4cu_abo" type="number" step="0.01" value="0" />
+          </div>
+        </div>
+      </div>
+
       <!-- ── C5-MU4 ──────────────────────────────────────────────────────── -->
       <div class="bg-white rounded-2xl shadow-soft p-6">
         <div class="seg-title">C5-MU4 — Moyenne Utilisation (≤36 kVA, 4 plages)</div>
@@ -223,18 +259,20 @@
         </div>
       </div>
 
-      <!-- ── C5-HTA ──────────────────────────────────────────────────────── -->
+      <!-- ── HTA (C3/C2/C1) ─────────────────────────────────────────────── -->
       <div class="bg-white rounded-2xl shadow-soft p-6">
-        <div class="seg-title">C5-HTA — Grand site / Industriel (>36 kVA, HTB/HTA)</div>
-        <p class="text-xs text-slate-500 mb-4">Grandes puissances, raccordement HTA. Options : HPH · HCH · HPB · HCB</p>
+        <div class="seg-title">HTA — Grand site / Industriel (>250 kVA — C3, C2, C1)</div>
+        <p class="text-xs text-slate-500 mb-4">Raccordement HTA/HTB, 5 plages tarifaires. Options : Pointe · HPH · HCH · HPB · HCB</p>
 
-        <div class="grid grid-cols-6 gap-2 mb-1 pl-[7rem]">
+        <div class="grid grid-cols-7 gap-2 mb-1 pl-[7rem]">
+          <div class="col-label">Pte</div>
           <div class="col-label">HPH</div><div class="col-label">HCH</div>
           <div class="col-label">HPB</div><div class="col-label">HCB</div>
           <div class="col-label">CEE</div><div class="col-label">Méca Capa</div>
         </div>
-        <div class="grid grid-cols-[7rem_1fr_1fr_1fr_1fr_1fr_1fr] gap-2 items-center mb-2">
+        <div class="grid grid-cols-[7rem_1fr_1fr_1fr_1fr_1fr_1fr_1fr] gap-2 items-center mb-2">
           <div class="row-label">Prix énergie<span class="unit">€/MWh</span></div>
+          <input class="inp" id="c5hta_pte" type="number" step="0.01" value="95.00" />
           <input class="inp" id="c5hta_hph" type="number" step="0.01" value="82.27" />
           <input class="inp" id="c5hta_hch" type="number" step="0.01" value="69.38" />
           <input class="inp" id="c5hta_hpb" type="number" step="0.01" value="82.27" />
@@ -257,11 +295,16 @@
       <!-- ── Taxes communes électricité ─────────────────────────────────── -->
       <div class="bg-white rounded-2xl shadow-soft p-6">
         <div class="seg-title">Taxes communes — Électricité</div>
-        <div class="grid grid-cols-3 gap-4">
+        <div class="grid grid-cols-4 gap-4">
           <div>
-            <label class="block text-xs font-semibold text-slate-600 mb-1">Accise (TICFE) <span class="font-normal text-slate-400">€/MWh</span></label>
-            <input class="inp text-left" id="elec_accise" type="number" step="0.01" value="20.50" />
-            <p class="text-xs text-slate-400 mt-1">Variable selon secteur (20,50 standard pro)</p>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Accise ≤36 kVA <span class="font-normal text-slate-400">€/MWh</span></label>
+            <input class="inp text-left" id="elec_accise" type="number" step="0.01" value="30.85" />
+            <p class="text-xs text-slate-400 mt-1">Barème au 01/02/2026</p>
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Accise >36 kVA <span class="font-normal text-slate-400">€/MWh</span></label>
+            <input class="inp text-left" id="elec_accise_high" type="number" step="0.01" value="26.58" />
+            <p class="text-xs text-slate-400 mt-1">C4 / HTA</p>
           </div>
           <div>
             <label class="block text-xs font-semibold text-slate-600 mb-1">CTA <span class="font-normal text-slate-400">€/an (moyen)</span></label>
@@ -284,9 +327,50 @@
         <strong>ℹ️ Structure gaz :</strong> Le terme de quantité total = Molécule + CEE + CPB + Acheminement réseau. L'abonnement, la CTA et l'Accise sont facturés séparément.
       </div>
 
+      <!-- ── T1 ─────────────────────────────────────────────────────────── -->
+      <div class="bg-white rounded-2xl shadow-soft p-6">
+        <div class="seg-title">T1 — Petit consommateur (&lt;6 MWh/an)</div>
+        <p class="text-xs text-slate-500 mb-4">Petit commerce, bureau. L'abonnement GRDF dépend de la tranche de conso.</p>
+
+        <div class="grid grid-cols-2 gap-x-8 gap-y-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Molécule (prix énergie) <span class="font-normal text-slate-400">€/MWh</span></label>
+            <input class="inp text-left" id="gas_t1_molecule" type="number" step="0.01" value="56.00" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">CEE <span class="font-normal text-slate-400">€/MWh</span></label>
+            <input class="inp text-left" id="gas_t1_cee" type="number" step="0.01" value="12.43" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">CPB <span class="font-normal text-slate-400">€/MWh</span></label>
+            <input class="inp text-left" id="gas_t1_cpb" type="number" step="0.01" value="0.41" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Acheminement réseau <span class="font-normal text-slate-400">€/MWh</span></label>
+            <input class="inp text-left" id="gas_t1_ach_mwh" type="number" step="0.01" value="16.00" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Abonnement distribution <span class="font-normal text-slate-400">€/mois</span></label>
+            <input class="inp text-left" id="gas_t1_abo" type="number" step="0.01" value="8.50" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">CTA <span class="font-normal text-slate-400">€/an</span></label>
+            <input class="inp text-left" id="gas_t1_cta" type="number" step="1" value="20" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Accise sur le gaz <span class="font-normal text-slate-400">€/MWh</span></label>
+            <input class="inp text-left" id="gas_t1_accise" type="number" step="0.01" value="16.39" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">TVA <span class="font-normal text-slate-400">%</span></label>
+            <input class="inp text-left" id="gas_t1_tva" type="number" step="0.1" value="20" />
+          </div>
+        </div>
+      </div>
+
       <!-- ── T2 — P12 ───────────────────────────────────────────────────── -->
       <div class="bg-white rounded-2xl shadow-soft p-6">
-        <div class="seg-title">T2 — Profil P12 (≤200 MWh/an)</div>
+        <div class="seg-title">T2 — Profil P12 (6–300 MWh/an — tranche GRDF réelle)</div>
         <p class="text-xs text-slate-500 mb-4">Restaurant, café, artisan, PME. Fournisseurs observés : SEFE, ENGIE, Endesa.</p>
 
         <div class="grid grid-cols-2 gap-x-8 gap-y-4">
@@ -328,8 +412,8 @@
 
       <!-- ── T3 ─────────────────────────────────────────────────────────── -->
       <div class="bg-white rounded-2xl shadow-soft p-6">
-        <div class="seg-title">T3 — Profil P12 (200–600 MWh/an)</div>
-        <p class="text-xs text-slate-500 mb-4">Hôtel, clinique, collectivité moyenne consommation.</p>
+        <div class="seg-title">T3 — Gros consommateur (300–5 000 MWh/an — tranche GRDF réelle)</div>
+        <p class="text-xs text-slate-500 mb-4">Hôtel, clinique, collectivité, industriel moyen.</p>
 
         <div class="grid grid-cols-2 gap-x-8 gap-y-4">
           <div>
@@ -366,6 +450,47 @@
           </div>
         </div>
       </div>
+
+      <!-- ── T4 ─────────────────────────────────────────────────────────── -->
+      <div class="bg-white rounded-2xl shadow-soft p-6">
+        <div class="seg-title">T4 — Très gros consommateur (&gt;5 000 MWh/an)</div>
+        <p class="text-xs text-slate-500 mb-4">Industriel lourd, réseau de chaleur. Abonnement GRDF spécifique à la tranche.</p>
+
+        <div class="grid grid-cols-2 gap-x-8 gap-y-4">
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Molécule (prix énergie) <span class="font-normal text-slate-400">€/MWh</span></label>
+            <input class="inp text-left" id="gas_t4_molecule" type="number" step="0.01" value="50.00" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">CEE <span class="font-normal text-slate-400">€/MWh</span></label>
+            <input class="inp text-left" id="gas_t4_cee" type="number" step="0.01" value="11.50" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">CPB <span class="font-normal text-slate-400">€/MWh</span></label>
+            <input class="inp text-left" id="gas_t4_cpb" type="number" step="0.01" value="0.41" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Acheminement réseau <span class="font-normal text-slate-400">€/MWh</span></label>
+            <input class="inp text-left" id="gas_t4_ach_mwh" type="number" step="0.01" value="6.50" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Abonnement distribution <span class="font-normal text-slate-400">€/mois</span></label>
+            <input class="inp text-left" id="gas_t4_abo" type="number" step="0.01" value="750.00" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">CTA <span class="font-normal text-slate-400">€/an</span></label>
+            <input class="inp text-left" id="gas_t4_cta" type="number" step="1" value="700" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">Accise sur le gaz <span class="font-normal text-slate-400">€/MWh</span></label>
+            <input class="inp text-left" id="gas_t4_accise" type="number" step="0.01" value="16.39" />
+          </div>
+          <div>
+            <label class="block text-xs font-semibold text-slate-600 mb-1">TVA <span class="font-normal text-slate-400">%</span></label>
+            <input class="inp text-left" id="gas_t4_tva" type="number" step="0.1" value="20" />
+          </div>
+        </div>
+      </div>
     </div><!-- /tab-gaz -->
 
     <!-- ══════════════════════════════════════════════════════════════════════ -->
@@ -399,9 +524,20 @@
 
         <div id="bilanError" class="hidden mt-3 text-sm text-red-600 bg-red-50 px-4 py-3 rounded-xl"></div>
         <div id="bilanResult" class="hidden mt-4 bg-green-50 border border-green-200 rounded-xl p-4">
-          <p class="font-semibold text-green-800 text-sm">✅ Extraction réussie — prix pré-remplis dans la grille</p>
+          <p class="font-semibold text-green-800 text-sm">✅ Extraction réussie — check-control ci-dessous</p>
           <p id="bilanNotes" class="text-xs text-green-700 mt-1"></p>
-          <p class="text-xs text-slate-500 mt-2">Vérifiez les valeurs extraites dans les onglets Électricité et Gaz, puis cliquez sur <strong>Enregistrer</strong>.</p>
+        </div>
+
+        <!-- Check-control post-extraction : ce qui a été lu, ce qui a été reporté, ce qui manque -->
+        <div id="ccPanel" class="hidden mt-4 bg-white border border-slate-200 rounded-xl p-4">
+          <div class="flex items-center justify-between mb-2">
+            <p class="font-bold text-slate-800 text-sm">🔎 Check-control de l'extraction</p>
+            <span id="ccConfidence" class="cc-badge cc-abs"></span>
+          </div>
+          <div id="ccSegments"></div>
+          <div id="ccChanges" class="mt-3"></div>
+          <div id="ccWarnings" class="mt-3 space-y-2"></div>
+          <p class="text-xs text-slate-500 mt-3">Les champs modifiés sont <span class="font-semibold text-primary-700">surlignés en vert</span> dans les onglets Électricité et Gaz. Vérifiez-les, puis cliquez sur <strong>Enregistrer</strong> — rien n'est sauvegardé avant ça.</p>
         </div>
       </div>
 
@@ -514,6 +650,12 @@
     f('c4lu_cee', c4.cee); f('c4lu_capa', c4.capa);
     f('c4lu_ach', c4.acheminement_annual); f('c4lu_abo', c4.abo_monthly);
 
+    // C4-CU
+    const c4c = e.c4_cu || {};
+    f('c4cu_hph', c4c.hph); f('c4cu_hch', c4c.hch); f('c4cu_hpb', c4c.hpb); f('c4cu_hcb', c4c.hcb);
+    f('c4cu_cee', c4c.cee); f('c4cu_capa', c4c.capa);
+    f('c4cu_ach', c4c.acheminement_annual); f('c4cu_abo', c4c.abo_monthly);
+
     // C5-MU4
     const c5m = e.c5_mu4 || {};
     f('c5mu4_hph', c5m.hph); f('c5mu4_hch', c5m.hch); f('c5mu4_hpb', c5m.hpb); f('c5mu4_hcb', c5m.hcb);
@@ -526,15 +668,22 @@
     f('c5cu4_cee', c5c.cee); f('c5cu4_capa', c5c.capa);
     f('c5cu4_ach', c5c.acheminement_annual); f('c5cu4_abo', c5c.abo_monthly);
 
-    // C5-HTA
+    // HTA (C3/C2/C1) — 5 plages avec Pointe
     const c5h = e.c5_hta || {};
+    f('c5hta_pte', c5h.pte);
     f('c5hta_hph', c5h.hph); f('c5hta_hch', c5h.hch); f('c5hta_hpb', c5h.hpb); f('c5hta_hcb', c5h.hcb);
     f('c5hta_cee', c5h.cee); f('c5hta_capa', c5h.capa);
     f('c5hta_ach', c5h.acheminement_annual); f('c5hta_abo', c5h.abo_monthly);
 
     // Taxes élec
     const tx = e.taxes || {};
-    f('elec_accise', tx.accise_mwh); f('elec_cta', tx.cta_annual); f('elec_tva', tx.tva_pct);
+    f('elec_accise', tx.accise_mwh); f('elec_accise_high', tx.accise_mwh_high); f('elec_cta', tx.cta_annual); f('elec_tva', tx.tva_pct);
+
+    // T1
+    const t1 = g.t1 || {};
+    f('gas_t1_molecule', t1.molecule_mwh); f('gas_t1_cee', t1.cee_mwh); f('gas_t1_cpb', t1.cpb_mwh);
+    f('gas_t1_ach_mwh', t1.acheminement_mwh); f('gas_t1_abo', t1.abo_monthly);
+    f('gas_t1_cta', t1.cta_annual); f('gas_t1_accise', t1.accise_mwh); f('gas_t1_tva', t1.tva_pct);
 
     // T2
     const t2 = g.t2_p12 || {};
@@ -547,6 +696,12 @@
     f('gas_t3_molecule', t3.molecule_mwh); f('gas_t3_cee', t3.cee_mwh); f('gas_t3_cpb', t3.cpb_mwh);
     f('gas_t3_ach_mwh', t3.acheminement_mwh); f('gas_t3_abo', t3.abo_monthly);
     f('gas_t3_cta', t3.cta_annual); f('gas_t3_accise', t3.accise_mwh); f('gas_t3_tva', t3.tva_pct);
+
+    // T4
+    const t4 = g.t4 || {};
+    f('gas_t4_molecule', t4.molecule_mwh); f('gas_t4_cee', t4.cee_mwh); f('gas_t4_cpb', t4.cpb_mwh);
+    f('gas_t4_ach_mwh', t4.acheminement_mwh); f('gas_t4_abo', t4.abo_monthly);
+    f('gas_t4_cta', t4.cta_annual); f('gas_t4_accise', t4.accise_mwh); f('gas_t4_tva', t4.tva_pct);
 
     // Meta
     f('avgSavingsPct', m.average_savings_pct);
@@ -564,6 +719,11 @@
           cee: n('c4lu_cee'), capa: n('c4lu_capa'),
           acheminement_annual: n('c4lu_ach'), abo_monthly: n('c4lu_abo')
         },
+        c4_cu: {
+          hph: n('c4cu_hph'), hch: n('c4cu_hch'), hpb: n('c4cu_hpb'), hcb: n('c4cu_hcb'),
+          cee: n('c4cu_cee'), capa: n('c4cu_capa'),
+          acheminement_annual: n('c4cu_ach'), abo_monthly: n('c4cu_abo')
+        },
         c5_mu4: {
           hph: n('c5mu4_hph'), hch: n('c5mu4_hch'), hpb: n('c5mu4_hpb'), hcb: n('c5mu4_hcb'),
           cee: n('c5mu4_cee'), capa: n('c5mu4_capa'),
@@ -575,15 +735,20 @@
           acheminement_annual: n('c5cu4_ach'), abo_monthly: n('c5cu4_abo')
         },
         c5_hta: {
-          hph: n('c5hta_hph'), hch: n('c5hta_hch'), hpb: n('c5hta_hpb'), hcb: n('c5hta_hcb'),
+          pte: n('c5hta_pte'), hph: n('c5hta_hph'), hch: n('c5hta_hch'), hpb: n('c5hta_hpb'), hcb: n('c5hta_hcb'),
           cee: n('c5hta_cee'), capa: n('c5hta_capa'),
           acheminement_annual: n('c5hta_ach'), abo_monthly: n('c5hta_abo')
         },
         taxes: {
-          accise_mwh: n('elec_accise'), cta_annual: n('elec_cta'), tva_pct: n('elec_tva')
+          accise_mwh: n('elec_accise'), accise_mwh_high: n('elec_accise_high'), cta_annual: n('elec_cta'), tva_pct: n('elec_tva')
         }
       },
       gas: {
+        t1: {
+          molecule_mwh: n('gas_t1_molecule'), cee_mwh: n('gas_t1_cee'), cpb_mwh: n('gas_t1_cpb'),
+          acheminement_mwh: n('gas_t1_ach_mwh'), abo_monthly: n('gas_t1_abo'),
+          cta_annual: n('gas_t1_cta'), accise_mwh: n('gas_t1_accise'), tva_pct: n('gas_t1_tva')
+        },
         t2_p12: {
           molecule_mwh: n('gas_t2_molecule'), cee_mwh: n('gas_t2_cee'), cpb_mwh: n('gas_t2_cpb'),
           acheminement_mwh: n('gas_t2_ach_mwh'), abo_monthly: n('gas_t2_abo'),
@@ -593,6 +758,11 @@
           molecule_mwh: n('gas_t3_molecule'), cee_mwh: n('gas_t3_cee'), cpb_mwh: n('gas_t3_cpb'),
           acheminement_mwh: n('gas_t3_ach_mwh'), abo_monthly: n('gas_t3_abo'),
           cta_annual: n('gas_t3_cta'), accise_mwh: n('gas_t3_accise'), tva_pct: n('gas_t3_tva')
+        },
+        t4: {
+          molecule_mwh: n('gas_t4_molecule'), cee_mwh: n('gas_t4_cee'), cpb_mwh: n('gas_t4_cpb'),
+          acheminement_mwh: n('gas_t4_ach_mwh'), abo_monthly: n('gas_t4_abo'),
+          cta_annual: n('gas_t4_cta'), accise_mwh: n('gas_t4_accise'), tva_pct: n('gas_t4_tva')
         }
       },
       meta: {
@@ -689,12 +859,14 @@
       const data = await response.json();
       const ext = data.extracted || {};
 
+      const before = snapshotForm();
       populateForm(ext);
       updateJsonPreview();
+      renderCheckControl(ext, before);
 
-      document.getElementById('bilanNotes').textContent = (ext.meta && ext.meta.notes) || ext.notes || ('Confiance : ' + (ext.confidence || 'non précisée'));
+      document.getElementById('bilanNotes').textContent = (ext.meta && ext.meta.notes) || ext.notes || '';
       bilanResult.classList.remove('hidden');
-      showStatus('Prix extraits et pré-remplis ✅ — vérifiez puis cliquez sur "Enregistrer".', 'success');
+      showStatus('Prix extraits ✅ — check-control affiché, vérifiez puis cliquez sur "Enregistrer".', 'success');
 
     } catch (err) {
       bilanError.textContent = '❌ ' + err.message;
@@ -703,6 +875,110 @@
       btnBilan.disabled = false; btnBilan.textContent = orig;
     }
   });
+
+  // ── Check-control post-extraction ──────────────────────────────────────────
+  // Le bilan chargé doit être PRIS EN COMPTE et PARFAITEMENT REMPLI : on montre,
+  // segment par segment, ce que l'IA a lu, ce qui a été reporté dans la grille,
+  // ce qui a changé (avant→après) et ce qui manque — rien ne se perd en silence.
+  const CC_SEGMENTS = [
+    { key:'c4_lu',  src:'electricity', label:'⚡ C4 — Longue Utilisation',  ids:{pte:'c4lu_pte',hph:'c4lu_hph',hch:'c4lu_hch',hpb:'c4lu_hpb',hcb:'c4lu_hcb',cee:'c4lu_cee',capa:'c4lu_capa',acheminement_annual:'c4lu_ach',abo_monthly:'c4lu_abo'} },
+    { key:'c4_cu',  src:'electricity', label:'⚡ C4 — Courte Utilisation',  ids:{hph:'c4cu_hph',hch:'c4cu_hch',hpb:'c4cu_hpb',hcb:'c4cu_hcb',cee:'c4cu_cee',capa:'c4cu_capa',acheminement_annual:'c4cu_ach',abo_monthly:'c4cu_abo'} },
+    { key:'c5_mu4', src:'electricity', label:'⚡ C5-MU4 (≤36 kVA)',        ids:{hph:'c5mu4_hph',hch:'c5mu4_hch',hpb:'c5mu4_hpb',hcb:'c5mu4_hcb',cee:'c5mu4_cee',capa:'c5mu4_capa',acheminement_annual:'c5mu4_ach',abo_monthly:'c5mu4_abo'} },
+    { key:'c5_cu4', src:'electricity', label:'⚡ C5-CU4 (≤36 kVA)',        ids:{hph:'c5cu4_hph',hch:'c5cu4_hch',hpb:'c5cu4_hpb',hcb:'c5cu4_hcb',cee:'c5cu4_cee',capa:'c5cu4_capa',acheminement_annual:'c5cu4_ach',abo_monthly:'c5cu4_abo'} },
+    { key:'c5_hta', src:'electricity', label:'⚡ HTA (>250 kVA — C3/C2/C1)', ids:{pte:'c5hta_pte',hph:'c5hta_hph',hch:'c5hta_hch',hpb:'c5hta_hpb',hcb:'c5hta_hcb',cee:'c5hta_cee',capa:'c5hta_capa',acheminement_annual:'c5hta_ach',abo_monthly:'c5hta_abo'} },
+    { key:'taxes',  src:'electricity', label:'⚡ Taxes électricité',        ids:{accise_mwh:'elec_accise',accise_mwh_high:'elec_accise_high',cta_annual:'elec_cta',tva_pct:'elec_tva'} },
+    { key:'t1',     src:'gas', label:'🔥 Gaz T1 (<6 MWh/an)',       ids:{molecule_mwh:'gas_t1_molecule',cee_mwh:'gas_t1_cee',cpb_mwh:'gas_t1_cpb',acheminement_mwh:'gas_t1_ach_mwh',abo_monthly:'gas_t1_abo',cta_annual:'gas_t1_cta',accise_mwh:'gas_t1_accise',tva_pct:'gas_t1_tva'} },
+    { key:'t2_p12', src:'gas', label:'🔥 Gaz T2 (6–300 MWh/an)',    ids:{molecule_mwh:'gas_t2_molecule',cee_mwh:'gas_t2_cee',cpb_mwh:'gas_t2_cpb',acheminement_mwh:'gas_t2_ach_mwh',abo_monthly:'gas_t2_abo',cta_annual:'gas_t2_cta',accise_mwh:'gas_t2_accise',tva_pct:'gas_t2_tva'} },
+    { key:'t3',     src:'gas', label:'🔥 Gaz T3 (300–5 000 MWh/an)', ids:{molecule_mwh:'gas_t3_molecule',cee_mwh:'gas_t3_cee',cpb_mwh:'gas_t3_cpb',acheminement_mwh:'gas_t3_ach_mwh',abo_monthly:'gas_t3_abo',cta_annual:'gas_t3_cta',accise_mwh:'gas_t3_accise',tva_pct:'gas_t3_tva'} },
+    { key:'t4',     src:'gas', label:'🔥 Gaz T4 (>5 000 MWh/an)',   ids:{molecule_mwh:'gas_t4_molecule',cee_mwh:'gas_t4_cee',cpb_mwh:'gas_t4_cpb',acheminement_mwh:'gas_t4_ach_mwh',abo_monthly:'gas_t4_abo',cta_annual:'gas_t4_cta',accise_mwh:'gas_t4_accise',tva_pct:'gas_t4_tva'} }
+  ];
+
+  function snapshotForm() {
+    const snap = {};
+    CC_SEGMENTS.forEach(seg => Object.values(seg.ids).forEach(id => {
+      const el = document.getElementById(id);
+      if (el) { snap[id] = el.value; el.classList.remove('chg'); }
+    }));
+    return snap;
+  }
+
+  function renderCheckControl(ext, before) {
+    const segEl = document.getElementById('ccSegments');
+    const chgEl = document.getElementById('ccChanges');
+    const wrnEl = document.getElementById('ccWarnings');
+    const cfEl  = document.getElementById('ccConfidence');
+    segEl.innerHTML = ''; chgEl.innerHTML = ''; wrnEl.innerHTML = '';
+
+    const esc = s => String(s).replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+    const changes = [];
+    const knownKeys = { electricity: new Set(), gas: new Set() };
+
+    CC_SEGMENTS.forEach(seg => {
+      knownKeys[seg.src].add(seg.key);
+      const extracted = (ext[seg.src] || {})[seg.key] || {};
+      const fields = Object.keys(seg.ids);
+      let read = 0, applied = 0;
+      fields.forEach(fk => {
+        const v = extracted[fk];
+        if (v !== null && v !== undefined) {
+          read++;
+          const el = document.getElementById(seg.ids[fk]);
+          if (el) {
+            applied++;
+            if (before[seg.ids[fk]] !== el.value) {
+              el.classList.add('chg');
+              changes.push({ seg: seg.label, field: fk, avant: before[seg.ids[fk]], apres: el.value });
+            }
+          }
+        }
+      });
+      if (read === 0) {
+        segEl.insertAdjacentHTML('beforeend',
+          '<div class="cc-row"><span class="text-slate-400">' + seg.label + '</span><span class="cc-badge cc-abs">— absent du bilan</span></div>');
+      } else {
+        const full = read >= fields.length - 1;   // tolérance : TVA/CTA parfois hors bilan
+        const lost = read - applied;
+        segEl.insertAdjacentHTML('beforeend',
+          '<div class="cc-row"><span class="font-semibold text-slate-700">' + seg.label + '</span>' +
+          '<span class="cc-badge ' + (lost > 0 ? 'cc-part' : full ? 'cc-ok' : 'cc-part') + '">' +
+          (lost > 0 ? '⚠️ ' + lost + ' champ(s) lu(s) non reporté(s) !' : (full ? '✅' : '⚠️') + ' ' + applied + '/' + fields.length + ' champs remplis') +
+          '</span></div>');
+      }
+    });
+
+    // Segments lus par l'IA mais inconnus du formulaire → alerte (rien ne doit se perdre)
+    ['electricity','gas'].forEach(src => {
+      Object.keys(ext[src] || {}).forEach(k => {
+        if (!knownKeys[src].has(k)) {
+          wrnEl.insertAdjacentHTML('beforeend',
+            '<p class="text-xs font-semibold text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">⚠️ Segment « ' + esc(k) + ' » extrait du bilan mais absent de la grille — signalez-le, il n\'a PAS été reporté.</p>');
+        }
+      });
+    });
+
+    // Avant → après (uniquement les champs réellement modifiés)
+    if (changes.length) {
+      let html = '<p class="text-xs font-bold text-slate-600 uppercase tracking-wide mb-1">' + changes.length + ' valeur(s) modifiée(s) — avant → après</p><div class="max-h-56 overflow-y-auto">';
+      changes.forEach(c => {
+        html += '<div class="cc-row"><span class="text-slate-500">' + c.seg + ' · <code class="text-[11px]">' + esc(c.field) + '</code></span>' +
+                '<span class="tabular-nums"><span class="text-slate-400 line-through">' + esc(c.avant || '∅') + '</span> → <span class="font-bold text-primary-700">' + esc(c.apres) + '</span></span></div>';
+      });
+      chgEl.innerHTML = html + '</div>';
+    } else {
+      chgEl.innerHTML = '<p class="text-xs text-slate-500">Aucune valeur de la grille n\'a changé (le bilan confirme les prix actuels).</p>';
+    }
+
+    // Confiance de l'extraction
+    const conf = ext.confidence || (ext.meta && ext.meta.confidence) || null;
+    if (conf) {
+      cfEl.textContent = 'Confiance IA : ' + conf;
+      cfEl.className = 'cc-badge ' + (conf === 'high' ? 'cc-ok' : conf === 'low' ? 'cc-part' : 'cc-abs');
+      if (conf === 'low') wrnEl.insertAdjacentHTML('beforeend',
+        '<p class="text-xs font-semibold text-amber-700 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">⚠️ Confiance faible : le document était difficile à lire — contrôlez chaque valeur surlignée avant d\'enregistrer.</p>');
+    } else { cfEl.textContent = ''; cfEl.className = 'cc-badge cc-abs'; }
+
+    document.getElementById('ccPanel').classList.remove('hidden');
+  }
 
   // ── Status banner ──────────────────────────────────────────────────────────
   function showStatus(msg, type) {
