@@ -1113,14 +1113,14 @@
     animateScanSteps();
 
     try {
-      const fileData = await fileToBase64(selectedFile);
+      const prepared = await scanPayload(selectedFile);
 
       const res = await fetch(workerUrl + '/api/scan', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          file_data: fileData,
-          file_type: selectedFile.type,
+          file_data: prepared.data,
+          file_type: prepared.type,
           file_name: selectedFile.name,
           client_type: clientType,
           naf: nafCode,
@@ -2153,6 +2153,36 @@
   }
   function hideError() {
     errorMsg.classList.add('hidden');
+  }
+
+  // Prépare le fichier pour le scan. PDF & images normales : envoyés tels quels (lecture native, zéro perte).
+  // SEULES les photos vraiment surdimensionnées (> 2200 px de côté) sont réduites à 2200 px — le texte de
+  // facture reste net, et on économise des tokens image. Au moindre pépin : repli sur l'original (fiabilité avant tout).
+  function scanPayload(file) {
+    return new Promise((resolve) => {
+      const original = () => fileToBase64(file).then((d) => resolve({ data: d, type: file.type }));
+      if (!file.type || !file.type.startsWith('image/')) { original(); return; }
+      const MAX = 2200;
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => {
+        try {
+          const long = Math.max(img.naturalWidth, img.naturalHeight);
+          if (!long || long <= MAX) { URL.revokeObjectURL(url); original(); return; } // déjà raisonnable → original
+          const scale = MAX / long;
+          const w = Math.round(img.naturalWidth * scale), h = Math.round(img.naturalHeight * scale);
+          const cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+          const ctx = cv.getContext('2d');
+          ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, w, h); // fond blanc (PNG transparents)
+          ctx.drawImage(img, 0, 0, w, h);
+          const b64 = cv.toDataURL('image/jpeg', 0.9).split(',')[1];
+          URL.revokeObjectURL(url);
+          if (b64) resolve({ data: b64, type: 'image/jpeg' }); else original();
+        } catch (_) { URL.revokeObjectURL(url); original(); }
+      };
+      img.onerror = () => { URL.revokeObjectURL(url); original(); };
+      img.src = url;
+    });
   }
 
   function fileToBase64(file) {

@@ -682,7 +682,10 @@ async function handleScan(request, env) {
       body: JSON.stringify({
         model,
         max_tokens: 2000,
-        messages: [{ role: 'user', content: [contentBlock, { type: 'text', text: profilContext + EXTRACTION_PROMPT }] }],
+        // Le gros prompt de règles (constant) va en system + cache → relu à 0,1× d'un scan à l'autre.
+        // Sonnet 5 inchangé, lecture identique ; seul le coût baisse.
+        system: [{ type: 'text', text: EXTRACTION_PROMPT, cache_control: { type: 'ephemeral' } }],
+        messages: [{ role: 'user', content: [contentBlock, { type: 'text', text: profilContext }] }],
       }),
     });
     if (!res.ok) return { err: await res.text() };
