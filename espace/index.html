@@ -183,6 +183,9 @@ function renderApp(){
         <nav id="navM" class="px-2 pb-2 flex gap-1 overflow-x-auto"></nav>
       </header>
 
+      <!-- Bandeau recommandation PLEINE LARGEUR (edge-to-edge), au-dessus de tout -->
+      <div id="banniere" class="w-full"></div>
+
       <main class="max-w-4xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
         <div class="hidden md:block mb-5">
           <h1 class="text-[22px] font-extrabold text-slate-900 tracking-tight">${esc(nom)}</h1>
@@ -196,7 +199,14 @@ function renderApp(){
   <div id="chatPanel"></div>`;
   buildNav();
   document.getElementById('consSide').innerHTML=carteConseillerMini();
+  majBanniere();
   renderContent();
+}
+// Bandeau recommandation pleine largeur : posé une fois, persiste entre les onglets.
+function majBanniere(){
+  const el=document.getElementById('banniere'); if(!el) return;
+  el.innerHTML=bandeauParrainage();
+  roterBanniere();
 }
 function buildNav(){
   const item=(n,mobile)=>{
@@ -216,16 +226,15 @@ function setTab(id){ TAB=id; buildNav(); renderContent(); window.scrollTo({top:0
 function renderContent(){
   const el=document.getElementById('content'); if(!el) return;
   el.className='fade';
-  // Bannière pub en haut de CHAQUE page (sauf l'onglet parrainage lui-même, redondant).
-  const banniere=(TAB!=='parrainage')?bandeauParrainage():'';
   let vue='';
   if(TAB==='dashboard')   vue=vueDashboard();
   else if(TAB==='contrat')vue=vueContrat();
   else if(TAB==='factures')vue=vueFactures();
   else if(TAB==='conseiller')vue=vueConseiller();
   else if(TAB==='parrainage')vue=vueParrainage();
-  el.innerHTML=banniere+vue;
-  if(banniere)roterBanniere();
+  el.innerHTML=vue;
+  // Le bandeau pleine largeur est masqué sur l'onglet parrainage (redondant).
+  const b=document.getElementById('banniere'); if(b) b.style.display=(TAB==='parrainage')?'none':'';
   brancherDepots();
 }
 
@@ -240,20 +249,29 @@ let _bannIdx=0,_bannTimer=null;
 function bandeauParrainage(){
   if(sessionStorage.getItem('elga_parr_dismiss')==='1') return '';
   const m=BANNIERE_MSGS[0];
-  return `<div id="bParr" class="relative rounded-2xl overflow-hidden text-white shadow-strong mb-5 fade" style="background:linear-gradient(115deg,#0b3d91 0%,#0e8a57 70%)">
-    <div class="absolute -right-8 -bottom-10 w-36 h-36 rounded-full bg-white/10 pointer-events-none"></div>
-    <div class="absolute right-16 -top-8 w-20 h-20 rounded-full bg-white/10 pointer-events-none"></div>
-    <button aria-label="Masquer" onclick="event.stopPropagation();var b=document.getElementById('bParr');if(b)b.remove();sessionStorage.setItem('elga_parr_dismiss','1')" class="absolute top-2 right-2.5 z-10 text-white/70 hover:text-white text-xl leading-none">×</button>
-    <div class="relative flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 p-4 sm:p-5 cursor-pointer" onclick="setTab('parrainage')">
-      <div class="shrink-0 h-11 w-11 rounded-xl bg-white/15 grid place-items-center">
-        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m6-1.13a4 4 0 10-4-4 4 4 0 004 4zm6 0a3 3 0 10-2-5.24"/></svg>
+  return `<div id="bParr" class="w-full relative overflow-hidden text-white fade" style="background:linear-gradient(115deg,#0b3d91 0%,#0e8a57 72%)">
+    <div class="absolute -right-10 -bottom-12 w-44 h-44 rounded-full bg-white/10 pointer-events-none"></div>
+    <div class="absolute right-24 -top-10 w-24 h-24 rounded-full bg-white/10 pointer-events-none"></div>
+    <button aria-label="Masquer" onclick="event.stopPropagation();var b=document.getElementById('bParr');if(b)b.style.display='none';sessionStorage.setItem('elga_parr_dismiss','1')" class="absolute top-2.5 right-3 z-10 text-white/70 hover:text-white text-2xl leading-none">×</button>
+    <div class="relative max-w-5xl mx-auto px-4 sm:px-8 py-4 sm:py-6 flex flex-col sm:flex-row sm:items-center gap-4 cursor-pointer" onclick="setTab('parrainage')">
+      <div class="shrink-0 flex items-center gap-3">
+        <div class="h-12 w-12 rounded-2xl bg-white/15 grid place-items-center">
+          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m6-1.13a4 4 0 10-4-4 4 4 0 004 4zm6 0a3 3 0 10-2-5.24"/></svg>
+        </div>
+        <div class="sm:hidden inline-flex items-baseline gap-1 bg-white text-emerald-700 rounded-xl px-3 py-1.5 font-extrabold"><span class="text-[20px]">50&nbsp;€</span><span class="text-[11px] font-bold">/ reco</span></div>
       </div>
       <div class="flex-1 min-w-0">
-        <div id="bParrT" class="font-extrabold text-[15.5px] sm:text-[17px] leading-snug transition-opacity duration-300">${m.t}</div>
-        <div id="bParrS" class="text-[12.5px] sm:text-[13.5px] text-white/90 mt-1 transition-opacity duration-300">${m.s}</div>
+        <div id="bParrT" class="font-extrabold text-[16px] sm:text-[19px] leading-snug transition-opacity duration-300">${m.t}</div>
+        <div id="bParrS" class="text-[13px] sm:text-[14px] text-white/90 mt-1 transition-opacity duration-300">${m.s}</div>
       </div>
-      <span class="shrink-0 inline-flex items-center gap-1.5 bg-white text-primary-700 font-bold text-[13.5px] rounded-xl px-4 py-2.5 self-start sm:self-center whitespace-nowrap">Recommander Elga <span aria-hidden="true">→</span></span>
+      <div class="shrink-0 flex items-center gap-3 self-start sm:self-center">
+        <div class="hidden sm:flex flex-col items-center bg-white text-emerald-700 rounded-2xl px-4 py-2 leading-none">
+          <span class="text-[26px] font-extrabold">50&nbsp;€</span><span class="text-[11px] font-bold mt-0.5">par recommandation</span>
+        </div>
+        <span class="inline-flex items-center gap-1.5 bg-white/15 border border-white/30 text-white font-bold text-[14px] rounded-xl px-4 py-2.5 whitespace-nowrap hover:bg-white/25 transition">Recommander <span aria-hidden="true">→</span></span>
+      </div>
     </div>
+    <div class="relative max-w-5xl mx-auto px-4 sm:px-8 pb-2.5 -mt-1 text-[10.5px] text-white/70 leading-snug">Offre parrainage : 50 € en chèque-cadeau, versés lorsque votre recommandation devient cliente d'Elga Energy (contrat signé). Un seul lien à partager, chaque recommandation vous est attribuée.</div>
   </div>`;
 }
 // Fait défiler les messages toutes les 5 s, avec un fondu. Relancé à chaque rendu de page.
@@ -437,7 +455,7 @@ function recoLine(p,ok){return `<div class="flex items-center justify-between ga
   <div><div class="text-[13px] font-semibold text-slate-700">${esc(p.qui)}</div><div class="text-[11px] text-slate-400">${ok?'devenue cliente · '+esc(p.le):'a vérifié sa facture · '+esc(p.le)}</div></div></div>
   <span class="text-[12px] font-bold ${ok?'text-primary-700':'text-amber-600'}">${ok?'+ 100 € crédités':'100 € en attente'}</span></div>`;}
 function vueParrainage(){
-  const val=STATE.parr_val||[], enc=STATE.parr_enc||[], RECO=100;
+  const val=STATE.parr_val||[], enc=STATE.parr_enc||[], RECO=50;
   const cagnotte=val.length*RECO, attente=enc.length*RECO, rich=(val.length||enc.length);
   const list=STATE.parrainages||[]; const n=list.length;
   const items=list.map(p=>`<div class="flex items-center justify-between gap-2 rounded-xl border border-slate-100 bg-white px-3.5 py-2.5">
@@ -483,10 +501,10 @@ function vueParrainage(){
         <div class="text-[12px] text-amber-600 mt-1">${enc.length} en cours de validation</div>
       </div>
     </div>
-    <h3 class="text-[15px] font-extrabold text-slate-900 mb-2.5">Recommandations validées <span class="text-slate-400 font-semibold">· 100 € chacune</span></h3>
+    <h3 class="text-[15px] font-extrabold text-slate-900 mb-2.5">Recommandations validées <span class="text-slate-400 font-semibold">· 50 € chacune (chèque-cadeau)</span></h3>
     <div class="space-y-2">${val.map(p=>recoLine(p,true)).join('')}</div>
     ${enc.length?`<h3 class="text-[15px] font-extrabold text-slate-900 mt-6 mb-2.5">En cours</h3><div class="space-y-2">${enc.map(p=>recoLine(p,false)).join('')}</div>`:''}
-    <p class="text-[12px] text-slate-400 mt-5 text-center">Chaque professionnel que vous recommandez vous rapporte 100 €, crédités dès qu'il devient client.</p>
+    <p class="text-[12px] text-slate-400 mt-5 text-center">Chaque professionnel que vous recommandez vous rapporte 50 € en chèque-cadeau, dès qu'il signe son contrat avec Elga Energy.</p>
   </section>`:`
   <section class="fade bg-white rounded-3xl shadow-soft p-6 sm:p-7">
     <div class="flex items-center justify-between mb-4">
