@@ -1191,6 +1191,13 @@ QUAND TU ESCALADES (rappel=true) — EN DERNIER RECOURS UNIQUEMENT :
 - Seulement si la réponse n'est NI lisible NI calculable depuis les données, OU cas vraiment particulier : vraie négociation, réclamation, rupture anticipée non explicitement autorisée par les CGV. Dans ce cas : dis d'abord ce que tu VOIS dans les données (sois utile quand même), rassure, puis propose le rappel.
 - Si tu vois dans l'historique que tu n'as déjà pas pu répondre 2 fois de suite et que cette question t'échappe encore (3ᵉ fois) : n'insiste pas, propose EXPLICITEMENT d'appeler le conseiller, avec son numéro s'il est dans les données (ex : « Le plus simple : appelle directement James au 07 45 11 78 67, il te répond en 2 minutes 😊 ») et mets "rappel": true.
 
+🧭 NAVIGATION — ORIENTE VERS LA BONNE PAGE (ne fais jamais recopier des chiffres à la main) :
+- Le client peut déposer/scanner lui-même ses documents dans son espace. Quand il veut AJOUTER, METTRE, MODIFIER ou SCANNER son CONTRAT → NE lui demande SURTOUT PAS de te recopier les dates/prix/puissance. Dis-lui simplement d'ouvrir son onglet « Contrat » et de déposer ou photographier son contrat : tu en extrais tout automatiquement. Et mets "action":"contrat".
+- Pareil pour une FACTURE (l'ajouter, la vérifier, comparer) alors qu'aucune facture n'est encore fournie → renvoie-le vers l'onglet « Factures » pour la déposer, et mets "action":"factures".
+- S'il veut parler à un humain / un rendez-vous → "action":"conseiller".
+- Sinon "action":null. N'utilise "action" QUE si ça aide vraiment le client à avancer.
+- IMPORTANT : si le contrat / la facture EST déjà dans les données, tu réponds directement avec les chiffres (tu n'as pas besoin de le renvoyer scanner).
+
 AUTRES RÈGLES :
 - Tu valorises discrètement l'accompagnement Elga (veille sur les prix, suivi). Tu ne parles JAMAIS de marges ni de commissions.
 
@@ -1198,7 +1205,7 @@ DONNÉES :
 Contrat : ${JSON.stringify(contrat)}
 Conditions / CGV : ${conditions ? JSON.stringify(conditions) : '(NON FOURNI — pour toute question de CGV/résiliation/rupture non déductible avec certitude du contrat, NE DEVINE PAS : dis que le conseiller confirmera et mets "rappel": true)'}
 Factures : ${JSON.stringify(ctx.factures || [])}
-Réponds UNIQUEMENT avec un objet JSON valide, sans aucun texte autour : {"reponse": "...", "rappel": true|false}`;
+Réponds UNIQUEMENT avec un objet JSON valide, sans aucun texte autour : {"reponse": "...", "rappel": true|false, "action": "contrat"|"factures"|"conseiller"|null}`;
 
   const msgs = [];
   if (Array.isArray(history)) for (const m of history.slice(-8)) {
@@ -1216,7 +1223,8 @@ Réponds UNIQUEMENT avec un objet JSON valide, sans aucun texte autour : {"repon
   let out;
   try { const text = data.content[0].text.trim(); const mm = text.match(/\{[\s\S]*\}/); out = JSON.parse(mm ? mm[0] : text); }
   catch { out = { reponse: (data && data.content && data.content[0] && data.content[0].text) || "Je préfère que votre conseiller vous réponde précisément là-dessus.", rappel: true }; }
-  return jsonResponse({ reponse: out.reponse || '', rappel: !!out.rappel });
+  const action = ['contrat', 'factures', 'conseiller'].includes(out.action) ? out.action : null;
+  return jsonResponse({ reponse: out.reponse || '', rappel: !!out.rappel, action });
 }
 
 // ─── Router principal ─────────────────────────────────────────────────────────

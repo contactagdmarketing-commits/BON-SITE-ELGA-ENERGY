@@ -160,6 +160,8 @@ const NAV=[
   {id:'parrainage',label:'Parrainage',icon:'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8V6m0 8v2m0-10a9 9 0 100 18 9 9 0 000-18z'},
 ];
 function renderApp(){
+  // 1ʳᵉ connexion : on invite (sans bloquer) à laisser un avis sur le conseiller.
+  if(STATE.active && !STATE.avis_state){ renderAvis(); return; }
   const nom=STATE.societe||STATE.nom||'Votre espace';
   root.innerHTML=`
   <div class="min-h-screen md:flex">
@@ -577,7 +579,7 @@ function renderChat(){
     ?`<div class="flex gap-3"><div class="ava ava-sm">⚡</div><div class="msg msg-a dots"><span></span><span></span><span></span></div></div>`
     :(m.role==='user'
       ?`<div class="fade flex justify-end"><div class="msg msg-u">${esc(m.content).replace(/\n/g,'<br>')}</div></div>`
-      :`<div class="fade flex gap-3"><div class="ava ava-sm">⚡</div><div class="msg msg-a">${esc(m.content).replace(/\n/g,'<br>')}${m.rappel?escaladeBoutons():''}</div></div>`)).join('');
+      :`<div class="fade flex gap-3"><div class="ava ava-sm">⚡</div><div class="msg msg-a">${esc(m.content).replace(/\n/g,'<br>')}${m.action?gotoBouton(m.action):''}${m.rappel?escaladeBoutons():''}</div></div>`)).join('');
   p.innerHTML=`
   <div class="fixed inset-0 z-[60] flex flex-col" style="background:radial-gradient(1100px 560px at 50% -8%,#ecfdf5,transparent 60%),#f7f9fc">
     <div class="shrink-0 flex items-center justify-between px-4 sm:px-6 h-16 border-b border-slate-100 bg-white/70" style="backdrop-filter:blur(8px)">
@@ -616,8 +618,68 @@ async function envoyer(q){
       body:JSON.stringify({question:q,history:hist.slice(0,-1),contexte:{prenom:STATE.prenom,conseiller:STATE.conseiller,contrat:STATE.contrat,factures:STATE.factures}})});
     out=await r.json();
   }catch{ out={reponse:"Je préfère que ton conseiller te réponde précisément là-dessus.",rappel:true}; }
-  CHAT=CHAT.filter(m=>!m.typing); CHAT.push({role:'assistant',content:out.reponse||'…',rappel:!!out.rappel}); renderChat();
+  CHAT=CHAT.filter(m=>!m.typing); CHAT.push({role:'assistant',content:out.reponse||'…',rappel:!!out.rappel,action:out.action||null}); renderChat();
 }
+// L'assistant renvoie le client vers la bonne page (ferme le chat + ouvre l'onglet).
+function allerOnglet(tab){ if(CHAT_OPEN)toggleChat(); setTab(tab); }
+function gotoBouton(action){
+  const B={contrat:['📄 Ouvrir mon contrat','contrat'],factures:['🧾 Voir mes factures','factures'],conseiller:['👤 Voir mon conseiller','conseiller']}[action];
+  if(!B) return '';
+  return `<div class="mt-3"><button onclick="allerOnglet('${B[1]}')" class="text-[13px] font-bold bg-primary-600 text-white px-4 py-2 rounded-xl hover:bg-primary-700 transition">${B[0]} →</button></div>`;
+}
+
+/* ─── Avis conseiller (1ʳᵉ connexion) — incité, jamais bloquant ─── */
+const AVIS={globale:0,conseils:0,confiance:0,reco:8};
+function etoiles(champ){
+  return `<div class="flex gap-1.5" data-stars="${champ}">${[1,2,3,4,5].map(n=>
+    `<button type="button" onclick="setEtoile('${champ}',${n})" aria-label="${n} sur 5"
+      class="star text-[30px] leading-none transition ${AVIS[champ]>=n?'text-amber-400':'text-slate-200 hover:text-amber-200'}">★</button>`).join('')}</div>`;
+}
+function setEtoile(champ,n){ AVIS[champ]=n; const box=document.querySelector('[data-stars="'+champ+'"]'); if(box)box.outerHTML=etoiles(champ); }
+function setReco(v){ AVIS.reco=Number(v); const el=document.getElementById('recoVal'); if(el)el.textContent=Number(v)>=9?'Oui, sans hésiter 🙌':Number(v)>=7?'Oui 👍':Number(v)>=5?'Peut-être 🤔':'Pas vraiment'; }
+function renderAvis(){
+  const p=STATE.conseiller&&STATE.conseiller.prenom||'votre conseiller';
+  root.innerHTML=`
+  <div class="min-h-screen grid place-items-center px-4 py-8" style="background:radial-gradient(1000px 500px at 80% -10%,#ecfdf5,transparent 55%),radial-gradient(800px 460px at -10% 10%,#eef2ff,transparent 45%),#f6f8fb">
+    <div class="fade w-full max-w-lg bg-white rounded-3xl shadow-strong p-7 sm:p-9 relative">
+      <div class="text-center mb-6">
+        <img src="/assets/logos/elga-energy-logo.png" alt="Elga Energy" class="h-8 w-auto mx-auto mb-5"/>
+        <h1 class="text-[21px] sm:text-[23px] font-extrabold text-slate-900">Un mot sur votre conseiller ?</h1>
+        <p class="text-[13.5px] text-slate-500 mt-2 max-w-sm mx-auto leading-relaxed">Avant d'ouvrir votre espace : votre retour nous aide à progresser — et aide d'autres pros à franchir le pas. Une minute, pas plus.</p>
+      </div>
+      <div class="space-y-5">
+        <div><div class="text-[14px] font-semibold text-slate-700 mb-1.5">Votre satisfaction globale</div>${etoiles('globale')}</div>
+        <div><div class="text-[14px] font-semibold text-slate-700 mb-1.5">Ses conseils et ses explications</div><div class="text-[12px] text-slate-400 mb-1.5">${esc(p)} a-t-il rendu l'énergie claire ?</div>${etoiles('conseils')}</div>
+        <div><div class="text-[14px] font-semibold text-slate-700 mb-1.5">La confiance</div><div class="text-[12px] text-slate-400 mb-1.5">Vous êtes-vous senti·e bien informé·e ?</div>${etoiles('confiance')}</div>
+        <div>
+          <div class="text-[14px] font-semibold text-slate-700 mb-1.5">Recommanderiez-vous ${esc(p)} à un autre professionnel ?</div>
+          <input type="range" min="0" max="10" value="8" oninput="setReco(this.value)" class="w-full accent-emerald-600"/>
+          <div class="flex items-center justify-between text-[12px] text-slate-400"><span>👎</span><span id="recoVal" class="font-semibold text-emerald-700">Oui 👍</span><span>👍</span></div>
+        </div>
+        <div>
+          <div class="text-[14px] font-semibold text-slate-700 mb-1.5">Quelques mots <span class="text-slate-400 font-normal">(facultatif)</span></div>
+          <textarea id="avisTxt" rows="3" placeholder="En une phrase, comment décririez-vous votre collaboration avec Elga ?" class="w-full rounded-xl border border-slate-200 focus:border-primary-500 focus:ring-4 focus:ring-primary-100 outline-none px-3.5 py-2.5 text-[14px]"></textarea>
+        </div>
+        <label class="flex items-start gap-2.5 text-[13px] text-slate-600 cursor-pointer">
+          <input id="avisPub" type="checkbox" class="mt-0.5 accent-emerald-600 h-4 w-4"/>
+          <span>J'autorise Elga à publier cet avis sur son site (avec mon prénom et ma société).</span>
+        </label>
+      </div>
+      <button onclick="envoyerAvis(this)" class="btn-p w-full mt-6 py-3.5 rounded-2xl text-[15px] font-bold">Envoyer mon avis</button>
+      <button onclick="passerAvis()" class="absolute left-5 bottom-3 text-[12px] text-slate-300 hover:text-slate-500 transition">passer</button>
+    </div>
+  </div>`;
+  setReco(8);
+}
+async function envoyerAvis(btn){
+  if(btn){btn.disabled=true;btn.textContent='Envoi…';}
+  const commentaire=(document.getElementById('avisTxt')||{}).value||'';
+  const publier=!!(document.getElementById('avisPub')||{}).checked;
+  const d=await rpc('espace_avis_save',{p_token:TOKEN,p_note_globale:AVIS.globale,p_note_conseils:AVIS.conseils,p_note_confiance:AVIS.confiance,p_reco:AVIS.reco,p_commentaire:commentaire,p_publier:publier});
+  if(d&&d.ok){ STATE.avis_state='fait'; toast('Merci pour votre retour 🙏'); renderApp(); }
+  else { toast('Impossible d\'enregistrer, réessayez',false); if(btn){btn.disabled=false;btn.textContent='Envoyer mon avis';} }
+}
+async function passerAvis(){ try{await rpc('espace_avis_skip',{p_token:TOKEN});}catch(e){} STATE.avis_state='passe'; renderApp(); }
 
 boot();
 </script>
