@@ -450,6 +450,32 @@ function partager(canal){
   else if(canal==='mail') window.open('mailto:?subject='+encodeURIComponent('Vos factures d\'énergie sont-elles au bon prix ?')+'&body='+encodeURIComponent(txt),'_blank');
   else if(canal==='copy'){ navigator.clipboard?.writeText(url).then(()=>toast('Lien copié — à vous de le partager')); }
 }
+// Cagnotte récompense : le client déclenche lui-même son versement, ou attend d'accumuler.
+function blocRecompense(){
+  const r=STATE.recompense; if(!r||(!r.disponible&&!r.en_cours&&!r.versee)) return '';
+  const dispo=r.disponible||0, enCours=r.en_cours||0, versee=r.versee||0;
+  return `<section class="fade rounded-3xl text-white shadow-strong mb-5 overflow-hidden relative" style="background:linear-gradient(120deg,#0e8a57,#0b6c45)">
+    <div class="absolute -right-10 -top-10 w-44 h-44 rounded-full bg-white/10 pointer-events-none"></div>
+    <div class="relative p-6 sm:p-7">
+      <div class="text-[12.5px] font-bold text-white/80 uppercase tracking-wide">Votre récompense</div>
+      <div class="flex items-end gap-2 mt-1"><div class="text-4xl sm:text-5xl font-extrabold tabular-nums">${euro(dispo)}</div><div class="text-[13px] text-white/85 pb-1.5">disponible</div></div>
+      ${dispo>0
+        ? `<button onclick="declencherRecompense(this)" class="mt-4 inline-flex items-center gap-2 bg-white text-emerald-700 font-extrabold text-[15px] rounded-2xl px-5 py-3 hover:bg-emerald-50 transition">💶 Déclencher mon versement</button>
+           <p class="text-[12px] text-white/80 mt-2.5">Vous pouvez le demander dès maintenant — ou attendre d'accumuler plus (ex. 300 €) et tout recevoir d'un coup.</p>`
+        : `<p class="text-[13px] text-white/85 mt-2">Aucune récompense disponible pour l'instant. Elle se débloque dès qu'un filleul signe son contrat.</p>`}
+      ${(enCours>0||versee>0)?`<div class="flex flex-wrap gap-2 mt-4">
+        ${enCours>0?`<span class="inline-flex items-center gap-1.5 bg-white/15 border border-white/25 rounded-full px-3 py-1.5 text-[12.5px] font-semibold">⏳ ${euro(enCours)} en cours de versement</span>`:''}
+        ${versee>0?`<span class="inline-flex items-center gap-1.5 bg-white/15 border border-white/25 rounded-full px-3 py-1.5 text-[12.5px] font-semibold">✅ ${euro(versee)} déjà versé</span>`:''}
+      </div>`:''}
+    </div>
+  </section>`;
+}
+async function declencherRecompense(btn){
+  if(btn){btn.disabled=true;btn.textContent='Demande en cours…';}
+  const d=await rpc('espace_recompense_demander',{p_token:TOKEN});
+  if(d&&d.ok){ toast('Demande envoyée 🎉 votre conseiller vous verse '+euro(d.montant)); await recharger(); }
+  else { toast((d&&d.error)||'Impossible pour le moment',false); if(btn){btn.disabled=false;btn.textContent='💶 Déclencher mon versement';} }
+}
 function recoLine(p,ok){return `<div class="flex items-center justify-between gap-2 rounded-xl border ${ok?'border-primary-100 bg-primary-50/50':'border-amber-100 bg-amber-50/50'} px-3.5 py-2.5">
   <div class="flex items-center gap-2.5"><div class="h-9 w-9 rounded-xl ${ok?'bg-primary-100 text-primary-700':'bg-amber-100 text-amber-700'} grid place-items-center"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 21h18M5 21V7l7-4 7 4v14M9 9h.01M9 13h.01M9 17h.01M15 9h.01M15 13h.01M15 17h.01"/></svg></div>
   <div><div class="text-[13px] font-semibold text-slate-700">${esc(p.qui)}</div><div class="text-[11px] text-slate-400">${ok?'devenue cliente · '+esc(p.le):'a vérifié sa facture · '+esc(p.le)}</div></div></div>
@@ -472,6 +498,8 @@ function vueParrainage(){
       <p class="text-[14.5px] sm:text-[15.5px] text-white/90 mt-3 leading-relaxed">Les prix de l'énergie s'envolent, et beaucoup d'entreprises paient trop cher sans le savoir. Partagez votre lien : un professionnel que vous connaissez fait vérifier ses factures en 15 secondes — et dès qu'il devient client, <strong>vous êtes récompensé</strong>.</p>
     </div>
   </section>
+
+  ${blocRecompense()}
 
   <section class="fade bg-white rounded-3xl shadow-soft p-6 sm:p-7 mb-5">
     <h3 class="text-[16px] font-extrabold text-slate-900">Votre lien personnel</h3>
