@@ -679,13 +679,10 @@ function renderAvis(){
           <div class="text-[14px] font-semibold text-slate-700 mb-1.5">Quelques mots <span class="text-slate-400 font-normal">(facultatif)</span></div>
           <textarea id="avisTxt" rows="3" placeholder="En une phrase, comment décririez-vous votre collaboration avec Elga ?" class="w-full rounded-xl border border-slate-200 focus:border-primary-500 focus:ring-4 focus:ring-primary-100 outline-none px-3.5 py-2.5 text-[14px]"></textarea>
         </div>
-        <label class="flex items-start gap-2.5 text-[13px] text-slate-600 cursor-pointer">
-          <input id="avisPub" type="checkbox" class="mt-0.5 accent-emerald-600 h-4 w-4"/>
-          <span>J'autorise Elga à publier cet avis sur son site (avec mon prénom et ma société).</span>
-        </label>
       </div>
       <button onclick="envoyerAvis(this)" class="btn-p w-full mt-6 py-3.5 rounded-2xl text-[15px] font-bold">Envoyer mon avis</button>
-      <button onclick="passerAvis()" class="absolute left-5 bottom-3 text-[12px] text-slate-300 hover:text-slate-500 transition">passer</button>
+      <p class="text-[11px] text-slate-400 text-center mt-2.5 leading-snug">En envoyant votre avis, vous autorisez Elga Energy à le publier (avec votre prénom et votre société).</p>
+      <button onclick="passerAvis()" class="block mx-auto mt-3 text-[12.5px] text-slate-400 hover:text-slate-600 underline underline-offset-2 transition">Je préfère ne pas laisser d'avis</button>
     </div>
   </div>`;
   setReco(8);
@@ -693,8 +690,8 @@ function renderAvis(){
 async function envoyerAvis(btn){
   if(btn){btn.disabled=true;btn.textContent='Envoi…';}
   const commentaire=(document.getElementById('avisTxt')||{}).value||'';
-  const publier=!!(document.getElementById('avisPub')||{}).checked;
-  const d=await rpc('espace_avis_save',{p_token:TOKEN,p_note_globale:AVIS.globale,p_note_conseils:AVIS.conseils,p_note_confiance:AVIS.confiance,p_reco:AVIS.reco,p_commentaire:commentaire,p_publier:publier});
+  // Envoyer = le client accepte la publication (James valide ensuite chaque avis avant mise en ligne).
+  const d=await rpc('espace_avis_save',{p_token:TOKEN,p_note_globale:AVIS.globale,p_note_conseils:AVIS.conseils,p_note_confiance:AVIS.confiance,p_reco:AVIS.reco,p_commentaire:commentaire,p_publier:true});
   if(d&&d.ok){ STATE.avis_state='fait'; toast('Merci pour votre retour 🙏'); renderApp(); }
   else { toast('Impossible d\'enregistrer, réessayez',false); if(btn){btn.disabled=false;btn.textContent='Envoyer mon avis';} }
 }
