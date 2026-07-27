@@ -214,31 +214,58 @@ function setTab(id){ TAB=id; buildNav(); renderContent(); window.scrollTo({top:0
 function renderContent(){
   const el=document.getElementById('content'); if(!el) return;
   el.className='fade';
-  if(TAB==='dashboard')   el.innerHTML=vueDashboard();
-  else if(TAB==='contrat')el.innerHTML=vueContrat();
-  else if(TAB==='factures')el.innerHTML=vueFactures();
-  else if(TAB==='conseiller')el.innerHTML=vueConseiller();
-  else if(TAB==='parrainage')el.innerHTML=vueParrainage();
+  // Bannière pub en haut de CHAQUE page (sauf l'onglet parrainage lui-même, redondant).
+  const banniere=(TAB!=='parrainage')?bandeauParrainage():'';
+  let vue='';
+  if(TAB==='dashboard')   vue=vueDashboard();
+  else if(TAB==='contrat')vue=vueContrat();
+  else if(TAB==='factures')vue=vueFactures();
+  else if(TAB==='conseiller')vue=vueConseiller();
+  else if(TAB==='parrainage')vue=vueParrainage();
+  el.innerHTML=banniere+vue;
+  if(banniere)roterBanniere();
   brancherDepots();
 }
 
+// Messages publicitaires de la bannière parrainage — tournent en boucle sur toutes les pages.
+const BANNIERE_MSGS=[
+  {t:"Un professionnel de votre réseau paie sûrement trop cher son énergie.",s:"Recommandez-lui Elga : il fait vérifier ses factures gratuitement, et vous êtes récompensé dès qu'il devient client."},
+  {t:"Vous connaissez un commerçant, un artisan, une PME ?",s:"Envoyez-lui votre lien : il fait analyser sa facture en 2 minutes, sans engagement."},
+  {t:"Votre lien garde la trace que la recommandation vient de vous.",s:"Chaque contact qui devient client grâce à vous vous est attribué — et récompensé."},
+  {t:"Aidez un proche à arrêter de payer trop cher.",s:"Partagez votre lien Elga : on s'occupe de tout, vous ne faites que recommander."}
+];
+let _bannIdx=0,_bannTimer=null;
 function bandeauParrainage(){
-  if(localStorage.getItem('elga_parr_dismiss')==='1') return '';
+  if(sessionStorage.getItem('elga_parr_dismiss')==='1') return '';
+  const m=BANNIERE_MSGS[0];
   return `<div id="bParr" class="relative rounded-2xl overflow-hidden text-white shadow-strong mb-5 fade" style="background:linear-gradient(115deg,#0b3d91 0%,#0e8a57 70%)">
     <div class="absolute -right-8 -bottom-10 w-36 h-36 rounded-full bg-white/10 pointer-events-none"></div>
     <div class="absolute right-16 -top-8 w-20 h-20 rounded-full bg-white/10 pointer-events-none"></div>
-    <button aria-label="Fermer" onclick="event.stopPropagation();var b=document.getElementById('bParr');if(b)b.remove();localStorage.setItem('elga_parr_dismiss','1')" class="absolute top-2 right-2.5 z-10 text-white/70 hover:text-white text-xl leading-none">×</button>
+    <button aria-label="Masquer" onclick="event.stopPropagation();var b=document.getElementById('bParr');if(b)b.remove();sessionStorage.setItem('elga_parr_dismiss','1')" class="absolute top-2 right-2.5 z-10 text-white/70 hover:text-white text-xl leading-none">×</button>
     <div class="relative flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 p-4 sm:p-5 cursor-pointer" onclick="setTab('parrainage')">
       <div class="shrink-0 h-11 w-11 rounded-xl bg-white/15 grid place-items-center">
         <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m6-1.13a4 4 0 10-4-4 4 4 0 004 4zm6 0a3 3 0 10-2-5.24"/></svg>
       </div>
       <div class="flex-1 min-w-0">
-        <div class="font-extrabold text-[15.5px] sm:text-[17px] leading-snug">Un professionnel de votre réseau paie sûrement trop cher son énergie.</div>
-        <div class="text-[12.5px] sm:text-[13.5px] text-white/90 mt-1">Recommandez-lui Elga : il fait vérifier ses factures gratuitement, et vous êtes récompensé dès qu'il devient client.</div>
+        <div id="bParrT" class="font-extrabold text-[15.5px] sm:text-[17px] leading-snug transition-opacity duration-300">${m.t}</div>
+        <div id="bParrS" class="text-[12.5px] sm:text-[13.5px] text-white/90 mt-1 transition-opacity duration-300">${m.s}</div>
       </div>
       <span class="shrink-0 inline-flex items-center gap-1.5 bg-white text-primary-700 font-bold text-[13.5px] rounded-xl px-4 py-2.5 self-start sm:self-center whitespace-nowrap">Recommander Elga <span aria-hidden="true">→</span></span>
     </div>
   </div>`;
+}
+// Fait défiler les messages toutes les 5 s, avec un fondu. Relancé à chaque rendu de page.
+function roterBanniere(){
+  if(_bannTimer){clearInterval(_bannTimer);_bannTimer=null;}
+  _bannIdx=0;
+  if(window.matchMedia&&window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  _bannTimer=setInterval(function(){
+    const T=document.getElementById('bParrT'),S=document.getElementById('bParrS');
+    if(!T||!S){clearInterval(_bannTimer);_bannTimer=null;return;}
+    _bannIdx=(_bannIdx+1)%BANNIERE_MSGS.length;const m=BANNIERE_MSGS[_bannIdx];
+    T.style.opacity='0';S.style.opacity='0';
+    setTimeout(function(){T.textContent=m.t;S.textContent=m.s;T.style.opacity='1';S.style.opacity='1';},300);
+  },5000);
 }
 
 function vueDashboard(){
@@ -258,7 +285,6 @@ function vueDashboard(){
       <p class="text-[12px] text-slate-400">On en extrait toutes vos infos et on garde l'œil dessus</p>
     </button>`;
   return `
-  ${bandeauParrainage()}
   <div class="mb-5 md:hidden"><h1 class="text-[21px] font-extrabold text-slate-900">Bonjour${prenom?' '+esc(prenom):''} 👋</h1><p class="text-[13px] text-slate-500">${esc(STATE.societe||STATE.nom||'')}</p></div>
   <div class="hidden md:block text-[15px] text-slate-600 mb-4">Bonjour${prenom?' '+esc(prenom):''} 👋 — voici ton énergie en un coup d'œil.</div>
 
