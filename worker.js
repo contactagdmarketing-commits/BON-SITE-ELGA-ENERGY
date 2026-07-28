@@ -124,6 +124,12 @@ Réponds UNIQUEMENT avec le JSON, sans texte avant ou après :
 {
   "supplier": "nom du FOURNISSEUR émetteur de la facture (logo/enseigne : EDF, ENGIE, TotalEnergies, Vattenfall…) — PAS le nom de l'offre commerciale (ex. « ActiVert » est une offre ENGIE → supplier = ENGIE)",
   "energy_type": "electricity" ou "gas" ou "both",
+  "pdl": "Point De Livraison / PRM (ÉLECTRICITÉ, 14 chiffres) — cherche 'PDL','PRM','Point de livraison','Point de Référence Mesure'. Recopie les 14 chiffres EXACTS, sans espace. null si absent (une erreur ici = frais de résiliation, sois EXACT ou null)",
+  "pce": "PCE (GAZ, Point de Comptage Estimation, souvent 14 chiffres commençant par GI ou des chiffres) — cherche 'PCE'. Recopie EXACTEMENT. null si absent",
+  "site_address": "adresse COMPLÈTE du point de livraison / site de consommation (rue, CP, ville), null si absente",
+  "client_name": "raison sociale du CLIENT destinataire de la facture (surtout PAS le fournisseur), null si absent",
+  "client_siret": "SIRET du client (14 chiffres) si visible, null sinon",
+  "client_ref": "Numéro de CLIENT / numéro de compte chez le fournisseur (souvent 'N° client', 'Référence client', 'N° de compte'), null si absent",
   "consumption_lines": [ {"label": "libellé EXACT de la ligne (ex 'Heure Pleine Saison Basse')", "kwh": conso kWh de la ligne, "unit_price_eur_kwh": prix unitaire €/kWh (colonne prix), "amount_ht": montant HT € de la ligne} ] — liste de TOUTES les lignes de CONSOMMATION d'énergie de la section fourniture (toutes plages HP/HC/Base/Pointe, toutes saisons), SANS abonnement, SANS garanties d'origine, SANS capacité/obligations, SANS acheminement, SANS taxes,
   "contract_type": "ex: MU4, CU4, C4-LU, T2, T3, Tarif Bleu, HC/HP, Base, etc.",
   "segment": "c5_mu4" ou "c5_cu4" ou "c4_lu" ou "c4_cu" ou "c3" ou "c2" ou "c1" ou "t1" ou "t2_p12" ou "t3" ou "t4" ou null,
