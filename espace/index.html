@@ -242,7 +242,7 @@ function renderContent(){
 const BANNIERE_MSGS=[
   {t:"Faites un cadeau à un proche. Gagnez-en un aussi.",s:"Offrez-lui l'analyse gratuite de ses factures. S'il signe, vous recevez un chèque-cadeau chacun — dès 30 €."},
   {t:"Vous connaissez un commerçant, un artisan, une PME ?",s:"Envoyez votre lien : il fait vérifier sa facture en 2 min, et vous touchez un chèque-cadeau chacun (dès 30 €, jusqu'à 250 €+)."},
-  {t:"Chaque pro qui signe grâce à vous = un chèque-cadeau, pour vous et pour lui.",s:"Votre lien, votre argent. Récompensés dès la signature."},
+  {t:"Chaque pro qui signe grâce à vous = un chèque-cadeau, pour vous et pour lui.",s:"Votre lien, votre argent. Versé en chèque-cadeau après sa signature."},
   {t:"Aidez un proche à arrêter de payer trop cher — et soyez payé pour ça.",s:"Vous ne faites que partager votre lien. On s'occupe de tout le reste."}
 ];
 let _bannIdx=0,_bannTimer=null;
@@ -269,7 +269,7 @@ function bandeauParrainage(){
         <span class="inline-flex items-center gap-1.5 bg-white text-emerald-700 font-extrabold text-[14px] rounded-xl px-4 py-2.5 whitespace-nowrap hover:bg-emerald-50 transition shadow-lg animate-pulse">Recommander <span aria-hidden="true">→</span></span>
       </div>
     </div>
-    <div class="relative max-w-5xl mx-auto px-4 sm:px-8 pb-2.5 -mt-1 text-[10.5px] text-white/70 leading-snug">Récompense = 20 % de la valeur du contrat signé par votre filleul, partagée 50/50 — minimum 30 € chacun (60 € au total), jusqu'à 250 €+. Versée en chèque-cadeau dès qu'il signe. Un seul lien, chaque recommandation vous est attribuée.</div>
+    <div class="relative max-w-5xl mx-auto px-4 sm:px-8 pb-2.5 -mt-1 text-[10.5px] text-white/70 leading-snug">Récompense = 20 % de la valeur du contrat signé par votre filleul, partagée 50/50 — minimum 30 € chacun (60 € au total), jusqu'à 250 €+. Versée en chèque-cadeau à 30 jours fin de mois après sa signature. Un seul lien, chaque recommandation vous est attribuée.</div>
   </div>`;
 }
 // Fait défiler les messages toutes les 5 s, avec un fondu. Relancé à chaque rendu de page.
@@ -477,16 +477,15 @@ async function declencherRecompense(btn){
 function recoLine(p,ok){return `<div class="flex items-center justify-between gap-2 rounded-xl border ${ok?'border-primary-100 bg-primary-50/50':'border-amber-100 bg-amber-50/50'} px-3.5 py-2.5">
   <div class="flex items-center gap-2.5"><div class="h-9 w-9 rounded-xl ${ok?'bg-primary-100 text-primary-700':'bg-amber-100 text-amber-700'} grid place-items-center"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 21h18M5 21V7l7-4 7 4v14M9 9h.01M9 13h.01M9 17h.01M15 9h.01M15 13h.01M15 17h.01"/></svg></div>
   <div><div class="text-[13px] font-semibold text-slate-700">${esc(p.qui)}</div><div class="text-[11px] text-slate-400">${ok?'devenue cliente · '+esc(p.le):'a vérifié sa facture · '+esc(p.le)}</div></div></div>
-  <span class="text-[12px] font-bold ${ok?'text-primary-700':'text-amber-600'}">${ok?'+ 100 € crédités':'100 € en attente'}</span></div>`;}
+  <span class="text-[12px] font-bold ${ok?'text-primary-700':'text-amber-600'}">${ok?'✓ chèque-cadeau validé':'en attente de signature'}</span></div>`;}
 function vueParrainage(){
-  const val=STATE.parr_val||[], enc=STATE.parr_enc||[], RECO=50;
-  const cagnotte=val.length*RECO, attente=enc.length*RECO, rich=(val.length||enc.length);
+  const val=STATE.parr_val||[], enc=STATE.parr_enc||[];
+  const rich=(val.length||enc.length);
   const list=STATE.parrainages||[]; const n=list.length;
   const items=list.map(p=>`<div class="flex items-center justify-between gap-2 rounded-xl border border-slate-100 bg-white px-3.5 py-2.5">
       <div class="flex items-center gap-2.5"><div class="h-9 w-9 rounded-xl bg-primary-50 grid place-items-center text-primary-600"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 21h18M5 21V7l7-4 7 4v14M9 9h.01M9 13h.01M9 17h.01M15 9h.01M15 13h.01M15 17h.01"/></svg></div>
       <div><div class="text-[13px] font-semibold text-slate-700">${esc(p.qui)}</div><div class="text-[11px] text-slate-400">a vérifié sa facture · ${esc(p.le)}</div></div></div>
       ${p.eco&&+p.eco>0?`<span class="text-[12px] font-bold text-primary-700">${euro(+p.eco)}/an à gagner</span>`:''}</div>`).join('');
-  const nbV=val.length, PAL=3, ambassadeur=nbV>=PAL, prog=Math.min(100,Math.round(nbV/PAL*100));
   return `
   <section class="fade relative overflow-hidden rounded-3xl text-white shadow-strong mb-5" style="background:linear-gradient(120deg,#0b3d91 0%,#0e8a57 78%)">
     <div class="absolute -right-10 -top-10 w-52 h-52 rounded-full bg-white/10 pointer-events-none"></div>
@@ -496,11 +495,17 @@ function vueParrainage(){
       <div class="inline-flex items-center gap-2 text-[12px] font-extrabold bg-white/15 border border-white/25 rounded-full px-3.5 py-1.5 mb-4 tracking-wide">⚡ ELGAENERGY<span class="text-emerald-200">+</span> · Programme de recommandation</div>
       <h2 class="text-2xl sm:text-[34px] font-extrabold leading-tight">Offrez un cadeau à un proche.<br>Recevez-en un aussi. 🎁</h2>
       <p class="text-[14.5px] sm:text-[16px] text-white/90 mt-3 leading-relaxed">Vous connaissez un pro qui paie trop cher son énergie ? Offrez-lui l'analyse gratuite de ses factures. <strong>Dès qu'il signe, une récompense est partagée entre vous deux</strong> — un chèque-cadeau chacun.</p>
-      <div class="mt-5 inline-flex items-stretch gap-0 rounded-2xl overflow-hidden bg-white shadow-lg text-emerald-700">
-        <div class="flex flex-col items-center justify-center px-5 py-2.5 leading-none"><span class="text-[22px] font-extrabold">30 €</span><span class="text-[10.5px] font-bold mt-0.5">min. pour vous</span></div>
-        <div class="w-px bg-emerald-100"></div>
-        <div class="flex flex-col items-center justify-center px-5 py-2.5 leading-none"><span class="text-[22px] font-extrabold">30 €</span><span class="text-[10.5px] font-bold mt-0.5">min. pour lui</span></div>
-        <div class="flex flex-col items-center justify-center px-4 py-2.5 leading-none bg-emerald-600 text-white"><span class="text-[15px] font-extrabold">jusqu'à 250 €+</span><span class="text-[10px] font-bold mt-0.5">selon sa conso</span></div>
+      <div class="mt-5 flex flex-wrap items-center gap-4">
+        <div class="inline-flex flex-col items-center bg-white text-emerald-700 rounded-2xl px-7 py-3 shadow-xl leading-none">
+          <span class="text-[12px] font-bold uppercase tracking-wide">jusqu'à</span>
+          <span class="text-[40px] sm:text-[46px] font-extrabold my-0.5">250 €<span class="text-emerald-500">+</span></span>
+          <span class="text-[11px] font-bold">par recommandation</span>
+        </div>
+        <div class="text-white/95 text-[14px] leading-relaxed">
+          <div>💶 <strong>Minimum 30 € pour vous</strong></div>
+          <div>🎁 <strong>+ 30 € pour votre filleul</strong></div>
+          <div class="text-white/75 text-[12px] mt-1">Plus il consomme, plus vous gagnez tous les deux.</div>
+        </div>
       </div>
     </div>
   </section>
@@ -510,30 +515,15 @@ function vueParrainage(){
     <h3 class="text-[16px] font-extrabold text-slate-900 mb-1">Combien vous gagnez, concrètement</h3>
     <p class="text-[13px] text-slate-500 mb-4">Votre récompense = <strong>20 % de la valeur du contrat</strong> que votre filleul signe, <strong>minimum 60 €</strong>, partagée 50/50. Plus il consomme, plus vous gagnez tous les deux.</p>
     <div class="rounded-2xl border border-emerald-100 bg-emerald-50/50 p-4 sm:p-5">
-      <div class="text-[12px] font-bold text-emerald-700 mb-2">💡 Exemple : vous parrainez une boulangerie</div>
+      <div class="text-[12px] font-bold text-emerald-700 mb-2">💡 Exemple : votre filleul est une boulangerie</div>
       <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-[13.5px] text-slate-700">
-        <span>Elle signe un contrat</span><span class="text-slate-300">→</span>
+        <span>Votre filleul signe son contrat</span><span class="text-slate-300">→</span>
         <span class="font-bold text-emerald-700">récompense partagée</span><span class="text-slate-300">→</span>
         <span class="inline-flex items-center gap-1 rounded-lg bg-white border border-emerald-200 px-2.5 py-1 font-extrabold text-emerald-700">≈ 60 € pour vous</span>
         <span class="text-slate-400">+</span>
-        <span class="inline-flex items-center gap-1 rounded-lg bg-white border border-emerald-200 px-2.5 py-1 font-extrabold text-emerald-700">≈ 60 € pour elle</span>
+        <span class="inline-flex items-center gap-1 rounded-lg bg-white border border-emerald-200 px-2.5 py-1 font-extrabold text-emerald-700">≈ 60 € pour votre filleul</span>
       </div>
-      <p class="text-[11.5px] text-slate-400 mt-2.5">Un petit commerce = 30 € chacun (le minimum garanti). Un gros consommateur = bien plus. Toujours au minimum <strong>30 € chacun</strong>, versé en chèque-cadeau dès la signature.</p>
-    </div>
-  </section>
-
-  <!-- Paliers / statut Ambassadeur : la progression "scintillante" -->
-  <section class="fade bg-white rounded-3xl shadow-soft p-6 sm:p-7 mb-5">
-    <div class="flex items-center justify-between mb-3">
-      <h3 class="text-[16px] font-extrabold text-slate-900">${ambassadeur?'⭐ Vous êtes Ambassadeur ELGAENERGY+':'Devenez Ambassadeur ELGAENERGY+'}</h3>
-      <span class="text-[12px] font-bold px-3 py-1.5 rounded-full ${ambassadeur?'bg-amber-100 text-amber-700':'bg-slate-100 text-slate-500'}">${nbV}/${PAL} filleuls</span>
-    </div>
-    <div class="h-3 rounded-full bg-slate-100 overflow-hidden"><div class="h-full rounded-full transition-all duration-700" style="width:${prog}%;background:linear-gradient(90deg,#0e8a57,#f59e0b)"></div></div>
-    <p class="text-[12.5px] text-slate-500 mt-2">${ambassadeur?'Vos recommandations rapportent désormais <strong>+25 %</strong> ⭐ Merci de faire tourner Elga !':`Plus que <strong>${PAL-nbV}</strong> filleul${PAL-nbV>1?'s':''} signé${PAL-nbV>1?'s':''} pour débloquer le statut Ambassadeur : <strong>+25 %</strong> sur toutes vos récompenses.`}</p>
-    <div class="grid grid-cols-3 gap-2 mt-4 text-center">
-      <div class="rounded-xl p-3 ${nbV>=1?'bg-primary-50':'bg-slate-50'}"><div class="text-2xl">${nbV>=1?'✅':'1️⃣'}</div><div class="text-[11px] font-bold text-slate-600 mt-1">1er filleul</div><div class="text-[10.5px] text-slate-400">Récompensé</div></div>
-      <div class="rounded-xl p-3 ${nbV>=PAL?'bg-amber-50':'bg-slate-50'}"><div class="text-2xl">${nbV>=PAL?'⭐':'🎯'}</div><div class="text-[11px] font-bold text-slate-600 mt-1">3 filleuls</div><div class="text-[10.5px] text-slate-400">Ambassadeur +25 %</div></div>
-      <div class="rounded-xl p-3 bg-slate-50"><div class="text-2xl">🚀</div><div class="text-[11px] font-bold text-slate-600 mt-1">5 filleuls</div><div class="text-[10.5px] text-slate-400">Cagnotte qui explose</div></div>
+      <p class="text-[11.5px] text-slate-400 mt-2.5">Un petit commerce = 30 € chacun (le minimum garanti). Un gros consommateur = bien plus. Toujours au minimum <strong>30 € chacun</strong>, versé en chèque-cadeau <strong>à 30 jours fin de mois</strong> après la signature de votre filleul.</p>
     </div>
   </section>
 
@@ -556,9 +546,12 @@ function vueParrainage(){
       <p class="text-[13px] text-slate-600 italic leading-relaxed">${esc(msgParrain())}</p>
     </div>
     <div class="mt-4 grid grid-cols-3 gap-2 text-center">
-      <div><div class="text-[20px]">📤</div><div class="text-[11.5px] font-semibold text-slate-600 mt-0.5">1. Partagez votre lien</div></div>
-      <div><div class="text-[20px]">📄</div><div class="text-[11.5px] font-semibold text-slate-600 mt-0.5">2. Il fait vérifier sa facture</div></div>
-      <div><div class="text-[20px]">🎁</div><div class="text-[11.5px] font-semibold text-slate-600 mt-0.5">3. Il signe → chèques-cadeaux</div></div>
+      <div><div class="text-[20px]">📤</div><div class="text-[11.5px] font-semibold text-slate-600 mt-0.5">1. Vous partagez votre lien</div></div>
+      <div><div class="text-[20px]">📄</div><div class="text-[11.5px] font-semibold text-slate-600 mt-0.5">2. Il scanne sa facture (2 min)</div></div>
+      <div><div class="text-[20px]">🎁</div><div class="text-[11.5px] font-semibold text-slate-600 mt-0.5">3. S'il signe → chèques-cadeaux</div></div>
+    </div>
+    <div class="mt-3 rounded-xl bg-primary-50/60 border border-primary-100 p-3 text-[12px] text-slate-600 leading-relaxed">
+      <strong>Aucun engagement pour votre filleul.</strong> Il scanne simplement sa facture (2 min) : Elga lui fait gratuitement le bilan comparatif de son énergie, il décide ensuite librement. <strong>Vous voyez ci-dessous</strong> tous ceux qui ont scanné via votre lien — et dès que l'un signe, votre chèque-cadeau est déclenché (versé à 30 j fin de mois).
     </div>
   </section>
 
@@ -566,20 +559,20 @@ function vueParrainage(){
   <section class="fade bg-white rounded-3xl shadow-soft p-6 sm:p-7">
     <div class="grid grid-cols-2 gap-3 mb-6">
       <div class="rounded-2xl p-4 sm:p-5 text-white" style="background:linear-gradient(120deg,#0e8a57,#0b6c45)">
-        <div class="text-[12px] text-white/80">Votre cagnotte</div>
-        <div class="text-3xl sm:text-4xl font-extrabold mt-1 tabular-nums">${euro(cagnotte)}</div>
-        <div class="text-[12px] text-white/85 mt-1">${val.length} recommandation${val.length>1?'s':''} validée${val.length>1?'s':''}</div>
+        <div class="text-[12px] text-white/80">Recommandations signées</div>
+        <div class="text-3xl sm:text-4xl font-extrabold mt-1 tabular-nums">${val.length}</div>
+        <div class="text-[12px] text-white/85 mt-1">chèque-cadeau déclenché${val.length>1?'s':''}</div>
       </div>
       <div class="rounded-2xl p-4 sm:p-5 bg-amber-50 border border-amber-100">
         <div class="text-[12px] text-amber-700">En attente</div>
-        <div class="text-3xl sm:text-4xl font-extrabold mt-1 tabular-nums text-amber-700">${euro(attente)}</div>
-        <div class="text-[12px] text-amber-600 mt-1">${enc.length} en cours de validation</div>
+        <div class="text-3xl sm:text-4xl font-extrabold mt-1 tabular-nums text-amber-700">${enc.length}</div>
+        <div class="text-[12px] text-amber-600 mt-1">scan${enc.length>1?'s':''} en cours de validation</div>
       </div>
     </div>
-    <h3 class="text-[15px] font-extrabold text-slate-900 mb-2.5">Recommandations validées <span class="text-slate-400 font-semibold">· chèque-cadeau (50 € min.)</span></h3>
+    <h3 class="text-[15px] font-extrabold text-slate-900 mb-2.5">Recommandations validées <span class="text-slate-400 font-semibold">· chèque-cadeau (30 € min. chacun)</span></h3>
     <div class="space-y-2">${val.map(p=>recoLine(p,true)).join('')}</div>
     ${enc.length?`<h3 class="text-[15px] font-extrabold text-slate-900 mt-6 mb-2.5">En cours</h3><div class="space-y-2">${enc.map(p=>recoLine(p,false)).join('')}</div>`:''}
-    <p class="text-[12px] text-slate-400 mt-5 text-center">Chaque pro qui signe grâce à vous = un chèque-cadeau (50 € minimum, jusqu'à 250 €+ selon son contrat), pour vous ET pour lui.</p>
+    <p class="text-[12px] text-slate-400 mt-5 text-center">Chaque pro qui signe grâce à vous = un chèque-cadeau (30 € minimum chacun, jusqu'à 250 €+ selon son contrat), versé à 30 jours fin de mois après sa signature.</p>
   </section>`:`
   <section class="fade bg-white rounded-3xl shadow-soft p-6 sm:p-7">
     <div class="flex items-center justify-between mb-4">
@@ -592,7 +585,7 @@ function vueParrainage(){
         <p class="text-[14.5px] font-semibold text-slate-700">Votre réseau n'attend que ça.</p>
         <p class="text-[13.5px] text-slate-500 max-w-sm mx-auto mt-1">Personne n'a encore utilisé votre lien. Envoyez-le à un professionnel que vous connaissez — 15 secondes pour lui, et une belle économie à la clé.</p>
       </div>`}
-    <p class="text-[12px] text-slate-400 mt-4 text-center">Chaque facture vérifiée via votre lien apparaît ici. Votre récompense se débloque quand une entreprise devient cliente.</p>
+    <p class="text-[12px] text-slate-400 mt-4 text-center">Chaque facture scannée via votre lien apparaît ici — sans engagement pour votre filleul. Votre chèque-cadeau se débloque quand l'un devient client (versé à 30 j fin de mois).</p>
   </section>`}`;
 }
 
