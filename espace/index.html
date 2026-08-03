@@ -53,7 +53,13 @@
     .msg-u{background:#0e8a57;color:#fff;border-top-right-radius:.4rem}
     .sugg{transition:border-color .2s,box-shadow .2s,transform .2s}.sugg:hover{border-color:#34d399;box-shadow:0 14px 30px -18px rgba(14,138,87,.4);transform:translateY(-2px)}
     .floatY{animation:floatY 4s ease-in-out infinite}@keyframes floatY{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-    @media (prefers-reduced-motion: reduce){.fade,.pop,.stagger>*,.scanline,.dots span,.ava-ring::after,.floatY{animation:none!important;opacity:1!important;transform:none!important}.tile:hover{transform:none}}
+    /* Onglet Parrainage « scintillant » — comme de l'affiliation, il doit sauter aux yeux */
+    .navitem-parr{position:relative;background:linear-gradient(120deg,#0b3d91,#0e8a57);color:#fff!important;overflow:hidden;box-shadow:0 8px 22px -12px rgba(14,138,87,.85)}
+    .navitem-parr:hover{color:#fff!important;transform:translateY(-1px)}
+    .navitem-parr::after{content:"";position:absolute;top:0;left:-60%;width:42%;height:100%;background:linear-gradient(105deg,transparent,rgba(255,255,255,.55),transparent);transform:skewX(-18deg);animation:shine 3.4s ease-in-out infinite;pointer-events:none}
+    @keyframes shine{0%{left:-60%}42%,100%{left:135%}}
+    .parrbadge{animation:parrpulse 1.8s ease-in-out infinite}@keyframes parrpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.14)}}
+    @media (prefers-reduced-motion: reduce){.fade,.pop,.stagger>*,.scanline,.dots span,.ava-ring::after,.floatY,.navitem-parr::after,.parrbadge{animation:none!important;opacity:1!important;transform:none!important}.tile:hover{transform:none}}
   </style>
 </head>
 <body class="antialiased text-slate-800 min-h-screen">
@@ -212,9 +218,12 @@ function buildNav(){
   const item=(n,mobile)=>{
     const chat=n.action==='chat';
     const active=!chat&&TAB===n.id;
-    const cls=chat?'text-primary-700 font-bold':(active?'navitem-active':'text-slate-600 hover:bg-slate-50');
+    const parr=n.id==='parrainage';
+    const cls=chat?'text-primary-700 font-bold':parr?'navitem-parr':(active?'navitem-active':'text-slate-600 hover:bg-slate-50');
+    const badge=chat?'<span class="ml-auto text-[9px] font-bold bg-primary-100 text-primary-700 px-1.5 py-0.5 rounded-full">IA</span>'
+      :parr?`<span class="parrbadge ml-auto text-[9.5px] font-extrabold bg-white text-emerald-700 px-1.5 py-0.5 rounded-full shadow">${mobile?'💶':'💶 jusqu’à 250€'}</span>`:'';
     return `<button onclick="${chat?'toggleChat()':`setTab('${n.id}')`}" class="navitem ${cls} ${mobile?'shrink-0 px-3 py-2 rounded-lg text-[12.5px] font-semibold whitespace-nowrap flex items-center gap-1.5':'w-full flex items-center gap-2.5 px-3 py-2.5 rounded-xl text-[13.5px] font-semibold'}">
-     <svg class="${mobile?'w-4 h-4':'w-[18px] h-[18px]'} shrink-0" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="${n.icon}"/></svg>${esc(n.label)}${chat?'<span class="ml-auto text-[9px] font-bold bg-primary-100 text-primary-700 px-1.5 py-0.5 rounded-full">IA</span>':''}</button>`;
+     <svg class="${mobile?'w-4 h-4':'w-[18px] h-[18px]'} shrink-0" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="${n.icon}"/></svg>${esc(n.label)}${badge}</button>`;
   };
   const d=document.getElementById('navD'), m=document.getElementById('navM');
   if(d) d.innerHTML=NAV.map(n=>item(n,false)).join('');
@@ -241,9 +250,10 @@ function renderContent(){
 // Messages publicitaires de la bannière parrainage — tournent en boucle sur toutes les pages.
 const BANNIERE_MSGS=[
   {t:"Faites un cadeau à un proche. Gagnez-en un aussi.",s:"Offrez-lui l'analyse gratuite de ses factures. S'il signe, vous recevez un chèque-cadeau chacun — dès 30 €."},
-  {t:"Vous connaissez un commerçant, un artisan, une PME ?",s:"Envoyez votre lien : il fait vérifier sa facture en 2 min, et vous touchez un chèque-cadeau chacun (dès 30 €, jusqu'à 250 €+)."},
-  {t:"Chaque pro qui signe grâce à vous = un chèque-cadeau, pour vous et pour lui.",s:"Votre lien, votre argent. Versé en chèque-cadeau après sa signature."},
-  {t:"Aidez un proche à arrêter de payer trop cher — et soyez payé pour ça.",s:"Vous ne faites que partager votre lien. On s'occupe de tout le reste."}
+  {t:"L'électricité et le gaz augmentent. Tout le monde autour de vous est concerné.",s:"Un commerçant, un artisan, un confrère paie sûrement trop cher — comme vous avant. Recommandez-le, gagnez chacun un chèque-cadeau."},
+  {t:"Recommandez-en 1, 5 ou 10. Aucune limite.",s:"Encaissez à chaque fois, ou cumulez plusieurs recommandations pour un seul gros chèque-cadeau. C'est vous qui choisissez."},
+  {t:"Vous n'avez rien à écrire, rien à gérer.",s:"Vous partagez votre lien, on s'occupe de tout. Dès qu'un pro signe, votre chèque-cadeau se déclenche tout seul."},
+  {t:"Chaque pro qui signe grâce à vous = un chèque-cadeau, pour vous et pour lui.",s:"Votre lien, votre argent. Versé en chèque-cadeau, jusqu'à 250 €+ selon sa consommation."}
 ];
 let _bannIdx=0,_bannTimer=null;
 function bandeauParrainage(){
@@ -494,7 +504,7 @@ function vueParrainage(){
     <div class="relative p-6 sm:p-9 max-w-2xl">
       <div class="inline-flex items-center gap-2 text-[12px] font-extrabold bg-white/15 border border-white/25 rounded-full px-3.5 py-1.5 mb-4 tracking-wide">⚡ ELGAENERGY<span class="text-emerald-200">+</span> · Programme de recommandation</div>
       <h2 class="text-2xl sm:text-[34px] font-extrabold leading-tight">Offrez un cadeau à un proche.<br>Recevez-en un aussi. 🎁</h2>
-      <p class="text-[14.5px] sm:text-[16px] text-white/90 mt-3 leading-relaxed">Vous connaissez un pro qui paie trop cher son énergie ? Offrez-lui l'analyse gratuite de ses factures. <strong>Dès qu'il signe, une récompense est partagée entre vous deux</strong> — un chèque-cadeau chacun.</p>
+      <p class="text-[14.5px] sm:text-[16px] text-white/90 mt-3 leading-relaxed">L'électricité et le gaz augmentent — <strong>tout le monde autour de vous paie trop cher.</strong> Vous, vous avez vérifié. Offrez la même chose à un pro que vous connaissez : <strong>dès qu'il signe, un chèque-cadeau est partagé entre vous deux.</strong></p>
       <div class="mt-5 flex flex-wrap items-center gap-4">
         <div class="inline-flex flex-col items-center bg-white text-emerald-700 rounded-2xl px-7 py-3 shadow-xl leading-none">
           <span class="text-[12px] font-bold uppercase tracking-wide">jusqu'à</span>
@@ -506,6 +516,11 @@ function vueParrainage(){
           <div>🎁 <strong>+ 30 € pour votre filleul</strong></div>
           <div class="text-white/75 text-[12px] mt-1">Plus il consomme, plus vous gagnez tous les deux.</div>
         </div>
+      </div>
+      <div class="mt-5 flex flex-wrap gap-2">
+        <span class="inline-flex items-center gap-1.5 bg-white/15 border border-white/25 rounded-full px-3 py-1.5 text-[12.5px] font-bold">♾️ Aucune limite de recommandations</span>
+        <span class="inline-flex items-center gap-1.5 bg-white/15 border border-white/25 rounded-full px-3 py-1.5 text-[12.5px] font-bold">💰 Cumulez, ou encaissez à chaque fois</span>
+        <span class="inline-flex items-center gap-1.5 bg-white/15 border border-white/25 rounded-full px-3 py-1.5 text-[12.5px] font-bold">✨ Déclenché tout seul, rien à réclamer</span>
       </div>
     </div>
   </section>
@@ -529,9 +544,30 @@ function vueParrainage(){
 
   ${blocRecompense()}
 
+  <!-- Le cumul : encaisser quand on veut, ou attendre un gros chèque -->
+  <section class="fade rounded-3xl p-6 sm:p-7 mb-5 border border-emerald-100" style="background:linear-gradient(135deg,#f0fdf4,#ffffff 70%)">
+    <div class="flex items-center gap-2 mb-3"><span class="text-[22px]">💰</span><h3 class="text-[17px] font-extrabold text-slate-900">Encaissez comme vous voulez</h3></div>
+    <p class="text-[13.5px] text-slate-600 leading-relaxed mb-4">Chaque récompense reste à vous, <strong>sans date limite.</strong> À vous de choisir : un chèque-cadeau à chaque recommandation, ou laissez-les <strong>s'accumuler</strong> et recevez <strong>un seul gros chèque</strong> quand ça vous arrange — par exemple en fin d'année.</p>
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <div class="rounded-2xl bg-white border border-slate-100 p-4">
+        <div class="text-[13px] font-extrabold text-slate-800 mb-1">⚡ À chaque fois</div>
+        <div class="text-[12.5px] text-slate-500 leading-relaxed">Un pro signe → vous déclenchez votre chèque-cadeau tout de suite. Simple, immédiat.</div>
+      </div>
+      <div class="rounded-2xl bg-white border border-emerald-200 p-4 relative overflow-hidden">
+        <span class="absolute top-2 right-2 text-[9.5px] font-extrabold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">le malin 😏</span>
+        <div class="text-[13px] font-extrabold text-slate-800 mb-1">🏆 Vous cumulez</div>
+        <div class="text-[12.5px] text-slate-500 leading-relaxed">5 recommandations mises de côté = <strong>un seul chèque, bien plus gros</strong>, le jour où vous le décidez.</div>
+      </div>
+    </div>
+    <div class="mt-4 flex items-start gap-2 text-[12.5px] text-emerald-800 bg-emerald-50 border border-emerald-100 rounded-xl p-3">
+      <span class="text-[15px] leading-none mt-0.5">✨</span>
+      <div><strong>Vous n'avez rien à réclamer.</strong> Dès qu'un filleul signe, votre récompense se déclenche toute seule et s'ajoute à votre cagnotte — on vous prévient. Vous n'avez plus qu'à dire quand vous voulez votre chèque.</div>
+    </div>
+  </section>
+
   <section class="fade bg-white rounded-3xl shadow-soft p-6 sm:p-7 mb-5">
     <h3 class="text-[16px] font-extrabold text-slate-900">Votre lien — partagez en 1 clic</h3>
-    <p class="text-[13px] text-slate-400 mb-4">Un seul lien, chaque vérification qui en vient vous est attribuée. Message déjà prêt, vous n'avez rien à écrire.</p>
+    <p class="text-[13px] text-slate-400 mb-4">Un seul lien pour <strong>autant de pros que vous voulez</strong> — chaque vérification qui en vient vous est attribuée. Message déjà prêt, vous n'avez rien à écrire.</p>
     <div class="rounded-2xl border border-slate-200 bg-slate-50/70 p-2 pl-4 flex items-center gap-2">
       <input readonly value="${esc(lienParrain())}" onclick="this.select()" class="flex-1 bg-transparent text-[13px] text-slate-600 outline-none truncate"/>
       <button onclick="partager('copy')" class="btn-p rounded-xl px-4 py-2.5 text-[13.5px] shrink-0">Copier</button>
