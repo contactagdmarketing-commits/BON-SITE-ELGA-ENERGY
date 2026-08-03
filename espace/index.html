@@ -240,10 +240,10 @@ function renderContent(){
 
 // Messages publicitaires de la bannière parrainage — tournent en boucle sur toutes les pages.
 const BANNIERE_MSGS=[
-  {t:"Un professionnel de votre réseau paie sûrement trop cher son énergie.",s:"Recommandez-lui Elga : il fait vérifier ses factures gratuitement, et vous êtes récompensé dès qu'il devient client."},
-  {t:"Vous connaissez un commerçant, un artisan, une PME ?",s:"Envoyez-lui votre lien : il fait analyser sa facture en 2 minutes, sans engagement."},
-  {t:"Votre lien garde la trace que la recommandation vient de vous.",s:"Chaque contact qui devient client grâce à vous vous est attribué — et récompensé."},
-  {t:"Aidez un proche à arrêter de payer trop cher.",s:"Partagez votre lien Elga : on s'occupe de tout, vous ne faites que recommander."}
+  {t:"Faites un cadeau à un proche. Gagnez-en un aussi.",s:"Offrez-lui l'analyse gratuite de ses factures. S'il signe, vous recevez CHACUN un chèque-cadeau — 50 € minimum."},
+  {t:"Vous connaissez un commerçant, un artisan, une PME ?",s:"Envoyez votre lien : il fait vérifier sa facture en 2 min, et vous touchez chacun de 50 € à 250 €+ en chèque-cadeau."},
+  {t:"Chaque pro que vous recommandez = un chèque-cadeau.",s:"Votre lien, votre argent. Vous et votre filleul êtes récompensés dès la signature."},
+  {t:"Aidez un proche à arrêter de payer trop cher — et soyez payé pour ça.",s:"Vous ne faites que partager votre lien. On s'occupe de tout le reste."}
 ];
 let _bannIdx=0,_bannTimer=null;
 function bandeauParrainage(){
@@ -255,23 +255,21 @@ function bandeauParrainage(){
     <button aria-label="Masquer" onclick="event.stopPropagation();var b=document.getElementById('bParr');if(b)b.style.display='none';sessionStorage.setItem('elga_parr_dismiss','1')" class="absolute top-2.5 right-3 z-10 text-white/70 hover:text-white text-2xl leading-none">×</button>
     <div class="relative max-w-5xl mx-auto px-4 sm:px-8 py-4 sm:py-6 flex flex-col sm:flex-row sm:items-center gap-4 cursor-pointer" onclick="setTab('parrainage')">
       <div class="shrink-0 flex items-center gap-3">
-        <div class="h-12 w-12 rounded-2xl bg-white/15 grid place-items-center">
-          <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m6-1.13a4 4 0 10-4-4 4 4 0 004 4zm6 0a3 3 0 10-2-5.24"/></svg>
-        </div>
-        <div class="sm:hidden inline-flex items-baseline gap-1 bg-white text-emerald-700 rounded-xl px-3 py-1.5 font-extrabold"><span class="text-[20px]">50&nbsp;€</span><span class="text-[11px] font-bold">/ reco</span></div>
+        <div class="inline-flex items-center gap-1.5 bg-white/15 border border-white/25 rounded-full px-3 py-1 text-[12px] font-extrabold tracking-wide">⚡ ELGAENERGY<span class="text-emerald-200">+</span></div>
+        <div class="sm:hidden inline-flex items-baseline gap-1 bg-white text-emerald-700 rounded-xl px-3 py-1.5 font-extrabold shadow-lg"><span class="text-[19px]">dès 50&nbsp;€</span></div>
       </div>
       <div class="flex-1 min-w-0">
-        <div id="bParrT" class="font-extrabold text-[16px] sm:text-[19px] leading-snug transition-opacity duration-300">${m.t}</div>
+        <div id="bParrT" class="font-extrabold text-[17px] sm:text-[20px] leading-snug transition-opacity duration-300">${m.t}</div>
         <div id="bParrS" class="text-[13px] sm:text-[14px] text-white/90 mt-1 transition-opacity duration-300">${m.s}</div>
       </div>
       <div class="shrink-0 flex items-center gap-3 self-start sm:self-center">
-        <div class="hidden sm:flex flex-col items-center bg-white text-emerald-700 rounded-2xl px-4 py-2 leading-none">
-          <span class="text-[26px] font-extrabold">50&nbsp;€</span><span class="text-[11px] font-bold mt-0.5">par recommandation</span>
+        <div class="hidden sm:flex flex-col items-center bg-white text-emerald-700 rounded-2xl px-4 py-2 leading-none shadow-lg">
+          <span class="text-[26px] font-extrabold">dès 50&nbsp;€</span><span class="text-[10.5px] font-bold mt-0.5">chèque-cadeau / reco</span>
         </div>
-        <span class="inline-flex items-center gap-1.5 bg-white/15 border border-white/30 text-white font-bold text-[14px] rounded-xl px-4 py-2.5 whitespace-nowrap hover:bg-white/25 transition">Recommander <span aria-hidden="true">→</span></span>
+        <span class="inline-flex items-center gap-1.5 bg-white text-emerald-700 font-extrabold text-[14px] rounded-xl px-4 py-2.5 whitespace-nowrap hover:bg-emerald-50 transition shadow-lg animate-pulse">Recommander <span aria-hidden="true">→</span></span>
       </div>
     </div>
-    <div class="relative max-w-5xl mx-auto px-4 sm:px-8 pb-2.5 -mt-1 text-[10.5px] text-white/70 leading-snug">Offre parrainage : 50 € en chèque-cadeau, versés lorsque votre recommandation devient cliente d'Elga Energy (contrat signé). Un seul lien à partager, chaque recommandation vous est attribuée.</div>
+    <div class="relative max-w-5xl mx-auto px-4 sm:px-8 pb-2.5 -mt-1 text-[10.5px] text-white/70 leading-snug">Vous ET votre filleul recevez chacun un chèque-cadeau (50 € minimum, jusqu'à 250 €+ selon son contrat), versé dès qu'il signe avec Elga Energy. Un seul lien, chaque recommandation vous est attribuée.</div>
   </div>`;
 }
 // Fait défiler les messages toutes les 5 s, avec un fondu. Relancé à chaque rendu de page.
@@ -442,7 +440,7 @@ function vueConseiller(){
 }
 
 function lienParrain(){ return `https://www.elgaenergy.com/scanner.html?parrain=${STATE.parrain_code||''}`; }
-function msgParrain(){ return `Bonjour, les prix de l'énergie ont beaucoup augmenté ces derniers temps. J'ai fait vérifier mes factures gratuitement par Elga Energy, mon courtier en énergie — bilan en 15 secondes, sans engagement. Voici le lien si vous souhaitez vérifier les vôtres : ${lienParrain()}`; }
+function msgParrain(){ return `Salut ! Je passe par Elga Energy pour mon énergie et ils m'ont fait économiser. Je te fais profiter du même coup de pouce : fais vérifier tes factures gratuitement (2 min, sans engagement) via mon lien. Voici : ${lienParrain()}`; }
 function partager(canal){
   const url=lienParrain(), txt=msgParrain();
   if(canal==='wa') window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank');
@@ -488,22 +486,43 @@ function vueParrainage(){
       <div class="flex items-center gap-2.5"><div class="h-9 w-9 rounded-xl bg-primary-50 grid place-items-center text-primary-600"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 21h18M5 21V7l7-4 7 4v14M9 9h.01M9 13h.01M9 17h.01M15 9h.01M15 13h.01M15 17h.01"/></svg></div>
       <div><div class="text-[13px] font-semibold text-slate-700">${esc(p.qui)}</div><div class="text-[11px] text-slate-400">a vérifié sa facture · ${esc(p.le)}</div></div></div>
       ${p.eco&&+p.eco>0?`<span class="text-[12px] font-bold text-primary-700">${euro(+p.eco)}/an à gagner</span>`:''}</div>`).join('');
+  const nbV=val.length, PAL=3, ambassadeur=nbV>=PAL, prog=Math.min(100,Math.round(nbV/PAL*100));
   return `
-  <section class="fade relative overflow-hidden rounded-3xl text-white shadow-strong mb-5" style="background:linear-gradient(120deg,#0b3d91 0%,#0e8a57 75%)">
+  <section class="fade relative overflow-hidden rounded-3xl text-white shadow-strong mb-5" style="background:linear-gradient(120deg,#0b3d91 0%,#0e8a57 78%)">
     <div class="absolute -right-10 -top-10 w-52 h-52 rounded-full bg-white/10 pointer-events-none"></div>
     <div class="absolute right-24 bottom-0 w-28 h-28 rounded-full bg-white/10 pointer-events-none"></div>
+    <div class="absolute left-1/3 top-4 w-16 h-16 rounded-full bg-white/10 pointer-events-none"></div>
     <div class="relative p-6 sm:p-9 max-w-2xl">
-      <div class="inline-flex items-center gap-2 text-[12px] font-bold bg-white/15 rounded-full px-3 py-1.5 mb-4">Programme de parrainage</div>
-      <h2 class="text-2xl sm:text-4xl font-extrabold leading-tight">Recommandez Elga.<br>Votre réseau y gagne — vous aussi.</h2>
-      <p class="text-[14.5px] sm:text-[15.5px] text-white/90 mt-3 leading-relaxed">Les prix de l'énergie s'envolent, et beaucoup d'entreprises paient trop cher sans le savoir. Partagez votre lien : un professionnel que vous connaissez fait vérifier ses factures en 15 secondes — et dès qu'il devient client, <strong>vous êtes récompensé</strong>.</p>
+      <div class="inline-flex items-center gap-2 text-[12px] font-extrabold bg-white/15 border border-white/25 rounded-full px-3.5 py-1.5 mb-4 tracking-wide">⚡ ELGAENERGY<span class="text-emerald-200">+</span> · Programme de recommandation</div>
+      <h2 class="text-2xl sm:text-[34px] font-extrabold leading-tight">Offrez un cadeau à un proche.<br>Recevez-en un aussi. 🎁</h2>
+      <p class="text-[14.5px] sm:text-[16px] text-white/90 mt-3 leading-relaxed">Vous connaissez un pro qui paie trop cher son énergie ? Offrez-lui l'analyse gratuite de ses factures. <strong>Dès qu'il signe, vous recevez CHACUN un chèque-cadeau</strong> — 50 € minimum, jusqu'à 250 €+ selon son contrat.</p>
+      <div class="flex flex-wrap gap-2.5 mt-5">
+        <div class="inline-flex flex-col items-center bg-white text-emerald-700 rounded-2xl px-5 py-2.5 leading-none shadow-lg"><span class="text-[24px] font-extrabold">dès 50 €</span><span class="text-[10.5px] font-bold mt-0.5">pour vous</span></div>
+        <div class="inline-flex flex-col items-center bg-white/15 border border-white/30 rounded-2xl px-5 py-2.5 leading-none"><span class="text-[24px] font-extrabold">dès 50 €</span><span class="text-[10.5px] font-bold mt-0.5">pour votre filleul</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Paliers / statut Ambassadeur : la progression "scintillante" -->
+  <section class="fade bg-white rounded-3xl shadow-soft p-6 sm:p-7 mb-5">
+    <div class="flex items-center justify-between mb-3">
+      <h3 class="text-[16px] font-extrabold text-slate-900">${ambassadeur?'⭐ Vous êtes Ambassadeur ELGAENERGY+':'Devenez Ambassadeur ELGAENERGY+'}</h3>
+      <span class="text-[12px] font-bold px-3 py-1.5 rounded-full ${ambassadeur?'bg-amber-100 text-amber-700':'bg-slate-100 text-slate-500'}">${nbV}/${PAL} filleuls</span>
+    </div>
+    <div class="h-3 rounded-full bg-slate-100 overflow-hidden"><div class="h-full rounded-full transition-all duration-700" style="width:${prog}%;background:linear-gradient(90deg,#0e8a57,#f59e0b)"></div></div>
+    <p class="text-[12.5px] text-slate-500 mt-2">${ambassadeur?'Vos recommandations rapportent désormais <strong>+25 %</strong> ⭐ Merci de faire tourner Elga !':`Plus que <strong>${PAL-nbV}</strong> filleul${PAL-nbV>1?'s':''} signé${PAL-nbV>1?'s':''} pour débloquer le statut Ambassadeur : <strong>+25 %</strong> sur toutes vos récompenses.`}</p>
+    <div class="grid grid-cols-3 gap-2 mt-4 text-center">
+      <div class="rounded-xl p-3 ${nbV>=1?'bg-primary-50':'bg-slate-50'}"><div class="text-2xl">${nbV>=1?'✅':'1️⃣'}</div><div class="text-[11px] font-bold text-slate-600 mt-1">1er filleul</div><div class="text-[10.5px] text-slate-400">Récompensé</div></div>
+      <div class="rounded-xl p-3 ${nbV>=PAL?'bg-amber-50':'bg-slate-50'}"><div class="text-2xl">${nbV>=PAL?'⭐':'🎯'}</div><div class="text-[11px] font-bold text-slate-600 mt-1">3 filleuls</div><div class="text-[10.5px] text-slate-400">Ambassadeur +25 %</div></div>
+      <div class="rounded-xl p-3 bg-slate-50"><div class="text-2xl">🚀</div><div class="text-[11px] font-bold text-slate-600 mt-1">5 filleuls</div><div class="text-[10.5px] text-slate-400">Cagnotte qui explose</div></div>
     </div>
   </section>
 
   ${blocRecompense()}
 
   <section class="fade bg-white rounded-3xl shadow-soft p-6 sm:p-7 mb-5">
-    <h3 class="text-[16px] font-extrabold text-slate-900">Votre lien personnel</h3>
-    <p class="text-[13px] text-slate-400 mb-4">Un seul lien, à partager où vous voulez. Chaque vérification qui en vient vous est attribuée.</p>
+    <h3 class="text-[16px] font-extrabold text-slate-900">Votre lien — partagez en 1 clic</h3>
+    <p class="text-[13px] text-slate-400 mb-4">Un seul lien, chaque vérification qui en vient vous est attribuée. Message déjà prêt, vous n'avez rien à écrire.</p>
     <div class="rounded-2xl border border-slate-200 bg-slate-50/70 p-2 pl-4 flex items-center gap-2">
       <input readonly value="${esc(lienParrain())}" onclick="this.select()" class="flex-1 bg-transparent text-[13px] text-slate-600 outline-none truncate"/>
       <button onclick="partager('copy')" class="btn-p rounded-xl px-4 py-2.5 text-[13.5px] shrink-0">Copier</button>
@@ -512,6 +531,15 @@ function vueParrainage(){
       <button onclick="partager('wa')" class="sugg flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white py-3.5 text-[14px] font-bold text-slate-700"><span class="text-lg">💬</span> WhatsApp</button>
       <button onclick="partager('sms')" class="sugg flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white py-3.5 text-[14px] font-bold text-slate-700"><span class="text-lg">📱</span> SMS</button>
       <button onclick="partager('mail')" class="sugg flex items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white py-3.5 text-[14px] font-bold text-slate-700"><span class="text-lg">✉️</span> E-mail</button>
+    </div>
+    <div class="mt-4 rounded-xl bg-slate-50 border border-slate-100 p-3.5">
+      <div class="text-[11px] font-bold uppercase tracking-wide text-slate-400 mb-1">Message prêt à envoyer</div>
+      <p class="text-[13px] text-slate-600 italic leading-relaxed">${esc(msgParrain())}</p>
+    </div>
+    <div class="mt-4 grid grid-cols-3 gap-2 text-center">
+      <div><div class="text-[20px]">📤</div><div class="text-[11.5px] font-semibold text-slate-600 mt-0.5">1. Partagez votre lien</div></div>
+      <div><div class="text-[20px]">📄</div><div class="text-[11.5px] font-semibold text-slate-600 mt-0.5">2. Il fait vérifier sa facture</div></div>
+      <div><div class="text-[20px]">🎁</div><div class="text-[11.5px] font-semibold text-slate-600 mt-0.5">3. Il signe → chèques-cadeaux</div></div>
     </div>
   </section>
 
@@ -529,10 +557,10 @@ function vueParrainage(){
         <div class="text-[12px] text-amber-600 mt-1">${enc.length} en cours de validation</div>
       </div>
     </div>
-    <h3 class="text-[15px] font-extrabold text-slate-900 mb-2.5">Recommandations validées <span class="text-slate-400 font-semibold">· 50 € chacune (chèque-cadeau)</span></h3>
+    <h3 class="text-[15px] font-extrabold text-slate-900 mb-2.5">Recommandations validées <span class="text-slate-400 font-semibold">· chèque-cadeau (50 € min.)</span></h3>
     <div class="space-y-2">${val.map(p=>recoLine(p,true)).join('')}</div>
     ${enc.length?`<h3 class="text-[15px] font-extrabold text-slate-900 mt-6 mb-2.5">En cours</h3><div class="space-y-2">${enc.map(p=>recoLine(p,false)).join('')}</div>`:''}
-    <p class="text-[12px] text-slate-400 mt-5 text-center">Chaque professionnel que vous recommandez vous rapporte 50 € en chèque-cadeau, dès qu'il signe son contrat avec Elga Energy.</p>
+    <p class="text-[12px] text-slate-400 mt-5 text-center">Chaque pro qui signe grâce à vous = un chèque-cadeau (50 € minimum, jusqu'à 250 €+ selon son contrat), pour vous ET pour lui.</p>
   </section>`:`
   <section class="fade bg-white rounded-3xl shadow-soft p-6 sm:p-7">
     <div class="flex items-center justify-between mb-4">
