@@ -167,7 +167,7 @@ function seDeconnecter(){ history.replaceState(null,'','/espace/'); location.rel
 const NAV=[
   {id:'dashboard',label:'Tableau de bord',icon:'M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6'},
   {id:'assistant',label:'Mon assistant',action:'chat',icon:'M8 12h.01M12 12h.01M16 12h.01M21 12a9 9 0 11-4.7-7.9L21 3l-1.1 4.3A8.96 8.96 0 0121 12z'},
-  {id:'contrat',label:'Mon contrat',icon:'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'},
+  {id:'contrat',label:'Mes contrats',icon:'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'},
   {id:'factures',label:'Mes factures',icon:'M9 14l6-6M9 8h.01M15 14h.01M5 21V5a2 2 0 012-2h10a2 2 0 012 2v16l-3-2-2 2-2-2-2 2-2-2-3 2z'},
   {id:'conseiller',label:'Mon conseiller',icon:'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z'},
   {id:'parrainage',label:'Parrainage',icon:'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8V6m0 8v2m0-10a9 9 0 100 18 9 9 0 000-18z'},
@@ -286,7 +286,7 @@ function bandeauParrainage(){
         <span class="inline-flex items-center gap-1.5 bg-white text-emerald-700 font-extrabold text-[14px] rounded-xl px-4 py-2.5 whitespace-nowrap hover:bg-emerald-50 transition shadow-lg animate-pulse">Recommander <span aria-hidden="true">→</span></span>
       </div>
     </div>
-    <div class="relative max-w-5xl mx-auto px-4 sm:px-8 pb-2.5 -mt-1 text-[10.5px] text-white/70 leading-snug">Récompense calculée sur la consommation des compteurs de votre filleul, partagée 50/50 — minimum 30 € chacun (60 € au total), jusqu'à 250 €+. Réservée aux professionnels. Versée en chèque-cadeau à 30 jours fin de mois après sa signature. Un seul lien, chaque recommandation vous est attribuée.</div>
+    <div class="relative max-w-5xl mx-auto px-4 sm:px-8 pb-2.5 -mt-1 text-[10.5px] text-white/70 leading-snug">Récompense calculée sur la consommation des compteurs de votre filleul, partagée moitié-moitié — de 30 € à 250 €+ chacun selon la consommation. Réservée aux professionnels. Versée en chèque-cadeau à 30 jours fin de mois après sa signature. Un seul lien, chaque recommandation vous est attribuée.</div>
   </div>`;
 }
 // Fait défiler les messages toutes les 5 s, avec un fondu. Relancé à chaque rendu de page.
@@ -359,19 +359,33 @@ function vueDashboard(){
   <div class="mt-5">${carteConseiller(true)}</div>`;
 }
 
+function contratLabel(x){const ex=x.extracted||{};const gaz=(x.energie||ex.energie)==='gaz';return {gaz,ico:gaz?'🔥':'⚡',lab:gaz?'Gaz':'Élec',site:x.site||ex.adresse_site||ex.fournisseur||'',ref:x.pdl||x.pce||ex.pdl||ex.pce||''};}
 function vueContrat(){
-  const c=STATE.contrat;
-  if(!c) return `
+  // Repli rétro-compatible : si le backend n'a pas encore la liste `contrats`
+  // (migration 0046 non appliquée), on enveloppe le contrat unique existant.
+  let list=STATE.contrats;
+  if(!Array.isArray(list)||!list.length){
+    list = STATE.contrat ? [{id:'legacy',energie:(STATE.contrat.pce?'gaz':'elec'),site:STATE.contrat.adresse_site||STATE.contrat.raison_sociale||'',extracted:STATE.contrat}] : [];
+  }
+  if(!list.length) return `
     <section class="bg-white rounded-2xl shadow-soft p-5">
-      <h2 class="text-[16px] font-extrabold text-slate-900">Mon contrat</h2>
-      <p class="text-[13px] text-slate-400 mb-3">Déposez votre contrat une fois — on en extrait tout (prix, abonnement, dates, préavis…) et on le surveille.</p>
+      <h2 class="text-[16px] font-extrabold text-slate-900">Mes contrats</h2>
+      <p class="text-[13px] text-slate-400 mb-3">Déposez chacun de vos contrats — <strong>un par compteur</strong> (élec, gaz, plusieurs sites). On en extrait tout (prix, abonnement, dates, préavis…) et on les surveille.</p>
       <button id="dropContrat" class="drop w-full rounded-2xl p-8 text-center block">
         <svg class="mx-auto w-8 h-8 text-primary-600" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 16V4m0 0L7 9m5-5l5 5M4 20h16"/></svg>
-        <p class="text-[14.5px] font-bold text-slate-800 mt-2">Déposer mon contrat (PDF ou photo)</p>
+        <p class="text-[14.5px] font-bold text-slate-800 mt-2">Déposer un contrat (PDF ou photo)</p>
         <p class="text-[12.5px] text-slate-400">CGV comprises — analyse automatique</p>
       </button>
       <input id="fileContrat" type="file" accept=".pdf,image/*" class="hidden"/>
     </section>`;
+  if(STATE._csel==null||STATE._csel>=list.length)STATE._csel=0;
+  const sel=STATE._csel, item=list[sel]||{}, c=item.extracted||{}, cid=item.id, L=contratLabel(item);
+  // Onglets par compteur (seulement s'il y en a plusieurs)
+  const onglets=list.length>1?`<div class="flex flex-wrap gap-2 mb-4">
+    ${list.map((x,i)=>{const l=contratLabel(x);return `<button onclick="selContrat(${i})" class="rounded-xl px-3.5 py-2 text-[12.5px] font-bold border transition text-left ${i===sel?'bg-primary-600 border-primary-600 text-white shadow':'bg-white border-slate-200 text-slate-600 hover:border-primary-300'}">
+      <span class="mr-1">${l.ico}</span>${l.lab}${l.site?` · ${esc(l.site.slice(0,20))}`:` ${i+1}`}${l.ref?` <span class="opacity-70">#${esc(String(l.ref).slice(-6))}</span>`:''}</button>`;}).join('')}
+    <button onclick="pickContrat(null)" class="rounded-xl px-3.5 py-2 text-[12.5px] font-bold border border-dashed border-primary-300 text-primary-700 bg-primary-50/40 hover:bg-primary-50">＋ Ajouter</button>
+  </div>`:'';
   const prixVal=c.prix_kwh_base_mwh!=null?`${numf(c.prix_kwh_base_mwh)} €/MWh`:(c.prix_kwh_hph_mwh!=null?`${numf(c.prix_kwh_hph_mwh)} / ${numf(c.prix_kwh_hch_mwh)}`:null);
   const prixSub=c.prix_kwh_base_mwh!=null?`≈ ${numf(c.prix_kwh_base_mwh/10,2)} c€/kWh`:(c.prix_kwh_hph_mwh!=null?'HP / HC €/MWh':'');
   const jf=joursAvant(c.date_fin), finSub=jf!=null?(jf<0?'échéance passée':`dans ${jf} jour${jf>1?'s':''}`):'';
@@ -380,10 +394,11 @@ function vueContrat(){
   if(c.reconduction==='tacite')vig.push("Reconduction tacite : sans action, le contrat repart automatiquement. On vous préviendra avant l'échéance.");
   if(!c.date_fin&&c.type_contrat!=='trv')vig.push("Pas de date de fin claire : votre prix peut être revu sans préavis. On garde un œil dessus.");
   return `
+  ${onglets}
   <section class="bg-white rounded-2xl shadow-soft overflow-hidden">
     <div class="p-5 border-b border-slate-100 flex items-start justify-between gap-3">
-      <div><div class="text-[11px] uppercase tracking-wide text-slate-400 font-semibold">Mon contrat</div>
-        <div class="text-[19px] font-extrabold text-slate-900 mt-0.5">${esc(c.fournisseur||'Votre contrat')}</div>
+      <div><div class="text-[11px] uppercase tracking-wide text-slate-400 font-semibold flex items-center gap-1.5"><span class="inline-flex items-center gap-1 rounded-full ${L.gaz?'bg-orange-50 text-orange-700':'bg-sky-50 text-sky-700'} px-2 py-0.5 text-[10.5px] font-bold">${L.ico} ${L.lab}</span>${L.site?`<span class="text-slate-400 normal-case font-medium">· ${esc(L.site.slice(0,32))}</span>`:''}</div>
+        <div class="text-[19px] font-extrabold text-slate-900 mt-1">${esc(c.fournisseur||'Votre contrat')}</div>
         <div class="text-[13px] text-slate-500">${esc(c.offre_nom||'')}</div></div>
       <div>${badgeType(c.type_contrat)}</div>
     </div>
@@ -396,14 +411,21 @@ function vueContrat(){
       ${tuile('Préavis de résiliation',c.preavis_resiliation?esc(c.preavis_resiliation):null)}
       ${tuile('Reconduction',c.reconduction?(c.reconduction==='tacite'?'Tacite':'Expresse'):null)}
       ${tuile('Gestionnaire réseau',c.gestionnaire_reseau?esc(c.gestionnaire_reseau):null)}
-      ${tuile('N° PDL / PRM',(c.pdl||c.pce)?esc(c.pdl||c.pce):null)}
+      ${tuile(L.gaz?'N° PCE':'N° PDL / PRM',(c.pdl||c.pce)?esc(c.pdl||c.pce):null)}
     </div>
     ${vig.length?`<div class="mx-5 mb-5 rounded-xl border border-amber-200 bg-amber-50/70 p-3.5"><div class="text-[12.5px] font-bold text-amber-800 mb-1">⚠️ Points de vigilance</div><ul class="text-[12.5px] text-amber-800/90 space-y-1 list-disc pl-4">${vig.map(v=>`<li>${esc(v)}</li>`).join('')}</ul></div>`
       :`<div class="mx-5 mb-5 rounded-xl bg-primary-50 text-primary-800 text-[13px] font-semibold p-3">✅ Contrat sous contrôle — rien à signaler.</div>`}
-    <div class="px-5 pb-5"><button id="dropContrat" class="text-[13px] font-semibold text-primary-700 hover:underline">Mettre à jour mon contrat</button>
-      <input id="fileContrat" type="file" accept=".pdf,image/*" class="hidden"/></div>
+    <div class="px-5 pb-5 flex flex-wrap items-center gap-x-5 gap-y-2">
+      <button onclick="pickContrat('${cid}')" class="text-[13px] font-semibold text-primary-700 hover:underline">Mettre à jour ce contrat</button>
+      <button onclick="pickContrat(null)" class="text-[13px] font-semibold text-primary-700 hover:underline">＋ Ajouter un autre contrat (gaz, autre site…)</button>
+      ${list.length>1?`<button onclick="delContrat('${cid}')" class="text-[13px] font-semibold text-rose-600 hover:underline ml-auto">Retirer ce contrat</button>`:''}
+      <input id="fileContrat" type="file" accept=".pdf,image/*" class="hidden"/>
+    </div>
   </section>`;
 }
+function selContrat(i){STATE._csel=i;renderContent();}
+function pickContrat(rid){STATE._replaceId=rid||null;const inp=document.getElementById('fileContrat');if(inp)inp.click();}
+async function delContrat(id){if(!confirm('Retirer ce contrat de votre espace ?'))return;const d=await rpc('espace_delete_contrat',{p_token:TOKEN,p_id:id});if(d&&d.ok){STATE._csel=0;await recharger();toast('Contrat retiré');}else toast((d&&d.error)||'Impossible pour le moment',false);}
 
 function vueFactures(){
   const list=(STATE.factures||[]).slice().reverse();
@@ -516,7 +538,7 @@ function vueParrainage(){
         <div class="inline-flex flex-col items-center bg-white text-emerald-700 rounded-2xl px-7 py-3 shadow-xl leading-none">
           <span class="text-[12px] font-bold uppercase tracking-wide">jusqu'à</span>
           <span class="text-[40px] sm:text-[46px] font-extrabold my-0.5">250 €<span class="text-emerald-500">+</span></span>
-          <span class="text-[11px] font-bold">par recommandation</span>
+          <span class="text-[11px] font-bold">chacun</span>
         </div>
         <div class="text-white/95 text-[14px] leading-relaxed">
           <div>💶 <strong>Minimum 30 € pour vous</strong></div>
@@ -597,10 +619,11 @@ function vueParrainage(){
       <div class="text-[11px] font-bold uppercase tracking-wide text-slate-400 mb-1">Message prêt à envoyer</div>
       <p class="text-[13px] text-slate-600 italic leading-relaxed">${esc(msgParrain())}</p>
     </div>
-    <div class="mt-4 grid grid-cols-3 gap-2 text-center">
-      <div><div class="text-[20px]">📤</div><div class="text-[11.5px] font-semibold text-slate-600 mt-0.5">1. Vous partagez votre lien</div></div>
-      <div><div class="text-[20px]">📄</div><div class="text-[11.5px] font-semibold text-slate-600 mt-0.5">2. Il scanne sa facture (2 min)</div></div>
-      <div><div class="text-[20px]">🎁</div><div class="text-[11.5px] font-semibold text-slate-600 mt-0.5">3. S'il signe → chèques-cadeaux</div></div>
+    <div class="mt-5 grid grid-cols-2 sm:grid-cols-4 gap-2.5">
+      <div class="rounded-2xl border border-slate-100 bg-white p-3.5 text-center"><div class="text-[24px]">📤</div><div class="text-[11.5px] font-bold text-slate-700 mt-1.5">Vous partagez votre lien</div></div>
+      <div class="rounded-2xl border border-slate-100 bg-white p-3.5 text-center"><div class="text-[24px]">📄</div><div class="text-[11.5px] font-bold text-slate-700 mt-1.5">Il scanne sa facture (2 min)</div></div>
+      <div class="rounded-2xl border border-slate-100 bg-white p-3.5 text-center"><div class="text-[24px]">💸</div><div class="text-[11.5px] font-bold text-slate-700 mt-1.5">Il découvre ses économies</div></div>
+      <div class="rounded-2xl border border-emerald-200 bg-emerald-50 p-3.5 text-center relative overflow-hidden"><div class="text-[24px]">🎁</div><div class="text-[11.5px] font-extrabold text-emerald-800 mt-1.5">Chèque-cadeau pour vous &amp; lui</div><div class="text-[10.5px] font-extrabold text-emerald-600 mt-0.5">jusqu'à 250 €+ chacun</div></div>
     </div>
     <div class="mt-3 rounded-xl bg-primary-50/60 border border-primary-100 p-3 text-[12px] text-slate-600 leading-relaxed">
       <strong>Aucun engagement pour votre filleul.</strong> Il scanne simplement sa facture (2 min) : Elga lui fait gratuitement le bilan comparatif de son énergie, il décide ensuite librement. <strong>Vous voyez ci-dessous</strong> tous ceux qui ont scanné via votre lien — et dès que l'un signe, votre chèque-cadeau est déclenché (versé à 30 j fin de mois).
@@ -624,7 +647,7 @@ function vueParrainage(){
     <h3 class="text-[15px] font-extrabold text-slate-900 mb-2.5">Recommandations validées <span class="text-slate-400 font-semibold">· chèque-cadeau (30 € min. chacun)</span></h3>
     <div class="space-y-2">${val.map(p=>recoLine(p,true)).join('')}</div>
     ${enc.length?`<h3 class="text-[15px] font-extrabold text-slate-900 mt-6 mb-2.5">En cours</h3><div class="space-y-2">${enc.map(p=>recoLine(p,false)).join('')}</div>`:''}
-    <p class="text-[12px] text-slate-400 mt-5 text-center">Chaque pro qui signe grâce à vous = un chèque-cadeau (30 € minimum chacun, jusqu'à 250 €+ selon son contrat), versé à 30 jours fin de mois après sa signature.</p>
+    <p class="text-[12px] text-slate-400 mt-5 text-center">Chaque pro qui signe grâce à vous = un chèque-cadeau (de 30 € à 250 €+ chacun selon sa consommation), versé à 30 jours fin de mois après sa signature.</p>
   </section>`:`
   <section class="fade bg-white rounded-3xl shadow-soft p-6 sm:p-7">
     <div class="flex items-center justify-between mb-4">
@@ -651,9 +674,12 @@ function frDateCourt(d){if(!d)return '—';const x=new Date(d);return isNaN(x)?e
 /* ─── Dépôts ─── */
 function brancherDepots(){
   [['dropContrat','fileContrat',scanContrat],['dropFacture','fileFacture',scanFacture]].forEach(([b,i,h])=>{
-    const btn=document.getElementById(b),inp=document.getElementById(i); if(!btn||!inp)return;
+    const inp=document.getElementById(i);
+    // Le listener 'change' est attaché à l'input QUEL QUE SOIT le bouton
+    // (la vue contrat à onglets déclenche via pickContrat, sans bouton "drop").
+    if(inp){ inp.addEventListener('change',e=>{if(e.target.files&&e.target.files[0]){const f=e.target.files[0];e.target.value='';h(f);}}); }
+    const btn=document.getElementById(b); if(!btn||!inp)return;
     btn.addEventListener('click',()=>inp.click());
-    inp.addEventListener('change',e=>{if(e.target.files&&e.target.files[0])h(e.target.files[0]);});
     ['dragenter','dragover'].forEach(ev=>btn.addEventListener(ev,e=>{e.preventDefault();btn.classList.add('drag-over');}));
     ['dragleave','drop'].forEach(ev=>btn.addEventListener(ev,e=>{e.preventDefault();btn.classList.remove('drag-over');}));
     btn.addEventListener('drop',e=>{if(e.dataTransfer.files&&e.dataTransfer.files[0])h(e.dataTransfer.files[0]);});
@@ -665,8 +691,10 @@ function overlay(txt){const o=document.createElement('div');o.id='ov';o.classNam
 function toast(m,ok=true){const t=document.createElement('div');t.className=`fixed bottom-24 right-5 z-50 px-4 py-2.5 rounded-xl text-[13px] font-semibold text-white shadow-strong pop ${ok?'bg-primary-600':'bg-rose-600'}`;t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),3200);}
 async function scanContrat(file){const close=overlay('Lecture de votre contrat');try{
   const b64=await fileToB64(file);const r=await fetch(`${WORKER}/api/scan-contrat`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({file_data:b64,file_type:file.type,file_name:file.name})});
-  const j=await r.json();if(!r.ok||!j.extracted)throw 0;const path=await upload('contrat',file);const sv=await rpc('espace_save_contrat',{p_token:TOKEN,p_extracted:j.extracted,p_path:path});close();
-  if(sv&&sv.ok){toast('Contrat enregistré ✓');await recharger();}else toast((sv&&sv.error)||'Enregistrement impossible',false);
+  const j=await r.json();if(!r.ok||!j.extracted)throw 0;const path=await upload('contrat',file);
+  const rid=(STATE._replaceId&&STATE._replaceId!=='legacy')?STATE._replaceId:null;STATE._replaceId=null;
+  const sv=await rpc('espace_save_contrat',{p_token:TOKEN,p_extracted:j.extracted,p_path:path,p_replace_id:rid});close();
+  if(sv&&sv.ok){toast(rid?'Contrat mis à jour ✓':'Contrat enregistré ✓');await recharger();}else toast((sv&&sv.error)||'Enregistrement impossible',false);
 }catch(e){close();toast('Lecture impossible — reprenez une photo nette.',false);}}
 async function scanFacture(file){const close=overlay('Analyse de votre facture');try{
   const b64=await fileToB64(file);const r=await fetch(`${WORKER}/api/scan`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({file_data:b64,file_type:file.type,file_name:file.name,client_type:'professionnel'})});
@@ -753,7 +781,7 @@ async function envoyer(q){
   try{
     const hist=CHAT.filter(m=>!m.typing&&m.content).map(m=>({role:m.role,content:m.content}));
     const r=await fetch(`${WORKER}/api/espace-agent`,{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({question:q,history:hist.slice(0,-1),contexte:{prenom:STATE.prenom,conseiller:STATE.conseiller,contrat:STATE.contrat,factures:STATE.factures}})});
+      body:JSON.stringify({question:q,history:hist.slice(0,-1),contexte:{prenom:STATE.prenom,conseiller:STATE.conseiller,contrat:STATE.contrat,contrats:STATE.contrats,factures:STATE.factures}})});
     out=await r.json();
   }catch{ out={reponse:"Je préfère que ton conseiller te réponde précisément là-dessus.",rappel:true}; }
   CHAT=CHAT.filter(m=>!m.typing); CHAT.push({role:'assistant',content:out.reponse||'…',rappel:!!out.rappel,action:out.action||null}); renderChat();
