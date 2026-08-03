@@ -59,7 +59,14 @@
     .navitem-parr::after{content:"";position:absolute;top:0;left:-60%;width:42%;height:100%;background:linear-gradient(105deg,transparent,rgba(255,255,255,.55),transparent);transform:skewX(-18deg);animation:shine 3.4s ease-in-out infinite;pointer-events:none}
     @keyframes shine{0%{left:-60%}42%,100%{left:135%}}
     .parrbadge{animation:parrpulse 1.8s ease-in-out infinite}@keyframes parrpulse{0%,100%{transform:scale(1)}50%{transform:scale(1.14)}}
-    @media (prefers-reduced-motion: reduce){.fade,.pop,.stagger>*,.scanline,.dots span,.ava-ring::after,.floatY,.navitem-parr::after,.parrbadge{animation:none!important;opacity:1!important;transform:none!important}.tile:hover{transform:none}}
+    /* Défilé de métiers — "la puce à l'oreille" : le parrain pense à quelqu'un de précis */
+    .marq{overflow:hidden;position:relative}
+    .marq::before,.marq::after{content:"";position:absolute;top:0;bottom:0;width:40px;z-index:2;pointer-events:none}
+    .marq::before{left:0;background:linear-gradient(90deg,#fff,transparent)}.marq::after{right:0;background:linear-gradient(270deg,#fff,transparent)}
+    .marq-track{display:inline-flex;gap:.55rem;white-space:nowrap;will-change:transform;animation:marq 26s linear infinite}
+    @keyframes marq{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+    .marq-chip{display:inline-flex;align-items:center;gap:.4rem;padding:.5rem .9rem;border-radius:999px;background:#f0fdf4;border:1px solid #bbf7d0;color:#0b6c45;font-weight:800;font-size:13.5px}
+    @media (prefers-reduced-motion: reduce){.fade,.pop,.stagger>*,.scanline,.dots span,.ava-ring::after,.floatY,.navitem-parr::after,.parrbadge,.marq-track{animation:none!important;opacity:1!important;transform:none!important}.tile:hover{transform:none}}
   </style>
 </head>
 <body class="antialiased text-slate-800 min-h-screen">
@@ -279,7 +286,7 @@ function bandeauParrainage(){
         <span class="inline-flex items-center gap-1.5 bg-white text-emerald-700 font-extrabold text-[14px] rounded-xl px-4 py-2.5 whitespace-nowrap hover:bg-emerald-50 transition shadow-lg animate-pulse">Recommander <span aria-hidden="true">→</span></span>
       </div>
     </div>
-    <div class="relative max-w-5xl mx-auto px-4 sm:px-8 pb-2.5 -mt-1 text-[10.5px] text-white/70 leading-snug">Récompense = 20 % de la valeur du contrat signé par votre filleul, partagée 50/50 — minimum 30 € chacun (60 € au total), jusqu'à 250 €+. Versée en chèque-cadeau à 30 jours fin de mois après sa signature. Un seul lien, chaque recommandation vous est attribuée.</div>
+    <div class="relative max-w-5xl mx-auto px-4 sm:px-8 pb-2.5 -mt-1 text-[10.5px] text-white/70 leading-snug">Récompense calculée sur la consommation des compteurs de votre filleul, partagée 50/50 — minimum 30 € chacun (60 € au total), jusqu'à 250 €+. Réservée aux professionnels. Versée en chèque-cadeau à 30 jours fin de mois après sa signature. Un seul lien, chaque recommandation vous est attribuée.</div>
   </div>`;
 }
 // Fait défiler les messages toutes les 5 s, avec un fondu. Relancé à chaque rendu de page.
@@ -525,10 +532,19 @@ function vueParrainage(){
     </div>
   </section>
 
+  <!-- La puce à l'oreille : un métier concret déclenche "ah oui, je connais quelqu'un" -->
+  <section class="fade mb-5">
+    <p class="text-center text-[14.5px] font-extrabold text-slate-800 mb-3">Vous connaissez forcément un pro qui paie trop cher 👇</p>
+    <div class="marq rounded-2xl border border-slate-100 bg-white py-3.5">
+      <div class="marq-track px-2">${(()=>{const m=['🥖 une boulangerie','🥩 une boucherie','🍽️ un restaurant','🚜 une exploitation agricole','🛒 un commerce','🔧 un garage','💇 un salon de coiffure','🏨 un hôtel','🍕 une pizzeria','☕ un café','🏭 un atelier','🧺 un pressing','💊 une pharmacie','🥐 une pâtisserie','🍷 un caviste'];const one=m.map(x=>`<span class="marq-chip">${x}</span>`).join('');return one+one;})()}</div>
+    </div>
+    <p class="text-center text-[12.5px] text-slate-500 mt-3 max-w-xl mx-auto leading-relaxed">Un boulanger, un restaurateur, un exploitant, un commerçant que vous croisez… <strong class="text-slate-700">pensez à lui : recommandez-le.</strong> <span class="inline-block mt-1 text-[11.5px] text-slate-400">ELGAENERGY+ s'adresse aux <strong>professionnels</strong> (commerces, artisans, exploitations, PME) — pas aux particuliers.</span></p>
+  </section>
+
   <!-- Comment c'est calculé : l'exemple qui rend limpide -->
   <section class="fade bg-white rounded-3xl shadow-soft p-6 sm:p-7 mb-5">
     <h3 class="text-[16px] font-extrabold text-slate-900 mb-1">Combien vous gagnez, concrètement</h3>
-    <p class="text-[13px] text-slate-500 mb-4">Votre récompense = <strong>20 % de la valeur du contrat</strong> que votre filleul signe, <strong>minimum 60 €</strong>, partagée 50/50. Plus il consomme, plus vous gagnez tous les deux.</p>
+    <p class="text-[13px] text-slate-500 mb-4">Votre récompense est <strong>calculée sur la consommation des compteurs</strong> de votre filleul — <strong>minimum 60 €</strong> (30 € chacun), partagée moitié-moitié. Plus ses compteurs consomment, plus vous gagnez tous les deux.</p>
     <div class="rounded-2xl border border-emerald-100 bg-emerald-50/50 p-4 sm:p-5">
       <div class="text-[12px] font-bold text-emerald-700 mb-2">💡 Exemple : votre filleul est une boulangerie</div>
       <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-[13.5px] text-slate-700">
