@@ -240,9 +240,9 @@ function renderContent(){
 
 // Messages publicitaires de la bannière parrainage — tournent en boucle sur toutes les pages.
 const BANNIERE_MSGS=[
-  {t:"Faites un cadeau à un proche. Gagnez-en un aussi.",s:"Offrez-lui l'analyse gratuite de ses factures. S'il signe, vous recevez CHACUN un chèque-cadeau — 50 € minimum."},
-  {t:"Vous connaissez un commerçant, un artisan, une PME ?",s:"Envoyez votre lien : il fait vérifier sa facture en 2 min, et vous touchez chacun de 50 € à 250 €+ en chèque-cadeau."},
-  {t:"Chaque pro que vous recommandez = un chèque-cadeau.",s:"Votre lien, votre argent. Vous et votre filleul êtes récompensés dès la signature."},
+  {t:"Faites un cadeau à un proche. Gagnez-en un aussi.",s:"Offrez-lui l'analyse gratuite de ses factures. S'il signe, vous recevez un chèque-cadeau chacun — dès 30 €."},
+  {t:"Vous connaissez un commerçant, un artisan, une PME ?",s:"Envoyez votre lien : il fait vérifier sa facture en 2 min, et vous touchez un chèque-cadeau chacun (dès 30 €, jusqu'à 250 €+)."},
+  {t:"Chaque pro qui signe grâce à vous = un chèque-cadeau, pour vous et pour lui.",s:"Votre lien, votre argent. Récompensés dès la signature."},
   {t:"Aidez un proche à arrêter de payer trop cher — et soyez payé pour ça.",s:"Vous ne faites que partager votre lien. On s'occupe de tout le reste."}
 ];
 let _bannIdx=0,_bannTimer=null;
@@ -256,7 +256,7 @@ function bandeauParrainage(){
     <div class="relative max-w-5xl mx-auto px-4 sm:px-8 py-4 sm:py-6 flex flex-col sm:flex-row sm:items-center gap-4 cursor-pointer" onclick="setTab('parrainage')">
       <div class="shrink-0 flex items-center gap-3">
         <div class="inline-flex items-center gap-1.5 bg-white/15 border border-white/25 rounded-full px-3 py-1 text-[12px] font-extrabold tracking-wide">⚡ ELGAENERGY<span class="text-emerald-200">+</span></div>
-        <div class="sm:hidden inline-flex items-baseline gap-1 bg-white text-emerald-700 rounded-xl px-3 py-1.5 font-extrabold shadow-lg"><span class="text-[19px]">dès 50&nbsp;€</span></div>
+        <div class="sm:hidden inline-flex items-baseline gap-1 bg-white text-emerald-700 rounded-xl px-3 py-1.5 font-extrabold shadow-lg"><span class="text-[19px]">30&nbsp;€ chacun</span></div>
       </div>
       <div class="flex-1 min-w-0">
         <div id="bParrT" class="font-extrabold text-[17px] sm:text-[20px] leading-snug transition-opacity duration-300">${m.t}</div>
@@ -264,12 +264,12 @@ function bandeauParrainage(){
       </div>
       <div class="shrink-0 flex items-center gap-3 self-start sm:self-center">
         <div class="hidden sm:flex flex-col items-center bg-white text-emerald-700 rounded-2xl px-4 py-2 leading-none shadow-lg">
-          <span class="text-[26px] font-extrabold">dès 50&nbsp;€</span><span class="text-[10.5px] font-bold mt-0.5">chèque-cadeau / reco</span>
+          <span class="text-[24px] font-extrabold">30&nbsp;€ chacun</span><span class="text-[10.5px] font-bold mt-0.5">min. · jusqu'à 250&nbsp;€+</span>
         </div>
         <span class="inline-flex items-center gap-1.5 bg-white text-emerald-700 font-extrabold text-[14px] rounded-xl px-4 py-2.5 whitespace-nowrap hover:bg-emerald-50 transition shadow-lg animate-pulse">Recommander <span aria-hidden="true">→</span></span>
       </div>
     </div>
-    <div class="relative max-w-5xl mx-auto px-4 sm:px-8 pb-2.5 -mt-1 text-[10.5px] text-white/70 leading-snug">Vous ET votre filleul recevez chacun un chèque-cadeau (50 € minimum, jusqu'à 250 €+ selon son contrat), versé dès qu'il signe avec Elga Energy. Un seul lien, chaque recommandation vous est attribuée.</div>
+    <div class="relative max-w-5xl mx-auto px-4 sm:px-8 pb-2.5 -mt-1 text-[10.5px] text-white/70 leading-snug">Récompense = 20 % de la valeur du contrat signé par votre filleul, partagée 50/50 — minimum 30 € chacun (60 € au total), jusqu'à 250 €+. Versée en chèque-cadeau dès qu'il signe. Un seul lien, chaque recommandation vous est attribuée.</div>
   </div>`;
 }
 // Fait défiler les messages toutes les 5 s, avec un fondu. Relancé à chaque rendu de page.
@@ -495,11 +495,30 @@ function vueParrainage(){
     <div class="relative p-6 sm:p-9 max-w-2xl">
       <div class="inline-flex items-center gap-2 text-[12px] font-extrabold bg-white/15 border border-white/25 rounded-full px-3.5 py-1.5 mb-4 tracking-wide">⚡ ELGAENERGY<span class="text-emerald-200">+</span> · Programme de recommandation</div>
       <h2 class="text-2xl sm:text-[34px] font-extrabold leading-tight">Offrez un cadeau à un proche.<br>Recevez-en un aussi. 🎁</h2>
-      <p class="text-[14.5px] sm:text-[16px] text-white/90 mt-3 leading-relaxed">Vous connaissez un pro qui paie trop cher son énergie ? Offrez-lui l'analyse gratuite de ses factures. <strong>Dès qu'il signe, vous recevez CHACUN un chèque-cadeau</strong> — 50 € minimum, jusqu'à 250 €+ selon son contrat.</p>
-      <div class="flex flex-wrap gap-2.5 mt-5">
-        <div class="inline-flex flex-col items-center bg-white text-emerald-700 rounded-2xl px-5 py-2.5 leading-none shadow-lg"><span class="text-[24px] font-extrabold">dès 50 €</span><span class="text-[10.5px] font-bold mt-0.5">pour vous</span></div>
-        <div class="inline-flex flex-col items-center bg-white/15 border border-white/30 rounded-2xl px-5 py-2.5 leading-none"><span class="text-[24px] font-extrabold">dès 50 €</span><span class="text-[10.5px] font-bold mt-0.5">pour votre filleul</span></div>
+      <p class="text-[14.5px] sm:text-[16px] text-white/90 mt-3 leading-relaxed">Vous connaissez un pro qui paie trop cher son énergie ? Offrez-lui l'analyse gratuite de ses factures. <strong>Dès qu'il signe, une récompense est partagée entre vous deux</strong> — un chèque-cadeau chacun.</p>
+      <div class="mt-5 inline-flex items-stretch gap-0 rounded-2xl overflow-hidden bg-white shadow-lg text-emerald-700">
+        <div class="flex flex-col items-center justify-center px-5 py-2.5 leading-none"><span class="text-[22px] font-extrabold">30 €</span><span class="text-[10.5px] font-bold mt-0.5">min. pour vous</span></div>
+        <div class="w-px bg-emerald-100"></div>
+        <div class="flex flex-col items-center justify-center px-5 py-2.5 leading-none"><span class="text-[22px] font-extrabold">30 €</span><span class="text-[10.5px] font-bold mt-0.5">min. pour lui</span></div>
+        <div class="flex flex-col items-center justify-center px-4 py-2.5 leading-none bg-emerald-600 text-white"><span class="text-[15px] font-extrabold">jusqu'à 250 €+</span><span class="text-[10px] font-bold mt-0.5">selon sa conso</span></div>
       </div>
+    </div>
+  </section>
+
+  <!-- Comment c'est calculé : l'exemple qui rend limpide -->
+  <section class="fade bg-white rounded-3xl shadow-soft p-6 sm:p-7 mb-5">
+    <h3 class="text-[16px] font-extrabold text-slate-900 mb-1">Combien vous gagnez, concrètement</h3>
+    <p class="text-[13px] text-slate-500 mb-4">Votre récompense = <strong>20 % de la valeur du contrat</strong> que votre filleul signe, <strong>minimum 60 €</strong>, partagée 50/50. Plus il consomme, plus vous gagnez tous les deux.</p>
+    <div class="rounded-2xl border border-emerald-100 bg-emerald-50/50 p-4 sm:p-5">
+      <div class="text-[12px] font-bold text-emerald-700 mb-2">💡 Exemple : vous parrainez une boulangerie</div>
+      <div class="flex flex-wrap items-center gap-x-2 gap-y-1 text-[13.5px] text-slate-700">
+        <span>Elle signe un contrat</span><span class="text-slate-300">→</span>
+        <span class="font-bold text-emerald-700">récompense partagée</span><span class="text-slate-300">→</span>
+        <span class="inline-flex items-center gap-1 rounded-lg bg-white border border-emerald-200 px-2.5 py-1 font-extrabold text-emerald-700">≈ 60 € pour vous</span>
+        <span class="text-slate-400">+</span>
+        <span class="inline-flex items-center gap-1 rounded-lg bg-white border border-emerald-200 px-2.5 py-1 font-extrabold text-emerald-700">≈ 60 € pour elle</span>
+      </div>
+      <p class="text-[11.5px] text-slate-400 mt-2.5">Un petit commerce = 30 € chacun (le minimum garanti). Un gros consommateur = bien plus. Toujours au minimum <strong>30 € chacun</strong>, versé en chèque-cadeau dès la signature.</p>
     </div>
   </section>
 
