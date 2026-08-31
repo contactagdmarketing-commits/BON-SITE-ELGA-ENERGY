@@ -1224,6 +1224,16 @@
     } catch (_) { return null; }
   }
   elgaParrain();
+  // Partenariat : lien « scanner.html?partenaire=<code> » → le scan est rattaché au
+  // partenaire (DFSEA 12, FDSEA 81…), visible dans son espace de suivi. Additif.
+  function elgaPartenaire() {
+    try {
+      var m = new URLSearchParams(location.search).get('partenaire');
+      if (m) { m = String(m).slice(0, 40).toLowerCase(); localStorage.setItem('elga_partenaire', m); return m; }
+      return localStorage.getItem('elga_partenaire') || null;
+    } catch (_) { return null; }
+  }
+  elgaPartenaire();
   // En-têtes Supabase REST (clé publique = insertion/maj seulement, jamais de lecture)
   function supaHeaders(extra) {
     var h = {
@@ -1279,6 +1289,8 @@
       } catch (_) {}
       // Parrainage : rattache le scan au parrain (visible dans son espace client).
       try { var _p = elgaParrain(); if (_p) ex = Object.assign({}, ex || {}, { parrain: _p }); } catch (_) {}
+      // Partenariat : rattache le scan au partenaire (visible dans son espace de suivi).
+      try { var _pt = elgaPartenaire(); if (_pt) ex = Object.assign({}, ex || {}, { partenaire: _pt }); } catch (_) {}
       var row = {
         session_token: elgaSessionToken(),
         source: 'entrant',                         // requis par la règle d'insertion
