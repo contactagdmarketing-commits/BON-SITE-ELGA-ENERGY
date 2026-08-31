@@ -284,9 +284,9 @@
         <p id="nafSecteur" class="mt-1.5 text-xs"></p>
       </div>
 
-      <!-- Identité PRO (personnalise le rapport — obligatoire) -->
+      <!-- Coordonnées — OBLIGATOIRES pour tout le monde (nom, prénom, tél, mail) -->
       <div id="proIdentite" class="mt-4 max-w-md mx-auto grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <div class="sm:col-span-2">
+        <div id="champEnseigneWrap" class="sm:col-span-2">
           <label for="champEnseigne" class="block text-xs font-semibold text-slate-600 mb-1">Enseigne / raison sociale <span class="text-rose-500">*</span></label>
           <input id="champEnseigne" type="text" autocomplete="organization" placeholder="ex. Boulangerie Martin"
             class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" />
@@ -301,9 +301,19 @@
           <input id="champNom" type="text" autocomplete="family-name" placeholder="Martin"
             class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" />
         </div>
+        <div>
+          <label for="champTel" class="block text-xs font-semibold text-slate-600 mb-1">Téléphone portable <span class="text-rose-500">*</span></label>
+          <input id="champTel" type="tel" inputmode="tel" autocomplete="tel" placeholder="06 12 34 56 78"
+            class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" />
+        </div>
+        <div>
+          <label for="champMail" class="block text-xs font-semibold text-slate-600 mb-1">E-mail <span class="text-rose-500">*</span></label>
+          <input id="champMail" type="email" autocomplete="email" placeholder="vous@entreprise.fr"
+            class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" />
+        </div>
         <p class="sm:col-span-2 text-[11.5px] text-slate-400 -mt-0.5 flex items-center gap-1.5">
           <svg class="w-3.5 h-3.5 text-primary-500 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/></svg>
-          Pour personnaliser votre rapport à votre entreprise. Jamais revendu.
+          Obligatoire pour recevoir votre bilan. Vos coordonnées restent chez Elga Energy, jamais revendues (RGPD).
         </p>
       </div>
     </div>
@@ -961,9 +971,12 @@
     });
     if (nafWrap) nafWrap.classList.toggle('hidden', clientType !== 'professionnel');
     if (clientType !== 'professionnel') clearNaf();   // pas de secteur fantôme dans le payload
-    // Identité PRO : visible + obligatoire pour un professionnel, masquée sinon
+    // Coordonnées : obligatoires pour TOUT LE MONDE (toujours visibles).
+    // Seule l'enseigne est réservée aux professionnels.
     var proId = document.getElementById('proIdentite');
-    if (proId) proId.classList.toggle('hidden', clientType !== 'professionnel');
+    if (proId) proId.classList.remove('hidden');
+    var ensWrap = document.getElementById('champEnseigneWrap');
+    if (ensWrap) ensWrap.classList.toggle('hidden', clientType !== 'professionnel');
   }));
 
   // ── Que souhaitez-vous analyser ? (oriente le résultat) ─────────────────────
@@ -1076,30 +1089,38 @@
   btnAnalyze.addEventListener('click', startAnalysis);
 
   // Identité PRO saisie (étape 1) — réutilisée pour l'envoi au CRM
-  var _ident = { enseigne: '', prenom: '', nom: '' };
+  var _ident = { enseigne: '', prenom: '', nom: '', tel: '', mail: '' };
 
   async function startAnalysis() {
     if (!selectedFile) return;
 
-    // Identité obligatoire pour un professionnel (personnalise le rapport + étape 1 CRM)
-    if (clientType === 'professionnel') {
-      var champEnseigne = document.getElementById('champEnseigne');
-      var champPrenom = document.getElementById('champPrenom');
-      var champNom = document.getElementById('champNom');
-      _ident = {
-        enseigne: (champEnseigne && champEnseigne.value || '').trim(),
-        prenom: (champPrenom && champPrenom.value || '').trim(),
-        nom: (champNom && champNom.value || '').trim(),
-      };
-      var manquant = !_ident.enseigne ? champEnseigne : !_ident.prenom ? champPrenom : !_ident.nom ? champNom : null;
-      if (manquant) {
-        showError('Renseignez votre enseigne, prénom et nom — c\'est ce qui personnalise votre rapport.');
-        manquant.focus();
-        manquant.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        return;
-      }
-    } else {
-      _ident = { enseigne: '', prenom: '', nom: '' };
+    // Coordonnées OBLIGATOIRES pour TOUT LE MONDE : prénom, nom, téléphone, e-mail.
+    // (Enseigne obligatoire en plus pour les professionnels.)
+    var champEnseigne = document.getElementById('champEnseigne');
+    var champPrenom = document.getElementById('champPrenom');
+    var champNom = document.getElementById('champNom');
+    var champTel = document.getElementById('champTel');
+    var champMail = document.getElementById('champMail');
+    function _telOk(t) { return /[0-9]/.test(t) && t.replace(/\D/g, '').length >= 9; }
+    function _mailOk(m) { return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(m); }
+    _ident = {
+      enseigne: (champEnseigne && champEnseigne.value || '').trim(),
+      prenom: (champPrenom && champPrenom.value || '').trim(),
+      nom: (champNom && champNom.value || '').trim(),
+      tel: (champTel && champTel.value || '').trim(),
+      mail: (champMail && champMail.value || '').trim(),
+    };
+    var manquant = null, msg = '';
+    if (clientType === 'professionnel' && !_ident.enseigne) { manquant = champEnseigne; msg = 'Renseignez votre enseigne / raison sociale.'; }
+    else if (!_ident.prenom) { manquant = champPrenom; msg = 'Renseignez votre prénom.'; }
+    else if (!_ident.nom) { manquant = champNom; msg = 'Renseignez votre nom.'; }
+    else if (!_telOk(_ident.tel)) { manquant = champTel; msg = 'Indiquez un numéro de portable valide (ex. 06 12 34 56 78).'; }
+    else if (!_mailOk(_ident.mail)) { manquant = champMail; msg = 'Indiquez un e-mail valide.'; }
+    if (manquant) {
+      showError(msg + ' C\'est obligatoire pour recevoir votre bilan.');
+      manquant.focus();
+      manquant.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
     }
 
     const workerUrl = window.ELGA_WORKER_URL;
@@ -1301,6 +1322,8 @@
         enseigne: _ident.enseigne || null,
         contact_prenom: _ident.prenom || null,
         contact_nom: _ident.nom || null,
+        telephone: _ident.tel || null,
+        email: _ident.mail || null,
         facture_path: facturePath || null,
         extracted: ex,
         savings: sv,
@@ -1321,7 +1344,19 @@
         });
       }
       postScan(row).then(function (resp) {
-        if (!resp.ok && row.ref) { var r2 = Object.assign({}, row); delete r2.ref; return postScan(r2); }
+        // INCREVABLE : si la base refuse, on retente sans les colonnes optionnelles.
+        if (!resp.ok) { var r2 = Object.assign({}, row); delete r2.ref; delete r2.telephone; delete r2.email; return postScan(r2); }
+      }).then(function () {
+        // Filet : rattache tél + mail au scan via l'RPC serveur (même si l'insert direct
+        // a ignoré ces colonnes). Après l'insert pour éviter la course.
+        try {
+          if ((_ident.tel || _ident.mail) && window.ELGA_SUPA_URL && window.ELGA_SUPA_KEY) {
+            fetch(window.ELGA_SUPA_URL + '/rest/v1/rpc/capture_coords', {
+              method: 'POST', headers: supaHeaders({}), keepalive: true,
+              body: JSON.stringify({ p_token: elgaSessionToken(), p_tel: _ident.tel, p_mail: _ident.mail }),
+            }).catch(function () {});
+          }
+        } catch (_) {}
       }).catch(function () { /* silencieux : le CRM ne doit jamais casser l'expérience */ });
     } catch (e) { /* no-op */ }
   }
@@ -2039,6 +2074,9 @@
     panel.classList.remove('hidden');
     panel.scrollIntoView({ behavior: 'smooth', block: 'center' });
     var tel = document.getElementById('rsTel');
+    var mail = document.getElementById('rsMail');
+    // Pré-remplit avec les coordonnées déjà saisies au scan (l'utilisateur ne retape pas).
+    try { if (tel && !tel.value && _ident.tel) tel.value = _ident.tel; if (mail && !mail.value && _ident.mail) mail.value = _ident.mail; } catch (_) {}
     if (tel) setTimeout(function () { try { tel.focus({ preventScroll: true }); } catch (_) {} }, 450);
     try { gtag('event', 'funnel_start', { event_category: 'scanner' }); } catch (_) {}
   }
