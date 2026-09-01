@@ -6,7 +6,7 @@
 - **Cible** : TPE/PME, restaurateurs, hôteliers, syndics, EHPAD, cliniques, collectivités
 - **USP** : Comparaison 30+ fournisseurs, économies moyennes 15-30%, zéro frais
 - **Ton** : Expert, rassurant, concret (stats, cas clients, chiffres)
-- **Contact** : 07 45 11 78 67 | cotations@elgaenergy.fr
+- **Contact** : 06 68 14 73 50 | cotations@elgaenergy.fr
 - **Email leads** : edhy.delaprez@gmail.com (via FormSubmit token cf16add96a7eedf5a12c3c2f738739f0)
 
 ## Structure des fichiers
@@ -69,7 +69,7 @@ L'objectif principal est d'être **cité par ChatGPT, Perplexity et Gemini** qua
 ## Règles de code
 - Toujours utiliser Tailwind CDN (pas de build step)
 - Schema.org JSON-LD dans `<head>` avant `</head>`
-- Numéro affiché : 07 45 11 78 67 / href : tel:+33745117867
+- Numéro affiché : 06 68 14 73 50 / href : tel:+33668147350
 - `_next` dans les formulaires : https://elgaenergy.com/merci.html
 - Canonical et og:url toujours en `.com` (pas `.fr`)
 - Images avec `onerror="this.remove()"` pour éviter les broken images

@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Prix de gros électricité — 12 derniers mois</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{--ink:#12211c;--mut:#6b7c74;--line:#e7ece9;--rose:#c0392b;--green:#0d7a52;--serif:'Fraunces',Georgia,serif}
+  *{box-sizing:border-box}
+  body{margin:0;background:#f5f7f6;font-family:'Inter',system-ui,sans-serif;color:var(--ink);display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px}
+  .card{width:100%;max-width:860px;background:#fff;border:1px solid var(--line);border-radius:18px;padding:24px 24px 14px;box-shadow:0 30px 60px -40px rgba(15,42,32,.4)}
+  .cap{font-family:var(--serif);font-size:22px;font-weight:500;letter-spacing:-.2px}
+  .capsub{font-size:13.5px;color:var(--mut);margin:3px 0 6px}
+  #grosChart svg{width:100%;height:360px;display:block}
+  text.axis{font:500 11px 'Inter',sans-serif;fill:#98a49d}
+  text.annot{font:600 11.5px 'Inter',sans-serif}
+  .src{font-size:12px;color:var(--mut);margin-top:10px;line-height:1.5}
+  .pill{display:inline-flex;align-items:center;gap:6px;font-size:12px;font-weight:600;border-radius:999px;padding:5px 11px;margin-right:8px}
+  .pill.hi{background:#fbeeee;color:var(--rose)} .pill.lo{background:#e7f4ee;color:var(--green)}
+</style>
+</head>
+<body>
+<div class="card">
+  <div class="cap">Prix de gros de l'électricité (€/MWh)</div>
+  <div class="capsub">Marché de gros français · spot day-ahead · 12 derniers mois</div>
+  <div style="margin:8px 0 4px">
+    <span class="pill lo">creux · sept. 2025</span>
+    <span class="pill hi">pic · janv. 2026</span>
+  </div>
+  <div id="grosChart"></div>
+  <div class="src">Prix spot moyen mensuel (EPEX day-ahead base, France). Points <b>juin 66 €</b> et <b>juil. 74 €/MWh</b> sourcés (Selectra) ; extrêmes sept.&nbsp;2025 (le plus bas) et janv.&nbsp;2026 (le plus haut) confirmés par la presse marché. <b>Les mois intermédiaires sont à valider</b> — donne-moi les valeurs exactes et je cale la courbe au pixel.</div>
+</div>
+<script>
+/* --- même moteur de rendu que la présentation R2 --- */
+const MONTHS=['août 25','sept. 25','oct. 25','nov. 25','déc. 25','janv. 26','févr. 26','mars 26','avr. 26','mai 26','juin 26','juil. 26'];
+const VALS=[78,52,80,95,98,112,90,62,44,40,66,74];
+const DATA=VALS.map((v,i)=>[i,v]);
+function frame(data,o){const W=o.w||700,H=o.h||300,pl=o.pl||40,pr=o.pr||20,pt=16,pb=o.pb||34;
+  const xs=data.map(d=>d[0]),minX=o.minX!=null?o.minX:Math.min(...xs),maxX=o.maxX!=null?o.maxX:Math.max(...xs);
+  const minY=o.min!=null?o.min:0,maxY=(o.max!=null?o.max:Math.max(...data.map(d=>d[1])))*1.05;
+  const X=v=>pl+(W-pl-pr)*((v-minX)/(maxX-minX)),Y=v=>H-pb-(H-pt-pb)*((v-minY)/(maxY-minY));
+  const pts=data.map(d=>[X(d[0]),Y(d[1])]),path=pts.map((p,i)=>`${i?'L':'M'}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ');
+  const area=`${path} L${pts[pts.length-1][0].toFixed(1)},${H-pb} L${pts[0][0].toFixed(1)},${H-pb} Z`;
+  let grid='';const st=o.ysteps||4;
+  for(let i=0;i<=st;i++){const v=minY+(maxY-minY)*i/st,y=Y(v);grid+=`<line x1="${pl}" y1="${y.toFixed(1)}" x2="${W-pr}" y2="${y.toFixed(1)}" stroke="#eef2f0"/><text class="axis" x="${pl-7}" y="${(y+3).toFixed(1)}" text-anchor="end">${o.yfmt?o.yfmt(v):Math.round(v)}</text>`;}
+  let xl='';(o.xlabels||xs).forEach(xv=>{xl+=`<text class="axis" x="${X(xv).toFixed(1)}" y="${H-12}" text-anchor="middle" ${o.xrot?`transform="rotate(-38 ${X(xv).toFixed(1)} ${H-12})"`:''}>${o.xfmt?o.xfmt(xv):xv}</text>`;});
+  return{W,H,path,area,grid,xl,X,Y,pts,minY,maxY,pb};}
+function drawGros(){
+  const g=frame(DATA,{h:360,pb:46,pl:44,pr:22,min:30,max:120,ysteps:5,xlabels:DATA.map(d=>d[0]),xfmt:i=>MONTHS[i],xrot:1});
+  const lo=DATA.reduce((m,d)=>d[1]<m[1]?d:m,DATA[0]);
+  const hi=DATA.reduce((m,d)=>d[1]>m[1]?d:m,DATA[0]);
+  const last=DATA[DATA.length-1];
+  const dots=DATA.map(d=>`<circle cx="${g.X(d[0]).toFixed(1)}" cy="${g.Y(d[1]).toFixed(1)}" r="2.6" fill="#c0392b"/>`).join('');
+  const loP=[g.X(lo[0]),g.Y(lo[1])],hiP=[g.X(hi[0]),g.Y(hi[1])],laP=[g.X(last[0]),g.Y(last[1])];
+  document.getElementById('grosChart').innerHTML=`<svg viewBox="0 0 ${g.W} ${g.H}" width="100%"><defs><linearGradient id="gg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#c0392b" stop-opacity=".14"/><stop offset="1" stop-color="#c0392b" stop-opacity="0"/></linearGradient></defs>
+    ${g.grid}${g.xl}
+    <path d="${g.area}" fill="url(#gg)"/>
+    <path d="${g.path}" fill="none" stroke="#c0392b" stroke-width="2.4" stroke-linejoin="round" stroke-linecap="round"/>
+    ${dots}
+    <circle cx="${hiP[0].toFixed(1)}" cy="${hiP[1].toFixed(1)}" r="4.5" fill="#c0392b"/>
+    <text class="annot" x="${hiP[0].toFixed(1)}" y="${(hiP[1]-10).toFixed(1)}" text-anchor="middle" fill="#c0392b">${hi[1]} €</text>
+    <circle cx="${loP[0].toFixed(1)}" cy="${loP[1].toFixed(1)}" r="4.5" fill="#0d7a52"/>
+    <text class="annot" x="${loP[0].toFixed(1)}" y="${(loP[1]+18).toFixed(1)}" text-anchor="middle" fill="#0a5c3e">${lo[1]} €</text>
+    <circle cx="${laP[0].toFixed(1)}" cy="${laP[1].toFixed(1)}" r="4.5" fill="#c0392b"/>
+    <text class="annot" x="${(laP[0]-2).toFixed(1)}" y="${(laP[1]-10).toFixed(1)}" text-anchor="end" fill="#c0392b">auj. ${last[1]} €</text>
+  </svg>`;}
+drawGros();
+</script>
+</body>
+</html>

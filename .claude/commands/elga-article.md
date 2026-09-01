@@ -21,7 +21,7 @@ Crée un article de blog HTML complet dans `blog/` optimisé pour :
 - Ton : expert + rassurant + chiffres concrets
 - Structure : chapô accrocheur → 4-6 sections H2 → CTA intégré → CTA final
 - Lien interne vers `/devis.html`
-- Tel : 07 45 11 78 67 / +33745117867
+- Tel : 06 68 14 73 50 / +33668147350
 - Analytics : G-SHXXPV14N7
 
 ## Règles impératives

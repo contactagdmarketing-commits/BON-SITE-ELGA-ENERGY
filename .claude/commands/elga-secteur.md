@@ -25,7 +25,7 @@ Crée une page sectorielle HTML complète à la racine du projet, optimisée pou
 1. Nom de fichier : `[secteur-hyphen].html` (ex: `boulangerie.html`)
 2. URL canonical : `https://www.elgaenergy.com/[secteur].html`
 3. Tailwind CDN, couleurs primary vert + secondary bleu
-4. Tel : 07 45 11 78 67 / href tel:+33745117867
+4. Tel : 06 68 14 73 50 / href tel:+33668147350
 5. FAQPage : minimum 3 questions longues-traînes (phrases ChatGPT réelles)
 6. Stats : 4 chiffres clés (économies %, volume, fournisseurs, coût)
 7. Cas client ou témoignage avec résultat chiffré
