@@ -74,6 +74,32 @@
   .flip-btn{font-size:12px;font-weight:600;color:var(--green);border:1px solid var(--line-strong);background:#fff;border-radius:999px;padding:6px 12px;display:inline-flex;align-items:center;gap:6px;white-space:nowrap}
   .axis{font-size:10px;fill:var(--mut)} .annot{font-size:11px}
   @media (prefers-reduced-motion:reduce){.flip-inner{transition:none}}
+  /* ── Défilé 4 énergies (13/09/2026) : remplace la carte flip, qui reste dans le code (display:none) ── */
+  .caro{position:relative;margin-top:26px;border:1px solid var(--line);border-radius:18px;background:#fff;overflow:hidden}
+  .caro-track{display:flex;transition:transform .55s cubic-bezier(.2,.85,.25,1);will-change:transform}
+  .caro-slide{min-width:100%;padding:20px 22px 14px;box-sizing:border-box}
+  .caro-slide svg{width:100%;height:auto;display:block}
+  .caro .cap{font-family:var(--serif);font-size:19px} .caro .capsub{font-size:13px;color:var(--mut);margin:2px 0 8px}
+  .caro-note{font-size:12px;color:var(--mut);margin-top:8px;line-height:1.5}
+  .caro-btn{position:absolute;top:50%;transform:translateY(-50%);width:42px;height:42px;border-radius:999px;border:1px solid var(--line-strong);background:#fff;display:grid;place-items:center;cursor:pointer;box-shadow:0 10px 28px -14px rgba(0,0,0,.35);z-index:2;color:var(--green-deep);transition:.15s}
+  .caro-btn:hover{background:var(--green-soft);border-color:var(--green)} .caro-btn svg{width:18px;height:18px}
+  .caro-btn.prev{left:10px}.caro-btn.next{right:10px}
+  .caro-dots{display:flex;gap:6px;justify-content:center;padding:2px 0 14px}
+  .caro-dot{width:8px;height:8px;border-radius:999px;background:var(--line-strong);border:0;padding:0;cursor:pointer;transition:.2s}
+  .caro-dot.on{background:var(--green);width:22px}
+  .ov-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:6px}
+  .ov-card{border:1px solid var(--line);border-radius:14px;padding:12px 12px 10px;background:var(--panel)}
+  .ov-card h4{font-family:var(--serif);font-weight:500;font-size:16px;margin:0 0 4px}
+  .ov-pct{font-size:12px;color:var(--ink-soft)} .ov-pct b{color:#e5322d;font-size:15px}
+  .ov-fact{display:flex;gap:6px;margin-top:10px}
+  .ov-fact div{flex:1;border-radius:9px;padding:7px 4px;text-align:center;background:#fff;border:1px solid var(--line)}
+  .ov-fact small{display:block;font-size:10px;color:var(--mut)} .ov-fact strong{font-size:13.5px}
+  .ov-fact div.last{border-color:#e5322d;background:#fdeeed} .ov-fact div.last strong{color:#c0392b}
+  .ov-kpi{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:14px}
+  .ov-kpi div{border-left:3px solid var(--green);padding:4px 0 4px 12px;font-size:12.5px;color:var(--ink-soft);line-height:1.45} .ov-kpi b{color:var(--ink);font-size:15px}
+  @media(max-width:760px){.ov-grid{grid-template-columns:repeat(2,1fr)}.ov-kpi{grid-template-columns:1fr}}
+  @media(max-width:640px){.caro-slide{padding:16px 14px 10px}.caro-btn{width:36px;height:36px}.caro-btn.prev{left:6px}.caro-btn.next{right:6px}}
+  @media (prefers-reduced-motion:reduce){.caro-track{transition:none}}
 
   /* piliers */
   .pillars{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:28px}
@@ -239,8 +265,57 @@
   <div class="wrap">
     <div class="eyebrow reveal">Pour remettre en contexte</div>
     <h2 class="sec reveal">Le prix de l'électricité ne tient pas en place.</h2>
-    <p class="sub reveal">Le tarif réglementé a été révisé 21 fois en 14 ans. Derrière, le marché de gros part dans tous les sens. Cliquez la carte pour passer d'une courbe à l'autre.</p>
-    <div class="flip reveal" id="flip" onclick="if(!event.target.closest('a'))document.getElementById('flip').classList.toggle('flipped')">
+    <p class="sub reveal">Le tarif réglementé a été révisé 21 fois en 14 ans. Et ce n'est pas qu'une histoire d'électricité : le fioul et le gaz suivent la même pente. Passez d'une énergie à l'autre avec les flèches.</p>
+
+    <!-- ══ DÉFILÉ 4 ÉNERGIES (13/09/2026) — reproduit les 4 graphiques fournis par James (mêmes chiffres,
+         mêmes projections), sans logos tiers. Slide 1 garde le switch « Prix de gros ». ══ -->
+    <div class="caro reveal" id="caro" aria-roledescription="carrousel" aria-label="Évolution des prix de l'énergie" tabindex="0">
+      <button class="caro-btn prev" type="button" aria-label="Énergie précédente" onclick="caroGo(CARO_I-1)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg></button>
+      <button class="caro-btn next" type="button" aria-label="Énergie suivante" onclick="caroGo(CARO_I+1)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg></button>
+      <div class="caro-track" id="caroTrack">
+        <div class="caro-slide" aria-label="Électricité">
+          <div class="flip-top"><div><div class="cap" id="caroElecCap">Électricité — prix du kWh, 2010 → 2034</div><div class="capsub" id="caroElecSub">Historique : CRE (€/kWh TTC) · scénario +6 % par an à partir de 2025</div></div>
+            <span class="flip-btn" role="button" tabindex="0" id="caroElecBtn" onclick="caroSwitch()" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();caroSwitch();}">Prix de gros <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M4 12a8 8 0 018-8m8 8a8 8 0 01-8 8"/><path d="M17 4v4h-4M7 20v-4h4"/></svg></span></div>
+          <div id="caroElec"></div>
+          <div id="caroGros" hidden></div>
+          <div class="caro-note" id="caroElecNote">Barres rouges : les trois années de crise (+37,5 % de 2021 à 2024). Zone claire : projection au rythme de +6 % par an, soit +79,08 % d'ici 2034 — un scénario, pas une prévision officielle.</div>
+        </div>
+        <div class="caro-slide" aria-label="Fioul">
+          <div class="flip-top"><div><div class="cap">Fioul — prix du litre, 2009 → 2034</div><div class="capsub">Historique : INSEE (€/litre) · scénario +7 % par an</div></div><span class="flip-btn">2 / 4</span></div>
+          <div id="caroFioul"></div>
+          <div class="caro-note">+147,85 % entre 2009 et le pic de 2022. À +7 % par an, le litre approcherait 2,50 € en 2034 (+96,72 %). Rappel : l'installation et le remplacement des chaudières au fioul sont interdits depuis le 1ᵉʳ juillet 2022 (décret n° 2022-8).</div>
+        </div>
+        <div class="caro-slide" aria-label="Gaz naturel">
+          <div class="flip-top"><div><div class="cap">Gaz naturel — prix du kWh, 2017 → 2034</div><div class="capsub">Historique : CRE (€/kWh) · scénario +10 % par an</div></div><span class="flip-btn">3 / 4</span></div>
+          <div id="caroGaz"></div>
+          <div class="caro-note">−4,93 % de 2017 à 2020, puis +105,37 % de 2021 à 2024, bouclier tarifaire compris. À +10 % par an, +159,37 % d'ici 2034.</div>
+        </div>
+        <div class="caro-slide" aria-label="Vue d'ensemble">
+          <div class="flip-top"><div><div class="cap">Ce que ça change sur une facture</div><div class="capsub">Les quatre énergies, hier → aujourd'hui → 2034 (mêmes scénarios que les pages précédentes)</div></div><span class="flip-btn">4 / 4</span></div>
+          <div class="ov-grid">
+            <div class="ov-card"><h4>Électricité</h4><div class="ov-pct"><b>+70,33 %</b> 2010–2024 · puis <b>+79,08 %</b></div>
+              <div class="ov-fact"><div><small>2014</small><strong>90 €</strong></div><div><small>2024</small><strong>160 €</strong></div><div class="last"><small>2034</small><strong>286 €</strong></div></div></div>
+            <div class="ov-card"><h4>Fioul <span style="font-size:11px;color:var(--mut)">1 000 L</span></h4><div class="ov-pct"><b>+147,85 %</b> 2009–2022 · puis <b>+96,72 %</b></div>
+              <div class="ov-fact"><div><small>2009</small><strong>590 €</strong></div><div><small>2024</small><strong>1 270 €</strong></div><div class="last"><small>2034</small><strong>2 498 €</strong></div></div></div>
+            <div class="ov-card"><h4>Gaz</h4><div class="ov-pct"><b>+100,44 %</b> 2017–2024 · puis <b>+159,37 %</b></div>
+              <div class="ov-fact"><div><small>2017</small><strong>90 €</strong></div><div><small>2024</small><strong>188 €</strong></div><div class="last"><small>2034</small><strong>487 €</strong></div></div></div>
+            <div class="ov-card"><h4>Carburant <span style="font-size:11px;color:var(--mut)">gazole, 50 L</span></h4><div class="ov-pct"><b>+293,22 %</b> 1994–2024 · puis <b>+70 %</b></div>
+              <div class="ov-fact"><div><small>2010</small><strong>53 €</strong></div><div><small>2024</small><strong>86,5 €</strong></div><div class="last"><small>2034</small><strong>147 €</strong></div></div></div>
+          </div>
+          <div class="ov-kpi">
+            <div><b>79 %</b> des Français déclarent avoir restreint le chauffage chez eux pour ne pas avoir de factures trop élevées <span class="muted">(ONPE)</span></div>
+            <div><b>1 000 908 ménages</b> ont subi une intervention d'un fournisseur d'énergie en 2023 à la suite d'impayés</div>
+            <div><b>5,6 millions</b> de ménages ont reçu un chèque énergie en 2023, hors campagnes exceptionnelles</div>
+          </div>
+          <div class="caro-note">Historique : CRE, INSEE, ONPE, ministère de la Transition écologique. Les montants 2034 découlent des scénarios des pages précédentes.</div>
+        </div>
+      </div>
+      <div class="caro-dots" id="caroDots"></div>
+    </div>
+
+    <!-- ANCIENNE carte flip (indice tarif réglementé 2012→2027 / prix de gros) — DÉSACTIVÉE le 13/09/2026,
+         remplacée par le défilé ci-dessus. Code conservé intact ; pour la rétablir : retirer style="display:none". -->
+    <div class="flip reveal" id="flip" style="display:none" onclick="if(!event.target.closest('a'))document.getElementById('flip').classList.toggle('flipped')">
       <div class="flip-inner">
         <div class="flip-face front">
           <div class="flip-top"><div><div class="cap">Tarif réglementé, 2012 → 2027</div><div class="capsub">Indice base 100 en 2012 · source CRE · projection fin ARENH</div></div>
@@ -461,7 +536,9 @@ function drawTRV(){const all=TRV.concat([TRV_PROJ]);
   </svg>`;}
 function drawGros(){const data=grosDense();const g=frame(data,{h:330,pb:34,pr:20,min:15,max:135,ysteps:5,xlabels:[2001,2006,2011,2016,2021,2026]});
   const ann=GROS_ANNOT.map(([yr,txt,up])=>{const px=g.X(yr),py=up?36:g.H-58;return `<text class="annot" x="${px.toFixed(1)}" y="${py}" text-anchor="middle" fill="#8a5a12">${txt}</text>`;}).join('');
-  document.getElementById('grosChart').innerHTML=`<svg viewBox="0 0 ${g.W} ${g.H}" width="100%"><defs><linearGradient id="gg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#c0392b" stop-opacity=".13"/><stop offset="1" stop-color="#c0392b" stop-opacity="0"/></linearGradient></defs>${g.grid}${g.xl}<path d="${g.area}" fill="url(#gg)"/><path d="${g.path}" fill="none" stroke="#c0392b" stroke-width="1.5" stroke-linejoin="round"/>${ann}</svg>`;}
+  const svg=`<svg viewBox="0 0 ${g.W} ${g.H}" width="100%"><defs><linearGradient id="gg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#c0392b" stop-opacity=".13"/><stop offset="1" stop-color="#c0392b" stop-opacity="0"/></linearGradient></defs>${g.grid}${g.xl}<path d="${g.area}" fill="url(#gg)"/><path d="${g.path}" fill="none" stroke="#c0392b" stroke-width="1.5" stroke-linejoin="round"/>${ann}</svg>`;
+  document.getElementById('grosChart').innerHTML=svg;
+  const cg=document.getElementById('caroGros'); if(cg) cg.innerHTML=svg; /* même courbe, switch « Prix de gros » du défilé */ }
 
 /* Prix de gros 2025 — moyennes MENSUELLES réelles du spot day-ahead France (€/MWh),
    calculées depuis 15 390 relevés 15 min (source ENTSO-E / energy-charts.info). */
@@ -653,7 +730,62 @@ function closeOrig(){ document.getElementById('ovOrig').classList.remove('open')
 function reveal(){document.getElementById('load').classList.add('gone');document.body.style.overflow='';setTimeout(()=>{const l=document.getElementById('load');if(l)l.remove();},700);observeReveals();}
 function observeReveals(){const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target);}}),{threshold:.1});document.querySelectorAll('.reveal').forEach((el,i)=>{el.style.transitionDelay=(Math.min(i%6,5)*55)+'ms';io.observe(el);});}
 
-drawTRV();drawGros();renderRows();
+/* ══ DÉFILÉ 4 ÉNERGIES (13/09/2026) — mêmes chiffres que les 4 graphiques fournis par James.
+   Les projections (+6 %, +7 %, +10 % par an) sont affichées comme des SCÉNARIOS, pas des prévisions officielles. ══ */
+function projSeries(lastVal,rate,labels,pct,kind){const o=[];let v=lastVal;for(const l of labels){v=v*(1+rate);o.push([l,v,pct,kind]);}return o;}
+const ELEC_DATA=[[2010,.108,'+3,5%'],[2011,.109,'+1,7%'],[2012,.123,'+3%'],[2013,.135,'+5%'],[2014,.142,'+2,50%'],[2015,.142,'+2,50%'],[2016,.141,'−0,50%'],[2017,.143,'+1,70%'],[2018,.144,'+0,20%'],[2019,.153,'+7,20%'],[2020,.157,'+3,94%'],[2021,.161,'+2,09%'],[2022,.174,'+4%','c'],[2023,.206,'+25%','c'],[2024,.251,'+8,5%','c']]
+  .concat(projSeries(.251,.06,[2025,2026,2027,2028,2029,2030,2031,2032,2033,2034],'+6%','p'));
+const FIOUL_DATA=[['2009',.59,'+12,4%','b'],['2010',.79,'+33,9%'],['2011',.93,'+17,72%'],['2012',1.00,'+7,53%','c'],['2013',.99,'−1%'],['2014',.91,'−8,08%'],['2015',.79,'−13,19%'],['2016',.72,'−8,86%'],['2017',.79,'+9,72%'],['2018',.99,'+25,32%'],['2019',.95,'−4,04%'],['2020',.96,'+1,05%'],['2021',1.05,'+9,38%','c'],['2022',1.68,'+60%','c'],['oct. 23',1.39,'−17,26%','c'],['avr. 24',1.27,'−6,47%','c']]
+  .concat(projSeries(1.27,.07,['2025','2026','2027'],'+7%','c')).concat(projSeries(1.27*1.07*1.07*1.07,.07,['2028','2029','2030','2031','2032','2033','2034'],'+7%','p'));
+const GAZ_DATA=[['janv. 17',.0524,'+5,32%','b'],['juil. 17',.0484,'−7,69%','b'],['janv. 18',.0554,'+14,58%','b'],['juil. 18',.0595,'+7,27%','b'],['janv. 19',.0635,'+6,78%','b'],['juil. 19',.0554,'−12,70%','b'],['janv. 20',.0544,'−1,82%','b'],['juil. 20',.0454,'−16,67%','b'],['janv. 21',.0514,'+13,33%','c'],['juil. 21',.0645,'+25,49%','c'],['janv. 22',.0877,'+35,94%','c'],['juil. 22',.0877,'0%','c'],['janv. 23',.1048,'+19,54%','c'],['juil. 23',.1048,'0%','c'],['juil. 24',.1205,'+11,07%','c']]
+  .concat(projSeries(.1205,.10,['janv. 25','janv. 26','janv. 27','janv. 28','janv. 29','janv. 30','janv. 31','janv. 32','janv. 33','janv. 34'],'+10%','h'));
+const BAR_COL={h:['#e67e22','#e67e22'],c:['#e5322d','#e5322d'],b:['#3b82c4','#3b82c4'],p:['#fbe3d3','#e67e22']};
+/* Graphique en barres : bars=[label,val,pct,kind] · arrows=[{a,b,t,c,lift,sub}] · zone={from,label,c} · marks=[{i,t,c}] */
+function barChart(bars,o){const W=940,H=o.h||400,pl=58,pr=16,pt=o.pt||84,pb=58,n=bars.length;
+  const slot=(W-pl-pr)/n,bw=slot*.68,maxY=(o.max||Math.max(...bars.map(b=>b[1])))*1.06;
+  const X=i=>pl+slot*i+slot/2,Y=v=>H-pb-(H-pt-pb)*(v/maxY),fmt=o.yfmt||(v=>v.toFixed(2));
+  let s='';const cols=new Set();
+  if(o.zone){const x0=X(o.zone.from)-slot/2;s+=`<rect x="${x0.toFixed(1)}" y="${(pt-26).toFixed(1)}" width="${(W-pr-x0).toFixed(1)}" height="${(H-pb-pt+26).toFixed(1)}" fill="${o.zone.fill||'#fdf1ec'}" rx="8"/>
+    <line x1="${x0.toFixed(1)}" y1="${(pt-22).toFixed(1)}" x2="${W-pr}" y2="${(pt-22).toFixed(1)}" stroke="${o.zone.c}" stroke-width="1.2"/><line x1="${x0.toFixed(1)}" y1="${(pt-22).toFixed(1)}" x2="${x0.toFixed(1)}" y2="${(pt-14).toFixed(1)}" stroke="${o.zone.c}" stroke-width="1.2"/><line x1="${W-pr}" y1="${(pt-22).toFixed(1)}" x2="${W-pr}" y2="${(pt-14).toFixed(1)}" stroke="${o.zone.c}" stroke-width="1.2"/>
+    <text x="${((x0+W-pr)/2).toFixed(1)}" y="${(pt-30).toFixed(1)}" text-anchor="middle" font-size="11.5" font-weight="700" fill="${o.zone.c}">${o.zone.label}</text>`;}
+  for(let i=0;i<=5;i++){const v=maxY*i/5,y=Y(v);s+=`<line x1="${pl}" y1="${y.toFixed(1)}" x2="${W-pr}" y2="${y.toFixed(1)}" stroke="#eef2f0"/><text class="axis" x="${pl-7}" y="${(y+3).toFixed(1)}" text-anchor="end">${fmt(v)}</text>`;}
+  bars.forEach((b,i)=>{const [fill,stroke]=BAR_COL[b[3]||'h'],x=X(i)-bw/2,y=Y(b[1]),h=H-pb-y,light=b[3]==='p';
+    s+=`<rect x="${x.toFixed(1)}" y="${y.toFixed(1)}" width="${bw.toFixed(1)}" height="${h.toFixed(1)}" rx="2.5" fill="${fill}" stroke="${stroke}" stroke-width="${light?1:0}"/>`;
+    if(b[2])s+=`<text x="${X(i).toFixed(1)}" y="${(y-5).toFixed(1)}" text-anchor="middle" font-size="8.2" font-weight="700" fill="${light?'#b45309':'#1f2937'}">${b[2]}</text>`;
+    if(h>24&&o.showVal!==false)s+=`<text x="${X(i).toFixed(1)}" y="${(y+11).toFixed(1)}" text-anchor="middle" font-size="7.6" font-weight="600" fill="${light?'#9a4b12':'#fff'}">${fmt(b[1])}</text>`;
+    s+=`<text class="axis" x="${X(i).toFixed(1)}" y="${H-pb+14}" text-anchor="end" transform="rotate(-45 ${X(i).toFixed(1)} ${H-pb+14})" font-size="9">${b[0]}</text>`;});
+  (o.marks||[]).forEach(m=>{const x=X(m.i)-slot/2;s+=`<line x1="${x.toFixed(1)}" y1="${pt}" x2="${x.toFixed(1)}" y2="${H-pb}" stroke="${m.c}" stroke-dasharray="4 4"/><text x="${x.toFixed(1)}" y="${(pt-6).toFixed(1)}" text-anchor="middle" font-size="9.5" font-weight="700" fill="${m.c}">${m.t}</text>`;});
+  (o.arrows||[]).forEach(a=>{cols.add(a.c);const x0=X(a.a),x1=X(a.b),y0=Y(bars[a.a][1])-14,y1=Y(bars[a.b][1])-14,cy=Math.min(y0,y1)-a.lift;const cx=(x0+x1)/2;
+    const mx=.25*x0+.5*cx+.25*x1,my=.25*y0+.5*cy+.25*y1,id='ah'+a.c.replace('#','');
+    s+=`<path d="M${x0.toFixed(1)},${y0.toFixed(1)} Q${cx.toFixed(1)},${cy.toFixed(1)} ${x1.toFixed(1)},${y1.toFixed(1)}" fill="none" stroke="${a.c}" stroke-width="2.4" marker-end="url(#${id})"/>
+    <text x="${mx.toFixed(1)}" y="${(my-8).toFixed(1)}" text-anchor="middle" font-size="${a.big?17:14}" font-weight="800" fill="${a.c}">${a.t}</text>${a.sub?`<text x="${mx.toFixed(1)}" y="${(my+6).toFixed(1)}" text-anchor="middle" font-size="9.5" font-weight="600" fill="${a.c}">${a.sub}</text>`:''}`;});
+  const defs=[...cols].map(c=>`<marker id="ah${c.replace('#','')}" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="${c}"/></marker>`).join('');
+  return `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" aria-label="${o.aria||''}"><defs>${defs}</defs>${s}</svg>`;}
+function drawCaro(){
+  const e=document.getElementById('caroElec');if(!e)return;
+  e.innerHTML=barChart(ELEC_DATA,{h:420,pt:118,max:.50,yfmt:v=>v.toFixed(3).replace('.',',')+' €',zone:{from:15,label:'scénario +6 % / an',c:'#e67e22'},aria:'Prix du kWh d’électricité, 2010 à 2034',
+    arrows:[{a:0,b:11,t:'+32,83 %',c:'#e67e22',lift:70},{a:11,b:14,t:'+37,5 %',c:'#e5322d',lift:62},{a:0,b:14,t:'+70,33 %',c:'#e5322d',lift:150,big:1},{a:14,b:24,t:'+79,08 %',c:'#e67e22',lift:92,big:1,sub:'dans les années prochaines'}]});
+  document.getElementById('caroFioul').innerHTML=barChart(FIOUL_DATA,{h:420,pt:110,max:2.7,yfmt:v=>v.toFixed(2).replace('.',',')+' €',zone:{from:19,label:'Fin de l’utilisation des chaudières au fioul en France',c:'#e5322d',fill:'#fdeeed'},aria:'Prix du litre de fioul, 2009 à 2034',
+    arrows:[{a:0,b:13,t:'147,85 %',c:'#e5322d',lift:105,big:1},{a:15,b:25,t:'+96,72 %',c:'#e5322d',lift:98,big:1}]});
+  document.getElementById('caroGaz').innerHTML=barChart(GAZ_DATA,{h:420,pt:128,max:.33,yfmt:v=>v.toFixed(3).replace('.',',')+' €',zone:{from:15,label:'scénario +10 % / an',c:'#e67e22'},aria:'Prix du kWh de gaz naturel, 2017 à 2034',
+    marks:[{i:10,t:'Début bouclier tarifaire',c:'#2e9e5b'},{i:13,t:'Fin bouclier tarifaire',c:'#e5322d'}],
+    arrows:[{a:0,b:7,t:'−4,93 %',c:'#3b82c4',lift:34},{a:8,b:14,t:'+105,37 %',c:'#e5322d',lift:80,big:1},{a:0,b:14,t:'+100,44 %',c:'#e5322d',lift:175,big:1},{a:14,b:24,t:'+159,37 %',c:'#e5322d',lift:108,big:1}]});
+  const dots=document.getElementById('caroDots');dots.innerHTML=[0,1,2,3].map(i=>`<button class="caro-dot${i===0?' on':''}" type="button" aria-label="Aller à la page ${i+1}" onclick="caroGo(${i})"></button>`).join('');
+  const track=document.getElementById('caroTrack');let tx=null;
+  track.addEventListener('touchstart',ev=>{tx=ev.touches[0].clientX;},{passive:true});
+  track.addEventListener('touchend',ev=>{if(tx==null)return;const dx=ev.changedTouches[0].clientX-tx;tx=null;if(Math.abs(dx)>40)caroGo(CARO_I+(dx<0?1:-1));},{passive:true});
+  document.addEventListener('keydown',ev=>{if(ev.key!=='ArrowLeft'&&ev.key!=='ArrowRight')return;const r=document.getElementById('caro').getBoundingClientRect();if(r.bottom<0||r.top>innerHeight)return;if(/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName))return;caroGo(CARO_I+(ev.key==='ArrowRight'?1:-1));});}
+let CARO_I=0;
+function caroGo(i){const n=4;CARO_I=((i%n)+n)%n;document.getElementById('caroTrack').style.transform=`translateX(-${CARO_I*100}%)`;
+  document.querySelectorAll('#caroDots .caro-dot').forEach((d,k)=>d.classList.toggle('on',k===CARO_I));}
+/* Switch « Prix de gros » sur la slide Électricité (la courbe existante, conservée telle quelle) */
+let CARO_GROS=false;
+function caroSwitch(){CARO_GROS=!CARO_GROS;document.getElementById('caroElec').hidden=CARO_GROS;document.getElementById('caroGros').hidden=!CARO_GROS;
+  document.getElementById('caroElecCap').textContent=CARO_GROS?'Prix de gros de l’électricité (€/MWh)':'Électricité — prix du kWh, 2010 → 2034';
+  document.getElementById('caroElecSub').textContent=CARO_GROS?'Marché de gros · 2001 → 2026':'Historique : CRE (€/kWh TTC) · scénario +6 % par an à partir de 2025';
+  document.getElementById('caroElecNote').textContent=CARO_GROS?'Le prix auquel les fournisseurs achètent l’électricité, mois par mois. C’est lui qui se cache derrière chaque révision du tarif.':'Barres rouges : les trois années de crise (+37,5 % de 2021 à 2024). Zone claire : projection au rythme de +6 % par an, soit +79,08 % d’ici 2034 — un scénario, pas une prévision officielle.';
+  const b=document.getElementById('caroElecBtn');b.firstChild.textContent=(CARO_GROS?'Tarif réglementé ':'Prix de gros ');}
+drawTRV();drawCaro();drawGros();renderRows();
 document.body.style.overflow='hidden';
 </script>
 </body>
