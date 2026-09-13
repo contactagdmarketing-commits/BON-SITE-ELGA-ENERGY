@@ -441,14 +441,18 @@ const ini=s=>s[0].toUpperCase();
    Noms distinctifs = match par sous-chaîne ; noms courts/ambigus (edf, eni, geg, ohm, total) = match par TOKEN exact. */
 const _sq=s=>(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]/g,'');
 const _tok=s=>(s||'').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').split(/[^a-z0-9]+/).filter(Boolean);
-const LOGO_LONG={engie:'engie.svg',vattenfall:'vattenfall.svg',endesa:'endesa-grupo.svg',alpiq:'alpiq.png',alterna:'alterna.png',enovos:'enovos.webp',dyneff:'dyneff.png',energem:'energem.png',primeo:'primeo.png',ilek:'ilek.png',totalenergies:'totalenergies.svg',totalenergie:'totalenergies.svg'};
-const LOGO_SHORT={edf:'edf.svg',eni:'eni.svg',geg:'geg.png',ohm:'ohm.png',total:'totalenergies.svg'};
+const LOGO_LONG={engie:'engie.svg',vattenfall:'vattenfall.svg',endesa:'endesa-grupo.svg',alpiq:'alpiq.png',alterna:'alterna.png',enovos:'enovos.webp',dyneff:'dyneff.png',energem:'energem.png',primeo:'primeo.png',ilek:'ilek.png',totalenergies:'totalenergies.svg',totalenergie:'totalenergies.svg',
+  /* 13/09/2026 — 20 logos ajoutés depuis le dossier iCloud « logo fournisseurs » de James (COURTIER/Administratif/présentation slide) */
+  saveenergie:'save-energies.png',synelva:'synelva.png',volterres:'volterres.png',alsen:'alsen.png',sefe:'sefe.png',gazdebordeaux:'gaz-de-bordeaux.png',gazeuropeen:'gaz-europeen.png',gazel:'gazel-energie.png',picoty:'picoty.png',selia:'selia.png',natgas:'natgas.png',ekivolt:'ekivolt.png',santerre:'energies-du-santerre.png',antargaz:'antargaz.png',ekwateur:'ekwateur.png',electricitedesavoie:'electricite-de-savoie.png',electricitedeprovence:'electricite-de-provence.png',elmy:'elmy.png',enalp:'enalp.png'};
+const LOGO_SHORT={edf:'edf.svg',eni:'eni.svg',geg:'geg.png',ohm:'ohm.png',total:'totalenergies.svg',es:'es-strasbourg.png'};
 function logoFor(name){const sq=_sq(name);if(!sq)return null;for(const k in LOGO_LONG){if(sq.includes(k))return LOGO_LONG[k];}for(const t of _tok(name)){if(LOGO_SHORT[t])return LOGO_SHORT[t];}return null;}
 function fmark(name,color,size){size=size||34;const lf=logoFor(name),st=`width:${size}px;height:${size}px`;
   if(lf)return `<div class="fmark logo" style="${st}"><img src="/assets/fournisseurs/${lf}" alt="${(name||'').replace(/"/g,'')}" loading="lazy"></div>`;
   return `<div class="fmark" style="${st};background:${color};font-size:${Math.round(size*0.4)}px">${ini(name||'?')}</div>`;}
 
-const FOURN=[['EDF','edf.svg'],['Engie','engie.svg'],['TotalEnergies','totalenergies.svg'],['Endesa','endesa-grupo.svg'],['Vattenfall','vattenfall.svg'],['Alpiq','alpiq.png'],['Eni','eni.svg'],['Alterna','alterna.png'],['Enovos','enovos.webp'],['Dyneff','dyneff.png'],['Energem','energem.png'],['GEG','geg.png'],['Ilek','ilek.png'],['Ohm Énergie','ohm.png'],['Primeo','primeo.png']];
+const FOURN=[['EDF','edf.svg'],['Engie','engie.svg'],['TotalEnergies','totalenergies.svg'],['Endesa','endesa-grupo.svg'],['Vattenfall','vattenfall.svg'],['Alpiq','alpiq.png'],['Eni','eni.svg'],['Alterna','alterna.png'],['Enovos','enovos.webp'],['Dyneff','dyneff.png'],['Energem','energem.png'],['GEG','geg.png'],['Ilek','ilek.png'],['Ohm Énergie','ohm.png'],['Primeo','primeo.png'],
+  ['Save Energies','save-energies.png'],['Synelva','synelva.png'],['Volterres','volterres.png'],['Alsen','alsen.png'],['SEFE Energy','sefe.png'],['Gaz de Bordeaux','gaz-de-bordeaux.png'],['Gaz Européen','gaz-europeen.png'],['GazelEnergie','gazel-energie.png'],['Picoty','picoty.png'],['Sélia','selia.png'],['natGAS','natgas.png'],['Ekivolt','ekivolt.png'],['Énergies du Santerre','energies-du-santerre.png'],['ÉS','es-strasbourg.png'],['Antargaz','antargaz.png'],['ekwateur','ekwateur.png'],['Électricité de Savoie','electricite-de-savoie.png'],['Électricité de Provence','electricite-de-provence.png'],['elmy','elmy.png'],['enalp','enalp.png']];
+const FOURN_TOTAL=32; // chiffre du discours ; la chip « + N autres » ne s'affiche que s'il reste des fournisseurs sans logo
 const ACH=2150,TAXES=1727; let AT=ACH+TAXES;
 let REF={nom:'Vattenfall — actuel',energie:6008,kwh:181.7,kwhE:110.4,total:0}; REF.total=REF.energie+AT;
 let OFFRES=[
@@ -574,7 +578,7 @@ let openP=-1;
 function pillarHTML(p){
   if(p===0)return `<div style="font-family:var(--serif);font-size:20px">Un seul fournisseur oublié, et le bilan est faussé.</div>
     <div class="alert warn"><b>⚠ Un comparatif n'a de valeur que s'il est complet.</b> Il suffit qu'un fournisseur manque pour que le « meilleur prix » n'en soit pas un. Nous les interrogeons <b>tous les 32</b>, à la même marge, sans exception. C'est la seule façon d'obtenir le vrai meilleur prix, celui qui vous arrange, vous.</div>
-    <div class="logobar">${(()=>{const set=FOURN.map(f=>`<span class="flogo"><img src="/assets/fournisseurs/${f[1]}" alt="${f[0]}" loading="lazy"></span>`).join('')+`<span class="flogo more">+ 17 autres</span>`;return `<div class="logotrack">${set}${set}</div>`;})()}</div>
+    <div class="logobar">${(()=>{const set=FOURN.map(f=>`<span class="flogo"><img src="/assets/fournisseurs/${f[1]}" alt="${f[0]}" loading="lazy"></span>`).join('')+(FOURN_TOTAL>FOURN.length?`<span class="flogo more">+ ${FOURN_TOTAL-FOURN.length} autres</span>`:'');return `<div class="logotrack">${set}${set}</div>`;})()}</div>
     <div class="kpis"><div class="kpi"><div class="n tnum">32</div><div class="l">fournisseurs interrogés à chaque bilan</div></div><div class="kpi"><div class="n tnum">35 h</div><div class="l">le temps qu'il vous faudrait pour le faire seul</div></div></div>`;
   if(p===1)return `<div style="font-family:var(--serif);font-size:20px">On surveille votre prix face au marché, tous les jours.</div>
     <div class="highlight"><div class="t">La partie la plus importante de notre métier</div><p>On connaît votre prix. On connaît les prix du marché, mis à jour <b>chaque jour</b>. On croise les deux en continu pour rester vigilant aux variations. Dès qu'une opportunité passe sous votre tarif, une <b>alerte automatique</b> se déclenche, et on prépare votre renouvellement au bon moment. Vous n'avez rien à faire.</p></div>
