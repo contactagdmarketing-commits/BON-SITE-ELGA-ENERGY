@@ -775,7 +775,7 @@ function drawCaro(){
   /* 13/09/2026 — James veut ses IMAGES d'origine (seul le logo HER retiré, rien d'autre touché).
      Les graphiques SVG dessinés ci-dessus restent dans le code mais sont remplacés à l'affichage. */
   const CARO_IMGS={caroElec:['img/elec.png','Évolution du prix de l’électricité en France, 2010 → 2034'],caroFioul:['img/fioul.png','Évolution du prix du fioul en France, 2009 → 2034'],caroGaz:['img/gaz.png','Évolution du prix du gaz naturel en France, 2017 → 2034'],caroGlobal:['img/global.png','Contexte énergétique : électricité, fioul, gaz, carburant — hier, aujourd’hui, 2034']};
-  for(const id in CARO_IMGS){const el=document.getElementById(id);if(el)el.innerHTML=`<img src="${CARO_IMGS[id][0]}" alt="${CARO_IMGS[id][1]}" loading="lazy" style="width:100%;height:auto;display:block;border-radius:10px">`;}
+  for(const id in CARO_IMGS){const el=document.getElementById(id);if(el)el.innerHTML=`<img src="${CARO_IMGS[id][0]}" alt="${CARO_IMGS[id][1]}" loading="eager" decoding="async" style="width:100%;height:auto;display:block;border-radius:10px">`;}
   const dots=document.getElementById('caroDots');dots.innerHTML=[0,1,2,3].map(i=>`<button class="caro-dot${i===0?' on':''}" type="button" aria-label="Aller à la page ${i+1}" onclick="caroGo(${i})"></button>`).join('');
   const track=document.getElementById('caroTrack');let tx=null;
   /* Sécurité : un focus/scrollIntoView ne doit jamais décaler la piste (on navigue uniquement par translateX). */
