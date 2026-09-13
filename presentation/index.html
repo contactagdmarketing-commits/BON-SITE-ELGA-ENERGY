@@ -75,7 +75,7 @@
   .axis{font-size:10px;fill:var(--mut)} .annot{font-size:11px}
   @media (prefers-reduced-motion:reduce){.flip-inner{transition:none}}
   /* ── Défilé 4 énergies (13/09/2026) : remplace la carte flip, qui reste dans le code (display:none) ── */
-  .caro{position:relative;margin-top:26px;border:1px solid var(--line);border-radius:18px;background:#fff;overflow:hidden}
+  .caro{position:relative;margin-top:26px;border:1px solid var(--line);border-radius:18px;background:#fff;overflow:hidden;overflow:clip}
   .caro-track{display:flex;transition:transform .55s cubic-bezier(.2,.85,.25,1);will-change:transform}
   .caro-slide{min-width:100%;padding:20px 22px 14px;box-sizing:border-box}
   .caro-slide svg{width:100%;height:auto;display:block}
@@ -772,6 +772,8 @@ function drawCaro(){
     arrows:[{a:0,b:7,t:'−4,93 %',c:'#3b82c4',lift:34},{a:8,b:14,t:'+105,37 %',c:'#e5322d',lift:80,big:1},{a:0,b:14,t:'+100,44 %',c:'#e5322d',lift:175,big:1},{a:14,b:24,t:'+159,37 %',c:'#e5322d',lift:108,big:1}]});
   const dots=document.getElementById('caroDots');dots.innerHTML=[0,1,2,3].map(i=>`<button class="caro-dot${i===0?' on':''}" type="button" aria-label="Aller à la page ${i+1}" onclick="caroGo(${i})"></button>`).join('');
   const track=document.getElementById('caroTrack');let tx=null;
+  /* Sécurité : un focus/scrollIntoView ne doit jamais décaler la piste (on navigue uniquement par translateX). */
+  const caroEl=document.getElementById('caro');caroEl.addEventListener('scroll',()=>{if(caroEl.scrollLeft)caroEl.scrollLeft=0;});
   track.addEventListener('touchstart',ev=>{tx=ev.touches[0].clientX;},{passive:true});
   track.addEventListener('touchend',ev=>{if(tx==null)return;const dx=ev.changedTouches[0].clientX-tx;tx=null;if(Math.abs(dx)>40)caroGo(CARO_I+(dx<0?1:-1));},{passive:true});
   document.addEventListener('keydown',ev=>{if(ev.key!=='ArrowLeft'&&ev.key!=='ArrowRight')return;const r=document.getElementById('caro').getBoundingClientRect();if(r.bottom<0||r.top>innerHeight)return;if(/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName))return;caroGo(CARO_I+(ev.key==='ArrowRight'?1:-1));});}
