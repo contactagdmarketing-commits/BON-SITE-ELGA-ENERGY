@@ -280,14 +280,14 @@
           <div id="caroGros" hidden></div>
           <div class="caro-note" id="caroElecNote"></div>
         </div>
-        <div class="caro-slide" aria-label="Fioul">
-          <div class="flip-top"><div><div class="cap">Fioul — prix du litre, 2009 → 2034</div><div class="capsub">Prix du litre · source INSEE · projection +7 % par an</div></div><span class="flip-btn">2 / 4</span></div>
-          <div id="caroFioul"></div>
+        <div class="caro-slide" aria-label="Gaz naturel">
+          <div class="flip-top"><div><div class="cap">Gaz naturel — prix du kWh, 2017 → 2034</div><div class="capsub">Prix du kWh · source CRE · projection +10 % par an</div></div><span class="flip-btn">2 / 4</span></div>
+          <div id="caroGaz"></div>
           <div class="caro-note"></div>
         </div>
-        <div class="caro-slide" aria-label="Gaz naturel">
-          <div class="flip-top"><div><div class="cap">Gaz naturel — prix du kWh, 2017 → 2034</div><div class="capsub">Prix du kWh · source CRE · projection +10 % par an</div></div><span class="flip-btn">3 / 4</span></div>
-          <div id="caroGaz"></div>
+        <div class="caro-slide" aria-label="Fioul">
+          <div class="flip-top"><div><div class="cap">Fioul — prix du litre, 2009 → 2034</div><div class="capsub">Prix du litre · source INSEE · projection +7 % par an</div></div><span class="flip-btn">3 / 4</span></div>
+          <div id="caroFioul"></div>
           <div class="caro-note"></div>
         </div>
         <div class="caro-slide" aria-label="Vue d'ensemble">
@@ -398,7 +398,7 @@
     <p class="sub reveal">L'acheminement et les taxes sont identiques chez tous les fournisseurs, et personne n'y peut rien. Le seul vrai levier, c'est le prix du kWh. L'écart affiché est la <b>moyenne des économies sur toute la durée du contrat</b>, pas seulement l'écart du jour. Cliquez une ligne, y compris la vôtre, pour le détail année par année.</p>
     <div class="reveal" style="display:flex;align-items:center;gap:12px;margin-top:20px;flex-wrap:wrap">
       <span style="font-size:13px;color:var(--mut)">Hausse du marché retenue pour la projection :</span>
-      <div class="seg" id="bilanSeg"><button onclick="setBilanRate(0.08,this)">+8 %/an</button><button onclick="setBilanRate(0.09,this)" class="on">+9 %/an</button><button onclick="setBilanRate(0.10,this)">+10 %/an</button></div>
+      <div class="seg" id="bilanSeg"><button onclick="setBilanRate(0.05,this)">+5 %/an</button><button onclick="setBilanRate(0.06,this)" class="on">+6 %/an</button><button onclick="setBilanRate(0.07,this)">+7 %/an</button></div>
     </div>
     <div id="bilanInfo"></div>
     <div class="bilan reveal">
@@ -456,7 +456,7 @@ let OFFRES=[
   {nom:'ELMY',energie:5022,duree:37,color:'#3aa935',kwh:163.6,kwhE:92.3},
   {nom:'ENGIE',energie:5089,duree:36,color:'#0aa1dd',kwh:164.8,kwhE:93.6},
 ].map(o=>({...o,total:o.energie+AT}));
-let RATE=0.09;
+let RATE=0.06; /* 13/09/2026 : 8-9-10 % → 5-6-7 % à la demande de James (défaut 6 %) */
 const WORKER='https://elga-scanner.edhy-delaprez.workers.dev';
 const OCOL=['#e2231a','#0a3c8c','#e30613','#0aa1dd','#3aa935','#f7b500','#8a5a12'];
 let ORIGINAL=null; // {url,type} du bilan chargé
@@ -644,7 +644,7 @@ function projChart(startEnergy,offerEnergy,years,fixed){
   return `<svg viewBox="0 0 ${g.W} ${g.H}" width="100%"><defs><linearGradient id="pg" x1="0" x2="0" y1="0" y2="1"><stop offset="0" stop-color="#0d7a52" stop-opacity=".18"/><stop offset="1" stop-color="#0d7a52" stop-opacity=".02"/></linearGradient></defs>${g.grid}${g.xl}${extra}
     <path d="${g.path}" fill="none" stroke="#c0392b" stroke-width="2.6" stroke-linejoin="round"/>${g.pts.map(p=>`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="3.1" fill="#c0392b"/>`).join('')}</svg>`;
 }
-function segHTML(){return `<div class="seg"><button onclick="setRate(0.08,this)" class="${RATE===0.08?'on':''}">+8 %</button><button onclick="setRate(0.09,this)" class="${RATE===0.09?'on':''}">+9 %</button><button onclick="setRate(0.10,this)" class="${RATE===0.10?'on':''}">+10 %</button></div>`;}
+function segHTML(){return `<div class="seg"><button onclick="setRate(0.05,this)" class="${RATE===0.05?'on':''}">+5 %</button><button onclick="setRate(0.06,this)" class="${RATE===0.06?'on':''}">+6 %</button><button onclick="setRate(0.07,this)" class="${RATE===0.07?'on':''}">+7 %</button></div>`;}
 
 function drawSheet(){
   const sheet=document.getElementById('sheet');
