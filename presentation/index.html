@@ -731,17 +731,25 @@ function drawSheet(){
     return;
   }
   const o=OFFRES[curK],years=o.duree/12;
-  const ecoNow=REF.energie-o.energie;
+  const ecoNow=REF.energie-o.energie; // (gardé : écart du jour, plus affiché depuis le 14/09/2026)
   const yrs=offerYears(o); let eco=0,rows='';
+  // 14/09/2026 (James) : ne plus montrer l'écart « aujourd'hui » (une hausse instantanée n'a aucun sens pour le client) ;
+  // on compare le prix MOYEN du kWh qu'il paiera sur la durée du contrat sans prix fixe vs notre prix fixe.
+  const mTot=yrs.reduce((a,r)=>a+r.months,0), avgFactor=yrs.reduce((a,r)=>a+r.edf*r.months,0)/(REF.energie*mTot);
+  const avgKwhE=Math.round(REF.kwhE*avgFactor*10)/10, ecoMoy=avgSaving(o);
   yrs.forEach(r=>{ const d=(r.edf-o.energie)*r.months/12; eco+=d; const p=d>=0;
     const lbl=r.months<12?`An ${r.y} · ${r.months} mois`:`An ${r.y}`;
     rows+=`<div class="tr"><div>${lbl}</div><div class="tnum" style="color:var(--rose)">${euro(r.edf)}</div><div class="tnum" style="color:var(--green-deep)">${euro(o.energie)}</div><div class="tnum" style="color:${p?'var(--green-deep)':'var(--rose)'};font-weight:700">${p?'−':'+'}${euro(Math.abs(d))}</div></div>`;});
   sheet.innerHTML=`<div class="sheet-top"><div style="display:flex;align-items:center;gap:13px">${fmark(o.nom,o.color,42)}<div><div style="font-family:var(--serif);font-size:22px">${o.nom}</div><div style="font-size:13px;color:var(--mut)">Prix fixe garanti ${o.duree} mois</div></div></div>
     <button class="sheet-x" onclick="closeSheet()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
     <div class="lever">
+      <!-- ⛔ GARDÉ (ancien bloc, masqué 14/09/2026) : badge « ±X €/an aujourd'hui » + prix du jour → prix bloqué
       <div class="lvr act"><div class="lh"><div class="lt">⚡ Énergie · le seul vrai levier</div><span class="badge" style="${ecoNow<0?'color:var(--rose);background:#fbeeee':''}">${ecoNow>=0?'−'+euro(ecoNow):'+'+euro(-ecoNow)}/an aujourd'hui</span></div>
         <div class="cmp"><div><div class="v tnum">${REF.kwhE} €/MWh</div><small>votre énergie aujourd'hui</small></div><div style="align-self:center;color:var(--mut)">→</div><div><div class="v tnum" style="color:var(--green-deep)">${o.kwhE} €/MWh</div><small>bloquée ${o.duree} mois</small></div></div>
-        <p>C'est ici qu'on agit. Votre prix du kWh est gelé pendant ${o.duree} mois, à l'abri des hausses.</p></div>
+        <p>C'est ici qu'on agit. Votre prix du kWh est gelé pendant ${o.duree} mois, à l'abri des hausses.</p></div> -->
+      <div class="lvr act"><div class="lh"><div class="lt">⚡ Énergie · le seul vrai levier</div><span class="badge" style="${ecoMoy<0?'color:var(--rose);background:#fbeeee':''}">${ecoMoy>=0?'−'+euro(ecoMoy):'+'+euro(-ecoMoy)}/an en moyenne sur ${o.duree} mois</span></div>
+        <div class="cmp"><div><div class="v tnum">${REF.kwhE} €/MWh</div><small>votre prix du kWh aujourd'hui</small></div><div style="align-self:center;color:var(--mut)">→</div><div><div class="v tnum" style="color:var(--rose)">≈ ${avgKwhE} €/MWh</div><small>prix moyen sur ${o.duree} mois sans prix fixe (+${Math.round(RATE*100)} %/an)</small></div><div style="align-self:center;color:var(--mut)">vs</div><div><div class="v tnum" style="color:var(--green-deep)">${o.kwhE} €/MWh</div><small>prix fixe ${o.nom}, bloqué ${o.duree} mois</small></div></div>
+        <p>Ce qui compte, ce n'est pas le prix d'un jour : c'est le prix moyen que vous paierez année après année. Sans prix fixe, il monte de +${Math.round(RATE*100)} %/an. Avec ${o.nom}, il ne bouge plus pendant ${o.duree} mois.</p></div>
       <div class="lvr fix"><div class="lh"><div class="lt">🔌 Acheminement + taxes</div><span class="badge">identique · non négociable</span></div><div class="cmp"><div><div class="v tnum">${euro(AT)}/an</div><small>pareil chez tous, personne n'y peut rien</small></div></div></div>
     </div>
     <div class="proj"><div class="proj-h"><div class="t">Projection sur ${o.duree} mois, la durée réelle du contrat</div>${segHTML()}</div>
