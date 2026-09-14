@@ -676,8 +676,11 @@ async function handleScan(request, env) {
     : 'CONTEXTE : facture d\'un PROFESSIONNEL (TVA récupérable, raisonner en € HT)' + (secteur ? `, secteur : ${secteur}` : '') + '.\n\n';
 
   // Appel modèle factorisé : 1ʳᵉ passe SONNET 5 (vision haute résolution, fiabilité), Haiku en filet si indispo.
-  const callModel = async (model) => {
-    const res = await fetch(ANTHROPIC_API, {
+  const callModel = async (model, signal) => {
+    let res;
+    try {
+      res = await fetch(ANTHROPIC_API, {
+      signal,
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -694,6 +697,7 @@ async function handleScan(request, env) {
         messages: [{ role: 'user', content: [contentBlock, { type: 'text', text: profilContext }] }],
       }),
     });
+    } catch (e) { return { err: 'fetch:' + (e && e.name || e) }; }
     if (!res.ok) return { err: await res.text() };
     const data = await res.json();
     try {
@@ -703,12 +707,17 @@ async function handleScan(request, env) {
     } catch { return { err: 'parse', raw: data }; }
   };
 
-  let first = await callModel(SCAN_MODEL);
-  if (first.err) first = await callModel(CLAUDE_MODEL); // filet si Sonnet indisponible
-  if (first.err) {
-    return jsonResponse({ error: 'Erreur IA', detail: first.err }, 502);
-  }
-  let extracted = first.extracted;
+  // 14/09/2026 — VITESSE (James : « fais pour que ce soit plus rapide ») : Haiku et Sonnet lancés EN PARALLÈLE.
+  // Haiku répond ~3× plus vite ; on le garde SEULEMENT s'il passe le contrôle de cohérence (voir haikuFiable
+  // plus bas : lignes de conso lues, prix vérifiés par l'argent, total plausible). Sinon on attend Sonnet,
+  // déjà en vol → aucun délai ajouté par rapport à avant. Sonnet reste le juge au moindre doute.
+  // Avant (09/07→14/09) : Sonnet seul en 1ʳᵉ passe, Haiku en filet — conservé en commentaire :
+  //   let first = await callModel(SCAN_MODEL);
+  //   if (first.err) first = await callModel(CLAUDE_MODEL);
+  const sonnetCtl = new AbortController();
+  const pSonnet = callModel(SCAN_MODEL, sonnetCtl.signal).catch(e => ({ err: 'sonnet:' + e }));
+  const pHaiku  = callModel(CLAUDE_MODEL).catch(e => ({ err: 'haiku:' + e }));
+  let first = null, extracted = null, engine = 'sonnet';
 
   // Filet taxes : si accise/cta séparés mais total vide, on le reconstitue (le calcul s'en sert).
   const fixTaxes = (b) => {
@@ -833,7 +842,42 @@ async function handleScan(request, env) {
     fixTaxes(b);
     return b;
   };
+  // Contrôle de cohérence d'une lecture Haiku : on ne l'accepte que si TOUT est propre.
+  const PRICE_KEYS_GATE = ['price_pte_mwh','price_hph_mwh','price_hch_mwh','price_hpb_mwh','price_hcb_mwh','price_base_mwh'];
+  const haikuFiable = (e) => {
+    try {
+      if (!e || typeof e !== 'object') return false;
+      if (!e.supplier || !['electricity','gas'].includes(e.energy_type)) return false; // bi-énergie, inconnu → Sonnet
+      if (e.is_installment || e.multi_site) return false;                             // cas pièges → Sonnet tranche
+      const m = Number(e.billing_months); if (!(m >= 1 && m <= 12)) return false;
+      const L = e.consumption_lines; if (!Array.isArray(L) || !L.length) return false;
+      let sumK = 0, sumA = 0;
+      for (const x of L) { const k = Number(x && x.kwh), a = Number(x && x.amount_ht); if (!(k > 0) || !(a > 0)) return false; sumK += k; sumA += a; }
+      const decl = Number(e.consumption_bill_kwh); if (decl > 0 && Math.abs(sumK - decl) / sumK > 0.02) return false;
+      if (!(Number(e.total_ttc_bill) > 0 || Number(e.total_ht_bill) > 0)) return false;
+      const c = normalizeBill(JSON.parse(JSON.stringify(e)));
+      if (c._price_out_of_range || c._price_fixed || c._total_incoherent) return false;
+      if (!(c.price_avg_mwh > 0)) return false;
+      if (!PRICE_KEYS_GATE.some(k => Number(c[k]) > 0)) return false;
+      return true;
+    } catch { return false; }
+  };
+
+  const h = await pHaiku;
+  if (!h.err && haikuFiable(h.extracted)) {
+    first = h; engine = 'haiku-rapide';
+    sonnetCtl.abort(); // on n'attend plus Sonnet
+  } else {
+    first = await pSonnet;
+    if (first.err && !h.err) { first = h; engine = 'haiku-secours'; } // Sonnet indisponible → Haiku même imparfait (comme avant)
+  }
+  if (!first || first.err) {
+    return jsonResponse({ error: 'Erreur IA', detail: first && first.err }, 502);
+  }
+  extracted = first.extracted;
+  try { console.log('[scan] moteur=' + engine); } catch {}
   normalizeBill(extracted);
+  if (extracted && typeof extracted === 'object') extracted._engine = engine;
 
   // ── CAS PIÈGES (audit 2026-07-10) : refus PROPRE plutôt qu'un chiffre faux ──
   if (extracted && extracted.is_installment) {
