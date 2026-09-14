@@ -234,6 +234,9 @@
   .lvr.act .badge{background:#fff;color:var(--green-deep)} .lvr.fix .badge{background:#eef1ef;color:var(--mut)}
   .lvr .cmp{display:flex;gap:22px;margin-top:8px;font-size:14px;flex-wrap:wrap}
   .lvr .cmp .v{font-weight:700;font-size:17px} .lvr .cmp small{color:var(--mut);font-weight:400;font-size:12px;display:block}
+  /* 14/09/2026 — comparaison à 3 prix (aujourd'hui → moyen sans fixe vs fixe) : toujours sur une ligne */
+  .lvr .cmp3{display:grid;grid-template-columns:1fr auto 1fr auto 1fr;gap:12px;align-items:start} .lvr .cmp3 .arr{align-self:center;color:var(--mut);font-size:13px;padding-top:2px} .lvr .cmp3 small{font-size:11.5px;line-height:1.35;margin-top:2px}
+  @media(max-width:640px){.lvr .cmp3{grid-template-columns:1fr}.lvr .cmp3 .arr{display:none}}
   .lvr p{font-size:12.5px;color:var(--ink-soft);margin-top:6px}
   .proj{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:18px;margin-top:6px}
   .proj-h{display:flex;align-items:baseline;justify-content:space-between;flex-wrap:wrap;gap:8px} .proj-h .t{font-family:var(--serif);font-size:18px}
@@ -748,7 +751,7 @@ function drawSheet(){
         <div class="cmp"><div><div class="v tnum">${REF.kwhE} €/MWh</div><small>votre énergie aujourd'hui</small></div><div style="align-self:center;color:var(--mut)">→</div><div><div class="v tnum" style="color:var(--green-deep)">${o.kwhE} €/MWh</div><small>bloquée ${o.duree} mois</small></div></div>
         <p>C'est ici qu'on agit. Votre prix du kWh est gelé pendant ${o.duree} mois, à l'abri des hausses.</p></div> -->
       <div class="lvr act"><div class="lh"><div class="lt">⚡ Énergie · le seul vrai levier</div><span class="badge" style="${ecoMoy<0?'color:var(--rose);background:#fbeeee':''}">${ecoMoy>=0?'−'+euro(ecoMoy):'+'+euro(-ecoMoy)}/an en moyenne sur ${o.duree} mois</span></div>
-        <div class="cmp"><div><div class="v tnum">${REF.kwhE} €/MWh</div><small>votre prix du kWh aujourd'hui</small></div><div style="align-self:center;color:var(--mut)">→</div><div><div class="v tnum" style="color:var(--rose)">≈ ${avgKwhE} €/MWh</div><small>prix moyen sur ${o.duree} mois sans prix fixe (+${Math.round(RATE*100)} %/an)</small></div><div style="align-self:center;color:var(--mut)">vs</div><div><div class="v tnum" style="color:var(--green-deep)">${o.kwhE} €/MWh</div><small>prix fixe ${o.nom}, bloqué ${o.duree} mois</small></div></div>
+        <div class="cmp cmp3"><div><div class="v tnum">${REF.kwhE} €/MWh</div><small>votre prix du kWh aujourd'hui</small></div><div class="arr">→</div><div><div class="v tnum" style="color:var(--rose)">≈ ${avgKwhE} €/MWh</div><small>prix moyen sur ${o.duree} mois sans prix fixe (+${Math.round(RATE*100)} %/an)</small></div><div class="arr">vs</div><div><div class="v tnum" style="color:var(--green-deep)">${o.kwhE} €/MWh</div><small>prix fixe ${o.nom}, bloqué ${o.duree} mois</small></div></div>
         <p>Ce qui compte, ce n'est pas le prix d'un jour : c'est le prix moyen que vous paierez année après année. Sans prix fixe, il monte de +${Math.round(RATE*100)} %/an. Avec ${o.nom}, il ne bouge plus pendant ${o.duree} mois.</p></div>
       <div class="lvr fix"><div class="lh"><div class="lt">🔌 Acheminement + taxes</div><span class="badge">identique · non négociable</span></div><div class="cmp"><div><div class="v tnum">${euro(AT)}/an</div><small>pareil chez tous, personne n'y peut rien</small></div></div></div>
     </div>
