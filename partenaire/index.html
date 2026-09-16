@@ -42,7 +42,7 @@ async function rpc(fn,body){
   try{return await r.json();}catch(_){return null;}
 }
 function lien(){ return `${SITE}/scanner.html?partenaire=${encodeURIComponent(STATE.code)}`; }
-function msg(){ return `Bonjour, notre partenaire Elga Energy analyse gratuitement vos factures d'énergie et vous dit si vous payez trop cher — 2 min, sans engagement. Faites le test via notre lien : ${lien()}`; }
+function msg(){ return `Bonjour, notre partenaire Elga Energy analyse gratuitement vos factures d'énergie et vous dit si vous payez trop cher — 15 secondes, sans engagement. Faites le test via notre lien : ${lien()}`; }
 
 function toast(m,ok=true){const t=document.createElement('div');t.className=`fixed bottom-6 right-5 z-50 px-4 py-2.5 rounded-xl text-[13px] font-semibold text-white shadow-strong fade ${ok?'bg-primary-600':'bg-rose-600'}`;t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),3000);}
 function partager(canal){
@@ -54,9 +54,10 @@ function partager(canal){
 }
 
 function badge(etat){
-  const map={ 'Scanné':'bg-slate-100 text-slate-600', 'En contact':'bg-sky-50 text-sky-700', 'En attente':'bg-amber-50 text-amber-700', 'Signé':'bg-emerald-50 text-emerald-700', 'Sans suite':'bg-slate-100 text-slate-400' };
-  const ic={ 'Scanné':'📄','En contact':'📞','En attente':'⏳','Signé':'✅','Sans suite':'—' };
-  return `<span class="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[12px] font-bold ${map[etat]||map['Scanné']}">${ic[etat]||''} ${esc(etat)}</span>`;
+  // 16/09/2026 : 3 statuts (En cours · Signé · Refusé) ; anciens libellés conservés par sécurité
+  const map={ 'En cours':'bg-sky-50 text-sky-700', 'Refusé':'bg-red-50 text-red-600', 'Scanné':'bg-slate-100 text-slate-600', 'En contact':'bg-sky-50 text-sky-700', 'En attente':'bg-amber-50 text-amber-700', 'Signé':'bg-emerald-50 text-emerald-700', 'Sans suite':'bg-slate-100 text-slate-400' };
+  const ic={ 'En cours':'⏳','Refusé':'✕','Scanné':'📄','En contact':'📞','En attente':'⏳','Signé':'✅','Sans suite':'—' };
+  return `<span class="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[12px] font-bold ${map[etat]||map['En cours']}">${ic[etat]||''} ${esc(etat)}</span>`;
 }
 
 function render(){
@@ -108,7 +109,7 @@ function render(){
       <h3 class="text-center text-[16px] font-extrabold text-slate-900 mb-5">Comment ça marche</h3>
       <div class="grid grid-cols-3 gap-3 text-center">
         <div class="rounded-2xl border border-slate-100 bg-slate-50/60 p-4"><div class="text-[26px]">📤</div><div class="text-[12.5px] font-bold text-slate-700 mt-2">Vous partagez votre lien</div></div>
-        <div class="rounded-2xl border border-slate-100 bg-slate-50/60 p-4"><div class="text-[26px]">📄</div><div class="text-[12.5px] font-bold text-slate-700 mt-2">L'adhérent scanne sa facture (2 min)</div></div>
+        <div class="rounded-2xl border border-slate-100 bg-slate-50/60 p-4"><div class="text-[26px]">📄</div><div class="text-[12.5px] font-bold text-slate-700 mt-2">L'adhérent scanne sa facture (15 secondes)</div></div>
         <div class="rounded-2xl border border-slate-100 bg-slate-50/60 p-4"><div class="text-[26px]">📞</div><div class="text-[12.5px] font-bold text-slate-700 mt-2">Elga le rappelle et suit le dossier</div></div>
       </div>
       <p class="text-center text-[12.5px] text-slate-400 mt-4">Aucun engagement pour vos adhérents. Ils laissent simplement leurs coordonnées pour être rappelés par un conseiller Elga.</p>
