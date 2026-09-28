@@ -2278,8 +2278,38 @@
     showStep('upload');
   });
 
-  // Étape 2 : déplier le panneau de capture SUR PLACE (au lieu d'une page séparée)
-  function openFunnel() {
+  // 28/09/2026 (James) : « transforme-le en bouton, on a déjà les coordonnées ; enlève le formulaire ».
+  // Un clic = la demande est enregistrée (scans.demande_12mois_at, RPC scan_demande_12mois) → visible dans le CRM
+  // + alerte mail/cloche ; on affiche directement « C'est lancé ». L'ancien parcours (formulaire) reste plus bas,
+  // utilisé seulement si les coordonnées manquent (ne devrait plus arriver : elles sont obligatoires au scan).
+  var _demande12Envoyee = false;
+  function demande12mois() {
+    var panel = document.getElementById('realSavings');
+    var hasCoords = false;
+    try { hasCoords = !!(_ident && _ident.tel && _ident.mail); } catch (_) {}
+    if (!panel || !hasCoords) { openFunnelFormulaire(); return; }
+    if (!_demande12Envoyee) {
+      _demande12Envoyee = true;
+      try {
+        if (window.ELGA_SUPA_URL && window.ELGA_SUPA_KEY) {
+          fetch(window.ELGA_SUPA_URL + '/rest/v1/rpc/scan_demande_12mois', {
+            method: 'POST', headers: supaHeaders({}), keepalive: true,
+            body: JSON.stringify({ p_token: elgaSessionToken() }),
+          }).catch(function () {});
+        }
+      } catch (_) {}
+      try { gtag('event', 'lead_confirm', { event_category: 'scanner', method: 'bouton_12_mois' }); } catch (_) {}
+    }
+    panel.classList.remove('hidden');
+    var f = document.getElementById('realSavingsForm'); if (f) f.classList.add('hidden');
+    // la petite alerte et le bloc « on s'occupe de tout » disent la même chose que la confirmation → masqués
+    try { var box = panel.firstElementChild; if (box) [1, 2].forEach(function (i) { if (box.children[i]) box.children[i].classList.add('hidden'); }); } catch (_) {}
+    var d = document.getElementById('realSavingsDone'); if (d) { d.classList.remove('hidden'); d.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+  }
+  function openFunnel() { demande12mois(); }
+
+  // Étape 2 (ancien parcours, gardé en secours) : déplier le panneau de capture SUR PLACE
+  function openFunnelFormulaire() {
     var panel = document.getElementById('realSavings');
     if (!panel) return;
     panel.classList.remove('hidden');
