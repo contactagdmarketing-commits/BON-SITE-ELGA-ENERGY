@@ -2025,7 +2025,8 @@
     } else {
       // Calcul d'économie global indisponible — les leviers chiffrés (puissance/accise) restent affichés
       document.getElementById('resultPeriodLabel').textContent = 'sur cette facture TTC';
-      document.getElementById('resultClientTotal').textContent = 'Non calculé';
+      // 28/09/2026 : le montant payé est connu même sans calcul d'économie → on l'affiche
+      document.getElementById('resultClientTotal').textContent = (e && e.total_ttc_bill > 0) ? formatEuro(e.total_ttc_bill) : 'Non calculé';
       document.getElementById('resultElgaTotal').textContent = '—';
       const pmEl = document.getElementById('resultPeriodMonths');
       if (pmEl) pmEl.textContent = '1 mois';
