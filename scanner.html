@@ -1364,14 +1364,14 @@
   // serveur (comparaison au kWh → 0 € au Tarif Bleu). On leur envoie désormais EXACTEMENT ce que voit le client.
   function scannerAffiche() {
     try {
-      var tot = 0, fixe = null, abo = 0, optim = 0;
+      var tot = 0, fixe = null, fixe4 = null, abo = 0, optim = 0;
       (_levers || []).forEach(function (lv) {
         if (!(lv.checked && lv.euro != null)) return;
         tot += lv.euro;
-        if (lv.key === 'energie') fixe = lv.euro; else if (lv.key === 'abo') abo += lv.euro; else optim += lv.euro;
+        if (lv.key === 'energie') { fixe = lv.euro; fixe4 = lv.eco4; } else if (lv.key === 'abo') abo += lv.euro; else optim += lv.euro;
       });
       var out = { total_annuel: Math.round(tot), prix_fixe_an: fixe != null ? Math.round(fixe) : null, abonnement_an: Math.round(abo), optimisations_an: Math.round(optim), taux_projection: _projRate };
-      if (fixe != null) { out.prix_fixe_mois = Math.round(fixe / 12); out.prix_fixe_duree = Math.round(fixe * 4); }
+      if (fixe != null) { out.prix_fixe_mois = Math.round(fixe / 12); out.prix_fixe_duree = fixe4 != null ? fixe4 : Math.round(fixe * 4); }
       return out;
     } catch (_) { return null; }
   }
@@ -1641,7 +1641,7 @@
       lines.push(['Économie moyenne par an (TTC)', formatEuro(Math.round(eco4 / 4)) + '/an']);
       lines.push(['Économie sur les 4 ans', formatEuro(Math.round(eco4))]);
       var lv = { key: 'energie', icon: 'energie', color: 'primary', titre: "Prix de l'énergie — fixe pendant 4 ans",
-        euro: Math.round(eco4 / 4), checked: true, surcout: false, badge: null, lines: lines,
+        euro: Math.round(eco4 / 4), eco4: Math.round(eco4), checked: true, surcout: false, badge: null, lines: lines,
         note: (isTRV(e)
           ? "Au Tarif Bleu, votre prix est révisé deux fois par an, sans que vous ayez la main. Avec un prix fixe, vous gardez le prix d'aujourd'hui pendant 4 ans : les hausses ne vous touchent plus."
           : "Même prix qu'aujourd'hui, mais bloqué pendant 4 ans : les hausses ne vous touchent plus. C'est toute la différence entre un prix variable et un prix fixe.") };
