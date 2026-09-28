@@ -1056,7 +1056,7 @@
   <script>
   // Lien balisé (?ref=james) : mémorisé pour attribuer les scans à leur apporteur,
   // quelle que soit la page d'arrivée. Lu par le scanner au moment du scan.
-  try { var _elgaRef = new URLSearchParams(location.search).get('ref'); if (_elgaRef) localStorage.setItem('elga_ref', String(_elgaRef).slice(0, 40)); } catch (e) {}
+  /* 28/09/2026 : attribution = dernier lien, pour la visite (sessionStorage) — plus de mémoire à vie. Ancien : localStorage.setItem('elga_ref', …) */ try { var _q = new URLSearchParams(location.search), _a = null; ['elga_ref','elga_parrain','elga_partenaire'].forEach(function (k) { localStorage.removeItem(k); }); if (_q.get('parrain')) _a = { type: 'parrain', val: String(_q.get('parrain')).slice(0, 12).toUpperCase() }; else if (_q.get('partenaire')) _a = { type: 'partenaire', val: String(_q.get('partenaire')).slice(0, 40).toLowerCase() }; else if (_q.get('ref')) _a = { type: 'ref', val: String(_q.get('ref')).slice(0, 40) }; if (_a) { _a.at = Date.now(); sessionStorage.setItem('elga_attrib', JSON.stringify(_a)); } } catch (e) {}
   </script>
 </body>
 </html>

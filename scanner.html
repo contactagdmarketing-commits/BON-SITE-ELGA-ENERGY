@@ -1227,6 +1227,7 @@
   }
   // Tag d'origine : lien partagé « scanner.html?ref=james » → le scan est marqué et
   // triable dans le CRM (mes liens vs entrant site). Mémorisé pour survivre au rechargement.
+  /* ⛔ ANCIENNE VERSION (gardée pour mémoire, remplacée le 28/09/2026) :
   function elgaRef() {
     try {
       var m = new URLSearchParams(location.search).get('ref');
@@ -1255,6 +1256,33 @@
     } catch (_) { return null; }
   }
   elgaPartenaire();
+  */
+  // 28/09/2026 — ATTRIBUTION (ref commercial / parrain client / partenaire) : BUG corrigé.
+  // Avant : chaque code était mémorisé À VIE dans le navigateur (localStorage) et les trois
+  // s'empilaient → un scan fait depuis le site « tout court » héritait d'anciens liens
+  // (ex. scan de James marqué « Recommandé par SOULA FREDERIC » + fdsea-12 + james-guerin).
+  // Maintenant : UNE seule source, celle du lien par lequel la personne est arrivée
+  // (« dernier lien gagne »), gardée pour la visite (sessionStorage) et 30 jours au plus ;
+  // arriver par un autre lien remplace l'attribution ; les anciennes clés à vie sont effacées.
+  var ATTRIB_TTL = 30 * 24 * 3600 * 1000;
+  function elgaAttrib() {
+    try {
+      ['elga_ref', 'elga_parrain', 'elga_partenaire'].forEach(function (k) { localStorage.removeItem(k); });
+      var q = new URLSearchParams(location.search), cur = null;
+      if (q.get('parrain'))         cur = { type: 'parrain',    val: String(q.get('parrain')).slice(0, 12).toUpperCase() };
+      else if (q.get('partenaire')) cur = { type: 'partenaire', val: String(q.get('partenaire')).slice(0, 40).toLowerCase() };
+      else if (q.get('ref'))        cur = { type: 'ref',        val: String(q.get('ref')).slice(0, 40) };
+      if (cur) { cur.at = Date.now(); sessionStorage.setItem('elga_attrib', JSON.stringify(cur)); return cur; }
+      var saved = JSON.parse(sessionStorage.getItem('elga_attrib') || 'null');
+      if (saved && saved.at && (Date.now() - saved.at) < ATTRIB_TTL) return saved;
+      sessionStorage.removeItem('elga_attrib');
+      return null;
+    } catch (_) { return null; }
+  }
+  function elgaRef()        { var a = elgaAttrib(); return a && a.type === 'ref'        ? a.val : null; }
+  function elgaParrain()    { var a = elgaAttrib(); return a && a.type === 'parrain'    ? a.val : null; }
+  function elgaPartenaire() { var a = elgaAttrib(); return a && a.type === 'partenaire' ? a.val : null; }
+  elgaAttrib(); // capte le lien dès l'arrivée sur la page (et purge les anciennes mémoires à vie)
   // En-têtes Supabase REST (clé publique = insertion/maj seulement, jamais de lecture)
   function supaHeaders(extra) {
     var h = {
