@@ -1314,6 +1314,9 @@
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
         console.error('[Elga Scanner] Erreur serveur:', res.status, err);
+        // 28/09/2026 : l'erreur brute du lecteur (« Erreur IA ») n'est plus montrée telle quelle au visiteur.
+        // Ancien comportement : throw new Error(err.error || 'Erreur serveur (' + res.status + ')');
+        if (res.status >= 500) throw new Error("Notre lecteur de factures est momentanément indisponible. Réessayez dans quelques minutes, ou appelez-nous au 06 68 14 73 50 : on lit votre facture avec vous.");
         throw new Error(err.error || 'Erreur serveur (' + res.status + ')');
       }
 
