@@ -517,7 +517,11 @@
 
     <!-- En-tête résultat -->
     <div class="result-card bg-white rounded-2xl shadow-soft p-5 flex items-center gap-4">
-      <div class="size-10 rounded-xl bg-primary-100 flex items-center justify-center shrink-0">
+      <!-- 28/09/2026 (James) : vrai logo du fournisseur de la facture quand on le reconnaît ; sinon l'icône d'origine -->
+      <div id="resultSupplierLogoBox" class="hidden h-12 w-24 rounded-xl border border-slate-200 bg-white px-2 flex items-center justify-center shrink-0">
+        <img id="resultSupplierLogo" alt="" class="max-h-8 max-w-full w-auto object-contain">
+      </div>
+      <div id="resultSupplierIcon" class="size-10 rounded-xl bg-primary-100 flex items-center justify-center shrink-0">
         <svg class="w-5 h-5 text-primary-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
       </div>
       <div>
@@ -562,7 +566,8 @@
         </div>
       </div>
       <div class="lift-card bg-primary-600 rounded-2xl p-4 space-y-1 text-white">
-        <p class="text-xs font-semibold text-primary-200 uppercase tracking-wide">Avec Elga Energy</p>
+        <!-- 28/09/2026 (James) : le logo à la place du texte « Avec Elga Energy » -->
+        <p class="inline-flex items-center rounded-lg bg-white px-2 py-1"><img src="/assets/logos/elga-energy-logo.png" alt="Avec Elga Energy" class="h-5 w-auto"></p>
         <p id="resultElgaTotal" class="text-2xl font-extrabold"></p>
         <p class="text-xs text-primary-200">même période TTC</p>
         <div class="pt-2 space-y-0.5">
@@ -703,7 +708,7 @@
       <div id="projTable" class="overflow-x-auto -mx-1 px-1"></div>
       <div class="rounded-2xl p-5 sm:p-6 text-white shadow-lg" style="background:linear-gradient(135deg,#0d7a52 0%,#0a6a47 45%,#0b3d91 100%)">
         <p class="text-[11px] font-bold uppercase tracking-[.14em] opacity-80">Même consommation · prix fixe</p>
-        <p class="text-[15px] sm:text-base font-semibold mt-1 opacity-95">Vous gardez le prix d'aujourd'hui. Les hausses, elles, ne vous touchent plus.</p>
+        <p class="text-lg sm:text-xl font-extrabold mt-1">Prix bloqué. Les augmentations aussi.</p>
         <div id="projFixeTable" class="mt-4 overflow-x-auto"></div>
         <div class="grid grid-cols-3 gap-3 mt-5">
           <div><p id="projEcoMois" class="text-3xl sm:text-4xl font-extrabold tabular-nums leading-none">—</p><p class="text-[12px] opacity-80 mt-1.5">économisés par mois</p></div>
@@ -1471,6 +1476,20 @@
     violet: ['bg-violet-100', 'text-violet-700', 'bg-violet-50']
   };
   function mwhStr(v) { return (Math.round(v * 10) / 10).toFixed(1).replace('.', ',') + ' €/MWh HT'; }
+  // 28/09/2026 — logo du fournisseur de la facture (fichiers /assets/fournisseurs/, même règle stricte que la R2 :
+  // noms distinctifs par sous-chaîne, noms courts par mot exact ; inconnu → pas de logo, jamais un faux).
+  var SUP_LOGO_LONG = { engie: 'engie.svg', vattenfall: 'vattenfall.svg', endesa: 'endesa-grupo.svg', alpiq: 'alpiq.png', alterna: 'alterna.png', enovos: 'enovos.webp', dyneff: 'dyneff.png', energem: 'energem.png', primeo: 'primeo.png', ilek: 'ilek.png', totalenergies: 'totalenergies.svg', totalenergie: 'totalenergies.svg',
+    saveenergie: 'save-energies.png', synelva: 'synelva.png', volterres: 'volterres.png', alsen: 'alsen.png', sefe: 'sefe.png', gazdebordeaux: 'gaz-de-bordeaux.png', gazeuropeen: 'gaz-europeen.png', gazel: 'gazel-energie.png', picoty: 'picoty.png', selia: 'selia.png', natgas: 'natgas.png', ekivolt: 'ekivolt.png', santerre: 'energies-du-santerre.png', antargaz: 'antargaz.png', ekwateur: 'ekwateur.png', electricitedesavoie: 'electricite-de-savoie.png', electricitedeprovence: 'electricite-de-provence.png', elmy: 'elmy.png', enalp: 'enalp.png' };
+  var SUP_LOGO_SHORT = { edf: 'edf.svg', eni: 'eni.svg', geg: 'geg.png', ohm: 'ohm.png', total: 'totalenergies.svg', es: 'es-strasbourg.png' };
+  function supplierLogo(name) {
+    var n = String(name || '').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+    var sq = n.replace(/[^a-z0-9]/g, ''); if (!sq) return null;
+    if (/bordeaux$/.test(sq)) return 'gaz-de-bordeaux.png';
+    for (var k in SUP_LOGO_LONG) if (sq.indexOf(k) >= 0) return SUP_LOGO_LONG[k];
+    var toks = n.split(/[^a-z0-9]+/).filter(Boolean);
+    for (var i = 0; i < toks.length; i++) if (SUP_LOGO_SHORT[toks[i]]) return SUP_LOGO_SHORT[toks[i]];
+    return null;
+  }
   function consoMwhOf(e) { return e.annual_consumption_mwh || (e.annual_consumption_kwh ? e.annual_consumption_kwh / 1000 : null); }
   function turpeKva(e) { return (e.segment && /mu/i.test(e.segment)) ? 12.12 : 10.11; }
   // Tarif Réglementé EDF (Tarif Bleu) : l'acheminement est inclus dans le prix.
@@ -2083,6 +2102,16 @@
 
     // Supplier
     document.getElementById('resultSupplier').textContent = e.supplier || 'Fournisseur non identifié';
+    // 28/09/2026 : vrai logo du fournisseur (même correspondance stricte que la présentation R2 : jamais de faux logo)
+    try {
+      var lf = supplierLogo(e.supplier), lbox = document.getElementById('resultSupplierLogoBox'), lico = document.getElementById('resultSupplierIcon');
+      if (lf && lbox) {
+        var limg = document.getElementById('resultSupplierLogo');
+        limg.onerror = function () { lbox.classList.add('hidden'); if (lico) lico.classList.remove('hidden'); };
+        limg.src = '/assets/fournisseurs/' + lf; limg.alt = e.supplier || '';
+        lbox.classList.remove('hidden'); lbox.classList.add('flex'); if (lico) lico.classList.add('hidden');
+      } else if (lbox) { lbox.classList.add('hidden'); if (lico) lico.classList.remove('hidden'); }
+    } catch (_) {}
     document.getElementById('resultContract').textContent = [e.contract_type, e.energy_type === 'gas' ? 'Gaz' : 'Électricité'].filter(Boolean).join(' · ');
 
     // Store for lead form
