@@ -2631,6 +2631,9 @@
     stepFunnel.classList.toggle('hidden', step !== 'funnel');
     var hero = document.getElementById('scanHero');
     if (hero) hero.classList.toggle('hidden', step === 'results' || step === 'funnel');
+    var zone = document.querySelector('main'); // sans l'en-tête, on colle les résultats sous le menu
+    if (zone) { var sansHero = step === 'results' || step === 'funnel';
+      zone.classList.toggle('py-12', !sansHero); zone.classList.toggle('pt-5', sansHero); zone.classList.toggle('pb-12', sansHero); zone.classList.toggle('sm:pt-8', sansHero); }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
