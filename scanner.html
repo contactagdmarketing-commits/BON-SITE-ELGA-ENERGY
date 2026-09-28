@@ -1519,12 +1519,20 @@
     if (e.subscription_monthly_ht != null) {
       var elgaAbo = g && g.abo_monthly != null ? g.abo_monthly : null;
       var cliAbo = e.subscription_monthly_ht;
-      var euroAbo = (elgaAbo != null && cliAbo > elgaAbo) ? Math.round((cliAbo - elgaAbo) * 12) : null;
+      // 28/09/2026 — BUG corrigé : au Tarif Bleu, l'abonnement INCLUT l'acheminement (TURPE fixe, régulé),
+      // alors que l'abonnement Elga de la grille est la part fourniture seule → comparer les deux
+      // fabriquait une fausse économie (ex. 484 €/an sur une facture de 652 €/an). Même règle que le
+      // worker (qui l'exclut déjà) : pas de comparaison d'abonnement au TRV, ni si la grille n'a pas d'abo (0).
+      var aboComparable = !isTRV(e) && elgaAbo != null && elgaAbo > 0;
+      var euroAbo = (aboComparable && cliAbo > elgaAbo) ? Math.round((cliAbo - elgaAbo) * 12) : null;
       var aboLines = [['Votre abonnement', formatEuro(cliAbo) + '/mois']];
-      if (elgaAbo != null) aboLines.push(['Abonnement Elga', formatEuro(elgaAbo) + '/mois']);
+      if (aboComparable) aboLines.push(['Abonnement Elga', formatEuro(elgaAbo) + '/mois']);
+      else if (isTRV(e)) aboLines.push(['Au Tarif Bleu', "l'abonnement inclut l'acheminement (régulé)"]);
       if (euroAbo != null) aboLines.push(['Économie : (' + formatEuro(cliAbo) + ' − ' + formatEuro(elgaAbo) + ') × 12', formatEuro(euroAbo) + '/an']);
       L.push({ key: 'abo', icon: 'abonnement', color: 'sky', titre: 'Abonnement', euro: euroAbo, checked: euroAbo != null,
-        note: euroAbo != null ? "Votre part fixe est plus élevée que nos offres : l'écart est compté dans votre budget annuel." : "Part fixe souvent optimisable selon l'offre et la puissance — chiffrée au bilan.",
+        note: euroAbo != null ? "Votre part fixe est plus élevée que nos offres : l'écart est compté dans votre budget annuel."
+            : (isTRV(e) ? "Au Tarif Bleu, votre abonnement comprend l'acheminement, identique chez tous les fournisseurs : on ne le compare pas à une offre de marché. Il se chiffre au bilan, avec la puissance."
+                        : "Part fixe souvent optimisable selon l'offre et la puissance — chiffrée au bilan."),
         lines: aboLines });
     }
 
@@ -1671,6 +1679,20 @@
     if (total <= 0 && !_grid && !hasSurcout && _s && _s.savings_annual && !_s.trv_competitive && !_s.market_competitive) total = Math.round(_s.savings_annual);
     if (_s && (_s.trv_competitive || _s.market_competitive)) hasSurcout = true;   // recadrage immédiat « sécurisation » dès le pré-chiffrage
     var netPositive = total > 0;
+    // 28/09/2026 — facture SANS consommation (0 kWh : abonnement seul, mois sans relevé, EJP…) :
+    // rien à comparer sur le prix du kWh → on le dit clairement, jamais « Déjà bien placé » ni un faux montant.
+    var noConso = !!(_e && !(consoMwhOf(_e) > 0));
+    if (noConso && !netPositive) {
+      hero.textContent = "À compléter"; hero.classList.add('text-4xl', 'sm:text-5xl');
+      var hl0 = document.getElementById('heroLabel'); if (hl0) hl0.textContent = 'Votre situation aujourd’hui';
+      var ap0 = document.getElementById('annualProjectionBlock'); if (ap0) ap0.classList.add('hidden');
+      var lt0 = document.getElementById('leviersTotal'); if (lt0) { lt0.textContent = '—'; lt0.className = 'text-lg font-extrabold tabular-nums text-slate-500'; }
+      var sub0 = document.getElementById('resultSavingsSubline');
+      if (sub0) sub0.textContent = "Cette facture ne contient pas de consommation (0 kWh sur la période) : impossible de comparer votre prix du kWh. Déposez une facture où des kWh sont consommés, ou demandez l'analyse de vos 12 mois réels ci-dessous.";
+      var g0 = document.getElementById('gaugeBar'); if (g0) g0.style.width = '8%';
+      var hid0 = document.getElementById('hiddenSavings'); if (hid0) hid0.value = 'Facture sans consommation — analyse 12 mois à faire';
+      return;
+    }
     if (netPositive) countUp(hero, total);
     else { hero.textContent = "Déjà bien placé"; hero.classList.add('text-4xl', 'sm:text-5xl'); }
 

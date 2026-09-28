@@ -690,7 +690,7 @@ async function handleScan(request, env) {
       },
       body: JSON.stringify({
         model,
-        max_tokens: 2000,
+        max_tokens: 4000, // 28/09/2026 : 2000 → 4000 (réponses Sonnet tronquées = échec « parse »)
         // Le gros prompt de règles (constant) va en system + cache → relu à 0,1× d'un scan à l'autre.
         // Sonnet 5 inchangé, lecture identique ; seul le coût baisse.
         system: [{ type: 'text', text: EXTRACTION_PROMPT, cache_control: { type: 'ephemeral' } }],
@@ -701,10 +701,15 @@ async function handleScan(request, env) {
     if (!res.ok) return { err: await res.text() };
     const data = await res.json();
     try {
-      const text  = data.content[0].text.trim();
+      // 28/09/2026 : on prend le bloc TEXTE (Sonnet peut renvoyer d'autres blocs avant) ;
+      // ancien code gardé pour mémoire : const text = data.content[0].text.trim();
+      const blk  = (data.content || []).find(b => b && b.type === 'text') || (data.content || [])[0] || {};
+      const text = String(blk.text || '').trim();
       const match = text.match(/\{[\s\S]*\}/);
       return { extracted: JSON.parse(match ? match[0] : text) };
-    } catch { return { err: 'parse', raw: data }; }
+    } catch (e) {
+      return { err: 'parse:' + (data && data.stop_reason) + ':' + ((data && data.content || []).map(b => b && b.type).join(',')), raw: data };
+    }
   };
 
   // 14/09/2026 — VITESSE (James : « fais pour que ce soit plus rapide ») : Haiku et Sonnet lancés EN PARALLÈLE.
@@ -715,8 +720,9 @@ async function handleScan(request, env) {
   //   let first = await callModel(SCAN_MODEL);
   //   if (first.err) first = await callModel(CLAUDE_MODEL);
   const sonnetCtl = new AbortController();
-  const pSonnet = callModel(SCAN_MODEL, sonnetCtl.signal).catch(e => ({ err: 'sonnet:' + e }));
-  const pHaiku  = callModel(CLAUDE_MODEL).catch(e => ({ err: 'haiku:' + e }));
+  const t0 = Date.now(); const timing = {};
+  const pSonnet = callModel(SCAN_MODEL, sonnetCtl.signal).then(r => { timing.sonnet_ms = Date.now() - t0; return r; }).catch(e => ({ err: 'sonnet:' + e }));
+  const pHaiku  = callModel(CLAUDE_MODEL).then(r => { timing.haiku_ms = Date.now() - t0; return r; }).catch(e => ({ err: 'haiku:' + e }));
   let first = null, extracted = null, engine = 'sonnet';
 
   // Filet taxes : si accise/cta séparés mais total vide, on le reconstitue (le calcul s'en sert).
@@ -877,7 +883,10 @@ async function handleScan(request, env) {
   extracted = first.extracted;
   try { console.log('[scan] moteur=' + engine); } catch {}
   normalizeBill(extracted);
-  if (extracted && typeof extracted === 'object') extracted._engine = engine;
+  if (extracted && typeof extracted === 'object') {
+    extracted._engine = engine; extracted._timing = timing; // diagnostic (lecture seule, ignoré par l'affichage)
+    if (engine !== 'sonnet') { const sErr = (await pSonnet).err; if (sErr) extracted._sonnet_err = String(sErr).slice(0, 300); }
+  }
 
   // ── CAS PIÈGES (audit 2026-07-10) : refus PROPRE plutôt qu'un chiffre faux ──
   if (extracted && extracted.is_installment) {
