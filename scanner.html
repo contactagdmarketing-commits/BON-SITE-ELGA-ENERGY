@@ -622,6 +622,7 @@
           <div><p id="projEcoAn" class="text-3xl sm:text-4xl font-extrabold tabular-nums leading-none">—</p><p class="text-[12px] opacity-80 mt-1.5">par an</p></div>
           <div><p id="projEcoTotal" class="text-3xl sm:text-4xl font-extrabold tabular-nums leading-none text-emerald-200">—</p><p class="text-[12px] opacity-80 mt-1.5">sur la durée du contrat</p></div>
         </div>
+        <p id="projTotalLine" class="hidden text-[13px] opacity-90 mt-4 pt-3 border-t border-white/20"></p>
       </div>
             <p id="projNote" class="text-[11px] leading-relaxed text-slate-400"></p>
     </div>
@@ -1483,6 +1484,9 @@
   // ── État du rapport (partagé entre leviers / recompute / détail / comparatif) ──
   var _e = null, _s = null, _data = null, _levers = [], _grid = null, _months = 1, _clientAnnual = null;
   var _projRate = 0.06, LEVIER_ENERGIE_MODE = 'fixe';
+  // 28/09/2026 (James) : « c'est sur la base du même prix, prix fixe vs prix évolutif » → l'économie du prix fixe se
+  // calcule sur la FACTURE ENTIÈRE (même base que le tableau « dans 5 / 10 ans »). 'energie' = ancienne assiette (part énergie seule).
+  var PRIX_FIXE_ASSIETTE = 'facture';
   var _gridReady = null; // 28/09/2026 : pour envoyer au CRM les MÊMES chiffres que ceux affichés (après chiffrage complet) // 28/09/2026 : taux de projection + levier énergie = prix fixe
   var LEVER_ICONS = {
     energie: 'M13 2L4.5 13.5H11l-1 8.5L18.5 10.5H12L13 2z',
@@ -1632,7 +1636,11 @@
       var E = projEnergieAnnuelle(e, annual), eco4 = 0, rows = [];
       for (var k = 1; k <= 4; k++) eco4 += E * (Math.pow(1 + r, k) - 1);
       var lines = [];
-      if (cli != null) {
+      if (PRIX_FIXE_ASSIETTE === 'facture') {
+        lines.push(["Votre facture aujourd'hui", formatEuro(Math.round(annual)) + '/an · prix évolutif']);
+        lines.push(['Dans 4 ans, à +' + Math.round(r * 100) + ' %/an', formatEuro(Math.round(annual * Math.pow(1 + r, 4))) + '/an']);
+        lines.push(['Avec un prix fixe', formatEuro(Math.round(annual)) + '/an · bloqué 4 ans']);
+      } else if (cli != null) {
         lines.push(["Votre prix de l'énergie aujourd'hui", mwhStr(cli) + ' · variable']);
         lines.push(['Dans 4 ans, à +' + Math.round(r * 100) + ' %/an', mwhStr(Math.round(cli * Math.pow(1 + r, 4) * 10) / 10)]);
         lines.push(['Avec un prix fixe', mwhStr(cli) + ' · bloqué 4 ans']);
@@ -1889,6 +1897,7 @@
     }
     var hid = document.getElementById('hiddenSavings');
     if (hid) hid.value = netPositive ? (formatEuro(total) + '/an (leviers retenus)') : (hasSurcout ? 'Sécurisation (TRV volatil, révisé plusieurs fois/an) · optimisation abo/puissance' : '');
+    try { renderProjection(); } catch (_) {}   // 28/09/2026 : la carte suit les leviers cochés (total cohérent avec le haut)
   }
 
   // Détail facture 100% personnalisé — groupé, uniquement les lignes présentes.
@@ -2243,6 +2252,7 @@
   //   évitées sur cette part (acheminement et taxes restent réglementés, identiques partout).
   var PROJ_IDX_MOINS5 = 0.79, PROJ_REEL_PCT = '4,5'; // (_projRate et LEVIER_ENERGIE_MODE déclarés avec l'état du rapport)
   function projEnergieAnnuelle(e, annual) {
+    if (PRIX_FIXE_ASSIETTE === 'facture') return annual;               // même base que le tableau (facture entière)
     var avg = clientEnergyAvg(e), mwh = consoMwhOf(e);
     var en = (avg != null && mwh) ? avg * mwh * 1.2 : null;          // HT → TTC
     if (en == null || !(en > 0)) en = annual * 0.5;                  // repli prudent : la moitié du budget
@@ -2278,10 +2288,22 @@
     document.getElementById('projEcoMois').textContent = formatEuro(Math.round(eco4 / 48));
     document.getElementById('projEcoAn').textContent = formatEuro(Math.round(eco4 / 4));
     document.getElementById('projEcoTotal').textContent = formatEuro(Math.round(eco4));
+    // cohérence avec le grand chiffre du haut : prix fixe + optimisations = total
+    var optim = 0; (_levers || []).forEach(function (lv) { if (lv.checked && lv.euro > 0 && lv.key !== 'energie') optim += lv.euro; });
+    var tl = document.getElementById('projTotalLine');
+    if (tl) {
+      if (optim > 0) {
+        var totAn = Math.round(eco4 / 4) + optim;
+        tl.innerHTML = 'Avec vos optimisations (+ ' + formatEuro(optim) + '/an) : <strong class="text-white">' + formatEuro(totAn) + '/an</strong> au total, soit <strong class="text-white">' + formatEuro(Math.round(totAn / 12)) + '/mois</strong>.';
+        tl.classList.remove('hidden');
+      } else tl.classList.add('hidden');
+    }
     document.getElementById('projNote').textContent =
       (y - 5) + " : même consommation, avec l'évolution réelle du tarif réglementé (barèmes CRE). Années suivantes" +
       ' : projection avec une hausse de +' + Math.round(r * 100) + ' % par an, cumulée d\u2019année en année (hypothèse ; pour mémoire, la hausse moyenne réelle ' + (y - 5) + '-' + y +
-      ' est d\u2019environ +' + PROJ_REEL_PCT + ' % par an). Le prix fixe porte sur la part énergie de votre facture ; l\u2019acheminement et les taxes restent réglementés.';
+      ' est d\u2019environ +' + PROJ_REEL_PCT + ' % par an). ' + (PRIX_FIXE_ASSIETTE === 'facture'
+        ? 'Prix fixe : même facture, même consommation — prix évolutif comparé au prix bloqué au niveau d\u2019aujourd\u2019hui pendant 4 ans.'
+        : 'Le prix fixe porte sur la part énergie de votre facture ; l\u2019acheminement et les taxes restent réglementés.');
     document.querySelectorAll('#projSeg button').forEach(function (b) {
       var on = Math.abs(parseFloat(b.dataset.r) - r) < 1e-9;
       b.className = 'px-2.5 py-1 rounded-full font-semibold ' + (on ? 'bg-primary-600 text-white' : 'text-slate-500 hover:text-slate-800');
