@@ -428,6 +428,24 @@
       </div>
     </div>
 
+    <!-- 28/09/2026 (James) : ouvrir l'appareil photo directement. Plusieurs pages possibles (la page de détail
+         compte souvent autant que la 1re) : les photos sont réunies en un seul PDF avant l'analyse. -->
+    <input type="file" id="cameraInput" accept="image/*" capture="environment" class="sr-only" />
+    <div class="mt-3 flex flex-col items-center gap-2">
+      <button type="button" id="btnCamera" class="inline-flex items-center justify-center gap-2 w-full sm:w-auto rounded-2xl border-2 border-primary-200 bg-white px-5 py-3 text-[15px] font-bold text-primary-700 shadow-soft hover:border-primary-400 hover:bg-primary-50 transition">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 8a2 2 0 012-2h2l1.5-2h7L17 6h2a2 2 0 012 2v10a2 2 0 01-2 2H5a2 2 0 01-2-2V8z"/><circle cx="12" cy="13" r="3.5"/></svg>
+        <span id="btnCameraLabel">Prendre ma facture en photo</span>
+      </button>
+      <div id="photoPages" class="hidden w-full rounded-2xl bg-white shadow-soft p-4">
+        <div class="flex items-center justify-between gap-3">
+          <p class="text-sm font-semibold text-slate-700"><span id="photoCount">0</span> page(s) photographiée(s)</p>
+          <button type="button" id="btnPhotoReset" class="text-xs text-slate-400 underline underline-offset-2">Recommencer</button>
+        </div>
+        <div id="photoThumbs" class="mt-3 flex gap-2 overflow-x-auto"></div>
+        <p class="mt-2 text-xs text-slate-500">Astuce : photographiez aussi la page « détail de votre facture » (consommation, prix du kWh) — l'analyse n'en sera que plus juste.</p>
+      </div>
+    </div>
+
     <!-- Bouton analyser -->
     <div class="mt-5">
       <button id="btnAnalyze" disabled
@@ -1127,6 +1145,87 @@
     dropDefault.classList.add('hidden');
     dropSelected.classList.remove('hidden');
     btnAnalyze.disabled = false;
+  }
+
+  // ── 28/09/2026 : APPAREIL PHOTO direct + plusieurs pages ─────────────────────
+  // Chaque photo est ré-encodée en JPEG (≤ 2000 px, gère aussi le HEIC d'iPhone quand le navigateur sait le lire).
+  // 1 photo → envoyée telle quelle ; 2 photos et plus → réunies en un PDF (jsPDF, chargé à la demande) : le moteur
+  // lit un PDF de plusieurs pages exactement comme une facture reçue par e-mail.
+  var _photos = [];
+  var cameraInput = document.getElementById('cameraInput');
+  var btnCamera = document.getElementById('btnCamera');
+  function photoToJpeg(file) {
+    return new Promise(function (resolve, reject) {
+      var url = URL.createObjectURL(file), img = new Image();
+      img.onload = function () {
+        try {
+          var MAX = 2000, long = Math.max(img.naturalWidth, img.naturalHeight) || 1, sc = Math.min(1, MAX / long);
+          var w = Math.round(img.naturalWidth * sc), h = Math.round(img.naturalHeight * sc);
+          var cv = document.createElement('canvas'); cv.width = w; cv.height = h;
+          var cx = cv.getContext('2d'); cx.fillStyle = '#fff'; cx.fillRect(0, 0, w, h); cx.drawImage(img, 0, 0, w, h);
+          URL.revokeObjectURL(url);
+          resolve({ dataUrl: cv.toDataURL('image/jpeg', 0.88), w: w, h: h });
+        } catch (e) { URL.revokeObjectURL(url); reject(e); }
+      };
+      img.onerror = function () { URL.revokeObjectURL(url); reject(new Error('photo illisible')); };
+      img.src = url;
+    });
+  }
+  function dataUrlToFile(dataUrl, name, type) {
+    var b = atob(dataUrl.split(',')[1]), a = new Uint8Array(b.length);
+    for (var i = 0; i < b.length; i++) a[i] = b.charCodeAt(i);
+    return new File([a], name, { type: type });
+  }
+  function loadJsPdf() {
+    if (window.jspdf) return Promise.resolve(window.jspdf);
+    return new Promise(function (res, rej) {
+      var s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+      s.onload = function () { res(window.jspdf); }; s.onerror = rej; document.head.appendChild(s);
+    });
+  }
+  async function rebuildPhotoFile() {
+    if (!_photos.length) return;
+    if (_photos.length === 1) { handleFileSelect(dataUrlToFile(_photos[0].dataUrl, 'facture-photo.jpg', 'image/jpeg')); return; }
+    try {
+      var lib = await loadJsPdf(), doc = null;
+      _photos.forEach(function (p, i) {
+        var ori = p.w > p.h ? 'l' : 'p';
+        if (i === 0) doc = new lib.jsPDF({ orientation: ori, unit: 'px', format: [p.w, p.h] });
+        else doc.addPage([p.w, p.h], ori);
+        doc.addImage(p.dataUrl, 'JPEG', 0, 0, p.w, p.h);
+      });
+      var blob = doc.output('blob');
+      handleFileSelect(new File([blob], 'facture-' + _photos.length + '-pages.pdf', { type: 'application/pdf' }));
+    } catch (_) {
+      // sans jsPDF (réseau) : on garde la 1re page — mieux que rien, et on le dit
+      handleFileSelect(dataUrlToFile(_photos[0].dataUrl, 'facture-photo.jpg', 'image/jpeg'));
+      showError("Plusieurs pages n'ont pas pu être réunies : seule la 1re sera analysée.");
+    }
+  }
+  function renderPhotoPages() {
+    var box = document.getElementById('photoPages');
+    document.getElementById('photoCount').textContent = _photos.length;
+    document.getElementById('photoThumbs').innerHTML = _photos.map(function (p, i) {
+      return '<div class="relative shrink-0"><img src="' + p.dataUrl + '" alt="Page ' + (i + 1) + '" class="h-24 w-auto rounded-lg border border-slate-200"><span class="absolute bottom-1 left-1 rounded bg-white/90 px-1.5 text-[10px] font-bold text-slate-700">p. ' + (i + 1) + '</span></div>';
+    }).join('');
+    box.classList.toggle('hidden', !_photos.length);
+    document.getElementById('btnCameraLabel').textContent = _photos.length ? 'Ajouter une page en photo' : 'Prendre ma facture en photo';
+  }
+  if (btnCamera && cameraInput) {
+    btnCamera.addEventListener('click', function () { cameraInput.value = ''; cameraInput.click(); });
+    cameraInput.addEventListener('change', async function () {
+      var f = cameraInput.files && cameraInput.files[0]; if (!f) return;
+      try {
+        var p = await photoToJpeg(f);
+        _photos.push(p); renderPhotoPages(); await rebuildPhotoFile();
+        try { gtag('event', 'photo_page', { event_category: 'scanner', value: _photos.length }); } catch (_) {}
+      } catch (_) { showError("Cette photo n'a pas pu être lue. Réessayez, ou déposez la facture en PDF."); }
+    });
+    document.getElementById('btnPhotoReset').addEventListener('click', function () {
+      _photos = []; renderPhotoPages(); selectedFile = null; fileInput.value = '';
+      dropDefault.classList.remove('hidden'); dropSelected.classList.add('hidden'); btnAnalyze.disabled = true;
+    });
   }
 
   // ── Analyze button ────────────────────────────────────────────────────────
