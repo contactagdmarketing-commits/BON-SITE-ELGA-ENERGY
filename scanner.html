@@ -702,13 +702,13 @@
       </div>
       <div id="projTable" class="overflow-x-auto -mx-1 px-1"></div>
       <div class="rounded-2xl p-5 sm:p-6 text-white shadow-lg" style="background:linear-gradient(135deg,#0d7a52 0%,#0a6a47 45%,#0b3d91 100%)">
-        <p class="text-[11px] font-bold uppercase tracking-[.14em] opacity-80">Même consommation · prix fixe pendant 4 ans</p>
+        <p class="text-[11px] font-bold uppercase tracking-[.14em] opacity-80">Même consommation · prix fixe</p>
         <p class="text-[15px] sm:text-base font-semibold mt-1 opacity-95">Vous gardez le prix d'aujourd'hui. Les hausses, elles, ne vous touchent plus.</p>
         <div id="projFixeTable" class="mt-4 overflow-x-auto"></div>
-        <div class="grid grid-cols-3 gap-3 mt-5 pt-4 border-t border-white/20">
+        <div class="grid grid-cols-3 gap-3 mt-5">
           <div><p id="projEcoMois" class="text-3xl sm:text-4xl font-extrabold tabular-nums leading-none">—</p><p class="text-[12px] opacity-80 mt-1.5">économisés par mois</p></div>
           <div><p id="projEcoAn" class="text-3xl sm:text-4xl font-extrabold tabular-nums leading-none">—</p><p class="text-[12px] opacity-80 mt-1.5">par an</p></div>
-          <div><p id="projEcoTotal" class="text-3xl sm:text-4xl font-extrabold tabular-nums leading-none text-emerald-200">—</p><p class="text-[12px] opacity-80 mt-1.5">sur les 4 ans</p></div>
+          <div><p id="projEcoTotal" class="text-3xl sm:text-4xl font-extrabold tabular-nums leading-none text-emerald-200">—</p><p class="text-[12px] opacity-80 mt-1.5">sur la durée du contrat</p></div>
         </div>
       </div>
             <p id="projNote" class="text-[11px] leading-relaxed text-slate-400"></p>
@@ -732,16 +732,21 @@
 
     <!-- VOTRE FACTURE EN DÉTAIL — 100% personnalisé -->
     <div class="result-card bg-white rounded-2xl shadow-soft p-5 space-y-4" style="animation-delay:.27s">
-      <div class="flex items-center gap-2.5">
+      <!-- 28/09/2026 (James) : repliable, fermé par défaut -->
+      <details id="factureDetailWrap" class="group">
+      <summary class="flex items-center gap-2.5 cursor-pointer list-none [&::-webkit-details-marker]:hidden">
         <div class="size-9 rounded-lg bg-secondary-50 text-secondary-600 flex items-center justify-center shrink-0">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m-6-8h6M5 4h14a1 1 0 011 1v14a1 1 0 01-1 1H5a1 1 0 01-1-1V5a1 1 0 011-1z"/></svg>
         </div>
-        <div>
+        <div class="flex-1 min-w-0">
           <p class="text-sm font-bold text-slate-800">Votre facture en détail</p>
           <p class="text-xs text-slate-400">Lecture poste par poste de votre document, telle qu'analysée.</p>
         </div>
-      </div>
-      <div id="factureDetail" class="space-y-4"></div>
+        <span class="text-xs font-semibold text-secondary-600 shrink-0 flex items-center gap-1"><span class="group-open:hidden">Afficher</span><span class="hidden group-open:inline">Masquer</span>
+          <svg class="w-4 h-4 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg></span>
+      </summary>
+      <div id="factureDetail" class="space-y-4 mt-4"></div>
+      </details>
     </div>
 
     <!-- COMPARATIF vs grille Elga -->
@@ -1815,7 +1820,10 @@
     if (sub) {
       if (netPositive && clientAnnual) {
         var pct = Math.min(60, Math.round(total / clientAnnual * 100));
-        sub.textContent = 'soit ≈ ' + pct + '% de votre budget — cible ≈ ' + formatEuro(Math.max(0, clientAnnual - total)) + '/an';
+        // 28/09/2026 : on dit de quoi est fait le total (James : « je ne comprends pas 3 160 € »)
+        var parts = _levers.filter(function (lv) { return lv.checked && lv.euro > 0; })
+          .map(function (lv) { return ({ energie: 'prix fixe', abo: 'abonnement', turpe: 'puissance', accise: 'accise réduite' }[lv.key] || lv.titre) + ' ' + formatEuro(lv.euro); });
+        sub.textContent = parts.length > 1 ? ('dont ' + parts.join(' · ')) : ('soit ≈ ' + pct + '% de votre budget annuel');
         if (gauge) gauge.style.width = Math.min(pct * 2.5, 95) + '%';
       } else if (hasSurcout) {
         // Elga plus cher aujourd'hui sur l'énergie : honnête sur le budget, on pointe les autres leviers.
@@ -2027,6 +2035,8 @@
 
   // Comparatif poste par poste vs la grille Elga.
   function renderElgaCompare(e, grid) {
+    // 28/09/2026 (James) : « Votre tarif vs la grille Elga — enlève complètement cette carte ». Code gardé, carte jamais affichée.
+    if (true) { var c0 = document.getElementById('elgaCompareCard'); if (c0) c0.classList.add('hidden'); return; }
     var card = document.getElementById('elgaCompareCard');
     var box = document.getElementById('elgaCompare');
     if (!card || !box || !e.segment || !grid) return;
@@ -2189,14 +2199,14 @@
     var r = _projRate, y = new Date().getFullYear();
     var mois = function (a) { return formatEuro(Math.round(a / 12)); };
     var cols = [
-      [String(y - 5), annual * PROJ_IDX_MOINS5, 'réel'],
-      ["Aujourd'hui", annual, 'votre facture'],
-      [String(y + 5), annual * Math.pow(1 + r, 5), 'prix variable'],
-      [String(y + 10), annual * Math.pow(1 + r, 10), 'prix variable'],
+      ['Il y a 5 ans', annual * PROJ_IDX_MOINS5, 'tarifs réels', 'text-emerald-600'],
+      ["Aujourd'hui", annual, 'votre facture', 'text-slate-900'],
+      ['Dans 5 ans', annual * Math.pow(1 + r, 5), 'prix variable', 'text-orange-500'],
+      ['Dans 10 ans', annual * Math.pow(1 + r, 10), 'prix variable', 'text-red-600'],
     ];
-    var th = function (c, i) { return '<th class="px-2 py-2 text-right text-[11px] font-bold uppercase tracking-wide ' + (i === 1 ? 'text-slate-800' : 'text-slate-400') + '">' + c[0] + '<div class="font-medium normal-case tracking-normal text-[10.5px] text-slate-400">' + c[2] + '</div></th>'; };
+    var th = function (c, i) { return '<th class="px-2 py-2 text-right text-[11px] font-bold uppercase tracking-wide ' + c[3] + '">' + c[0] + '<div class="font-medium normal-case tracking-normal text-[10.5px] text-slate-400">' + c[2] + '</div></th>'; };
     var td = function (v, i, big) {
-      var col = i >= 2 ? 'text-red-600' : (i === 1 ? 'text-slate-900' : 'text-slate-500');
+      var col = cols[i][3];
       return '<td class="px-2 ' + (big ? 'py-2.5 text-lg sm:text-xl' : 'py-2 text-[13.5px]') + ' text-right font-extrabold tabular-nums ' + col + (i === 1 ? ' bg-slate-50' : '') + '">' + formatEuro(Math.round(v)) + '</td>';
     };
     document.getElementById('projTable').innerHTML =
@@ -2204,20 +2214,10 @@
       '<tr class="border-t border-slate-100"><td class="py-2.5 pr-2 text-[12.5px] font-semibold text-slate-600">Budget annuel</td>' + cols.map(function (c, i) { return td(c[1], i, true); }).join('') + '</tr>' +
       '<tr class="border-t border-slate-100"><td class="py-2 pr-2 text-[12.5px] font-semibold text-slate-600">Facture moyenne / mois</td>' + cols.map(function (c, i) { return td(c[1] / 12, i, false); }).join('') + '</tr>' +
       '</tbody></table>';
-    var en = projEnergieAnnuelle(e, annual), eco4 = 0, rowsF = '';
-    for (var k = 1; k <= 4; k++) {
-      var varA = annual * Math.pow(1 + r, k);                                  // tout monte (prix variable)
-      var fixA = varA - en * (Math.pow(1 + r, k) - 1);                          // la part énergie reste au prix d'aujourd'hui
-      var d = varA - fixA; eco4 += d;
-      rowsF += '<tr class="border-t border-white/15"><td class="py-2 pr-2 text-[12.5px] font-semibold opacity-90">' + (y + k) + '</td>' +
-        '<td class="py-2 px-2 text-right tabular-nums text-[13px] opacity-80 line-through decoration-white/40">' + formatEuro(Math.round(varA / 12)) + '</td>' +
-        '<td class="py-2 px-2 text-right tabular-nums text-[13px] font-bold">' + formatEuro(Math.round(fixA / 12)) + '</td>' +
-        '<td class="py-2 pl-2 text-right tabular-nums text-[13px] font-extrabold text-emerald-200">− ' + formatEuro(Math.round(d / 12)) + '<span class="font-semibold opacity-80"> /mois</span></td></tr>';
-    }
-    document.getElementById('projFixeTable').innerHTML =
-      '<table class="w-full min-w-[440px] border-collapse"><thead><tr class="text-[10.5px] uppercase tracking-wide opacity-75">' +
-      '<th class="text-left font-semibold pb-1.5">Année</th><th class="text-right font-semibold pb-1.5 px-2">Prix variable</th><th class="text-right font-semibold pb-1.5 px-2">Prix fixe</th><th class="text-right font-semibold pb-1.5 pl-2">Différence</th></tr></thead>' +
-      '<tbody>' + rowsF + '</tbody></table><p class="text-[11px] opacity-70 mt-2">Facture moyenne par mois, même consommation.</p>';
+    // 28/09/2026 (James) : « un prix fixe ne bouge pas » → plus de tableau année par année, seulement les économies.
+    var en = projEnergieAnnuelle(e, annual), eco4 = 0;
+    for (var k = 1; k <= 4; k++) eco4 += en * (Math.pow(1 + r, k) - 1);   // hausses cumulées évitées sur la durée
+    var ft = document.getElementById('projFixeTable'); if (ft) ft.innerHTML = '';
     document.getElementById('projEcoMois').textContent = formatEuro(Math.round(eco4 / 48));
     document.getElementById('projEcoAn').textContent = formatEuro(Math.round(eco4 / 4));
     document.getElementById('projEcoTotal').textContent = formatEuro(Math.round(eco4));
