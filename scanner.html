@@ -68,8 +68,9 @@
     .lever-in:hover,.lift-card:hover{transform:translateY(-3px);box-shadow:0 18px 38px -16px rgba(2,6,12,.28)}
     .lever-focus{box-shadow:0 0 0 2px #0e8a57,0 18px 38px -16px rgba(14,138,87,.3)}
     @media (prefers-reduced-motion: reduce){
-      .reveal-medallion,.scan-line,.scan-glow{animation:none!important}
-      .scan-line{opacity:.5;top:44px}
+      .reveal-medallion,.scan-glow{animation:none!important}
+      /* le balayage de la facture et la barre restent animés : ce sont des indicateurs de chargement (sinon on croit à un bug) */
+      .scan-line{animation-duration:3.4s}
       .reveal-cta{opacity:1;transform:none}
       .lever-in:hover,.lift-card:hover{transform:none}
     }
@@ -91,6 +92,13 @@
     /* Scanning steps */
     .scan-step{opacity:.35;transition:opacity .4s,color .4s}
     .scan-step.active{opacity:1;color:#0e8a57}
+    /* 28/09/2026 : l'étape en cours « respire » + barre de progression qui défile + message qui change → jamais figé */
+    .scan-step.active > div:first-child{animation:stepPulse 1.2s ease-in-out infinite}
+    @keyframes stepPulse{0%,100%{box-shadow:0 0 0 0 rgba(14,138,87,.35)}50%{box-shadow:0 0 0 7px rgba(14,138,87,0)}}
+    .scan-bar{position:relative;height:6px;border-radius:999px;background:#e7efeb;overflow:hidden}
+    .scan-bar i{position:absolute;top:0;bottom:0;width:40%;border-radius:999px;background:linear-gradient(90deg,transparent,#10b981,transparent);animation:barRun 1.3s ease-in-out infinite}
+    @keyframes barRun{0%{left:-40%}100%{left:100%}}
+    #scanMsg{transition:opacity .35s}
     .scan-step.done{opacity:1;color:#0b6c45}
 
     /* Progress bar */
@@ -150,7 +158,7 @@
 <header class="sticky top-0 z-50 border-b border-slate-200/60 bg-white/90 glass">
   <div class="container flex items-center justify-between py-2 md:py-2.5 gap-3">
     <a href="/" class="flex items-center gap-2">
-      <img src="/assets/logos/elga-energy-logo.png" alt="Elga Energy" class="h-12 md:h-14 w-auto" onerror="this.remove()" />
+      <img src="/assets/logos/elga-energy-logo.png" alt="Elga Energy" class="h-9 sm:h-12 md:h-14 w-auto" onerror="this.remove()" />
     </a>
     <nav class="hidden md:flex items-center gap-6 text-sm font-medium text-slate-600">
       <a href="/#offre" class="hover:text-primary-700 transition-colors">Offre</a>
@@ -164,7 +172,7 @@
         <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.81 19.79 19.79 0 01.12 1.22 2 2 0 012.1 0h3a2 2 0 012 1.72 12.84 12.84 0 00.7 2.81 2 2 0 01-.45 2.11L6.09 7.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45 12.84 12.84 0 002.81.7A2 2 0 0122 14.92z"/></svg>
         06 68 14 73 50
       </a>
-      <a href="/devis.html" class="inline-flex items-center rounded-xl bg-primary-600 px-4 py-2.5 text-white text-sm font-semibold shadow-soft hover:bg-primary-700 transition-colors">Obtenir un devis</a>
+      <a href="/devis.html" class="inline-flex items-center whitespace-nowrap rounded-xl bg-primary-600 px-3 py-2 sm:px-4 sm:py-2.5 text-white text-[13px] sm:text-sm font-semibold shadow-soft hover:bg-primary-700 transition-colors"><span class="sm:hidden">Devis</span><span class="hidden sm:inline">Obtenir un devis</span></a>
       <button id="menuBtn" class="md:hidden inline-flex items-center justify-center size-10 rounded-lg border border-slate-300" aria-label="Menu">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
       </button>
@@ -498,6 +506,9 @@
       <div>
         <p class="text-xl font-bold text-slate-800">Analyse en cours…</p>
         <p class="text-sm text-slate-500 mt-1">Notre IA lit votre facture et calcule vos économies</p>
+        <div class="scan-bar max-w-xs mx-auto mt-4"><i></i></div>
+        <p id="scanMsg" class="text-[13px] font-medium text-primary-700 mt-2.5 min-h-[20px]">Lecture ligne par ligne…</p>
+        <p id="scanElapsed" class="text-[11.5px] text-slate-400 mt-0.5 tabular-nums"></p>
       </div>
 
       <!-- Étapes de progression -->
@@ -629,16 +640,17 @@
           <span>/an</span>
         </div>
       </div>
-      <div id="projTable" class="overflow-x-auto -mx-1 px-1"></div>
+      <div id="projTable" class="hidden sm:block overflow-x-auto -mx-1 px-1"></div>
+      <div id="projTiles" class="grid grid-cols-2 gap-2 sm:hidden"></div>
       <div class="rounded-2xl p-5 sm:p-6 text-white shadow-lg" style="background:linear-gradient(135deg,#0d7a52 0%,#0a6a47 45%,#0b3d91 100%)">
         <p class="text-[11px] font-bold uppercase tracking-[.14em] opacity-80">Même consommation · prix fixe</p>
         <p class="mt-2.5 inline-flex items-center rounded-lg bg-white px-2.5 py-1.5 shadow-sm"><img src="/assets/logos/elga-energy-logo.png" alt="Elga Energy" class="h-6 w-auto"></p>
         <p class="text-lg sm:text-xl font-extrabold mt-2.5">Prix bloqué. Les augmentations aussi.</p>
         <div id="projFixeTable" class="mt-4 overflow-x-auto"></div>
-        <div class="grid grid-cols-3 gap-3 mt-5">
-          <div><p id="projEcoMois" class="text-3xl sm:text-4xl font-extrabold tabular-nums leading-none">—</p><p class="text-[12px] opacity-80 mt-1.5">économisés par mois</p></div>
-          <div><p id="projEcoAn" class="text-3xl sm:text-4xl font-extrabold tabular-nums leading-none">—</p><p class="text-[12px] opacity-80 mt-1.5">par an</p></div>
-          <div><p id="projEcoTotal" class="text-3xl sm:text-4xl font-extrabold tabular-nums leading-none text-emerald-200">—</p><p class="text-[12px] opacity-80 mt-1.5">sur la durée du contrat</p></div>
+        <div class="grid grid-cols-3 gap-2 sm:gap-3 mt-5 [&>div]:min-w-0">
+          <div><p id="projEcoMois" class="text-[clamp(20px,6.2vw,36px)] font-extrabold tabular-nums leading-none whitespace-nowrap">—</p><p class="text-[12px] opacity-80 mt-1.5">économisés par mois</p></div>
+          <div><p id="projEcoAn" class="text-[clamp(20px,6.2vw,36px)] font-extrabold tabular-nums leading-none whitespace-nowrap">—</p><p class="text-[12px] opacity-80 mt-1.5">par an</p></div>
+          <div><p id="projEcoTotal" class="text-[clamp(20px,6.2vw,36px)] font-extrabold tabular-nums leading-none text-emerald-200 whitespace-nowrap">—</p><p class="text-[12px] opacity-80 mt-1.5">sur la durée du contrat</p></div>
         </div>
         <p id="projTotalLine" class="hidden text-[13px] opacity-90 mt-4 pt-3 border-t border-white/20"></p>
       </div>
@@ -1293,7 +1305,7 @@
         }),
       });
 
-      clearInterval(scanInterval);
+      clearInterval(scanInterval); stopScanMessages();
 
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
@@ -1317,7 +1329,7 @@
       pushScanToCRM(data, facturePath);
 
     } catch (err) {
-      clearInterval(scanInterval);
+      clearInterval(scanInterval); stopScanMessages();
       showStep('upload');
       console.error('[Elga Scanner] Erreur:', err);
       let msg = err && err.message ? err.message : null;
@@ -1552,9 +1564,27 @@
   }
 
   // ── Scan animation ────────────────────────────────────────────────────────
+  // 28/09/2026 : messages qui tournent en boucle + compteur de secondes, tant que l'analyse n'est pas finie
+  var _scanMsgTimer = null, _scanElapsedTimer = null;
+  var SCAN_MSGS = ['Lecture ligne par ligne…', 'Vérification des montants…', 'Repérage de votre consommation annuelle…', 'Calcul prix évolutif / prix bloqué…', 'Recherche d\u2019optimisations…', 'Presque terminé…'];
+  function startScanMessages() {
+    stopScanMessages();
+    var i = 0, t0 = Date.now(), m = document.getElementById('scanMsg'), el = document.getElementById('scanElapsed');
+    if (m) m.textContent = SCAN_MSGS[0];
+    _scanMsgTimer = setInterval(function () {
+      i = (i + 1) % SCAN_MSGS.length;
+      if (m) { m.style.opacity = 0; setTimeout(function () { m.textContent = SCAN_MSGS[i]; m.style.opacity = 1; }, 250); }
+    }, 2400);
+    _scanElapsedTimer = setInterval(function () {
+      var sec = Math.round((Date.now() - t0) / 1000);
+      if (el) el.textContent = sec >= 4 ? (sec + ' s — une facture détaillée prend un peu plus de temps, c\u2019est normal') : '';
+    }, 1000);
+  }
+  function stopScanMessages() { clearInterval(_scanMsgTimer); clearInterval(_scanElapsedTimer); var el = document.getElementById('scanElapsed'); if (el) el.textContent = ''; }
   function animateScanSteps() {
     let current = 0;
     const delays = [800, 2000, 3500, 5000];
+    startScanMessages();
 
     scanSteps.forEach(s => { s.classList.remove('active', 'done'); });
 
@@ -1568,7 +1598,7 @@
     scanInterval = setInterval(() => {
       current++;
       if (current < scanSteps.length) activateStep(current);
-      else clearInterval(scanInterval);
+      else clearInterval(scanInterval);          // la dernière étape reste « active » (elle pulse) jusqu'au résultat
     }, 1500);
   }
 
@@ -2380,6 +2410,14 @@
       '<tr class="border-t border-slate-100"><td class="py-2.5 pr-2 text-[12.5px] font-semibold text-slate-600">Budget annuel</td>' + cols.map(function (c, i) { return td(c[1], i, true); }).join('') + '</tr>' +
       '<tr class="border-t border-slate-100"><td class="py-2 pr-2 text-[12.5px] font-semibold text-slate-600">Facture moyenne / mois</td>' + cols.map(function (c, i) { return td(c[1] / 12, i, false); }).join('') + '</tr>' +
       '</tbody></table>';
+    // version téléphone : 4 cartes (annuel en gros, mensuel dessous), mêmes couleurs
+    var tiles = document.getElementById('projTiles');
+    if (tiles) tiles.innerHTML = cols.map(function (c, i) {
+      return '<div class="rounded-xl border ' + (i === 1 ? 'border-slate-300 bg-slate-50' : 'border-slate-100') + ' p-3">' +
+        '<p class="text-[10.5px] font-bold uppercase tracking-wide ' + c[3] + '">' + c[0] + '</p>' +
+        '<p class="text-xl font-extrabold tabular-nums mt-1 ' + c[3] + '">' + formatEuro(Math.round(c[1])) + '<span class="text-[11px] font-semibold text-slate-400">/an</span></p>' +
+        '<p class="text-[12.5px] font-semibold tabular-nums ' + c[3] + '">' + formatEuro(Math.round(c[1] / 12)) + '<span class="text-[11px] font-medium text-slate-400">/mois · ' + c[2] + '</span></p></div>';
+    }).join('');
     // 28/09/2026 (James) : « un prix fixe ne bouge pas » → plus de tableau année par année, seulement les économies.
     var en = projEnergieAnnuelle(e, annual), eco4 = 0;
     for (var k = 1; k <= 4; k++) eco4 += en * (Math.pow(1 + r, k) - 1);   // hausses cumulées évitées sur la durée
