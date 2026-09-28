@@ -593,6 +593,39 @@
       </div>
     </div>
 
+    <!-- 28/09/2026 (James) : placée juste sous le grand chiffre. VOTRE BUDGET DANS LE TEMPS — il y a 5 ans (réel CRE) · aujourd'hui · dans 5 et 10 ans
+         (hausse cumulée) + ce qu'un prix fixe 4 ans évite, par mois / par an / sur 4 ans -->
+    <div id="projCard" class="result-card bg-white rounded-2xl shadow-soft p-5 space-y-4 hidden" style="animation-delay:.2s">
+      <div class="flex items-start justify-between gap-3 flex-wrap">
+        <div class="min-w-0">
+          <p class="text-sm font-bold text-slate-800">Votre budget énergie dans le temps</p>
+          <p class="text-xs text-slate-400 mt-0.5">À consommation égale, en moyenne par mois.</p>
+        </div>
+        <div class="flex items-center gap-1.5 text-[11px] text-slate-500">
+          <span>Hausse retenue</span>
+          <span id="projSeg" class="inline-flex rounded-full border border-slate-200 p-0.5">
+            <button type="button" data-r="0.05" class="px-2.5 py-1 rounded-full font-semibold">+5 %</button>
+            <button type="button" data-r="0.06" class="px-2.5 py-1 rounded-full font-semibold">+6 %</button>
+            <button type="button" data-r="0.07" class="px-2.5 py-1 rounded-full font-semibold">+7 %</button>
+          </span>
+          <span>/an</span>
+        </div>
+      </div>
+      <div id="projTable" class="overflow-x-auto -mx-1 px-1"></div>
+      <div class="rounded-2xl p-5 sm:p-6 text-white shadow-lg" style="background:linear-gradient(135deg,#0d7a52 0%,#0a6a47 45%,#0b3d91 100%)">
+        <p class="text-[11px] font-bold uppercase tracking-[.14em] opacity-80">Même consommation · prix fixe</p>
+        <p class="mt-2.5 inline-flex items-center rounded-lg bg-white px-2.5 py-1.5 shadow-sm"><img src="/assets/logos/elga-energy-logo.png" alt="Elga Energy" class="h-6 w-auto"></p>
+        <p class="text-lg sm:text-xl font-extrabold mt-2.5">Prix bloqué. Les augmentations aussi.</p>
+        <div id="projFixeTable" class="mt-4 overflow-x-auto"></div>
+        <div class="grid grid-cols-3 gap-3 mt-5">
+          <div><p id="projEcoMois" class="text-3xl sm:text-4xl font-extrabold tabular-nums leading-none">—</p><p class="text-[12px] opacity-80 mt-1.5">économisés par mois</p></div>
+          <div><p id="projEcoAn" class="text-3xl sm:text-4xl font-extrabold tabular-nums leading-none">—</p><p class="text-[12px] opacity-80 mt-1.5">par an</p></div>
+          <div><p id="projEcoTotal" class="text-3xl sm:text-4xl font-extrabold tabular-nums leading-none text-emerald-200">—</p><p class="text-[12px] opacity-80 mt-1.5">sur la durée du contrat</p></div>
+        </div>
+      </div>
+            <p id="projNote" class="text-[11px] leading-relaxed text-slate-400"></p>
+    </div>
+
     <!-- CTA : mes économies réelles (Enedis) -->
     <div class="result-card mt-1">
       <button id="ctaEco" type="button" class="js-audit group w-full rounded-2xl bg-gradient-to-br from-primary-600 to-primary-700 text-white shadow-strong hover:shadow-xl hover:-translate-y-0.5 transition-all px-5 py-4 text-left focus:outline-none focus:ring-2 focus:ring-primary-400">
@@ -685,38 +718,6 @@
         </div>
       </div>
       <div id="vigilance" class="space-y-2"></div>
-    </div>
-
-    <!-- 28/09/2026 (James) : VOTRE BUDGET DANS LE TEMPS — il y a 5 ans (réel CRE) · aujourd'hui · dans 5 et 10 ans
-         (hausse cumulée) + ce qu'un prix fixe 4 ans évite, par mois / par an / sur 4 ans -->
-    <div id="projCard" class="result-card bg-white rounded-2xl shadow-soft p-5 space-y-4 hidden" style="animation-delay:.2s">
-      <div class="flex items-start justify-between gap-3 flex-wrap">
-        <div class="min-w-0">
-          <p class="text-sm font-bold text-slate-800">Votre budget énergie dans le temps</p>
-          <p class="text-xs text-slate-400 mt-0.5">À consommation égale, en moyenne par mois.</p>
-        </div>
-        <div class="flex items-center gap-1.5 text-[11px] text-slate-500">
-          <span>Hausse retenue</span>
-          <span id="projSeg" class="inline-flex rounded-full border border-slate-200 p-0.5">
-            <button type="button" data-r="0.05" class="px-2.5 py-1 rounded-full font-semibold">+5 %</button>
-            <button type="button" data-r="0.06" class="px-2.5 py-1 rounded-full font-semibold">+6 %</button>
-            <button type="button" data-r="0.07" class="px-2.5 py-1 rounded-full font-semibold">+7 %</button>
-          </span>
-          <span>/an</span>
-        </div>
-      </div>
-      <div id="projTable" class="overflow-x-auto -mx-1 px-1"></div>
-      <div class="rounded-2xl p-5 sm:p-6 text-white shadow-lg" style="background:linear-gradient(135deg,#0d7a52 0%,#0a6a47 45%,#0b3d91 100%)">
-        <p class="text-[11px] font-bold uppercase tracking-[.14em] opacity-80">Même consommation · prix fixe</p>
-        <p class="text-lg sm:text-xl font-extrabold mt-1">Prix bloqué. Les augmentations aussi.</p>
-        <div id="projFixeTable" class="mt-4 overflow-x-auto"></div>
-        <div class="grid grid-cols-3 gap-3 mt-5">
-          <div><p id="projEcoMois" class="text-3xl sm:text-4xl font-extrabold tabular-nums leading-none">—</p><p class="text-[12px] opacity-80 mt-1.5">économisés par mois</p></div>
-          <div><p id="projEcoAn" class="text-3xl sm:text-4xl font-extrabold tabular-nums leading-none">—</p><p class="text-[12px] opacity-80 mt-1.5">par an</p></div>
-          <div><p id="projEcoTotal" class="text-3xl sm:text-4xl font-extrabold tabular-nums leading-none text-emerald-200">—</p><p class="text-[12px] opacity-80 mt-1.5">sur la durée du contrat</p></div>
-        </div>
-      </div>
-            <p id="projNote" class="text-[11px] leading-relaxed text-slate-400"></p>
     </div>
 
     <!-- Leviers = RÉGLAGES : cochez ceux à retenir → recalcul en direct -->
@@ -1840,9 +1841,16 @@
       if (netPositive && clientAnnual) {
         var pct = Math.min(60, Math.round(total / clientAnnual * 100));
         // 28/09/2026 : on dit de quoi est fait le total (James : « je ne comprends pas 3 160 € »)
-        var parts = _levers.filter(function (lv) { return lv.checked && lv.euro > 0; })
-          .map(function (lv) { return ({ energie: 'prix fixe', abo: 'abonnement', turpe: 'puissance', accise: 'accise réduite' }[lv.key] || lv.titre) + ' ' + formatEuro(lv.euro); });
-        sub.textContent = parts.length > 1 ? ('dont ' + parts.join(' · ')) : ('soit ≈ ' + pct + '% de votre budget annuel');
+        // 28/09/2026 (James) : prix fixe · abonnement, puis « + optimisations » sans détailler (accise, puissance…)
+        var parts = [], optim = 0;
+        _levers.forEach(function (lv) {
+          if (!(lv.checked && lv.euro > 0)) return;
+          if (lv.key === 'energie') parts.push('prix fixe ' + formatEuro(lv.euro));
+          else if (lv.key === 'abo') parts.push('abonnement ' + formatEuro(lv.euro));
+          else optim += lv.euro;
+        });
+        parts.push(optim > 0 ? ('optimisations ' + formatEuro(optim)) : '+ optimisations');
+        sub.textContent = 'dont ' + parts.join(' · ');
         if (gauge) gauge.style.width = Math.min(pct * 2.5, 95) + '%';
       } else if (hasSurcout) {
         // Elga plus cher aujourd'hui sur l'énergie : honnête sur le budget, on pointe les autres leviers.
