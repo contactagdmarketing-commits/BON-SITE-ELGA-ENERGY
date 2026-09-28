@@ -706,7 +706,7 @@ async function handleScan(request, env) {
       const blk  = (data.content || []).find(b => b && b.type === 'text') || (data.content || [])[0] || {};
       const text = String(blk.text || '').trim();
       const match = text.match(/\{[\s\S]*\}/);
-      return { extracted: JSON.parse(match ? match[0] : text) };
+      return { extracted: JSON.parse(match ? match[0] : text), usage: data && data.usage };
     } catch (e) {
       return { err: 'parse:' + (data && data.stop_reason) + ':' + ((data && data.content || []).map(b => b && b.type).join(',')), raw: data };
     }
@@ -724,6 +724,19 @@ async function handleScan(request, env) {
   const pSonnet = callModel(SCAN_MODEL, sonnetCtl.signal).then(r => { timing.sonnet_ms = Date.now() - t0; return r; }).catch(e => ({ err: 'sonnet:' + e }));
   const pHaiku  = callModel(CLAUDE_MODEL).then(r => { timing.haiku_ms = Date.now() - t0; return r; }).catch(e => ({ err: 'haiku:' + e }));
   let first = null, extracted = null, engine = 'sonnet';
+  // 28/09/2026 — COÛT EXACT PAR SCAN (James : « donne-moi le coût exact de chaque scan »).
+  // On relève les tokens facturés renvoyés par l'API (usage) et on les convertit en $ au tarif public
+  // Anthropic ($/million de tokens). Cache : écriture 1,25× l'entrée, relecture 0,1×. Diagnostic seul.
+  const PRIX_MTOK = {
+    'claude-haiku-4-5-20251001': { in: 1, out: 5 },
+    'claude-sonnet-5':           { in: 2, out: 10 },
+  };
+  const coutUsd = (model, u) => {
+    const p = PRIX_MTOK[model]; if (!p || !u) return null;
+    const c = ((u.input_tokens || 0) * p.in + (u.cache_creation_input_tokens || 0) * p.in * 1.25
+             + (u.cache_read_input_tokens || 0) * p.in * 0.1 + (u.output_tokens || 0) * p.out) / 1e6;
+    return Math.round(c * 1e5) / 1e5;
+  };
 
   // Filet taxes : si accise/cta séparés mais total vide, on le reconstitue (le calcul s'en sert).
   const fixTaxes = (b) => {
@@ -886,6 +899,16 @@ async function handleScan(request, env) {
   if (extracted && typeof extracted === 'object') {
     extracted._engine = engine; extracted._timing = timing; // diagnostic (lecture seule, ignoré par l'affichage)
     if (engine !== 'sonnet') { const sErr = (await pSonnet).err; if (sErr) extracted._sonnet_err = String(sErr).slice(0, 300); }
+    try {
+      const hR = await pHaiku, sR = await pSonnet;
+      const u = {};
+      if (hR && hR.usage) u.haiku  = Object.assign({}, hR.usage, { usd: coutUsd(CLAUDE_MODEL, hR.usage) });
+      if (sR && sR.usage) u.sonnet = Object.assign({}, sR.usage, { usd: coutUsd(SCAN_MODEL, sR.usage) });
+      else if (engine === 'haiku-rapide') u.sonnet = { annule: true }; // interrompu : usage non renvoyé par l'API
+      u.total_usd = Math.round(((u.haiku && u.haiku.usd) || 0) * 1e5 + ((u.sonnet && u.sonnet.usd) || 0) * 1e5) / 1e5;
+      extracted._usage = u;
+      console.log('[scan] cout_usd=' + u.total_usd + ' ' + JSON.stringify(u));
+    } catch {}
   }
 
   // ── CAS PIÈGES (audit 2026-07-10) : refus PROPRE plutôt qu'un chiffre faux ──

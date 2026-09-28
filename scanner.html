@@ -214,7 +214,8 @@
     .ul-pen::after{animation:none!important;transform:scaleX(1)}
   }
 </style>
-<section class="relative overflow-hidden">
+<!-- 28/09/2026 (James) : masqué une fois le scan fait, pour ne garder que les résultats ; réaffiché sur « Nouvelle facture ». -->
+<section id="scanHero" class="relative overflow-hidden">
   <div class="absolute inset-0 hero-light-bg"></div>
   <div class="relative container max-w-3xl mx-auto px-4 py-12 sm:py-16 text-center">
     <div class="reveal-load inline-flex items-center gap-2 rounded-full border border-primary-200 bg-primary-50 text-primary-700 px-4 py-1.5 text-[13px] sm:text-sm font-semibold" style="--rd:0ms">
@@ -2625,6 +2626,8 @@
     stepScanning.classList.toggle('hidden', step !== 'scanning');
     stepResults.classList.toggle('hidden', step !== 'results');
     stepFunnel.classList.toggle('hidden', step !== 'funnel');
+    var hero = document.getElementById('scanHero');
+    if (hero) hero.classList.toggle('hidden', step === 'results' || step === 'funnel');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
