@@ -723,8 +723,11 @@ async function handleScan(request, env) {
   // Actif SEULEMENT si la requête demande engine:'luna' ET si le secret OPENAI_API_KEY est posé côté Cloudflare.
   // Le scanner public n'envoie jamais engine → il reste 100 % sur Claude, inchangé. Même prompt, même
   // normalisation, même calcul derrière : seule l'étape de LECTURE change. Tarif Luna : 0,20 $ / 1,20 $ par Mtok.
-  const LUNA_MODEL = 'gpt-5.6-luna';
-  const lunaMode = body.engine === 'luna' && !!env.OPENAI_API_KEY;
+  // 29/09 (suite) : même banc pour GPT-5.6 Terra (James : « regarde avec Terra maintenant, Claude vs Terra »).
+  const BENCH_OA = { luna: { model: 'gpt-5.6-luna', in: 0.20, cached: 0.02, out: 1.20 }, terra: { model: 'gpt-5.6-terra', in: 2.00, cached: 0.20, out: 12.00 } };
+  const benchCfg = BENCH_OA[body.engine] || BENCH_OA.luna;
+  const LUNA_MODEL = benchCfg.model;
+  const lunaMode = (body.engine === 'luna' || body.engine === 'terra') && !!env.OPENAI_API_KEY;
   const callLuna = async () => {
     const fileBlock = isImage
       ? { type: 'input_image', image_url: 'data:' + file_type + ';base64,' + file_data, detail: 'high' }
@@ -925,7 +928,7 @@ async function handleScan(request, env) {
   let lunaR = null;
   if (lunaMode) {
     lunaR = await callLuna(); timing.luna_ms = Date.now() - t0;
-    first = lunaR; engine = 'luna';
+    first = lunaR; engine = body.engine;
     if (!lunaR.err) { try { lunaR._fiable = haikuFiable(lunaR.extracted); } catch { lunaR._fiable = false; } } // passerait-il le même contrôle que Haiku ?
   } else {
   const h = await pHaiku;
@@ -951,7 +954,7 @@ async function handleScan(request, env) {
       const u = {};
       if (lunaR && lunaR.usage) {
         const lu = lunaR.usage, cached = (lu.input_tokens_details && lu.input_tokens_details.cached_tokens) || 0;
-        u.luna = Object.assign({}, lu, { usd: Math.round((((lu.input_tokens || 0) - cached) * 0.20 + cached * 0.02 + (lu.output_tokens || 0) * 1.20) / 1e6 * 1e5) / 1e5 });
+        u.luna = Object.assign({ modele: LUNA_MODEL }, lu, { usd: Math.round((((lu.input_tokens || 0) - cached) * benchCfg.in + cached * benchCfg.cached + (lu.output_tokens || 0) * benchCfg.out) / 1e6 * 1e5) / 1e5 });
       }
       if (hR && hR.usage) u.haiku  = Object.assign({}, hR.usage, { usd: coutUsd(CLAUDE_MODEL, hR.usage) });
       if (sR && sR.usage) u.sonnet = Object.assign({}, sR.usage, { usd: coutUsd(SCAN_MODEL, sR.usage) });
