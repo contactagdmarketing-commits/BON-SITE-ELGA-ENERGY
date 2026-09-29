@@ -719,10 +719,50 @@ async function handleScan(request, env) {
   // Avant (09/07→14/09) : Sonnet seul en 1ʳᵉ passe, Haiku en filet — conservé en commentaire :
   //   let first = await callModel(SCAN_MODEL);
   //   if (first.err) first = await callModel(CLAUDE_MODEL);
+  // 29/09/2026 — BANC D'ESSAI GPT-5.6 LUNA (James : « Luna pourrait être meilleur et bien moins cher ? »).
+  // Actif SEULEMENT si la requête demande engine:'luna' ET si le secret OPENAI_API_KEY est posé côté Cloudflare.
+  // Le scanner public n'envoie jamais engine → il reste 100 % sur Claude, inchangé. Même prompt, même
+  // normalisation, même calcul derrière : seule l'étape de LECTURE change. Tarif Luna : 0,20 $ / 1,20 $ par Mtok.
+  const LUNA_MODEL = 'gpt-5.6-luna';
+  const lunaMode = body.engine === 'luna' && !!env.OPENAI_API_KEY;
+  const callLuna = async () => {
+    const fileBlock = isImage
+      ? { type: 'input_image', image_url: 'data:' + file_type + ';base64,' + file_data, detail: 'high' }
+      : { type: 'input_file', filename: file_name || 'facture.pdf', file_data: 'data:application/pdf;base64,' + file_data };
+    let res;
+    try {
+      res = await fetch('https://api.openai.com/v1/responses', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + env.OPENAI_API_KEY },
+        body: JSON.stringify({
+          model: LUNA_MODEL,
+          instructions: EXTRACTION_PROMPT,
+          input: [{ role: 'user', content: [fileBlock, { type: 'input_text', text: profilContext }] }],
+          max_output_tokens: 8000,
+          reasoning: { effort: 'low' },
+          store: false,
+        }),
+      });
+    } catch (e) { return { err: 'fetch:' + (e && e.name || e) }; }
+    if (!res.ok) return { err: 'openai:' + res.status + ':' + (await res.text()).slice(0, 400) };
+    const data = await res.json();
+    try {
+      const texts = [];
+      for (const it of (data.output || [])) {
+        if (it && it.type === 'message') for (const c of (it.content || [])) if (c && c.type === 'output_text') texts.push(c.text);
+      }
+      const text = texts.join('\n').trim();
+      const match = text.match(/\{[\s\S]*\}/);
+      return { extracted: JSON.parse(match ? match[0] : text), usage: data.usage };
+    } catch (e) {
+      return { err: 'parse:' + (data && data.status) + ':' + JSON.stringify(data && data.incomplete_details) };
+    }
+  };
+
   const sonnetCtl = new AbortController();
   const t0 = Date.now(); const timing = {};
-  const pSonnet = callModel(SCAN_MODEL, sonnetCtl.signal).then(r => { timing.sonnet_ms = Date.now() - t0; return r; }).catch(e => ({ err: 'sonnet:' + e }));
-  const pHaiku  = callModel(CLAUDE_MODEL).then(r => { timing.haiku_ms = Date.now() - t0; return r; }).catch(e => ({ err: 'haiku:' + e }));
+  const pSonnet = lunaMode ? Promise.resolve({ err: 'banc-luna' }) : callModel(SCAN_MODEL, sonnetCtl.signal).then(r => { timing.sonnet_ms = Date.now() - t0; return r; }).catch(e => ({ err: 'sonnet:' + e }));
+  const pHaiku  = lunaMode ? Promise.resolve({ err: 'banc-luna' }) : callModel(CLAUDE_MODEL).then(r => { timing.haiku_ms = Date.now() - t0; return r; }).catch(e => ({ err: 'haiku:' + e }));
   let first = null, extracted = null, engine = 'sonnet';
   // 28/09/2026 — COÛT EXACT PAR SCAN (James : « donne-moi le coût exact de chaque scan »).
   // On relève les tokens facturés renvoyés par l'API (usage) et on les convertit en $ au tarif public
@@ -882,6 +922,12 @@ async function handleScan(request, env) {
     } catch { return false; }
   };
 
+  let lunaR = null;
+  if (lunaMode) {
+    lunaR = await callLuna(); timing.luna_ms = Date.now() - t0;
+    first = lunaR; engine = 'luna';
+    if (!lunaR.err) { try { lunaR._fiable = haikuFiable(lunaR.extracted); } catch { lunaR._fiable = false; } } // passerait-il le même contrôle que Haiku ?
+  } else {
   const h = await pHaiku;
   if (!h.err && haikuFiable(h.extracted)) {
     first = h; engine = 'haiku-rapide';
@@ -890,6 +936,7 @@ async function handleScan(request, env) {
     first = await pSonnet;
     if (first.err && !h.err) { first = h; engine = 'haiku-secours'; } // Sonnet indisponible → Haiku même imparfait (comme avant)
   }
+  } // fin (lunaMode ? banc d'essai : moteur Claude normal)
   if (!first || first.err) {
     return jsonResponse({ error: 'Erreur IA', detail: first && first.err }, 502);
   }
@@ -897,15 +944,19 @@ async function handleScan(request, env) {
   try { console.log('[scan] moteur=' + engine); } catch {}
   normalizeBill(extracted);
   if (extracted && typeof extracted === 'object') {
-    extracted._engine = engine; extracted._timing = timing; // diagnostic (lecture seule, ignoré par l'affichage)
-    if (engine !== 'sonnet') { const sErr = (await pSonnet).err; if (sErr) extracted._sonnet_err = String(sErr).slice(0, 300); }
+    extracted._engine = engine; extracted._timing = timing; if (lunaMode) extracted._luna_fiable = !!(lunaR && lunaR._fiable); // diagnostic (lecture seule, ignoré par l'affichage)
+    if (engine !== 'sonnet' && !lunaMode) { const sErr = (await pSonnet).err; if (sErr) extracted._sonnet_err = String(sErr).slice(0, 300); }
     try {
       const hR = await pHaiku, sR = await pSonnet;
       const u = {};
+      if (lunaR && lunaR.usage) {
+        const lu = lunaR.usage, cached = (lu.input_tokens_details && lu.input_tokens_details.cached_tokens) || 0;
+        u.luna = Object.assign({}, lu, { usd: Math.round((((lu.input_tokens || 0) - cached) * 0.20 + cached * 0.02 + (lu.output_tokens || 0) * 1.20) / 1e6 * 1e5) / 1e5 });
+      }
       if (hR && hR.usage) u.haiku  = Object.assign({}, hR.usage, { usd: coutUsd(CLAUDE_MODEL, hR.usage) });
       if (sR && sR.usage) u.sonnet = Object.assign({}, sR.usage, { usd: coutUsd(SCAN_MODEL, sR.usage) });
       else if (engine === 'haiku-rapide') u.sonnet = { annule: true }; // interrompu : usage non renvoyé par l'API
-      u.total_usd = Math.round(((u.haiku && u.haiku.usd) || 0) * 1e5 + ((u.sonnet && u.sonnet.usd) || 0) * 1e5) / 1e5;
+      u.total_usd = Math.round(((u.haiku && u.haiku.usd) || 0) * 1e5 + ((u.sonnet && u.sonnet.usd) || 0) * 1e5 + ((u.luna && u.luna.usd) || 0) * 1e5) / 1e5;
       extracted._usage = u;
       console.log('[scan] cout_usd=' + u.total_usd + ' ' + JSON.stringify(u));
     } catch {}
