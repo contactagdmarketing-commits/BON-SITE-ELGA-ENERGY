@@ -304,7 +304,10 @@ function roterBanniere(){
 }
 
 function vueDashboard(){
-  const c=STATE.contrat, cons=STATE.conseiller||{};
+  // 29/09/2026 (0063) : si le client n'a rien déposé, on montre le contrat négocié par Elga (saisi dans le CRM).
+  // Avant : const c=STATE.contrat, …  → un client signé voyait « Ajoutez votre contrat ».
+  const ce=STATE.contrat_elga;
+  const c=STATE.contrat || (ce && ce.fournisseur ? {fournisseur:ce.fournisseur, date_fin:ce.fin_iso, type_contrat:null} : null), cons=STATE.conseiller||{};
   const prenom=STATE.prenom||'';
   const jf=c?joursAvant(c.date_fin):null;
   const resume = c ? `
@@ -360,7 +363,25 @@ function vueDashboard(){
 }
 
 function contratLabel(x){const ex=x.extracted||{};const gaz=(x.energie||ex.energie)==='gaz';return {gaz,ico:gaz?'🔥':'⚡',lab:gaz?'Gaz':'Élec',site:x.site||ex.adresse_site||ex.fournisseur||'',ref:x.pdl||x.pce||ex.pdl||ex.pce||''};}
-function vueContrat(){
+// 29/09/2026 (0063) : carte « Contrat négocié par Elga » au-dessus des contrats déposés par le client.
+function blocContratElga(){
+  const ce=STATE.contrat_elga; if(!ce||!ce.fournisseur) return '';
+  const j=joursAvant(ce.fin_iso);
+  const fin = ce.fin ? (j!=null&&j<0 ? `échu le ${esc(ce.fin)}` : esc(ce.fin)) : '—';
+  return `<section class="bg-white rounded-2xl shadow-soft p-5 mb-5 border border-primary-100">
+    <div class="text-[11px] uppercase tracking-wide text-primary-700 font-bold">Contrat négocié par Elga</div>
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-3">
+      ${tuile('Fournisseur', esc(ce.fournisseur))}
+      ${tuile('Signé le', ce.signe_le?esc(ce.signe_le):'—')}
+      ${tuile('Fin du contrat', fin, false, j!=null&&j<=90)}
+      ${tuile('Durée', ce.duree_mois?esc(ce.duree_mois)+' mois':'—')}
+    </div>
+    ${(ce.pdl||ce.pce)?`<p class="text-[12px] text-slate-400 mt-3">${ce.pdl?'PDL '+esc(ce.pdl):''}${ce.pdl&&ce.pce?' · ':''}${ce.pce?'PCE '+esc(ce.pce):''}</p>`:''}
+    <p class="text-[12px] text-slate-400 mt-2">Votre conseiller suit cette échéance pour vous. Vous pouvez aussi déposer le contrat ci-dessous pour en garder le détail.</p>
+  </section>`;
+}
+function vueContrat(){ return blocContratElga() + vueContratBase(); }
+function vueContratBase(){
   // Repli rétro-compatible : si le backend n'a pas encore la liste `contrats`
   // (migration 0046 non appliquée), on enveloppe le contrat unique existant.
   let list=STATE.contrats;
