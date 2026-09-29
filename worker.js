@@ -18,6 +18,10 @@ const CLAUDE_MODEL   = 'claude-haiku-4-5-20251001';
 // Scan FACTURE : Sonnet 5 (vision haute résolution — indispensable sur les photos de factures,
 // Haiku confond les colonnes prix/montant et rate des lignes). Haiku = filet si Sonnet indispo.
 const SCAN_MODEL = 'claude-sonnet-5';
+// 29/09/2026 — MOTEUR DE LECTURE (décision James : « garde Luna alors, et chez OpenAI le meilleur modèle en secours »).
+// 'openai' : GPT-5.6 Luna lit d'abord ; si le contrôle de fiabilité échoue, GPT-6 Sol relit.
+// Pour revenir au moteur Claude (Haiku + Sonnet en parallèle, code intact plus bas) : remettre 'claude'.
+const MOTEUR_LECTURE = 'claude'; // ⚠️ bascule 'openai' préparée, NON activée : en attente de la décision de James (envoi des factures chez OpenAI).
 const ANTHROPIC_API  = 'https://api.anthropic.com/v1/messages';
 
 // Domaines autorisés à appeler l'API depuis un navigateur (CORS).
@@ -724,11 +728,11 @@ async function handleScan(request, env) {
   // Le scanner public n'envoie jamais engine → il reste 100 % sur Claude, inchangé. Même prompt, même
   // normalisation, même calcul derrière : seule l'étape de LECTURE change. Tarif Luna : 0,20 $ / 1,20 $ par Mtok.
   // 29/09 (suite) : même banc pour GPT-5.6 Terra (James : « regarde avec Terra maintenant, Claude vs Terra »).
-  const BENCH_OA = { luna: { model: 'gpt-5.6-luna', in: 0.20, cached: 0.02, out: 1.20 }, terra: { model: 'gpt-5.6-terra', in: 2.00, cached: 0.20, out: 12.00 } };
+  const BENCH_OA = { luna: { model: 'gpt-5.6-luna', in: 0.20, cached: 0.02, out: 1.20 }, terra: { model: 'gpt-5.6-terra', in: 2.00, cached: 0.20, out: 12.00 }, sol: { model: 'gpt-6-sol', in: 2.00, cached: 0.20, out: 10.00 } };
   const benchCfg = BENCH_OA[body.engine] || BENCH_OA.luna;
   const LUNA_MODEL = benchCfg.model;
-  const lunaMode = (body.engine === 'luna' || body.engine === 'terra') && !!env.OPENAI_API_KEY;
-  const callLuna = async () => {
+  const lunaMode = !!env.OPENAI_API_KEY && (MOTEUR_LECTURE === 'openai' || !!BENCH_OA[body.engine]);
+  const callLuna = async (cfg = benchCfg) => {
     const fileBlock = isImage
       ? { type: 'input_image', image_url: 'data:' + file_type + ';base64,' + file_data, detail: 'high' }
       : { type: 'input_file', filename: file_name || 'facture.pdf', file_data: 'data:application/pdf;base64,' + file_data };
@@ -738,7 +742,7 @@ async function handleScan(request, env) {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + env.OPENAI_API_KEY },
         body: JSON.stringify({
-          model: LUNA_MODEL,
+          model: cfg.model,
           instructions: EXTRACTION_PROMPT,
           input: [{ role: 'user', content: [fileBlock, { type: 'input_text', text: profilContext }] }],
           max_output_tokens: 8000,
@@ -925,11 +929,17 @@ async function handleScan(request, env) {
     } catch { return false; }
   };
 
-  let lunaR = null;
+  let lunaR = null, solR = null;
   if (lunaMode) {
     lunaR = await callLuna(); timing.luna_ms = Date.now() - t0;
-    first = lunaR; engine = body.engine;
+    first = lunaR; engine = body.engine || 'luna';
     if (!lunaR.err) { try { lunaR._fiable = haikuFiable(lunaR.extracted); } catch { lunaR._fiable = false; } } // passerait-il le même contrôle que Haiku ?
+    // Production (pas de banc demandé) : lecture douteuse ou en erreur → GPT-6 Sol relit la facture.
+    if (!BENCH_OA[body.engine] && (lunaR.err || !lunaR._fiable)) {
+      solR = await callLuna(BENCH_OA.sol); timing.sol_ms = Date.now() - t0;
+      if (!solR.err) { first = solR; engine = 'sol-secours'; }
+      else if (!lunaR.err) { engine = 'luna-secours'; } // Sol indisponible → Luna même imparfait
+    }
   } else {
   const h = await pHaiku;
   if (!h.err && haikuFiable(h.extracted)) {
@@ -956,10 +966,14 @@ async function handleScan(request, env) {
         const lu = lunaR.usage, cached = (lu.input_tokens_details && lu.input_tokens_details.cached_tokens) || 0;
         u.luna = Object.assign({ modele: LUNA_MODEL }, lu, { usd: Math.round((((lu.input_tokens || 0) - cached) * benchCfg.in + cached * benchCfg.cached + (lu.output_tokens || 0) * benchCfg.out) / 1e6 * 1e5) / 1e5 });
       }
+      if (solR && solR.usage) {
+        const su = solR.usage, sc = (su.input_tokens_details && su.input_tokens_details.cached_tokens) || 0, c = BENCH_OA.sol;
+        u.sol = Object.assign({ modele: c.model }, su, { usd: Math.round((((su.input_tokens || 0) - sc) * c.in + sc * c.cached + (su.output_tokens || 0) * c.out) / 1e6 * 1e5) / 1e5 });
+      }
       if (hR && hR.usage) u.haiku  = Object.assign({}, hR.usage, { usd: coutUsd(CLAUDE_MODEL, hR.usage) });
       if (sR && sR.usage) u.sonnet = Object.assign({}, sR.usage, { usd: coutUsd(SCAN_MODEL, sR.usage) });
       else if (engine === 'haiku-rapide') u.sonnet = { annule: true }; // interrompu : usage non renvoyé par l'API
-      u.total_usd = Math.round(((u.haiku && u.haiku.usd) || 0) * 1e5 + ((u.sonnet && u.sonnet.usd) || 0) * 1e5 + ((u.luna && u.luna.usd) || 0) * 1e5) / 1e5;
+      u.total_usd = Math.round(((u.haiku && u.haiku.usd) || 0) * 1e5 + ((u.sonnet && u.sonnet.usd) || 0) * 1e5 + ((u.luna && u.luna.usd) || 0) * 1e5 + ((u.sol && u.sol.usd) || 0) * 1e5) / 1e5;
       extracted._usage = u;
       console.log('[scan] cout_usd=' + u.total_usd + ' ' + JSON.stringify(u));
     } catch {}
