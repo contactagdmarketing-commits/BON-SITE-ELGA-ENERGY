@@ -755,6 +755,21 @@
       <div id="vigilance" class="space-y-2"></div>
     </div>
 
+    <!-- 30/09/2026 (James) : contrôle de la facture — taxes comparées aux barèmes officiels datés -->
+    <div id="controleCard" class="result-card hidden bg-white rounded-2xl shadow-soft p-5 space-y-3" style="animation-delay:.24s">
+      <div class="flex items-center gap-2.5">
+        <div class="size-9 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.6-4A11.9 11.9 0 0112 2.9 11.9 11.9 0 013.4 6 12 12 0 0012 21.1 12 12 0 0020.6 6z"/></svg>
+        </div>
+        <div>
+          <p class="text-sm font-bold text-slate-800">Contrôle de votre facture</p>
+          <p class="text-xs text-slate-400">Chaque taxe comparée au taux légal en vigueur.</p>
+        </div>
+      </div>
+      <div id="controle" class="space-y-2"></div>
+      <p id="controleNote" class="text-[11px] text-slate-400 leading-relaxed"></p>
+    </div>
+
     <!-- Leviers = RÉGLAGES : cochez ceux à retenir → recalcul en direct -->
     <div class="result-card bg-white rounded-2xl shadow-soft p-5 space-y-3.5" style="animation-delay:.25s">
       <div class="flex items-center justify-between gap-3">
@@ -2058,18 +2073,51 @@
         source: { label: "Source : CRE — Historique des tarifs réglementés de vente d’électricité (données ouvertes)", url: "https://www.cre.fr/documents/open-data/historique-des-tarifs-reglementes-de-vente-delectricite-pour-les-consommateurs-residentiels.html" } });
     }
 
-    // 2. Pas de date de fin (hors TRV) → tacite reconduction, prix revu chaque an sans accord
+    // 1-bis. 30/09/2026 (James) : au tarif réglementé, présenter le CHOIX prix fixe / prix indexé
+    if (trv) {
+      V.push({ t: 'info', titre: 'Deux façons de sortir du tarif réglementé',
+        txt: "Prix fixe : votre prix du kWh ne bouge plus pendant 1 à 5 ans, votre budget est connu d'avance. Prix indexé : il suit le marché chaque mois, il peut baisser comme monter. Le bon choix dépend de ce que vous préférez : la sécurité ou le pari sur la baisse. On vous montre les deux au bilan." });
+    }
+
+    // 2. 30/09/2026 (James) : échéance lue finement — dépassée, proche, lointaine — et tacite reconduction.
+    //    L'ancienne logique (sans calcul de délai) est gardée plus bas, désactivée par `false &&`.
     var aDateFin = !!(e.date_fin_contrat);
+    var finD = null;
+    if (aDateFin) {
+      var mFin = String(e.date_fin_contrat).match(/^(\d{4})-(\d{2})-(\d{2})/) || String(e.date_fin_contrat).match(/^(\d{2})\/(\d{2})\/(\d{4})/);
+      if (mFin) finD = mFin[1].length === 4 ? new Date(+mFin[1], +mFin[2] - 1, +mFin[3]) : new Date(+mFin[3], +mFin[2] - 1, +mFin[1]);
+      if (finD && isNaN(finD.getTime())) finD = null;
+    }
+    var finTxt = finD ? finD.toLocaleDateString('fr-FR') : String(e.date_fin_contrat || '');
+    var moisRestants = finD ? Math.round((finD - new Date()) / (1000 * 60 * 60 * 24 * 30.44)) : null;
+    var taciteMention = /tacite/i.test(String(e.preavis_resiliation || ''));
     if (!trv && !aDateFin) {
+      V.push({ t: 'danger', titre: 'Aucune date de fin de contrat sur la facture',
+        txt: "Sans échéance écrite, votre contrat se reconduit en général tout seul, et le fournisseur peut revoir votre prix chaque année sans vous demander votre avis. Retrouvez votre date de fin dans vos conditions particulières, ou demandez-la-nous : on la retrouve pour vous." });
+    } else if (!trv && finD && moisRestants < 0) {
+      V.push({ t: 'danger', titre: 'Échéance dépassée depuis le ' + finTxt,
+        txt: "Votre contrat est arrivé à son terme. S'il n'a pas été renouvelé, il s'est probablement reconduit tacitement, souvent à un prix moins favorable que celui d'origine. Vous pouvez en général en sortir sans pénalité : c'est le bon moment pour comparer." });
+    } else if (!trv && finD && moisRestants <= 6) {
+      V.push({ t: 'warn', titre: 'Échéance le ' + finTxt + (moisRestants <= 1 ? ' : dans quelques semaines' : ' : dans ' + moisRestants + ' mois'),
+        txt: "C'est maintenant qu'il faut comparer. Un préavis de 1 à 3 mois est souvent demandé : si vous ne faites rien, le contrat risque de se reconduire automatiquement au prix que le fournisseur choisira." });
+    } else if (!trv && aDateFin) {
+      V.push({ t: 'info', titre: 'Échéance de contrat : ' + finTxt,
+        txt: "Pas d'urgence. On peut bloquer un prix dès aujourd'hui pour une date de début qui suit votre échéance : c'est souvent là qu'on gagne le plus." });
+    }
+    if (!trv && taciteMention) {
+      V.push({ t: 'warn', titre: 'Votre contrat prévoit une tacite reconduction',
+        txt: "Sans résiliation dans les délais, il repart pour une nouvelle période, au prix fixé par le fournisseur. Ce qu'indique votre facture : « " + String(e.preavis_resiliation).slice(0, 120) + " »." });
+    }
+    if (false && !trv && !aDateFin) {
       V.push({ t: 'danger', titre: 'Aucune échéance détectée — tacite reconduction probable',
         txt: "Sans date de fin claire, votre contrat se reconduit tacitement : le fournisseur peut réviser votre prix chaque année sans votre accord. C'est le cas le moins maîtrisé — à reprendre en main en priorité." });
-    } else if (!trv && aDateFin) {
+    } else if (false && !trv && aDateFin) { // désactivé 30/09/2026 : remplacé par l'échéance fine ci-dessus
       V.push({ t: 'info', titre: 'Échéance de contrat : ' + String(e.date_fin_contrat),
         txt: "Anticipez : un préavis est souvent requis avant cette date pour changer d'offre sans reconduction automatique." });
     }
 
-    // 3. Préavis / résiliation mentionné
-    if (e.preavis_resiliation) {
+    // 3. Préavis / résiliation mentionné (la tacite reconduction a désormais sa propre alerte ci-dessus)
+    if (e.preavis_resiliation && !(!trv && taciteMention)) {
       V.push({ t: 'info', titre: 'Préavis de résiliation : ' + String(e.preavis_resiliation),
         txt: "À respecter pour changer d'offre au bon moment, sans pénalité ni reconduction." });
     }
@@ -2092,6 +2140,140 @@
       }
     }
     return V;
+  }
+
+  // ── 30/09/2026 (James) : CONTRÔLE DE LA FACTURE — référentiel DATÉ des taux officiels ──
+  // Quand un taux change, on AJOUTE une ligne avec sa date d'effet : on n'efface jamais l'ancienne
+  // (une facture de juillet se compare à l'ancien barème, une de septembre au nouveau).
+  // Sources : impots.gouv.fr (tarifs normaux des accises 2025) ; EDF Entreprises / FNCCR / boulangerie.org
+  // (accises 2026) ; CTA : arrêté de février 2026 (distribution 21,93 % → 15 %).
+  var REF_TAXES = {
+    accise_elec: [ // €/MWh, majoration comprise — menage = puissance ≤ 36 kVA ; pro = > 36 kVA (PME + haute puissance)
+      { du: '2025-02-01', menage: 33.70, pro: [26.23, 22.50] },
+      { du: '2025-08-01', menage: 29.98, pro: [25.79] },
+      { du: '2026-02-01', menage: 30.85, pro: [26.58] },
+      { du: '2026-08-01', menage: 30.62, pro: [26.35] }
+    ],
+    accise_elec_reduits: [0.5, 1, 2, 2.5, 3, 5, 5.5, 7.5], // taux réduits sur attestation (grille 2026 : 5,5 / 3 / 2 / 0,5 ; anciens 1 / 2,5 / 5 / 7,5) — cf. referentiels/accise-eligibilite.md
+    accise_gaz: [
+      { du: '2025-01-01', t: 17.16 },
+      { du: '2025-08-01', t: 15.43 },
+      { du: '2026-02-01', t: 16.39 },
+      { du: '2026-08-01', t: 16.66 }
+    ],
+    accise_gaz_reduits: [0.54, 1.52, 1.60], // agricole, quotas ETS, fuite carbone — sur attestation
+    cta_elec_distribution: [ { du: '2021-08-01', pct: 21.93 }, { du: '2026-02-01', pct: 15 } ]
+  };
+  // Taux en vigueur sur les 15 derniers mois (une facture scannée a rarement plus d'un an).
+  function tauxRecents(liste) {
+    var lim = new Date(); lim.setMonth(lim.getMonth() - 15);
+    var r = [];
+    for (var i = 0; i < liste.length; i++) {
+      var suiv = liste[i + 1];
+      if (!suiv || new Date(suiv.du) > lim) r.push(liste[i]);
+    }
+    return r;
+  }
+  function dansFourchette(x, valeurs, tol) {
+    var mn = Math.min.apply(null, valeurs), mx = Math.max.apply(null, valeurs);
+    return x >= mn * (1 - tol) && x <= mx * (1 + tol);
+  }
+  function fmtTaux(x) { return String(Math.round(x * 100) / 100).replace('.', ','); }
+
+  function computeControle(e) {
+    var C = [];
+    if (!e) return C;
+    function nb(x) { if (x == null || x === '') return null; var v = Number(String(x).replace(',', '.')); return isFinite(v) ? v : null; }
+    e = Object.assign({}, e, { accise_bill_ht: nb(e.accise_bill_ht), cta_bill_ht: nb(e.cta_bill_ht), acheminement_fixe_bill_ht: nb(e.acheminement_fixe_bill_ht), power_kva: nb(e.power_kva) });
+    var kwh = nb(e.consumption_bill_kwh);
+    var gaz = e.energy_type === 'gas';
+    var mwhAn = consoMwhOf(e);
+
+    // 1. Accise
+    if (e.accise_bill_ht != null && e.accise_bill_ht > 0 && kwh && kwh > 0) {
+      var tauxFact = e.accise_bill_ht / kwh * 1000; // €/MWh réellement appliqué
+      if (gaz) {
+        var tg = tauxRecents(REF_TAXES.accise_gaz).map(function (p) { return p.t; });
+        if (dansFourchette(tauxFact, tg, 0.03)) {
+          C.push({ s: 'ok', titre: 'Accise sur le gaz : conforme', txt: fmtTaux(tauxFact) + ' €/MWh appliqués, le taux légal en vigueur.' });
+        } else if (REF_TAXES.accise_gaz_reduits.some(function (r) { return Math.abs(tauxFact - r) <= 0.1; })) {
+          C.push({ s: 'ok', titre: 'Accise sur le gaz : taux réduit appliqué', txt: fmtTaux(tauxFact) + ' €/MWh : vous bénéficiez déjà d\'un tarif réduit.' });
+        } else {
+          C.push({ s: 'warn', titre: 'Accise sur le gaz : à vérifier', txt: fmtTaux(tauxFact) + ' €/MWh appliqués, alors que le taux légal est de ' + tg.map(fmtTaux).join(' ou ') + ' €/MWh. L\'écart peut venir d\'une régularisation : on le vérifie ligne par ligne au bilan.' });
+        }
+      } else {
+        var per = tauxRecents(REF_TAXES.accise_elec);
+        var tMen = per.map(function (p) { return p.menage; });
+        var tPro = [].concat.apply([], per.map(function (p) { return p.pro; }));
+        var gros = e.power_kva && e.power_kva > 36;
+        var petit = e.power_kva && e.power_kva <= 36;
+        var attendu = gros ? tPro : (petit ? tMen : tMen.concat(tPro));
+        if (dansFourchette(tauxFact, attendu, 0.03)) {
+          C.push({ s: 'ok', titre: 'Accise sur l\'électricité : conforme', txt: fmtTaux(tauxFact) + ' €/MWh appliqués, le taux légal' + (e.power_kva ? ' pour ' + e.power_kva + ' kVA' : '') + '.' });
+        } else if (gros && dansFourchette(tauxFact, tMen, 0.03)) {
+          var ecart = tauxFact - tPro[tPro.length - 1];
+          var surc = mwhAn ? Math.round(ecart * mwhAn) : null;
+          C.push({ s: 'warn', titre: 'Accise sur l\'électricité : taux des petits compteurs appliqué',
+            txt: 'Votre puissance dépasse 36 kVA, mais la facture applique ' + fmtTaux(tauxFact) + ' €/MWh, le taux prévu pour 36 kVA et moins. Le taux légal pour votre puissance est de ' + fmtTaux(tPro[tPro.length - 1]) + ' €/MWh' + (surc && surc > 0 ? ', soit environ ' + formatEuro(surc) + ' de trop par an' : '') + '. À faire corriger par votre fournisseur : on vous aide à le réclamer.' });
+        } else if (REF_TAXES.accise_elec_reduits.some(function (r) { return Math.abs(tauxFact - r) <= 0.15; })) {
+          C.push({ s: 'ok', titre: 'Accise sur l\'électricité : taux réduit appliqué', txt: fmtTaux(tauxFact) + ' €/MWh : vous bénéficiez déjà d\'un tarif réduit.' });
+        } else {
+          C.push({ s: 'warn', titre: 'Accise sur l\'électricité : à vérifier', txt: fmtTaux(tauxFact) + ' €/MWh appliqués, alors que le taux légal actuel est de ' + fmtTaux(gros ? tPro[tPro.length - 1] : tMen[tMen.length - 1]) + ' €/MWh' + (e.power_kva ? ' pour ' + e.power_kva + ' kVA' : '') + '. L\'écart peut venir d\'une régularisation ou d\'un changement de taux en cours de période : on le vérifie au bilan.' });
+        }
+      }
+    } else {
+      C.push({ s: 'na', titre: 'Accise', txt: 'Le montant ou les kWh ne sont pas lisibles sur cette facture : on la contrôle au bilan.' });
+    }
+
+    // 2. CTA (élec) : un pourcentage fixe de la part fixe d'acheminement — contrôlable quand la facture donne les deux
+    if (!gaz) {
+      if (e.cta_bill_ht != null && e.acheminement_fixe_bill_ht) {
+        var pct = e.cta_bill_ht / e.acheminement_fixe_bill_ht * 100;
+        var pcts = REF_TAXES.cta_elec_distribution.map(function (p) { return p.pct; });
+        if (dansFourchette(pct, [15], 0.05)) {
+          C.push({ s: 'ok', titre: 'CTA : conforme', txt: fmtTaux(pct) + ' % de la part fixe d\'acheminement, le taux légal depuis février 2026.' });
+        } else if (dansFourchette(pct, [21.93], 0.05)) {
+          C.push({ s: 'warn', titre: 'CTA : ancien taux appliqué', txt: fmtTaux(pct) + ' % de la part fixe d\'acheminement : c\'est le taux d\'avant février 2026. Si votre facture est plus récente, elle devrait être à 15 %. On le vérifie au bilan.' });
+        } else if (false && dansFourchette(pct, pcts, 0.05)) { // 30/09 : remplacé par les deux cas ci-dessus
+          C.push({ s: 'ok', titre: 'CTA : conforme', txt: fmtTaux(pct) + ' % de la part fixe d\'acheminement, le taux légal (15 % depuis février 2026, 21,93 % avant).' });
+        } else {
+          C.push({ s: 'warn', titre: 'CTA : à vérifier', txt: fmtTaux(pct) + ' % de la part fixe d\'acheminement, alors que le taux légal est de 15 % (21,93 % avant février 2026). On le vérifie au bilan.' });
+        }
+      } else if (e.cta_bill_ht != null) {
+        C.push({ s: 'na', titre: 'CTA', txt: 'Présente sur la facture (' + formatEuro(Math.round(e.cta_bill_ht * 100) / 100) + '). Son contrôle exact demande le détail de la part fixe d\'acheminement : on le fait au bilan.' });
+      }
+    }
+
+    // 3. Acheminement : contrôle ligne à ligne contre le barème TURPE au bilan (pas encore automatique)
+    C.push({ s: 'na', titre: 'Acheminement (réseau)', txt: 'Son prix est fixé par la CRE, le même chez tous les fournisseurs. Ce qui se règle, c\'est votre puissance souscrite et votre formule d\'acheminement : on les contrôle au bilan.' });
+    return C;
+  }
+
+  function renderControle(C) {
+    var card = document.getElementById('controleCard');
+    var box = document.getElementById('controle');
+    var note = document.getElementById('controleNote');
+    if (!card || !box) return;
+    box.innerHTML = '';
+    var utiles = (C || []).filter(function (c) { return c.s !== 'na'; });
+    if (!utiles.length) { card.classList.add('hidden'); return; } // rien de contrôlable : on n'affiche pas une carte vide
+    card.classList.remove('hidden');
+    var TONE = {
+      ok:   { bd: 'border-emerald-200', bg: 'bg-emerald-50/50', dot: 'text-emerald-600', ti: 'text-emerald-800', ic: 'M5 13l4 4L19 7' },
+      warn: { bd: 'border-amber-200', bg: 'bg-amber-50/60', dot: 'text-amber-500', ti: 'text-amber-800', ic: 'M12 9v4m0 4h.01M10.3 3.86l-8.5 14.7A2 2 0 003.5 21.5h17a2 2 0 001.7-2.94l-8.5-14.7a2 2 0 00-3.4 0z' },
+      na:   { bd: 'border-slate-200', bg: 'bg-slate-50/60', dot: 'text-slate-400', ti: 'text-slate-700', ic: 'M12 8v4l3 2m6-2a9 9 0 11-18 0 9 9 0 0118 0z' }
+    };
+    C.forEach(function (c) {
+      var t = TONE[c.s] || TONE.na;
+      var row = document.createElement('div');
+      row.className = 'rounded-xl border ' + t.bd + ' ' + t.bg + ' p-3 flex gap-2.5';
+      row.innerHTML = '<svg class="w-4 h-4 shrink-0 mt-0.5 ' + t.dot + '" fill="none" stroke="currentColor" stroke-width="2.2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="' + t.ic + '"/></svg>' +
+        '<div class="min-w-0"><p class="text-[13.5px] font-bold ' + t.ti + '"></p><p class="text-[12.5px] text-slate-600 mt-0.5 leading-relaxed"></p></div>';
+      row.querySelectorAll('p')[0].textContent = c.titre;
+      row.querySelectorAll('p')[1].textContent = c.txt;
+      box.appendChild(row);
+    });
+    if (note) note.textContent = 'Taux officiels datés (impots.gouv.fr, CRE), mis à jour à chaque changement. Un écart signalé est un point à vérifier, pas une erreur certaine : on le confirme toujours sur vos factures avant de le réclamer.';
   }
 
   function renderVigilance(V) {
@@ -2367,6 +2549,7 @@
     _months = e.billing_months || 1; _clientAnnual = s ? s.client_total_annual : null;
     buildFactureDetail(e, data);                 // détail facture 100% personnalisé
     renderVigilance(computeVigilance(e, s, data)); // points de vigilance (TRV, tacite reconduction…)
+    try { renderControle(computeControle(e)); } catch (errCtl) { /* le contrôle ne doit jamais bloquer le rapport */ }
     _levers = computeLevers(e, s, data, null);   // affichage immédiat (sans grille)
     renderLeviers();
     recompute();
