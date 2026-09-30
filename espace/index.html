@@ -885,6 +885,8 @@ function renderAvis(){
   setReco(8);
 }
 async function envoyerAvis(btn){
+  // 30/09/2026 : 3 avis sur 6 étaient arrivés sans aucune étoile (note 0) → la note globale devient obligatoire.
+  if(!AVIS.globale){ toast('Choisissez au moins une note globale (les étoiles du haut)',false); return; }
   if(btn){btn.disabled=true;btn.textContent='Envoi…';}
   const commentaire=(document.getElementById('avisTxt')||{}).value||'';
   // Envoyer = le client accepte la publication (James valide ensuite chaque avis avant mise en ligne).
