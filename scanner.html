@@ -2098,13 +2098,16 @@
       V.push({ t: 'danger', titre: 'Échéance dépassée depuis le ' + finTxt,
         txt: "Votre contrat est arrivé à son terme. S'il n'a pas été renouvelé, il s'est probablement reconduit tacitement, souvent à un prix moins favorable que celui d'origine. Vous pouvez en général en sortir sans pénalité : c'est le bon moment pour comparer." });
     } else if (!trv && finD && moisRestants <= 6) {
-      V.push({ t: 'warn', titre: 'Échéance le ' + finTxt + (moisRestants <= 1 ? ' : dans quelques semaines' : ' : dans ' + moisRestants + ' mois'),
-        txt: "C'est maintenant qu'il faut comparer. Un préavis de 1 à 3 mois est souvent demandé : si vous ne faites rien, le contrat risque de se reconduire automatiquement au prix que le fournisseur choisira." });
+      // 30/09/2026 (James) : on ne met pas en avant « échéance proche », on parle de ce qui arrive si on ne fait rien.
+      // Ancien titre : 'Échéance le ' + finTxt + ' : dans N mois' / « C'est maintenant qu'il faut comparer… »
+      V.push({ t: 'warn', titre: "Sans action d'ici le " + finTxt + ", votre contrat se reconduit tacitement",
+        txt: "Le fournisseur fixera alors seul votre nouveau prix. En comparant avant cette date (un préavis de 1 à 3 mois est souvent demandé), c'est vous qui choisissez votre prix au lieu de le subir." });
     } else if (!trv && aDateFin) {
+      // Ancien texte : « Pas d'urgence. On peut bloquer un prix dès aujourd'hui… »
       V.push({ t: 'info', titre: 'Échéance de contrat : ' + finTxt,
-        txt: "Pas d'urgence. On peut bloquer un prix dès aujourd'hui pour une date de début qui suit votre échéance : c'est souvent là qu'on gagne le plus." });
+        txt: "On peut bloquer un prix dès aujourd'hui pour un démarrage juste après votre échéance : c'est souvent là qu'on gagne le plus." });
     }
-    if (!trv && taciteMention) {
+    if (!trv && taciteMention && !(finD && moisRestants >= 0 && moisRestants <= 6)) { // la carte ci-dessus en parle déjà
       V.push({ t: 'warn', titre: 'Votre contrat prévoit une tacite reconduction',
         txt: "Sans résiliation dans les délais, il repart pour une nouvelle période, au prix fixé par le fournisseur. Ce qu'indique votre facture : « " + String(e.preavis_resiliation).slice(0, 120) + " »." });
     }
