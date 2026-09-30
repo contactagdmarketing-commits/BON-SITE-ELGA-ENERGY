@@ -21,7 +21,7 @@ const SCAN_MODEL = 'claude-sonnet-5';
 // 29/09/2026 — MOTEUR DE LECTURE (décision James : « garde Luna alors, et chez OpenAI le meilleur modèle en secours »).
 // 'openai' : GPT-5.6 Luna lit d'abord ; si le contrôle de fiabilité échoue, GPT-6 Sol relit.
 // Pour revenir au moteur Claude (Haiku + Sonnet en parallèle, code intact plus bas) : remettre 'claude'.
-const MOTEUR_LECTURE = 'claude'; // ⚠️ bascule 'openai' préparée, NON activée : en attente de la décision de James (envoi des factures chez OpenAI).
+const MOTEUR_LECTURE = 'openai'; // ⚠️ bascule 'openai' préparée, NON activée : en attente de la décision de James (envoi des factures chez OpenAI).
 const ANTHROPIC_API  = 'https://api.anthropic.com/v1/messages';
 
 // Domaines autorisés à appeler l'API depuis un navigateur (CORS).
@@ -54,7 +54,11 @@ function corsHeaders(request) {
 // global passe lui aussi par KV) → on logge bruyamment pour le voir dans les logs.
 // Choix assumé : ne pas punir un utilisateur légitime pour un glitch KV. Si le
 // budget devient critique → migrer le compteur global sur un Durable Object (atomique).
-const SCAN_LIMITS  = { maxHour: 8,  maxDay: 20, maxGlobalDay: 500 };
+// 29/09/2026 — James : « enlève cette limite 8 par heure, si j'en ai 100 je ne vais pas leur dire non ».
+// Ancien réglage (conservé pour mémoire) : { maxHour: 8, maxDay: 20, maxGlobalDay: 500 } — le plafond global
+// de 500/jour pouvait refuser TOUT le monde un jour d'envoi FDSEA ; 8/h par IP gênait les IP 4G partagées.
+// Nouveau : jamais bloquant pour un vrai prospect ; seul un robot est arrêté (filet anti-vidage du budget).
+const SCAN_LIMITS  = { maxHour: 60, maxDay: 200, maxGlobalDay: 20000 };
 const ADMIN_LIMITS = { maxHour: 15, maxDay: 60, maxGlobalDay: 200 };
 // Bilan comparatif = outil de PRÉSENTATION piloté par le courtier en direct (pas surface publique) : limite généreuse.
 const BILAN_LIMITS = { maxHour: 80, maxDay: 300, maxGlobalDay: 2000 };
@@ -1298,6 +1302,90 @@ async function handleScanContrat(request, env) {
   return jsonResponse({ extracted });
 }
 
+// ─── 30/09/2026 (James) : LECTURE « AUDIT » — ligne par ligne, avec la période de CHAQUE ligne ──
+// Nouveau point d'entrée /api/scan-audit, utilisé par l'onglet « Taxes & acheminement » du CRM.
+// Il NE REMPLACE RIEN : /api/scan (scanner du site, espace client) est inchangé. Même moteur (Luna),
+// Sol sur demande (engine:'sol') pour une relecture indépendante quand un écart est trouvé.
+const AUDIT_PROMPT = `Tu es un contrôleur de factures d'énergie professionnelles en France (électricité et gaz, tous fournisseurs, compteurs C5, C4, C3). On te donne UNE facture. Ta mission : RECOPIER fidèlement chaque ligne, sans rien calculer ni corriger. Un contrôleur humain vérifiera ensuite chaque ligne contre les barèmes officiels : une valeur inventée ou recalculée est une faute grave. Si une information n'est pas imprimée, mets null.
+
+Réponds UNIQUEMENT par un JSON :
+{
+  "fournisseur": string|null,
+  "energie": "electricity"|"gas",
+  "segment": "C5"|"C4"|"C3"|"C2"|"C1"|"T1"|"T2"|"T3"|"T4"|null,
+  "formule_acheminement": texte EXACT imprimé de la formule tarifaire d'acheminement (ex "BT≤36 kVA CU4", "BT>36 kVA Longue Utilisation", "MU4", "CU") ou null,
+  "puissance_souscrite_kva": nombre ou null (puissance unique, compteur ≤ 36 kVA),
+  "puissances_par_plage": { "HPH": nombre|null, "HCH": nombre|null, "HPB": nombre|null, "HCB": nombre|null, "POINTE": nombre|null } ou null (compteurs > 36 kVA : puissances souscrites par plage, en kVA),
+  "date_facture": "AAAA-MM-JJ" ou null,
+  "periode_consommation": { "debut": "AAAA-MM-JJ", "fin": "AAAA-MM-JJ" } ou null,
+  "periode_abonnement": { "debut": "AAAA-MM-JJ", "fin": "AAAA-MM-JJ" } ou null,
+  "consommation_kwh": nombre ou null (total de la période),
+  "lignes": [
+    {
+      "section": "fourniture"|"acheminement"|"taxes"|"autre",
+      "libelle": "libellé EXACT de la ligne",
+      "type": "abonnement"|"energie"|"capacite"|"garanties_origine"|"gestion"|"comptage"|"soutirage_fixe"|"soutirage_variable"|"depassement"|"reactive"|"accise"|"cta"|"autre",
+      "poste": "HPH"|"HCH"|"HPB"|"HCB"|"HP"|"HC"|"BASE"|"POINTE"|null,
+      "periode_debut": "AAAA-MM-JJ" ou null, "periode_fin": "AAAA-MM-JJ" ou null,
+      "echeance": "echu"|"a_echoir"|null,
+      "quantite": nombre ou null, "unite_quantite": texte imprimé (ex "kWh", "kVA", "jours", "mois") ou null,
+      "prix_unitaire": nombre ou null, "unite_prix": texte imprimé (ex "c€/kWh", "€/kWh", "€/kVA/an", "€/mois", "%") ou null,
+      "montant_ht": nombre ou null,
+      "taux_tva": nombre ou null
+    }
+  ],
+  "total_ht": nombre ou null,
+  "total_ttc": nombre ou null
+}
+
+Règles :
+- UNE entrée par ligne imprimée, dans l'ordre de la facture. N'additionne jamais deux lignes, ne découpe jamais une ligne.
+- Dates : convertis JJ/MM/AAAA en AAAA-MM-JJ. Chaque ligne garde SA période (sur les factures > 36 kVA, la part fixe est souvent « à échoir » (mois à venir) et la consommation « échue » (mois passé) : recopie les deux périodes telles qu'imprimées).
+- echeance : "a_echoir" si la ligne ou sa section indique « à échoir », « terme à échoir », « d'avance » ; "echu" si « échu », « terme échu » ; sinon null.
+- Nombres : virgule française → point (11,470 → 11.470). Recopie le prix unitaire dans l'unité IMPRIMÉE (ne convertis pas les c€ en €) et indique cette unité dans unite_prix.
+- type : « Composante de gestion » → gestion ; « Composante de comptage » → comptage ; part fixe / puissance souscrite de l'acheminement (€/kVA) → soutirage_fixe ; acheminement proportionnel aux kWh → soutirage_variable ; « dépassement(s) de puissance » / CMDPS → depassement ; « énergie réactive » → reactive ; « Accise » / « CSPE » / « TICFE » / « TICGN » → accise ; « Contribution tarifaire d'acheminement » / « CTA » → cta.
+- Pour l'accise et la CTA : quantite = l'assiette imprimée (kWh ou montant en €), prix_unitaire = le taux imprimé.
+- Si la facture est un TRV EDF qui n'affiche qu'une phrase « la part fixe de l'acheminement est de X € et la part variable de Y € », crée deux lignes acheminement : type soutirage_fixe (montant X) et type soutirage_variable (montant Y), sans prix unitaire.`;
+
+async function handleScanAudit(request, env) {
+  const retry = await checkRateLimit(request, env, 'audit', SCAN_LIMITS);
+  if (retry) return jsonResponse({ error: 'Trop de lectures pour le moment. Réessayez un peu plus tard.' }, 429);
+  let body;
+  try { body = await request.json(); } catch { return jsonResponse({ error: 'Requête invalide.' }, 400); }
+  let { file_data, file_type, file_name } = body || {};
+  if (!file_data) return jsonResponse({ error: 'Aucun fichier reçu.' }, 400);
+  if (typeof file_data === 'string' && file_data.length > 14_000_000) return jsonResponse({ error: 'Fichier trop volumineux (max ~10 Mo).' }, 413);
+  if (!file_type && file_name && /\.pdf$/i.test(file_name)) file_type = 'application/pdf';
+  if (!file_type && file_name && /\.(jpg|jpeg)$/i.test(file_name)) file_type = 'image/jpeg';
+  if (!file_type && file_name && /\.png$/i.test(file_name)) file_type = 'image/png';
+  if (!env.OPENAI_API_KEY) return jsonResponse({ error: 'Lecteur non configuré.' }, 503);
+  const isImage = (file_type || '').startsWith('image/');
+  const cfg = body.engine === 'sol' ? { model: 'gpt-6-sol', in: 2.00, out: 10.00 } : { model: 'gpt-5.6-luna', in: 0.20, out: 1.20 };
+  const fileBlock = isImage
+    ? { type: 'input_image', image_url: 'data:' + file_type + ';base64,' + file_data, detail: 'high' }
+    : { type: 'input_file', filename: file_name || 'facture.pdf', file_data: 'data:application/pdf;base64,' + file_data };
+  let res;
+  try {
+    res = await fetch('https://api.openai.com/v1/responses', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + env.OPENAI_API_KEY },
+      body: JSON.stringify({ model: cfg.model, instructions: AUDIT_PROMPT, input: [{ role: 'user', content: [fileBlock, { type: 'input_text', text: 'Recopie cette facture ligne par ligne.' }] }], max_output_tokens: 12000, reasoning: { effort: 'low' }, store: false }),
+    });
+  } catch (e) { return jsonResponse({ error: 'Lecteur momentanément indisponible.' }, 502); }
+  if (!res.ok) return jsonResponse({ error: 'Lecteur momentanément indisponible.', detail: (await res.text()).slice(0, 200) }, 502);
+  const data = await res.json();
+  let extracted;
+  try {
+    const texts = [];
+    for (const it of (data.output || [])) if (it && it.type === 'message') for (const c of (it.content || [])) if (c && c.type === 'output_text') texts.push(c.text);
+    const text = texts.join('\n').trim(); const m = text.match(/\{[\s\S]*\}/);
+    extracted = JSON.parse(m ? m[0] : text);
+  } catch { return jsonResponse({ error: 'Lecture impossible. Reprenez la photo, plus nette.' }, 422); }
+  const u = data.usage || {};
+  const usd = Math.round(((u.input_tokens || 0) * cfg.in + (u.output_tokens || 0) * cfg.out) / 1e6 * 1e5) / 1e5;
+  return jsonResponse({ extracted, _engine: cfg.model, _usd: usd });
+}
+
 // ─── Agent de l'espace client (répond aux questions, sinon propose un rappel) ──
 async function handleEspaceAgent(request, env) {
   let body;
@@ -1407,6 +1495,8 @@ export default {
       res = await handleScan(request, env);
     } else if (pathname === '/api/scan-fiche' && method === 'POST') {
       res = await handleScanFiche(request, env);
+    } else if (pathname === '/api/scan-audit' && method === 'POST') {
+      res = await handleScanAudit(request, env);
     } else if (pathname === '/api/scan-contrat' && method === 'POST') {
       res = await handleScanContrat(request, env);
     } else if (pathname === '/api/scan-bilan' && method === 'POST') {
