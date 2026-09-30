@@ -790,13 +790,16 @@
     <div class="border-t border-white/5">
       <div class="container py-4 text-xs text-slate-500 flex flex-wrap items-center justify-between gap-2">
         <span>© 2026 Elga Energy — Tous droits réservés</span>
-        <div class="flex items-center gap-4">
+        <div class="flex flex-wrap items-center gap-4">
           <span>Courtier en énergie B2B — Toulouse, France</span>
           <!-- ancien lien (gardé) : <a href="/admin.html" class="text-slate-600 hover:text-slate-400 transition-colors text-xs">🔒</a> -->
-          <span class="text-slate-600">Accès équipe :</span>
-          <a href="/login.html" class="text-slate-500 hover:text-slate-300 transition-colors">Comparatif</a>
-          <a href="/admin.html" class="text-slate-500 hover:text-slate-300 transition-colors">Grille de prix</a>
-          <a href="https://elga-crm.vercel.app" class="text-slate-500 hover:text-slate-300 transition-colors" rel="noopener">CRM</a>
+        </div>
+        <!-- 30/09/2026 : accès équipe sur leur propre ligne (ils débordaient hors de l'écran à droite) -->
+        <div class="w-full flex flex-wrap items-center gap-2 pt-2">
+          <span class="text-slate-500 mr-1">Accès équipe</span>
+          <a href="/login.html" class="rounded-full border border-white/10 px-3 py-1 text-slate-400 hover:text-white hover:border-white/30 transition-colors">Comparatif</a>
+          <a href="/admin.html" class="rounded-full border border-white/10 px-3 py-1 text-slate-400 hover:text-white hover:border-white/30 transition-colors">Grille de prix</a>
+          <a href="https://elga-crm.vercel.app" class="rounded-full border border-white/10 px-3 py-1 text-slate-400 hover:text-white hover:border-white/30 transition-colors" rel="noopener">CRM</a>
         </div>
       </div>
     </div>
