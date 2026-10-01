@@ -2046,8 +2046,21 @@
         if (gauge) gauge.style.width = '60%';
       }
     }
+    // 01/10/2026 (James : « il n'y a plus d'économies affichées alors qu'il s'agit de tacites reconductions, rien ne donne envie »)
+    // Contrat TERMINÉ (date de fin passée, hors tarif réglementé) : le prix de cette facture n'est plus celui que le client paie.
+    // On ne dit donc jamais « Déjà bien placé » : on dit que son prix a changé, et comment le savoir.
+    var finTxt0 = _e && _e.date_fin_contrat ? String(_e.date_fin_contrat) : '';
+    var mFin0 = finTxt0.match(/^(\d{4})-(\d{2})-(\d{2})/);
+    var contratTermine = !!(mFin0 && !isTRV(_e) && new Date(+mFin0[1], +mFin0[2] - 1, +mFin0[3]) < new Date());
+    if (contratTermine && !netPositive) {
+      hero.textContent = 'Votre prix a changé'; hero.classList.add('text-4xl', 'sm:text-5xl');
+      var hlT = document.getElementById('heroLabel');
+      if (hlT) hlT.textContent = 'Contrat terminé depuis le ' + mFin0[3] + '/' + mFin0[2] + '/' + mFin0[1];
+      if (sub) sub.textContent = "Le prix de cette facture était celui de votre contrat. Depuis sa fin, votre fournisseur vous facture très probablement un prix de reconduction que vous n'avez pas négocié. Pour savoir ce que vous payez vraiment aujourd'hui et ce que vous pouvez économiser, déposez votre dernière facture ou laissez-nous analyser vos 12 mois réels.";
+      if (gauge) gauge.style.width = '40%';
+    }
     var hid = document.getElementById('hiddenSavings');
-    if (hid) hid.value = netPositive ? (formatEuro(total) + '/an (leviers retenus)') : (hasSurcout ? 'Sécurisation (TRV volatil, révisé plusieurs fois/an) · optimisation abo/puissance' : '');
+    if (hid) hid.value = (contratTermine && !netPositive) ? 'Contrat terminé (reconduction) : comparer sur une facture récente' : (netPositive ? (formatEuro(total) + '/an (leviers retenus)') : (hasSurcout ? 'Sécurisation (TRV volatil, révisé plusieurs fois/an) · optimisation abo/puissance' : ''));
     try { renderProjection(); } catch (_) {}   // 28/09/2026 : la carte suit les leviers cochés (total cohérent avec le haut)
   }
 

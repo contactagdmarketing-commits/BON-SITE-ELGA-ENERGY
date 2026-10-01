@@ -865,6 +865,19 @@ async function handleScan(request, env) {
         if (b.total_ttc_annual != null) b.total_ttc_annual = Math.round(b.total_ttc_annual * ratio);
         if (b.total_ht_annual  != null) b.total_ht_annual  = Math.round(b.total_ht_annual  * ratio);
         b._saisonnalite_corrigee = true;
+      } else if (ratio >= 2.5 && ratio <= 80 && histK > consoKwh) {
+        // 01/10/2026 (facture ASL d'Avens, irrigation : 159 kWh en septembre, 83 560 kWh sur 12 mois) :
+        // site TRÈS saisonnier. L'historique imprimé est la seule base honnête. Mais on ne multiplie PAS les
+        // frais fixes par le ratio : coût annuel = frais fixes du mois × 12 + coût variable au kWh × conso réelle.
+        const varHT = (num(b.energy_amount_bill_ht) || 0) + (num(b.acheminement_var_bill_ht) || 0) + (num(b.accise_bill_ht) || 0);
+        if (varHT > 0 && htBill != null && htBill > varHT) {
+          const annuelHT = (htBill - varHT) * f + (varHT / consoKwh) * histK;
+          b.annual_consumption_mwh = Math.round(histK / 1000 * 100) / 100;
+          b.total_ht_annual  = Math.round(annuelHT);
+          b.total_ttc_annual = Math.round(annuelHT * 1.2); // TVA 20 % sur toutes les lignes depuis le 01/08/2025
+          b._saisonnalite_corrigee = true;
+          b._saisonnalite_forte = true;
+        }
       }
     } else if (b.energy_type === 'gas' && months <= 2) {
       b._seasonality_risk = true; // gaz sur 1-2 mois sans historique : montant annuel à prendre avec prudence
