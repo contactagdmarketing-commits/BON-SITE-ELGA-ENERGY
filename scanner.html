@@ -1453,6 +1453,11 @@
       if (q.get('parrain'))         cur = { type: 'parrain',    val: String(q.get('parrain')).slice(0, 12).toUpperCase() };
       else if (q.get('partenaire')) cur = { type: 'partenaire', val: String(q.get('partenaire')).slice(0, 40).toLowerCase() };
       else if (q.get('ref'))        cur = { type: 'ref',        val: String(q.get('ref')).slice(0, 40) };
+      // 01/10/2026 (James) : CANAL d'arrivée (« ?canal=carte|terrain|mail|sms|whatsapp|linkedin|salon|flyer… »)
+      // pour savoir d'où vient chaque scan. Se combine avec ref / parrain / partenaire ; seul, il est gardé aussi.
+      var canal = q.get('canal') ? String(q.get('canal')).toLowerCase().replace(/[^a-z0-9-]/g, '').slice(0, 30) : null;
+      if (!cur && canal) cur = { type: 'canal', val: null };
+      if (cur && canal) cur.canal = canal;
       if (cur) { cur.at = Date.now(); sessionStorage.setItem('elga_attrib', JSON.stringify(cur)); return cur; }
       var saved = JSON.parse(sessionStorage.getItem('elga_attrib') || 'null');
       if (saved && saved.at && (Date.now() - saved.at) < ATTRIB_TTL) return saved;
@@ -1463,6 +1468,7 @@
   function elgaRef()        { var a = elgaAttrib(); return a && a.type === 'ref'        ? a.val : null; }
   function elgaParrain()    { var a = elgaAttrib(); return a && a.type === 'parrain'    ? a.val : null; }
   function elgaPartenaire() { var a = elgaAttrib(); return a && a.type === 'partenaire' ? a.val : null; }
+  function elgaCanal()      { var a = elgaAttrib(); return a && a.canal ? a.canal : null; } // 01/10/2026
   elgaAttrib(); // capte le lien dès l'arrivée sur la page (et purge les anciennes mémoires à vie)
   // En-têtes Supabase REST (clé publique = insertion/maj seulement, jamais de lecture)
   function supaHeaders(extra) {
@@ -1538,6 +1544,8 @@
       try { var _p = elgaParrain(); if (_p) ex = Object.assign({}, ex || {}, { parrain: _p }); } catch (_) {}
       // Partenariat : rattache le scan au partenaire (visible dans son espace de suivi).
       try { var _pt = elgaPartenaire(); if (_pt) ex = Object.assign({}, ex || {}, { partenaire: _pt }); } catch (_) {}
+      // 01/10/2026 : canal d'arrivée (carte de visite, terrain, mail…) → lisible dans le CRM (Mes liens par canal)
+      try { var _cn = elgaCanal(); if (_cn) ex = Object.assign({}, ex || {}, { canal: _cn }); } catch (_) {}
       var row = {
         session_token: elgaSessionToken(),
         source: 'entrant',                         // requis par la règle d'insertion
