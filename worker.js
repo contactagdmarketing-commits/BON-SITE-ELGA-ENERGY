@@ -24,6 +24,47 @@ const SCAN_MODEL = 'claude-sonnet-5';
 const MOTEUR_LECTURE = 'openai'; // ⚠️ bascule 'openai' préparée, NON activée : en attente de la décision de James (envoi des factures chez OpenAI).
 const ANTHROPIC_API  = 'https://api.anthropic.com/v1/messages';
 
+// ─── 01/10/2026 : PONT ANTHROPIC → LUNA (OpenAI) ──────────────────────────────
+// Le compte Anthropic n'a plus de crédit (« credit balance is too low ») : la fiche CRM, le contrat,
+// le bilan, la grille de prix et l'assistant de l'espace client répondaient « Analyse refusée ».
+// fetchLecteur() prend EXACTEMENT la même requête que fetch(ANTHROPIC_API, …) (mêmes prompts, mêmes
+// fichiers), l'envoie à gpt-5.6-luna (moteur déjà utilisé par le scanner et l'audit) et rend une
+// réponse au FORMAT ANTHROPIC ({ content:[{type:'text',text}] }) : le code en aval est inchangé.
+// Pour revenir à Anthropic (crédit rechargé) : LECTEUR_PONT = false.
+const LECTEUR_PONT = true;
+async function fetchLecteur(env, init) {
+  if (!LECTEUR_PONT || !env.OPENAI_API_KEY) return fetch(ANTHROPIC_API, init);
+  let req; try { req = JSON.parse(init.body); } catch { return fetch(ANTHROPIC_API, init); }
+  const conv = (b) => {
+    if (!b || typeof b !== 'object') return null;
+    if (b.type === 'text') return { type: 'input_text', text: b.text };
+    if (b.type === 'image' && b.source) return { type: 'input_image', image_url: 'data:' + b.source.media_type + ';base64,' + b.source.data, detail: 'high' };
+    if (b.type === 'document' && b.source) return { type: 'input_file', filename: 'document.pdf', file_data: 'data:application/pdf;base64,' + b.source.data };
+    return null;
+  };
+  const input = (req.messages || []).map((m) => {
+    if (typeof m.content === 'string') return { role: m.role, content: m.content };
+    if (m.role === 'assistant') return { role: 'assistant', content: (m.content || []).filter(x => x && x.type === 'text').map(x => x.text).join('\n') };
+    return { role: m.role, content: (m.content || []).map(conv).filter(Boolean) };
+  });
+  const instructions = Array.isArray(req.system) ? req.system.map(x => x && x.text || '').join('\n') : (req.system || undefined);
+  let res;
+  try {
+    res = await fetch('https://api.openai.com/v1/responses', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + env.OPENAI_API_KEY },
+      body: JSON.stringify({ model: 'gpt-5.6-luna', instructions, input, max_output_tokens: Math.max(4000, (req.max_tokens || 1024) * 4), reasoning: { effort: 'low' }, store: false }),
+    });
+  } catch (e) { return new Response(JSON.stringify({ error: { message: 'lecteur indisponible (réseau)' } }), { status: 502 }); }
+  if (!res.ok) return new Response(await res.text(), { status: res.status });
+  const data = await res.json();
+  const texts = [];
+  for (const it of (data.output || [])) if (it && it.type === 'message') for (const c of (it.content || [])) if (c && c.type === 'output_text') texts.push(c.text);
+  const u = data.usage || {};
+  return new Response(JSON.stringify({ content: [{ type: 'text', text: texts.join('\n').trim() }], usage: { input_tokens: u.input_tokens || 0, output_tokens: u.output_tokens || 0 }, _moteur: 'gpt-5.6-luna' }), { status: 200, headers: { 'Content-Type': 'application/json' } });
+}
+
+
 // Domaines autorisés à appeler l'API depuis un navigateur (CORS).
 // Tout autre site verra l'origine canonique → le navigateur bloque la réponse.
 const ALLOWED_ORIGINS = [
@@ -1108,7 +1149,7 @@ async function handleExtractPrices(request, env) {
     ? { type: 'image', source: { type: 'base64', media_type: file_type, data: file_data } }
     : { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: file_data } };
 
-  const claudeRes = await fetch(ANTHROPIC_API, {
+  const claudeRes = await fetchLecteur(env, { // 01/10/2026 : pont Luna (crédit Anthropic épuisé)
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -1164,7 +1205,7 @@ async function handleScanBilan(request, env) {
     ? { type: 'image', source: { type: 'base64', media_type: file_type, data: file_data } }
     : { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: file_data } };
 
-  const res = await fetch(ANTHROPIC_API, {
+  const res = await fetchLecteur(env, { // 01/10/2026 : pont Luna (crédit Anthropic épuisé)
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'x-api-key': env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01', 'anthropic-beta': 'pdfs-2024-09-25' },
     body: JSON.stringify({ model: CLAUDE_MODEL, max_tokens: 2048, messages: [{ role: 'user', content: [contentBlock, { type: 'text', text: BILAN_FULL_PROMPT }] }] }),
@@ -1220,7 +1261,7 @@ async function handleScanFiche(request, env) {
     ? { type: 'image', source: { type: 'base64', media_type: file_type, data: file_data } }
     : { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: file_data } };
 
-  const claudeRes = await fetch(ANTHROPIC_API, {
+  const claudeRes = await fetchLecteur(env, { // 01/10/2026 : pont Luna (crédit Anthropic épuisé)
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -1302,7 +1343,7 @@ async function handleScanContrat(request, env) {
     ? { type: 'image', source: { type: 'base64', media_type: file_type, data: file_data } }
     : { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: file_data } };
 
-  const claudeRes = await fetch(ANTHROPIC_API, {
+  const claudeRes = await fetchLecteur(env, { // 01/10/2026 : pont Luna (crédit Anthropic épuisé)
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'x-api-key': env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01', 'anthropic-beta': 'pdfs-2024-09-25' },
     body: JSON.stringify({ model: CLAUDE_MODEL, max_tokens: 1200, messages: [{ role: 'user', content: [contentBlock, { type: 'text', text: CONTRAT_PROMPT }] }] }),
@@ -1482,7 +1523,7 @@ Réponds UNIQUEMENT avec un objet JSON valide, sans aucun texte autour : {"repon
   }
   msgs.push({ role: 'user', content: question.slice(0, 1000) });
 
-  const res = await fetch(ANTHROPIC_API, {
+  const res = await fetchLecteur(env, { // 01/10/2026 : pont Luna (crédit Anthropic épuisé)
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'x-api-key': env.ANTHROPIC_API_KEY, 'anthropic-version': '2023-06-01' },
     body: JSON.stringify({ model: CLAUDE_MODEL, max_tokens: 500, temperature: 0, system, messages: msgs }),
