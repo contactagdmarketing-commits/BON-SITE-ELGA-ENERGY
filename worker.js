@@ -424,6 +424,43 @@ function getDefaultPrices() {
   };
 }
 
+
+// ─── 01/10/2026 : TAUX OFFICIELS TOUJOURS À JOUR (référentiel du CRM, migration 0076) ─────
+// L'accise utilisée pour chiffrer les offres venait de la grille de prix (30,85 / 26,58 / 16,39,
+// barème de février 2026). Elle est désormais lue dans ref_taux (taux validés, datés) au jour du scan :
+// un nouveau taux validé dans le CRM s'applique tout seul. En cas de panne, la grille reste utilisée.
+const SUPA_URL = 'https://zqvocdmxpxkhknsgmijt.supabase.co';
+const SUPA_PUB = 'sb_publishable_Yjplm_el8tlLJ_0xxvMB_g_XI8vStgr'; // clé publique (déjà dans les pages du site)
+let _tauxCache = { at: 0, rows: null };
+async function tauxOfficiels() {
+  if (_tauxCache.rows && Date.now() - _tauxCache.at < 3600e3) return _tauxCache.rows;
+  try {
+    const r = await fetch(SUPA_URL + '/rest/v1/rpc/ref_taux_public', { method: 'POST', headers: { apikey: SUPA_PUB, Authorization: 'Bearer ' + SUPA_PUB, 'Content-Type': 'application/json' }, body: '{}' });
+    if (r.ok) { const rows = await r.json(); if (Array.isArray(rows) && rows.length) _tauxCache = { at: Date.now(), rows }; }
+  } catch {}
+  return _tauxCache.rows;
+}
+function tauxAuJour(rows, famille, segTest, jour) {
+  const j = jour || new Date().toISOString().slice(0, 10);
+  const c = (rows || []).filter(x => x.famille === famille && segTest(String(x.segment || '')) && x.du <= j && (!x.au || x.au >= j));
+  c.sort((a, b) => (a.du < b.du ? 1 : -1));
+  return c.length ? Number(c[0].valeur) : null;
+}
+async function appliquerTauxOfficiels(grid) {
+  try {
+    const rows = await tauxOfficiels(); if (!rows || !grid) return grid;
+    const menage = tauxAuJour(rows, 'accise_elec', s => /36 kVA\)/.test(s) && /nages/i.test(s));
+    const pme = tauxAuJour(rows, 'accise_elec', s => /^PME/i.test(s));
+    const gaz = tauxAuJour(rows, 'accise_gaz', () => true);
+    const t = grid.electricity && grid.electricity.taxes;
+    if (t && menage > 0) t.accise_mwh = menage;
+    if (t && pme > 0) t.accise_mwh_high = pme;
+    if (grid.gas && gaz > 0) for (const k of Object.keys(grid.gas)) if (grid.gas[k] && typeof grid.gas[k] === 'object' && 'accise_mwh' in grid.gas[k]) grid.gas[k].accise_mwh = gaz;
+    grid._taux_officiels = { accise_elec_menage: menage, accise_elec_pro: pme, accise_gaz: gaz };
+  } catch {}
+  return grid;
+}
+
 // ─── Calcul des économies ─────────────────────────────────────────────────────
 
 // Taux d'accise élec selon la puissance souscrite (>36 kVA = tarif réduit pro).
@@ -708,6 +745,7 @@ async function handleScan(request, env) {
     const raw = await env.ELGA_KV.get('price_grid');
     if (raw) priceGrid = JSON.parse(raw);
   } catch {}
+  priceGrid = await appliquerTauxOfficiels(priceGrid); // 01/10/2026 : accises du jour (référentiel officiel)
 
   const isImage = file_type.startsWith('image/');
   const isPdf   = file_type === 'application/pdf' || file_type === 'application/octet-stream';

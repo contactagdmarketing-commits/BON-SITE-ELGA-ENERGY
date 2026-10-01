@@ -2182,6 +2182,32 @@
     accise_gaz_reduits: [0.54, 1.52, 1.60], // agricole, quotas ETS, fuite carbone — sur attestation
     cta_elec_distribution: [ { du: '2021-08-01', pct: 21.93 }, { du: '2026-02-01', pct: 15 } ]
   };
+  // 01/10/2026 (James : « il faut que ce soit toujours à jour, à l'instant T ») : le tableau ci-dessus
+  // n'est plus qu'un SECOURS. Au chargement, on lit le référentiel officiel du CRM (ref_taux, taux validés
+  // et datés, migration 0076) : un nouveau taux validé par James s'applique au scanner sans toucher au code.
+  (function chargerRefTaxes() {
+    try {
+      fetch(window.ELGA_SUPA_URL + '/rest/v1/rpc/ref_taux_public', { method: 'POST', headers: { apikey: window.ELGA_SUPA_KEY, Authorization: 'Bearer ' + window.ELGA_SUPA_KEY, 'Content-Type': 'application/json' }, body: '{}' })
+        .then(function (r) { return r.ok ? r.json() : null; })
+        .then(function (rows) {
+          if (!Array.isArray(rows) || !rows.length) return;
+          var par = {};
+          rows.filter(function (x) { return x.famille === 'accise_elec'; }).forEach(function (x) {
+            var d = x.du; par[d] = par[d] || { du: d, menage: null, pro: [] };
+            if (/nages/i.test(x.segment || '')) par[d].menage = Number(x.valeur);
+            else if (par[d].pro.indexOf(Number(x.valeur)) < 0) par[d].pro.push(Number(x.valeur));
+          });
+          var elec = Object.keys(par).sort().map(function (k) { return par[k]; }).filter(function (p) { return p.menage > 0 && p.pro.length; });
+          var gaz = rows.filter(function (x) { return x.famille === 'accise_gaz'; }).map(function (x) { return { du: x.du, t: Number(x.valeur) }; }).sort(function (a, b) { return a.du < b.du ? -1 : 1; });
+          var cta = rows.filter(function (x) { return x.famille === 'cta' && /distribution/i.test(x.segment || ''); }).map(function (x) { return { du: x.du, pct: Number(x.valeur) }; }).sort(function (a, b) { return a.du < b.du ? -1 : 1; });
+          if (elec.length >= 2) REF_TAXES.accise_elec = elec;
+          if (gaz.length >= 2) REF_TAXES.accise_gaz = gaz;
+          if (cta.length >= 1) REF_TAXES.cta_elec_distribution = cta;
+          REF_TAXES._source = 'referentiel';
+        })
+        .catch(function () {});
+    } catch (_) {}
+  })();
   // Taux en vigueur sur les 15 derniers mois (une facture scannée a rarement plus d'un an).
   function tauxRecents(liste) {
     var lim = new Date(); lim.setMonth(lim.getMonth() - 15);
