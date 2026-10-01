@@ -1311,11 +1311,15 @@ const AUDIT_PROMPT = `Tu es un contrôleur de factures d'énergie professionnell
 Réponds UNIQUEMENT par un JSON :
 {
   "fournisseur": string|null,
+  "client": { "nom": raison sociale ou nom du titulaire imprimé, "adresse_site": adresse du site de consommation, "numero_client": référence client, "pdl_pce": numéro PDL/PRM (14 chiffres) ou PCE } (null pour chaque champ absent),
+  "numero_facture": string|null,
+  "type_facture": "normale"|"regularisation"|"avoir"|"echeancier"|"resiliation"|null,
+  "releve": "reel"|"estime"|"mixte"|null (index relevé ou estimé, tel qu'imprimé),
   "energie": "electricity"|"gas",
   "segment": "C5"|"C4"|"C3"|"C2"|"C1"|"T1"|"T2"|"T3"|"T4"|null,
   "formule_acheminement": texte EXACT imprimé de la formule tarifaire d'acheminement (ex "BT≤36 kVA CU4", "BT>36 kVA Longue Utilisation", "MU4", "CU") ou null,
   "puissance_souscrite_kva": nombre ou null (puissance unique, compteur ≤ 36 kVA),
-  "puissances_par_plage": { "HPH": nombre|null, "HCH": nombre|null, "HPB": nombre|null, "HCB": nombre|null, "POINTE": nombre|null } ou null (compteurs > 36 kVA : puissances souscrites par plage, en kVA),
+  "puissances_par_plage": { "HPH": nombre|null, "HCH": nombre|null, "HPB": nombre|null, "HCB": nombre|null, "POINTE": nombre|null } ou null (compteurs > 36 kVA : puissances souscrites par plage, en kVA ou kW ; associe CHAQUE valeur à l'en-tête de SA colonne tel qu'imprimé, sans jamais décaler ; elles sont en principe croissantes de la Pointe vers les heures creuses d'été),
   "date_facture": "AAAA-MM-JJ" ou null,
   "periode_consommation": { "debut": "AAAA-MM-JJ", "fin": "AAAA-MM-JJ" } ou null,
   "periode_abonnement": { "debut": "AAAA-MM-JJ", "fin": "AAAA-MM-JJ" } ou null,
@@ -1383,7 +1387,8 @@ async function handleScanAudit(request, env) {
   } catch { return jsonResponse({ error: 'Lecture impossible. Reprenez la photo, plus nette.' }, 422); }
   const u = data.usage || {};
   const usd = Math.round(((u.input_tokens || 0) * cfg.in + (u.output_tokens || 0) * cfg.out) / 1e6 * 1e5) / 1e5;
-  return jsonResponse({ extracted, _engine: cfg.model, _usd: usd });
+  // Coût EXACT : tokens facturés par OpenAI (entrée, entrée en cache, sortie dont raisonnement) → $ au tarif public
+  return jsonResponse({ extracted, _engine: cfg.model, _usd: usd, _usage: { input: u.input_tokens || 0, cached: (u.input_tokens_details && u.input_tokens_details.cached_tokens) || 0, output: u.output_tokens || 0, reasoning: (u.output_tokens_details && u.output_tokens_details.reasoning_tokens) || 0, prix_entree_mtok: cfg.in, prix_sortie_mtok: cfg.out } });
 }
 
 // ─── Agent de l'espace client (répond aux questions, sinon propose un rappel) ──
