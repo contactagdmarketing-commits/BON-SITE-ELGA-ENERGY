@@ -20,127 +20,183 @@
     } } } }
   </script>
   <style>
-    body{background:#f6f8fb}
-    .shadow-soft{box-shadow:0 8px 26px rgba(2,6,12,.06)}
-    .shadow-strong{box-shadow:0 24px 60px -22px rgba(14,138,87,.30)}
-    .fade{animation:fade .45s cubic-bezier(.16,1,.3,1) both}@keyframes fade{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
-    .sugg{transition:border-color .2s,box-shadow .2s,transform .2s}.sugg:hover{border-color:#34d399;box-shadow:0 14px 30px -18px rgba(14,138,87,.4);transform:translateY(-2px)}
-    @media (prefers-reduced-motion: reduce){.fade{animation:none!important;opacity:1!important;transform:none!important}}
+    body{background:#f5f7f6}
+    .card{background:#fff;border:1px solid #e6ebe8;border-radius:18px;box-shadow:0 1px 2px rgba(8,63,42,.04),0 10px 30px -18px rgba(8,63,42,.18)}
+    .shadow-strong{box-shadow:0 24px 60px -24px rgba(8,63,42,.45)}
+    .fade{animation:fade .45s cubic-bezier(.16,1,.3,1) both}@keyframes fade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+    .spin{width:28px;height:28px;border-radius:50%;border:3px solid #d1fae5;border-top-color:#0e8a57;animation:sp 1s linear infinite}@keyframes sp{to{transform:rotate(360deg)}}
+    .btn-share{transition:background-color .2s,border-color .2s}
+    :focus-visible{outline:2px solid #0e8a57;outline-offset:2px}
+    @media (prefers-reduced-motion: reduce){.fade{animation:none!important;opacity:1!important;transform:none!important}.spin{animation:none}}
   </style>
 </head>
 <body class="antialiased text-slate-800 min-h-screen">
   <div id="app"></div>
 <script>
 const SUPA=window.ELGA_SUPA_URL, KEY=window.ELGA_SUPA_KEY;
-const params=new URLSearchParams(location.search);
 const SITE='https://www.elgaenergy.com';
+const MEMO='elga_partenaire_code';
 let STATE=null;
 const esc=(s)=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const memo={get(){try{return localStorage.getItem(MEMO)}catch(_){return null}},set(v){try{localStorage.setItem(MEMO,v)}catch(_){}},del(){try{localStorage.removeItem(MEMO)}catch(_){}}};
 
 async function rpc(fn,body){
   const r=await fetch(`${SUPA}/rest/v1/rpc/${fn}`,{method:'POST',headers:{apikey:KEY,Authorization:'Bearer '+KEY,'Content-Type':'application/json'},body:JSON.stringify(body)});
   try{return await r.json();}catch(_){return null;}
 }
 function lien(){ return `${SITE}/scanner.html?partenaire=${encodeURIComponent(STATE.code)}`; }
-function msg(){ return `Bonjour, notre partenaire Elga Energy analyse gratuitement vos factures d'énergie et vous dit si vous payez trop cher — 15 secondes, sans engagement. Faites le test via notre lien : ${lien()}`; }
+// 01/10/2026 : message aligné sur le mail FDSEA v10 (électricité, 30 secondes, PDF ou photo, bloquer les augmentations).
+// Ancien message (conservé) : `Bonjour, notre partenaire Elga Energy analyse gratuitement vos factures d'énergie et vous dit si vous payez trop cher — 15 secondes, sans engagement. Faites le test via notre lien : ${lien()}`
+function msg(){ return `Bonjour, l'électricité augmente avec un temps de retard : sur la plupart des factures, la hausse n'est pas encore visible. Avec notre partenaire Elga Energy, courtier en électricité, faites le bilan gratuit de votre facture en 30 secondes (PDF ou photo), sans engagement. Il est encore temps de bloquer les augmentations : ${lien()}`; }
 
-function toast(m,ok=true){const t=document.createElement('div');t.className=`fixed bottom-6 right-5 z-50 px-4 py-2.5 rounded-xl text-[13px] font-semibold text-white shadow-strong fade ${ok?'bg-primary-600':'bg-rose-600'}`;t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),3000);}
+function toast(m,ok=true){const t=document.createElement('div');t.setAttribute('role','status');t.className=`fixed bottom-6 right-5 z-50 px-4 py-2.5 rounded-xl text-[13px] font-semibold text-white shadow-strong fade ${ok?'bg-primary-700':'bg-rose-600'}`;t.textContent=m;document.body.appendChild(t);setTimeout(()=>t.remove(),2800);}
 function partager(canal){
   const url=lien(), txt=msg();
   if(canal==='wa') window.open('https://wa.me/?text='+encodeURIComponent(txt),'_blank');
   else if(canal==='sms') window.open('sms:?&body='+encodeURIComponent(txt),'_blank');
-  else if(canal==='mail') window.open('mailto:?subject='+encodeURIComponent('Vos factures d\'énergie sont-elles au bon prix ?')+'&body='+encodeURIComponent(txt),'_blank');
+  else if(canal==='mail') window.open('mailto:?subject='+encodeURIComponent("Électricité : il est encore temps de bloquer les augmentations")+'&body='+encodeURIComponent(txt),'_blank');
   else if(canal==='copy'){ navigator.clipboard?.writeText(url).then(()=>toast('Lien copié')); }
+  else if(canal==='msg'){ navigator.clipboard?.writeText(txt).then(()=>toast('Message copié')); }
 }
+
+const ICON={
+  lock:'<rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 018 0v4"/>',
+  wa:'<path d="M21 12a9 9 0 01-13.3 7.9L3 21l1.2-4.5A9 9 0 1121 12z"/>',
+  sms:'<rect x="6" y="2.5" width="12" height="19" rx="2.5"/><path d="M10.5 18.5h3"/>',
+  mail:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3.5 6.5L12 13l8.5-6.5"/>',
+  copy:'<rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 012-2h10"/>',
+  users:'<path d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m6-1.13a4 4 0 10-4-4 4 4 0 004 4z"/>',
+  shield:'<path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6l8-3z"/><path d="M9 12l2 2 4-4"/>',
+  out:'<path d="M15 17l5-5-5-5M20 12H9M12 21H5a2 2 0 01-2-2V5a2 2 0 012-2h7"/>'
+};
+const ico=(k,c='w-5 h-5')=>`<svg class="${c}" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true">${ICON[k]}</svg>`;
 
 function badge(etat){
   // 16/09/2026 : 3 statuts (En cours · Signé · Refusé) ; anciens libellés conservés par sécurité
-  const map={ 'En cours':'bg-sky-50 text-sky-700', 'Refusé':'bg-red-50 text-red-600', 'Scanné':'bg-slate-100 text-slate-600', 'En contact':'bg-sky-50 text-sky-700', 'En attente':'bg-amber-50 text-amber-700', 'Signé':'bg-emerald-50 text-emerald-700', 'Sans suite':'bg-slate-100 text-slate-400' };
-  const ic={ 'En cours':'⏳','Refusé':'✕','Scanné':'📄','En contact':'📞','En attente':'⏳','Signé':'✅','Sans suite':'—' };
-  return `<span class="inline-flex items-center gap-1 rounded-full px-2.5 py-1 text-[12px] font-bold ${map[etat]||map['En cours']}">${ic[etat]||''} ${esc(etat)}</span>`;
+  const map={ 'En cours':'bg-sky-50 text-sky-700 ring-sky-100', 'Refusé':'bg-slate-50 text-slate-500 ring-slate-200', 'Scanné':'bg-slate-50 text-slate-600 ring-slate-200', 'En contact':'bg-sky-50 text-sky-700 ring-sky-100', 'En attente':'bg-amber-50 text-amber-700 ring-amber-100', 'Signé':'bg-primary-50 text-primary-700 ring-primary-100', 'Sans suite':'bg-slate-50 text-slate-400 ring-slate-200' };
+  return `<span class="inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-[12px] font-semibold ring-1 ${map[etat]||map['En cours']}"><span class="h-1.5 w-1.5 rounded-full bg-current"></span>${esc(etat)}</span>`;
 }
+function loading(t){ return `<div class="min-h-screen grid place-items-center"><div class="text-center"><div class="spin mx-auto mb-3"></div><p class="text-slate-400 text-sm">${esc(t)}</p></div></div>`; }
+
+/* ─── Connexion par code d'accès (01/10/2026) ─── */
+function vueLogin(err){
+  document.getElementById('app').innerHTML=`
+  <div class="min-h-screen grid place-items-center px-4" style="background:radial-gradient(900px 480px at 85% -10%,#e7f5ee,transparent 60%),#f5f7f6">
+    <div class="fade w-full max-w-md">
+      <div class="text-center mb-7"><img src="/assets/logos/elga-energy-logo.png" alt="Elga Energy" class="h-9 w-auto mx-auto"/></div>
+      <div class="card p-7 sm:p-9">
+        <div class="mx-auto mb-4 grid place-items-center rounded-2xl bg-primary-50 text-primary-700" style="height:52px;width:52px">${ico('lock','w-6 h-6')}</div>
+        <h1 class="text-[21px] font-extrabold text-slate-900 text-center tracking-tight">Espace partenaire</h1>
+        <p class="text-[14px] text-slate-500 mt-1.5 text-center">Entrez le code d'accès que vous a communiqué Elga Energy.</p>
+        <form id="fLog" class="mt-6 space-y-3">
+          <label for="code" class="sr-only">Code d'accès</label>
+          <input id="code" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Code d'accès"
+            class="w-full text-center text-[20px] font-bold tracking-[.25em] uppercase text-slate-800 rounded-xl border-2 border-slate-200 focus:border-primary-600 focus:ring-4 focus:ring-primary-100 outline-none py-3.5"/>
+          <p id="eLog" class="text-[13px] text-rose-600 ${err?'':'hidden'}">${err?esc(err):''}</p>
+          <button id="bLog" type="submit" disabled class="w-full rounded-xl bg-primary-700 text-white py-3.5 text-[15px] font-bold hover:bg-primary-800 transition disabled:opacity-40">Accéder à mon espace</button>
+        </form>
+        <p class="text-[12.5px] text-slate-400 mt-5 text-center">Code perdu ? Contactez James Guérin, Elga Energy : 06 68 14 73 50.</p>
+      </div>
+      <p class="text-[11.5px] text-slate-400 mt-5 text-center flex items-center justify-center gap-1.5">${ico('shield','w-4 h-4')} Accès réservé · les données de vos adhérents restent confidentielles</p>
+    </div>
+  </div>`;
+  const code=document.getElementById('code'),b=document.getElementById('bLog'),e=document.getElementById('eLog');
+  code.addEventListener('input',()=>{code.value=code.value.replace(/[^a-z0-9]/gi,'').toUpperCase().slice(0,12);b.disabled=code.value.length<6;e.classList.add('hidden');});
+  code.focus();
+  document.getElementById('fLog').addEventListener('submit',async ev=>{
+    ev.preventDefault();b.disabled=true;b.textContent='Vérification…';
+    const d=await rpc('partenariat_espace_par_code',{p_code:code.value});
+    if(d&&d.ok){ STATE=d; memo.set(code.value); render(); }
+    else{ e.textContent="Ce code n'est pas reconnu. Vérifiez-le, ou contactez Elga Energy."; e.classList.remove('hidden'); b.textContent='Accéder à mon espace'; b.disabled=false; }
+  });
+}
+function deconnexion(){ memo.del(); STATE=null; vueLogin(); }
 
 function render(){
   const app=document.getElementById('app');
-  if(!STATE){ app.innerHTML=`<div class="min-h-screen grid place-items-center p-6"><div class="max-w-md w-full bg-white rounded-2xl shadow-soft p-8 text-center fade">
-    <div class="mx-auto mb-3 h-12 w-12 rounded-2xl bg-primary-50 grid place-items-center text-primary-600"><svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"/></svg></div>
-    <h1 class="text-[18px] font-extrabold text-slate-900">Espace partenaire introuvable</h1>
-    <p class="text-[14px] text-slate-500 mt-2">Le lien semble incorrect ou le partenariat n'est plus actif. Contactez votre interlocuteur Elga Energy.</p></div></div>`; return; }
   const t=STATE.totaux||{}, list=STATE.adherents||[];
+  const stat=(n,l,c)=>`<div class="card p-5"><div class="text-[32px] font-extrabold tabular-nums leading-none ${c}">${n}</div><div class="text-[12.5px] text-slate-500 mt-2">${l}</div></div>`;
+  const share=(k,l,c)=>`<button onclick="partager('${c}')" class="btn-share flex items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/10 py-3 text-[13.5px] font-semibold hover:bg-white/20">${ico(k,'w-[18px] h-[18px]')} ${l}</button>`;
+  const step=(n,titre,txt)=>`<div class="flex gap-3.5"><div class="shrink-0 grid place-items-center h-8 w-8 rounded-full bg-primary-50 text-primary-700 text-[13px] font-bold ring-1 ring-primary-100">${n}</div><div><div class="text-[14px] font-bold text-slate-800">${titre}</div><div class="text-[13px] text-slate-500 mt-0.5">${txt}</div></div></div>`;
   app.innerHTML=`
-  <div class="max-w-3xl mx-auto px-4 sm:px-6 py-6 sm:py-9 space-y-5">
-    <div class="flex items-center gap-2 text-[12px] font-bold text-primary-700"><span class="inline-flex items-center gap-1.5 bg-primary-50 border border-primary-100 rounded-full px-3 py-1">🤝 Espace partenaire</span></div>
-    <header class="fade">
-      <h1 class="text-2xl sm:text-[30px] font-extrabold text-slate-900 leading-tight">${esc(STATE.nom)}</h1>
-      <p class="text-[14.5px] text-slate-500 mt-1">Partagez votre lien avec vos adhérents : ils font analyser gratuitement leurs factures d'énergie, et vous suivez ici l'avancement de chacun.</p>
-    </header>
+  <header class="bg-white border-b border-slate-200/70">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
+      <img src="/assets/logos/elga-energy-logo.png" alt="Elga Energy" class="h-7 w-auto"/>
+      <button onclick="deconnexion()" class="flex items-center gap-1.5 text-[13px] font-semibold text-slate-500 hover:text-slate-800">${ico('out','w-4 h-4')} Se déconnecter</button>
+    </div>
+  </header>
+  <main class="max-w-4xl mx-auto px-4 sm:px-6 py-7 sm:py-10 space-y-6">
+    <section class="fade">
+      <div class="text-[12px] font-bold uppercase tracking-[.14em] text-primary-700">Espace partenaire</div>
+      <h1 class="text-[28px] sm:text-[34px] font-extrabold text-slate-900 leading-tight tracking-tight mt-1">${esc(STATE.nom)}</h1>
+      <p class="text-[15px] text-slate-500 mt-2 max-w-2xl">Partagez votre lien avec vos adhérents. Ils font le bilan gratuit de leur facture d'électricité, et vous suivez ici l'avancement de chacun.</p>
+    </section>
 
-    <!-- Lien à partager -->
-    <section class="fade relative overflow-hidden rounded-3xl text-white shadow-strong" style="background:linear-gradient(120deg,#0b3d91 0%,#0e8a57 80%)">
-      <div class="absolute -right-10 -top-10 w-48 h-48 rounded-full bg-white/10"></div>
-      <div class="relative p-6 sm:p-8">
-        <h2 class="text-[19px] font-extrabold">Votre lien à partager</h2>
-        <p class="text-white/85 text-[13.5px] mt-1 mb-4">Un seul lien pour tous vos adhérents. Chaque facture analysée via ce lien apparaît dans votre suivi.</p>
-        <div class="rounded-2xl bg-white/15 border border-white/25 p-2 pl-4 flex items-center gap-2">
-          <input readonly value="${esc(lien())}" onclick="this.select()" class="flex-1 bg-transparent text-[13px] text-white outline-none truncate"/>
-          <button onclick="partager('copy')" class="rounded-xl bg-white text-emerald-700 px-4 py-2.5 text-[13.5px] font-extrabold hover:bg-emerald-50 transition shrink-0">Copier</button>
+    <section class="fade rounded-[22px] text-white shadow-strong overflow-hidden" style="background:#083f2a">
+      <div class="p-6 sm:p-8" style="background:radial-gradient(700px 300px at 100% 0%,rgba(16,185,129,.22),transparent 60%)">
+        <h2 class="text-[19px] font-extrabold tracking-tight">Votre lien à partager</h2>
+        <p class="text-white/75 text-[13.5px] mt-1 mb-5">Un seul lien pour tous vos adhérents. Chaque facture analysée via ce lien apparaît dans votre suivi.</p>
+        <div class="rounded-xl bg-white p-1.5 pl-4 flex items-center gap-2">
+          <input readonly value="${esc(lien())}" onclick="this.select()" aria-label="Votre lien" class="flex-1 min-w-0 bg-transparent text-[13px] text-slate-600 outline-none truncate"/>
+          <button onclick="partager('copy')" class="flex items-center gap-1.5 rounded-lg bg-primary-700 text-white px-4 py-2.5 text-[13.5px] font-bold hover:bg-primary-800 transition shrink-0">${ico('copy','w-4 h-4')} Copier</button>
         </div>
-        <div class="grid grid-cols-3 gap-2.5 mt-3">
-          <button onclick="partager('wa')" class="flex items-center justify-center gap-2 rounded-2xl bg-white/15 border border-white/25 py-3 text-[13.5px] font-bold hover:bg-white/25 transition"><span class="text-lg">💬</span> WhatsApp</button>
-          <button onclick="partager('sms')" class="flex items-center justify-center gap-2 rounded-2xl bg-white/15 border border-white/25 py-3 text-[13.5px] font-bold hover:bg-white/25 transition"><span class="text-lg">📱</span> SMS</button>
-          <button onclick="partager('mail')" class="flex items-center justify-center gap-2 rounded-2xl bg-white/15 border border-white/25 py-3 text-[13.5px] font-bold hover:bg-white/25 transition"><span class="text-lg">✉️</span> E-mail</button>
-        </div>
-        <div class="mt-4 rounded-xl bg-white/10 border border-white/20 p-3">
-          <div class="text-[11px] font-bold uppercase tracking-wide text-white/70 mb-1">Message prêt à envoyer</div>
-          <p class="text-[13px] text-white/90 italic leading-relaxed">${esc(msg())}</p>
+        <div class="grid grid-cols-3 gap-2.5 mt-3">${share('wa','WhatsApp','wa')}${share('sms','SMS','sms')}${share('mail','E-mail','mail')}</div>
+        <div class="mt-5 rounded-xl border border-white/15 bg-white/[.06] p-4">
+          <div class="flex items-center justify-between gap-3 mb-2">
+            <div class="text-[11px] font-bold uppercase tracking-[.12em] text-white/60">Message prêt à envoyer</div>
+            <button onclick="partager('msg')" class="text-[12.5px] font-semibold text-primary-300 hover:text-white">Copier le message</button>
+          </div>
+          <p class="text-[13.5px] text-white/90 leading-relaxed">${esc(msg())}</p>
         </div>
       </div>
     </section>
 
-    <!-- Stats -->
-    <div class="grid grid-cols-3 gap-3 fade">
-      <div class="bg-white rounded-2xl shadow-soft p-4 text-center"><div class="text-3xl font-extrabold text-slate-900 tabular-nums">${t.total||0}</div><div class="text-[12px] text-slate-400 mt-0.5">adhérent${(t.total||0)>1?'s':''} — factures analysées</div></div>
-      <div class="bg-white rounded-2xl shadow-soft p-4 text-center"><div class="text-3xl font-extrabold text-sky-700 tabular-nums">${t.contact||0}</div><div class="text-[12px] text-slate-400 mt-0.5">en cours de suivi</div></div>
-      <div class="bg-white rounded-2xl shadow-soft p-4 text-center"><div class="text-3xl font-extrabold text-primary-700 tabular-nums">${t.signes||0}</div><div class="text-[12px] text-slate-400 mt-0.5">contrat${(t.signes||0)>1?'s':''} signé${(t.signes||0)>1?'s':''}</div></div>
+    <div class="grid grid-cols-3 gap-3 sm:gap-4 fade">
+      ${stat(t.total||0, 'factures analysées', 'text-slate-900')}
+      ${stat(t.contact||0, 'en cours de suivi', 'text-sky-700')}
+      ${stat(t.signes||0, `contrat${(t.signes||0)>1?'s':''} signé${(t.signes||0)>1?'s':''}`, 'text-primary-700')}
     </div>
 
-    <!-- Comment ça marche -->
-    <section class="bg-white rounded-3xl shadow-soft p-6 sm:p-7 fade">
-      <h3 class="text-center text-[16px] font-extrabold text-slate-900 mb-5">Comment ça marche</h3>
-      <div class="grid grid-cols-3 gap-3 text-center">
-        <div class="rounded-2xl border border-slate-100 bg-slate-50/60 p-4"><div class="text-[26px]">📤</div><div class="text-[12.5px] font-bold text-slate-700 mt-2">Vous partagez votre lien</div></div>
-        <div class="rounded-2xl border border-slate-100 bg-slate-50/60 p-4"><div class="text-[26px]">📄</div><div class="text-[12.5px] font-bold text-slate-700 mt-2">L'adhérent scanne sa facture (15 secondes)</div></div>
-        <div class="rounded-2xl border border-slate-100 bg-slate-50/60 p-4"><div class="text-[26px]">📞</div><div class="text-[12.5px] font-bold text-slate-700 mt-2">Elga le rappelle et suit le dossier</div></div>
-      </div>
-      <p class="text-center text-[12.5px] text-slate-400 mt-4">Aucun engagement pour vos adhérents. Ils laissent simplement leurs coordonnées pour être rappelés par un conseiller Elga.</p>
-    </section>
-
-    <!-- Suivi des adhérents -->
-    <section class="bg-white rounded-3xl shadow-soft p-6 sm:p-7 fade">
-      <h3 class="text-[16px] font-extrabold text-slate-900 mb-1">Vos adhérents</h3>
-      <p class="text-[12.5px] text-slate-400 mb-4">Chaque adhérent qui utilise votre lien apparaît ici, avec l'avancement de son dossier.</p>
-      ${list.length? `<div class="space-y-2">${list.map(a=>`
-        <div class="flex items-center justify-between gap-2 rounded-xl border border-slate-100 bg-white px-3.5 py-3">
-          <div><div class="text-[13.5px] font-semibold text-slate-700">${esc(a.qui)}</div><div class="text-[11.5px] text-slate-400">facture analysée le ${esc(a.le)}</div></div>
+    <section class="card p-6 sm:p-7 fade">
+      <h3 class="text-[16px] font-extrabold text-slate-900 tracking-tight">Vos adhérents</h3>
+      <p class="text-[13px] text-slate-500 mt-0.5 mb-4">Chaque adhérent qui utilise votre lien apparaît ici, avec l'avancement de son dossier.</p>
+      ${list.length? `<div class="divide-y divide-slate-100 border-t border-slate-100">${list.map(a=>`
+        <div class="flex items-center justify-between gap-3 py-3.5">
+          <div class="min-w-0"><div class="text-[14px] font-semibold text-slate-800 truncate">${esc(a.qui)}</div><div class="text-[12px] text-slate-400">Facture analysée le ${esc(a.le)}</div></div>
           ${badge(a.etat)}
         </div>`).join('')}</div>`
-      : `<div class="text-center py-10 px-4 rounded-2xl bg-slate-50/70">
-          <div class="mx-auto mb-3 h-12 w-12 rounded-2xl bg-primary-50 grid place-items-center text-primary-600"><svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m6-1.13a4 4 0 10-4-4 4 4 0 004 4z"/></svg></div>
+      : `<div class="text-center py-10 px-4 rounded-2xl bg-slate-50">
+          <div class="mx-auto mb-3 grid place-items-center h-12 w-12 rounded-2xl bg-white ring-1 ring-slate-200 text-primary-700">${ico('users','w-6 h-6')}</div>
           <p class="text-[14.5px] font-semibold text-slate-700">Aucun adhérent pour l'instant.</p>
-          <p class="text-[13.5px] text-slate-500 max-w-sm mx-auto mt-1">Partagez votre lien ci-dessus : dès qu'un adhérent analyse sa facture, il apparaît ici.</p>
+          <p class="text-[13.5px] text-slate-500 max-w-sm mx-auto mt-1">Partagez votre lien : dès qu'un adhérent fait analyser sa facture, il apparaît ici.</p>
         </div>`}
     </section>
 
-    <p class="text-center text-[11.5px] text-slate-400 pb-4">Espace partenaire Elga Energy · suivi mis à jour en temps réel · les coordonnées de vos adhérents restent confidentielles et servent uniquement à leur rappel.</p>
-  </div>`;
+    <section class="card p-6 sm:p-7 fade">
+      <h3 class="text-[16px] font-extrabold text-slate-900 tracking-tight mb-5">Comment ça marche</h3>
+      <div class="grid sm:grid-cols-3 gap-5">
+        ${step(1,'Vous partagez votre lien','Par mail, WhatsApp ou SMS, avec le message prêt à envoyer.')}
+        ${step(2,"L'adhérent envoie sa facture",'En PDF ou en photo. Son bilan s\'affiche en 30 secondes.')}
+        ${step(3,'Elga Energy le rappelle','Un conseiller suit son dossier, sans engagement pour lui.')}
+      </div>
+    </section>
+
+    <p class="text-center text-[12px] text-slate-400 pb-6 flex items-center justify-center gap-1.5">${ico('shield','w-4 h-4')} Suivi mis à jour en temps réel · les coordonnées de vos adhérents restent confidentielles et servent uniquement à leur rappel.</p>
+  </main>`;
 }
 
 async function boot(){
-  const t=params.get('t');
-  if(!t){ render(); return; }
-  const d=await rpc('partenariat_espace',{p_token:t});
-  if(d&&d.ok){ STATE=d; }
-  render();
+  // 01/10/2026 : l'accès par lien (?t=token) est remplacé par un code d'accès (migration 0075).
+  // Ancien amorçage conservé pour mémoire :
+  //   const t=params.get('t'); const d=await rpc('partenariat_espace',{p_token:t}); if(d&&d.ok) STATE=d; render();
+  const c=memo.get();
+  if(c){
+    document.getElementById('app').innerHTML=loading('Ouverture de votre espace…');
+    const d=await rpc('partenariat_espace_par_code',{p_code:c});
+    if(d&&d.ok){ STATE=d; render(); return; }
+    memo.del();
+  }
+  vueLogin();
 }
 boot();
 </script>
