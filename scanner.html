@@ -1371,6 +1371,9 @@
       // on attend le chiffrage complet (grille) — 4 s max — pour que CRM et mail aient les chiffres affichés
       await Promise.race([_gridReady || Promise.resolve(), new Promise(function (r) { setTimeout(r, 4000); })]).catch(function () {});
       pushScanToCRM(data, facturePath);
+      // 03/10/2026 (James : « voir exactement ce qu'il voit […] le duplicata réel de son scan ») :
+      // copie de l'écran de résultat envoyée au CRM, deux essais (le scan doit d'abord exister en base).
+      setTimeout(envoyerDuplicata, 3000); setTimeout(envoyerDuplicata, 9000);
 
     } catch (err) {
       clearInterval(scanInterval); stopScanMessages();
@@ -1537,6 +1540,24 @@
       return out;
     } catch (_) { return null; }
   }
+  // 03/10/2026 : DUPLICATA — l'écran de résultat tel que le client le voit, copié dans le CRM
+  // (table scan_resultats, RPC scan_capture_resultat, migration 0078). Une seule copie par scan.
+  function envoyerDuplicata() {
+    try {
+      if (!window.ELGA_SUPA_URL || !window.ELGA_SUPA_KEY) return;
+      var src = document.getElementById('step-results');
+      if (!src || src.classList.contains('hidden')) return;
+      var copie = src.cloneNode(true);
+      copie.querySelectorAll('script, iframe, object, embed').forEach(function (n) { n.remove(); });
+      var html = '<!-- duplicata ' + new Date().toISOString() + ' -->' + copie.outerHTML;
+      if (html.length > 800000) return;
+      fetch(window.ELGA_SUPA_URL + '/rest/v1/rpc/scan_capture_resultat', {
+        method: 'POST', headers: supaHeaders({}), keepalive: html.length < 60000,
+        body: JSON.stringify({ p_token: elgaSessionToken(), p_html: html }),
+      }).catch(function () {});
+    } catch (_) { /* le duplicata ne doit jamais gêner le client */ }
+  }
+
   function pushScanToCRM(data, facturePath) {
     try {
       if (!window.ELGA_SUPA_URL || !window.ELGA_SUPA_KEY) return;
@@ -3025,6 +3046,58 @@
   if (menuBtn) {
     menuBtn.addEventListener('click', () => mobileMenu.classList.toggle('hidden'));
   }
+})();
+</script>
+<!-- 03/10/2026 : MODE DUPLICATA (#revoir) — affiché dans une fenêtre du CRM, jamais seul.
+     Le CRM envoie la copie de l'écran du client par message (jamais dans l'adresse) ;
+     on n'accepte que les messages du CRM, et on retire tout ce qui pourrait s'exécuter. -->
+<script>
+(function () {
+  if (location.hash !== '#revoir') return;
+  var ORIGINES = ['https://elga-crm.vercel.app', 'http://localhost:3000'];
+  var st = document.createElement('style');
+  st.textContent = 'header,footer,#scanHero,#step-upload,#step-scanning,#step-funnel,#floatEco{display:none!important}'
+    + 'main{padding-top:12px!important;padding-bottom:12px!important}'
+    + '#step-results button:not(summary),#step-results a,#step-results input{pointer-events:none}';
+  document.head.appendChild(st);
+  var parentOrigine = null;
+  function hauteur() {
+    if (!parentOrigine) return;
+    // hauteur du contenu seul (pas celle de la fenêtre, sinon elle grandit en boucle)
+    var c = document.getElementById('step-results');
+    var h = c ? Math.ceil(c.getBoundingClientRect().bottom + window.scrollY + 24) : 0;
+    if (h > 200 && Math.abs(h - (hauteur.der || 0)) > 2) { hauteur.der = h; try { parent.postMessage({ type: 'elga-revoir-hauteur', h: h }, parentOrigine); } catch (_) {} }
+  }
+  function nettoyer(html) {
+    var doc = new DOMParser().parseFromString(html, 'text/html');
+    doc.querySelectorAll('script, iframe, object, embed, link, meta, base, form').forEach(function (n) { n.remove(); });
+    doc.querySelectorAll('*').forEach(function (el) {
+      [].slice.call(el.attributes).forEach(function (at) {
+        var n = at.name.toLowerCase(), v = String(at.value || '').trim().toLowerCase();
+        if (n.indexOf('on') === 0) el.removeAttribute(at.name);
+        else if ((n === 'href' || n === 'src' || n === 'xlink:href' || n === 'action') && v.indexOf('javascript:') === 0) el.removeAttribute(at.name);
+      });
+    });
+    return doc.getElementById('step-results');
+  }
+  window.addEventListener('message', function (ev) {
+    if (ORIGINES.indexOf(ev.origin) < 0) return;
+    var d = ev.data || {};
+    if (d.type !== 'elga-revoir' || typeof d.html !== 'string') return;
+    parentOrigine = ev.origin;
+    var copie = nettoyer(d.html);
+    var cible = document.getElementById('step-results');
+    if (!copie || !cible) return;
+    cible.innerHTML = copie.innerHTML;
+    cible.classList.remove('hidden');
+    cible.querySelectorAll('details').forEach(function (x) { x.open = true; });
+    cible.querySelectorAll('.result-card').forEach(function (x) { x.style.animation = 'none'; });
+    hauteur(); setTimeout(hauteur, 300); setTimeout(hauteur, 1200);
+    try { new ResizeObserver(hauteur).observe(cible); } catch (_) {}
+  });
+  window.addEventListener('load', function () {
+    ORIGINES.forEach(function (o) { try { parent.postMessage({ type: 'elga-revoir-pret' }, o); } catch (_) {} });
+  });
 })();
 </script>
 </body>
