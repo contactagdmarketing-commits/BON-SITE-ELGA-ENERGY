@@ -4,9 +4,9 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Scanner ma facture — Estimer mes économies | Elga Energy</title>
-  <meta name="description" content="Uploadez votre facture d'électricité ou de gaz. Elga Energy analyse vos prix en 15 secondes et vous montre les économies potentielles par rapport aux meilleures offres du marché." />
+  <meta name="description" content="Uploadez votre facture d'électricité ou de gaz. Elga Energy analyse vos prix en 30 secondes et vous montre les économies potentielles par rapport aux meilleures offres du marché." />
   <link rel="canonical" href="https://www.elgaenergy.com/scanner.html" />
-  <meta property="og:title" content="Scanner ma facture énergie — Économies en 15 secondes" />
+  <meta property="og:title" content="Scanner ma facture énergie — Économies en 30 secondes" />
   <meta property="og:description" content="Déposez votre facture, notre IA détecte vos prix et calcule vos économies potentielles. Gratuit, sans engagement." />
   <meta property="og:url" content="https://www.elgaenergy.com/scanner.html" />
   <meta property="og:type" content="website" />
@@ -226,7 +226,8 @@
       Votre facture d'énergie,<br class="hidden sm:block"> <span class="sweep-ink">décortiquée ligne par ligne</span>.
     </h1>
     <p class="reveal-load mt-5 text-lg md:text-xl text-slate-600 max-w-xl mx-auto" style="--rd:170ms">
-      En <span class="ul-pen">moins de 15 secondes</span>, un comparatif clair, poste par poste — et exactement où vous payez trop.
+      <!-- 03/10/2026 (James : « mets 30 secondes partout ») ; avant : « En moins de 15 secondes, un comparatif clair, poste par poste — et exactement où vous payez trop. » -->
+      En <span class="ul-pen">30 secondes</span>, un comparatif clair : ce qui est juste, et ce qui mérite d'être regardé.
     </p>
 
     <!-- 01/10/2026 (James) : pastilles, 3 étapes et flèche MASQUÉES (« trop de vide, ça casse la dynamique »). Code gardé : retirer « hidden » pour les rétablir. -->
@@ -625,42 +626,19 @@
       </div>
     </div>
 
-    <!-- 28/09/2026 (James) : placée juste sous le grand chiffre. VOTRE BUDGET DANS LE TEMPS — il y a 5 ans (réel CRE) · aujourd'hui · dans 5 et 10 ans
-         (hausse cumulée) + ce qu'un prix fixe 4 ans évite, par mois / par an / sur 4 ans -->
-    <div id="projCard" class="result-card bg-white rounded-2xl shadow-soft p-5 space-y-4 hidden" style="animation-delay:.2s">
-      <div class="flex items-start justify-between gap-3 flex-wrap">
-        <div class="min-w-0">
-          <p class="text-sm font-bold text-slate-800">Votre budget énergie dans le temps</p>
-          <p class="text-xs text-slate-400 mt-0.5">À consommation égale, en moyenne par mois.</p>
+    <!-- 30/09/2026 (James) : contrôle de la facture — taxes comparées aux barèmes officiels datés -->
+    <div id="controleCard" class="result-card hidden bg-white rounded-2xl shadow-soft p-5 space-y-3" style="animation-delay:.24s">
+      <div class="flex items-center gap-2.5">
+        <div class="size-9 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.6-4A11.9 11.9 0 0112 2.9 11.9 11.9 0 013.4 6 12 12 0 0012 21.1 12 12 0 0020.6 6z"/></svg>
         </div>
-        <div class="flex items-center gap-1.5 text-[11px] text-slate-500">
-          <span>Hausse retenue</span>
-          <span id="projSeg" class="inline-flex rounded-full border border-slate-200 p-0.5">
-            <button type="button" data-r="0.05" class="px-2.5 py-1 rounded-full font-semibold">+5 %</button>
-            <button type="button" data-r="0.06" class="px-2.5 py-1 rounded-full font-semibold">+6 %</button>
-            <button type="button" data-r="0.07" class="px-2.5 py-1 rounded-full font-semibold">+7 %</button>
-          </span>
-          <span>/an</span>
+        <div>
+          <p class="text-sm font-bold text-slate-800">Contrôle de votre facture</p>
+          <p class="text-xs text-slate-400">Chaque taxe comparée au taux légal en vigueur.</p>
         </div>
       </div>
-      <div id="projTable" class="hidden sm:block overflow-x-auto -mx-1 px-1"></div>
-      <div id="projTiles" class="grid grid-cols-2 gap-2 sm:hidden"></div>
-      <!-- 28/09/2026 (James) : sobre, centré, « sur la durée » en tête car c'est le chiffre le plus important -->
-      <div class="rounded-2xl px-5 py-7 sm:px-8 sm:py-9 text-white text-center shadow-lg" style="background:linear-gradient(150deg,#0b6c47 0%,#0a5a40 55%,#0b3d6e 100%)">
-        <p class="inline-flex items-center rounded-lg bg-white px-3 py-1.5 shadow-sm"><img src="/assets/logos/elga-energy-logo.png" alt="Elga Energy" class="h-6 w-auto"></p>
-        <p class="mt-4 text-[11px] font-semibold uppercase tracking-[.18em] text-white/70">Même consommation · prix fixe</p>
-        <p class="mt-1.5 text-lg sm:text-xl font-bold tracking-tight">Prix bloqué. Les augmentations aussi.</p>
-        <div id="projFixeTable" class="hidden"></div>
-        <div class="mx-auto mt-6 h-px w-16 bg-white/25"></div>
-        <p class="mt-6 text-[11px] font-semibold uppercase tracking-[.18em] text-white/70">Économisés sur la durée du contrat</p>
-        <p id="projEcoTotal" class="mt-2 text-[clamp(44px,13vw,68px)] font-extrabold tabular-nums leading-none tracking-tight text-white whitespace-nowrap">—</p>
-        <div class="mx-auto mt-6 grid max-w-sm grid-cols-2 divide-x divide-white/20 rounded-xl bg-white/[.07] py-3.5">
-          <div class="min-w-0 px-3"><p id="projEcoAn" class="text-2xl sm:text-[28px] font-bold tabular-nums leading-none whitespace-nowrap">—</p><p class="mt-1.5 text-[12px] text-white/70">par an</p></div>
-          <div class="min-w-0 px-3"><p id="projEcoMois" class="text-2xl sm:text-[28px] font-bold tabular-nums leading-none whitespace-nowrap">—</p><p class="mt-1.5 text-[12px] text-white/70">par mois</p></div>
-        </div>
-        <p id="projTotalLine" class="hidden mx-auto mt-5 max-w-md text-[13px] leading-relaxed text-white/80"></p>
-      </div>
-            <p id="projNote" class="text-[11px] leading-relaxed text-slate-400"></p>
+      <div id="controle" class="space-y-2"></div>
+      <p id="controleNote" class="text-[11px] text-slate-400 leading-relaxed"></p>
     </div>
 
     <!-- CTA : mes économies réelles (Enedis) -->
@@ -743,6 +721,61 @@
       </div>
     </div>
 
+    <!-- 03/10/2026 (James : « le scanner doit être propre, pas trop encombré, rapide, et donner envie d'aller plus loin ») :
+         l'essentiel reste visible (montant, économies, contrôle des taxes, bouton « économies réelles ») ;
+         le reste est replié sous « Voir l'analyse complète ». Rien n'est supprimé.
+         Ancien ordre : projection, bouton, vigilance, contrôle, leviers, détail, comparatif, carte CAR, bandeau marché.
+         Pour revenir à l'ancien affichage : ajouter l'attribut open sur <details id="analyseComplete">. -->
+    <details id="analyseComplete" class="result-card group" style="animation-delay:.26s">
+      <summary class="flex items-center gap-3 cursor-pointer list-none rounded-2xl bg-white shadow-soft px-5 py-4 hover:shadow-md transition-shadow [&::-webkit-details-marker]:hidden">
+        <div class="size-9 rounded-lg bg-primary-50 text-primary-700 flex items-center justify-center shrink-0">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 17V9m4 8V5m4 12v-6M5 21h14"/></svg>
+        </div>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-bold text-slate-800">Voir l'analyse complète</p>
+          <p class="text-xs text-slate-500 mt-0.5">Votre budget dans le temps, vos leviers d'économie, le détail de votre facture.</p>
+        </div>
+        <svg class="w-5 h-5 text-primary-600 shrink-0 transition-transform group-open:rotate-180" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
+      </summary>
+      <div class="space-y-4 mt-4">
+    <!-- 28/09/2026 (James) : placée juste sous le grand chiffre. VOTRE BUDGET DANS LE TEMPS — il y a 5 ans (réel CRE) · aujourd'hui · dans 5 et 10 ans
+         (hausse cumulée) + ce qu'un prix fixe 4 ans évite, par mois / par an / sur 4 ans -->
+    <div id="projCard" class="result-card bg-white rounded-2xl shadow-soft p-5 space-y-4 hidden" style="animation-delay:.2s">
+      <div class="flex items-start justify-between gap-3 flex-wrap">
+        <div class="min-w-0">
+          <p class="text-sm font-bold text-slate-800">Votre budget énergie dans le temps</p>
+          <p class="text-xs text-slate-400 mt-0.5">À consommation égale, en moyenne par mois.</p>
+        </div>
+        <div class="flex items-center gap-1.5 text-[11px] text-slate-500">
+          <span>Hausse retenue</span>
+          <span id="projSeg" class="inline-flex rounded-full border border-slate-200 p-0.5">
+            <button type="button" data-r="0.05" class="px-2.5 py-1 rounded-full font-semibold">+5 %</button>
+            <button type="button" data-r="0.06" class="px-2.5 py-1 rounded-full font-semibold">+6 %</button>
+            <button type="button" data-r="0.07" class="px-2.5 py-1 rounded-full font-semibold">+7 %</button>
+          </span>
+          <span>/an</span>
+        </div>
+      </div>
+      <div id="projTable" class="hidden sm:block overflow-x-auto -mx-1 px-1"></div>
+      <div id="projTiles" class="grid grid-cols-2 gap-2 sm:hidden"></div>
+      <!-- 28/09/2026 (James) : sobre, centré, « sur la durée » en tête car c'est le chiffre le plus important -->
+      <div class="rounded-2xl px-5 py-7 sm:px-8 sm:py-9 text-white text-center shadow-lg" style="background:linear-gradient(150deg,#0b6c47 0%,#0a5a40 55%,#0b3d6e 100%)">
+        <p class="inline-flex items-center rounded-lg bg-white px-3 py-1.5 shadow-sm"><img src="/assets/logos/elga-energy-logo.png" alt="Elga Energy" class="h-6 w-auto"></p>
+        <p class="mt-4 text-[11px] font-semibold uppercase tracking-[.18em] text-white/70">Même consommation · prix fixe</p>
+        <p class="mt-1.5 text-lg sm:text-xl font-bold tracking-tight">Prix bloqué. Les augmentations aussi.</p>
+        <div id="projFixeTable" class="hidden"></div>
+        <div class="mx-auto mt-6 h-px w-16 bg-white/25"></div>
+        <p class="mt-6 text-[11px] font-semibold uppercase tracking-[.18em] text-white/70">Économisés sur la durée du contrat</p>
+        <p id="projEcoTotal" class="mt-2 text-[clamp(44px,13vw,68px)] font-extrabold tabular-nums leading-none tracking-tight text-white whitespace-nowrap">—</p>
+        <div class="mx-auto mt-6 grid max-w-sm grid-cols-2 divide-x divide-white/20 rounded-xl bg-white/[.07] py-3.5">
+          <div class="min-w-0 px-3"><p id="projEcoAn" class="text-2xl sm:text-[28px] font-bold tabular-nums leading-none whitespace-nowrap">—</p><p class="mt-1.5 text-[12px] text-white/70">par an</p></div>
+          <div class="min-w-0 px-3"><p id="projEcoMois" class="text-2xl sm:text-[28px] font-bold tabular-nums leading-none whitespace-nowrap">—</p><p class="mt-1.5 text-[12px] text-white/70">par mois</p></div>
+        </div>
+        <p id="projTotalLine" class="hidden mx-auto mt-5 max-w-md text-[13px] leading-relaxed text-white/80"></p>
+      </div>
+            <p id="projNote" class="text-[11px] leading-relaxed text-slate-400"></p>
+    </div>
+
     <!-- Points de vigilance : risques détectés sur le contrat (TRV volatil, tacite reconduction…) -->
     <div id="vigilanceCard" class="result-card hidden bg-white rounded-2xl shadow-soft p-5 space-y-3" style="animation-delay:.23s">
       <div class="flex items-center gap-2.5">
@@ -755,21 +788,6 @@
         </div>
       </div>
       <div id="vigilance" class="space-y-2"></div>
-    </div>
-
-    <!-- 30/09/2026 (James) : contrôle de la facture — taxes comparées aux barèmes officiels datés -->
-    <div id="controleCard" class="result-card hidden bg-white rounded-2xl shadow-soft p-5 space-y-3" style="animation-delay:.24s">
-      <div class="flex items-center gap-2.5">
-        <div class="size-9 rounded-lg bg-emerald-50 text-emerald-700 flex items-center justify-center shrink-0">
-          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m5.6-4A11.9 11.9 0 0112 2.9 11.9 11.9 0 013.4 6 12 12 0 0012 21.1 12 12 0 0020.6 6z"/></svg>
-        </div>
-        <div>
-          <p class="text-sm font-bold text-slate-800">Contrôle de votre facture</p>
-          <p class="text-xs text-slate-400">Chaque taxe comparée au taux légal en vigueur.</p>
-        </div>
-      </div>
-      <div id="controle" class="space-y-2"></div>
-      <p id="controleNote" class="text-[11px] text-slate-400 leading-relaxed"></p>
     </div>
 
     <!-- Leviers = RÉGLAGES : cochez ceux à retenir → recalcul en direct -->
@@ -834,7 +852,8 @@
             La <strong>Consommation Annuelle de Référence (CAR)</strong>, c'est vos 12 derniers mois de consommation réelle, tels qu'ils sont enregistrés par Enedis. C'est la seule base fiable pour calculer un vrai budget annuel et comparer les offres fournisseurs.
           </p>
           <div class="mt-3 bg-amber-100 rounded-lg px-3 py-2 text-xs font-semibold text-amber-900">
-            Pour connaître votre vraie CAR et calculer vos économies réelles, cliquez sur le bouton ci-dessous.
+            <!-- 03/10/2026 : le bouton est maintenant au-dessus (avant : « cliquez sur le bouton ci-dessous ») -->
+            Pour connaître votre vraie CAR et calculer vos économies réelles : bouton « Je veux mes économies réelles sur 12 mois », plus haut.
           </div>
         </div>
       </div>
@@ -850,7 +869,8 @@
         </p>
       </div>
     </div>
-
+      </div>
+    </details>
   </div>
 
   <!-- Bouton FLOTTANT « économies réelles » : suit le scroll sur la page résultat,
@@ -1677,7 +1697,9 @@
     return null;
   }
   function consoMwhOf(e) { return e.annual_consumption_mwh || (e.annual_consumption_kwh ? e.annual_consumption_kwh / 1000 : null); }
-  function turpeKva(e) { return (e.segment && /mu/i.test(e.segment)) ? 12.12 : 10.11; }
+  // 03/10/2026 : barème TURPE au 01/08/2026 (délib. CRE 2026-105) : MU4 12,49 · CU4 10,42 €/kVA/an.
+  // Avant (TURPE 7 au 01/08/2025, délib. 2025-78) : MU4 12,12 · CU4 10,11.
+  function turpeKva(e) { return (e.segment && /mu/i.test(e.segment)) ? 12.49 : 10.42; }
   // Tarif Réglementé EDF (Tarif Bleu) : l'acheminement est inclus dans le prix.
   function isTRV(e) {
     var t = ((e.contract_type || '') + ' ' + (e.offer_name || '')).toLowerCase();
@@ -2231,6 +2253,8 @@
     return x >= mn * (1 - tol) && x <= mx * (1 + tol);
   }
   function fmtTaux(x) { return String(Math.round(x * 100) / 100).replace('.', ','); }
+  // 03/10/2026 : tolérances resserrées (avant : 3 % sur l'accise, 5 % sur la CTA). Le contrôle au centime se fait au bilan (CRM).
+  var TOL_ACCISE = 0.015, TOL_CTA = 0.03;
 
   function computeControle(e) {
     var C = [];
@@ -2246,7 +2270,7 @@
       var tauxFact = e.accise_bill_ht / kwh * 1000; // €/MWh réellement appliqué
       if (gaz) {
         var tg = tauxRecents(REF_TAXES.accise_gaz).map(function (p) { return p.t; });
-        if (dansFourchette(tauxFact, tg, 0.03)) {
+        if (dansFourchette(tauxFact, tg, TOL_ACCISE)) {
           C.push({ s: 'ok', titre: 'Accise sur le gaz : conforme', txt: fmtTaux(tauxFact) + ' €/MWh appliqués, le taux légal en vigueur.' });
         } else if (REF_TAXES.accise_gaz_reduits.some(function (r) { return Math.abs(tauxFact - r) <= 0.1; })) {
           C.push({ s: 'ok', titre: 'Accise sur le gaz : taux réduit appliqué', txt: fmtTaux(tauxFact) + ' €/MWh : vous bénéficiez déjà d\'un tarif réduit.' });
@@ -2260,9 +2284,9 @@
         var gros = e.power_kva && e.power_kva > 36;
         var petit = e.power_kva && e.power_kva <= 36;
         var attendu = gros ? tPro : (petit ? tMen : tMen.concat(tPro));
-        if (dansFourchette(tauxFact, attendu, 0.03)) {
+        if (dansFourchette(tauxFact, attendu, TOL_ACCISE)) {
           C.push({ s: 'ok', titre: 'Accise sur l\'électricité : conforme', txt: fmtTaux(tauxFact) + ' €/MWh appliqués, le taux légal' + (e.power_kva ? ' pour ' + e.power_kva + ' kVA' : '') + '.' });
-        } else if (gros && dansFourchette(tauxFact, tMen, 0.03)) {
+        } else if (gros && dansFourchette(tauxFact, tMen, TOL_ACCISE)) {
           var ecart = tauxFact - tPro[tPro.length - 1];
           var surc = mwhAn ? Math.round(ecart * mwhAn) : null;
           C.push({ s: 'warn', titre: 'Accise sur l\'électricité : taux des petits compteurs appliqué',
@@ -2282,10 +2306,11 @@
       if (e.cta_bill_ht != null && e.acheminement_fixe_bill_ht) {
         var pct = e.cta_bill_ht / e.acheminement_fixe_bill_ht * 100;
         var pcts = REF_TAXES.cta_elec_distribution.map(function (p) { return p.pct; });
-        if (dansFourchette(pct, [15], 0.05)) {
+        if (dansFourchette(pct, [15], TOL_CTA)) {
           C.push({ s: 'ok', titre: 'CTA : conforme', txt: fmtTaux(pct) + ' % de la part fixe d\'acheminement, le taux légal depuis février 2026.' });
-        } else if (dansFourchette(pct, [21.93], 0.05)) {
-          C.push({ s: 'warn', titre: 'CTA : ancien taux appliqué', txt: fmtTaux(pct) + ' % de la part fixe d\'acheminement : c\'est le taux d\'avant février 2026. Si votre facture est plus récente, elle devrait être à 15 %. On le vérifie au bilan.' });
+        } else if (dansFourchette(pct, [21.93], TOL_CTA)) {
+          // 03/10/2026 : la date de la facture n'est pas lue → message conditionnel (avant : « c'est le taux d'avant février 2026. Si votre facture est plus récente… »)
+          C.push({ s: 'warn', titre: 'CTA : taux d\'avant février 2026', txt: fmtTaux(pct) + ' % de la part fixe d\'acheminement. C\'est normal si votre facture porte sur une période antérieure à février 2026 ; sinon, elle devrait être à 15 %. On le vérifie au bilan.' });
         } else if (false && dansFourchette(pct, pcts, 0.05)) { // 30/09 : remplacé par les deux cas ci-dessus
           C.push({ s: 'ok', titre: 'CTA : conforme', txt: fmtTaux(pct) + ' % de la part fixe d\'acheminement, le taux légal (15 % depuis février 2026, 21,93 % avant).' });
         } else {
@@ -2293,6 +2318,18 @@
         }
       } else if (e.cta_bill_ht != null) {
         C.push({ s: 'na', titre: 'CTA', txt: 'Présente sur la facture (' + formatEuro(Math.round(e.cta_bill_ht * 100) / 100) + '). Son contrôle exact demande le détail de la part fixe d\'acheminement : on le fait au bilan.' });
+      }
+    }
+
+    // 2 bis. TVA (03/10/2026) : 20 % sur tout depuis le 01/08/2025 ; avant, 5,5 % sur l'abonnement et la CTA des ≤ 36 kVA.
+    var tva = nb(e.tva_pct);
+    if (tva != null) {
+      if (Math.abs(tva - 20) < 0.05) {
+        C.push({ s: 'ok', titre: 'TVA : conforme', txt: '20 %, le taux en vigueur.' });
+      } else if (Math.abs(tva - 5.5) < 0.05) {
+        C.push({ s: 'warn', titre: 'TVA à 5,5 %', txt: 'C\'était le taux de l\'abonnement des compteurs de 36 kVA ou moins jusqu\'au 31 juillet 2025. Depuis, tout est à 20 %. Normal si votre facture porte sur une période antérieure : on le vérifie au bilan.' });
+      } else {
+        C.push({ s: 'warn', titre: 'TVA : à vérifier', txt: fmtTaux(tva) + ' % lus sur la facture, alors que le taux en vigueur est de 20 %. On le vérifie au bilan.' });
       }
     }
 
@@ -2315,6 +2352,19 @@
       warn: { bd: 'border-amber-200', bg: 'bg-amber-50/60', dot: 'text-amber-500', ti: 'text-amber-800', ic: 'M12 9v4m0 4h.01M10.3 3.86l-8.5 14.7A2 2 0 003.5 21.5h17a2 2 0 001.7-2.94l-8.5-14.7a2 2 0 00-3.4 0z' },
       na:   { bd: 'border-slate-200', bg: 'bg-slate-50/60', dot: 'text-slate-400', ti: 'text-slate-700', ic: 'M12 8v4l3 2m6-2a9 9 0 11-18 0 9 9 0 0118 0z' }
     };
+    // 03/10/2026 (James : « propre, pas encombré, rapide, donner envie d'aller plus loin ») :
+    // les points à vérifier restent un par un ; les points conformes tiennent en une ligne ;
+    // les « contrôlé au bilan » deviennent une seule ligne qui invite au bilan. CONTROLE_COMPACT = false → ancien affichage.
+    var CONTROLE_COMPACT = true;
+    if (CONTROLE_COMPACT) {
+      var oks = C.filter(function (c) { return c.s === 'ok'; });
+      var noms = oks.map(function (c) { return String(c.titre).split(' : ')[0].replace(/^Accise sur l'(électricité|gaz)$/, 'Accise'); });
+      var liste = noms.length > 1 ? noms.slice(0, -1).join(', ') + ' et ' + noms[noms.length - 1] : noms.join('');
+      var compact = C.filter(function (c) { return c.s === 'warn'; });
+      if (oks.length) compact.push({ s: 'ok', titre: 'Conforme : ' + liste, txt: 'Appliqué' + (oks.length > 1 ? 's' : '') + ' au taux légal en vigueur.' });
+      compact.push({ s: 'na', titre: 'Puissance et acheminement', txt: 'Vérifiés ligne par ligne au bilan, sur vos 12 mois réels.' });
+      C = compact;
+    }
     C.forEach(function (c) {
       var t = TONE[c.s] || TONE.na;
       var row = document.createElement('div');
@@ -2325,7 +2375,7 @@
       row.querySelectorAll('p')[1].textContent = c.txt;
       box.appendChild(row);
     });
-    if (note) note.textContent = 'Taux officiels datés (impots.gouv.fr, CRE), mis à jour à chaque changement. Un écart signalé est un point à vérifier, pas une erreur certaine : on le confirme toujours sur vos factures avant de le réclamer.';
+    if (note) note.textContent = 'Taux officiels (impots.gouv.fr, CRE), mis à jour à chaque changement. Un point à vérifier n\'est pas une erreur certaine : on le confirme sur vos factures.';
   }
 
   function renderVigilance(V) {
