@@ -1079,6 +1079,7 @@
 
   profilBtns.forEach(btn => btn.addEventListener('click', () => {
     clientType = btn.dataset.client;
+    trace('profil_choisi', clientType); // 04/10/2026 : entonnoir
     profilBtns.forEach(b => {
       const on = b === btn;
       b.classList.toggle('is-active', on);
@@ -1184,6 +1185,7 @@
 
   function handleFileSelect(file) {
     const allowed = ['application/pdf', 'image/jpeg', 'image/png', 'image/webp'];
+    trace('facture_choisie', (file && file.type) || ''); // 04/10/2026 : entonnoir
     if (!allowed.includes(file.type)) {
       showError('Format non supporté. Veuillez uploader un PDF, JPG, PNG ou WEBP.');
       return;
@@ -1284,6 +1286,18 @@
   // ── Analyze button ────────────────────────────────────────────────────────
   btnAnalyze.addEventListener('click', startAnalysis);
 
+  // 04/10/2026 : entonnoir — page vue, formulaire commencé, clic « économies réelles » (voir trace())
+  setTimeout(function () {
+    if (location.hash === '#revoir') return;               // duplicata affiché dans le CRM : pas une visite
+    trace('page_vue');
+    ['champEnseigne', 'champPrenom', 'champNom', 'champTel', 'champMail'].forEach(function (id) {
+      var el = document.getElementById(id);
+      if (el) el.addEventListener('input', function () { trace('formulaire_commence', id); }, { once: true });
+    });
+    var cta = document.getElementById('ctaEco');
+    if (cta) cta.addEventListener('click', function () { trace('economies_reelles_clic'); });
+  }, 0);
+
   // Identité PRO saisie (étape 1) — réutilisée pour l'envoi au CRM
   var _ident = { enseigne: '', prenom: '', nom: '', tel: '', mail: '' };
 
@@ -1313,6 +1327,7 @@
     else if (!_telOk(_ident.tel)) { manquant = champTel; msg = 'Indiquez un numéro de portable valide (ex. 06 12 34 56 78).'; }
     else if (!_mailOk(_ident.mail)) { manquant = champMail; msg = 'Indiquez un e-mail valide.'; }
     if (manquant) {
+      trace('champ_manquant', manquant && manquant.id); // 04/10/2026 : entonnoir (quel champ bloque)
       showError(msg + ' C\'est obligatoire pour recevoir votre bilan.');
       manquant.focus();
       manquant.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -1326,6 +1341,7 @@
     }
 
     hideError();
+    trace('analyse_lancee', clientType); // 04/10/2026 : entonnoir
     showStep('scanning');
     animateScanSteps();
 
@@ -1366,6 +1382,7 @@
         displayResults(data);
       }
       showStep('results');
+      trace('resultat_affiche'); // 04/10/2026 : entonnoir
       // Stocke la facture (non bloquant) puis crée la trace CRM avec son chemin
       var facturePath = await uploadFacture(selectedFile).catch(function () { return null; });
       // on attend le chiffrage complet (grille) — 4 s max — pour que CRM et mail aient les chiffres affichés
@@ -1384,6 +1401,7 @@
         // TypeError sans message = échec réseau (offline ou CORS)
         msg = 'Erreur réseau. Vérifiez votre connexion internet et réessayez.';
       }
+      trace('erreur', msg); // 04/10/2026 : entonnoir
       showError(msg);
     }
   }
@@ -1419,6 +1437,28 @@
   // ── Tuyau SITE → CRM ────────────────────────────────────────────────────────
   // Jeton de session stable (relie le scan anonyme aux coordonnées si données ensuite)
   var _scanRowId = null;
+  // 04/10/2026 (James : « savoir s'il y a eu beaucoup de visites […] s'il y a des trucs qui bloquent ») :
+  // compteur maison des étapes du scanner (table scanner_evenements, migration 0083). Sans cookie,
+  // sans donnée personnelle ; ne bloque jamais le parcours. Une même étape n'est comptée qu'une fois
+  // par page (sauf champ manquant et erreur, utiles à chaque fois).
+  var _tracees = {};
+  function trace(etape, detail) {
+    try {
+      if (!window.ELGA_SUPA_URL || !window.ELGA_SUPA_KEY) return;
+      if (etape !== 'champ_manquant' && etape !== 'erreur') { if (_tracees[etape]) return; _tracees[etape] = 1; }
+      var a = null; try { a = elgaAttrib(); } catch (_) {}
+      var row = {
+        session: elgaSessionToken(), etape: etape, detail: detail ? String(detail).slice(0, 300) : null,
+        partenaire: a && a.type === 'partenaire' ? a.val : null,
+        ref: a && a.type === 'ref' ? a.val : null,
+        canal: a && a.canal ? a.canal : null,
+        appareil: /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent) ? 'mobile' : 'ordinateur'
+      };
+      fetch(window.ELGA_SUPA_URL + '/rest/v1/scanner_evenements', {
+        method: 'POST', headers: supaHeaders({ 'Prefer': 'return=minimal' }), body: JSON.stringify(row), keepalive: true
+      }).catch(function () {});
+    } catch (_) {}
+  }
   function elgaSessionToken() {
     try {
       var t = localStorage.getItem('elga_session');
