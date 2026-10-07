@@ -336,6 +336,7 @@ async function pdfFacture(f){
   y+=26; doc.setFont('helvetica','normal'); doc.setFontSize(9);
   if(Number(f.tva)===0) { doc.text('TVA non applicable.',15,y); y+=5; }
   doc.text('Paiement par virement à 30 jours fin de mois.',15,y); y+=5;
+  doc.text("En cas de retard de paiement : pénalités au taux légal en vigueur et indemnité forfaitaire de 40 € pour frais de recouvrement (art. L441-10 du Code de commerce).",15,y,{maxWidth:180}); y+=10;
   if(co.iban) doc.text('IBAN : '+co.iban+(co.bic?'   BIC : '+co.bic:''),15,y);
   doc.save('Facture-'+String(f.numero).replace(/[^A-Za-z0-9_-]+/g,'-')+'.pdf');
 }
