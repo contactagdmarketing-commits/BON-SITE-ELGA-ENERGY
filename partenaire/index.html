@@ -121,6 +121,8 @@ function vueLogin(err){
 function deconnexion(){ memo.del(); STATE=null; vueLogin(); }
 
 function render(){
+  setTimeout(chargerFacturation,0); // 07/10/2026 : commissions et factures
+
   const app=document.getElementById('app');
   const t=STATE.totaux||{}, list=STATE.adherents||[];
   const stat=(n,l,c)=>`<div class="card p-5"><div class="text-[32px] font-extrabold tabular-nums leading-none ${c}">${n}</div><div class="text-[12.5px] text-slate-500 mt-2">${l}</div></div>`;
@@ -182,6 +184,7 @@ function render(){
 
     ${filHtml()}
     ${dossiersHtml()}
+    <div id="zoneFacturation"></div>
 
     <section class="card p-6 sm:p-7 fade">
       <h3 class="text-[16px] font-extrabold text-slate-900 tracking-tight mb-5">Comment ça marche</h3>
@@ -225,6 +228,116 @@ function dossiersHtml(){
         ${badge(a.etat)}
       </div>`).join('')}</div>`:''}
   </section>`;
+}
+
+/* ─── 07/10/2026 : commissions, coordonnées de facturation et facture PDF (migration 0089) ─── */
+let FACT=null;
+const eur=(n)=>Number(n||0).toLocaleString('fr-FR',{style:'currency',currency:'EUR'});
+const dfr=(d)=>d?new Date(d+'T12:00:00Z').toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'}):'—';
+async function chargerFacturation(){
+  const c=memo.get(); if(!c) return;
+  const d=await rpc('partenariat_facturation',{p_code:c});
+  if(!d||!d.ok) return;
+  FACT=d; renderFacturation();
+}
+function renderFacturation(){
+  const z=document.getElementById('zoneFacturation'); if(!z||!FACT) return;
+  const L=FACT.commissions||[], co=FACT.coordonnees||{};
+  const aFacturer=L.filter(l=>l.statut==='du'&&l.exigible);
+  const totalAF=aFacturer.reduce((t,l)=>t+Number(l.montant||0),0);
+  const lib={du:'À facturer',facture:'Facturé',paye:'Payé'};
+  const cls={du:'bg-sky-50 text-sky-700 ring-sky-100',facture:'bg-violet-50 text-violet-700 ring-violet-100',paye:'bg-primary-50 text-primary-700 ring-primary-100'};
+  const champ=(id,l,v,ph,extra='')=>`<label class="block"><span class="block text-[13px] font-semibold text-slate-700 mb-1">${l}</span><input id="${id}" value="${esc(v||'')}" placeholder="${esc(ph||'')}" ${extra} class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-[16px] sm:text-[14px] outline-none focus:border-primary-600 focus:ring-4 focus:ring-primary-100"/></label>`;
+  const coordOk=co.raison_sociale&&co.siret&&co.adresse;
+  z.innerHTML=`
+  <section class="card p-6 sm:p-7 fade">
+    <h3 class="text-[16px] font-extrabold text-slate-900 tracking-tight">Vos commissions</h3>
+    <p class="text-[13px] text-slate-500 mt-0.5 mb-4">Pour chaque nouveau contrat signé par un de vos adhérents. Un contrat signé en octobre est payable à partir du 1er décembre.</p>
+    ${L.length?`<div class="divide-y divide-slate-100 border-t border-slate-100">${L.map(l=>`
+      <div class="flex items-start justify-between gap-3 py-3">
+        <div class="min-w-0"><div class="text-[14px] font-semibold text-slate-800">${esc(l.adherent)}</div>
+          <div class="text-[12px] text-slate-500">Signé le ${dfr(l.signe_le)} · ${l.nb} compteur${l.nb>1?'s':''} ${esc(l.segment)} · ${l.statut==='paye'?'payé le '+dfr(l.paye_le):l.statut==='facture'?'facture n° '+esc(l.facture||''):'payable dès le '+dfr(l.payable_le)}</div></div>
+        <div class="text-right shrink-0"><div class="text-[14px] font-bold tabular-nums">${eur(l.montant)} HT</div>
+          <span class="inline-flex mt-1 rounded-full px-2.5 py-0.5 text-[12px] font-semibold ring-1 ${cls[l.statut]||''}">${lib[l.statut]||''}</span></div>
+      </div>`).join('')}</div>`
+    :`<p class="text-[14px] text-slate-500 rounded-xl bg-slate-50 px-4 py-4">Aucune commission à afficher pour le moment. Elles apparaîtront ici dès qu'un contrat sera confirmé.</p>`}
+  </section>
+  <section class="card p-6 sm:p-7 fade">
+    <h3 class="text-[16px] font-extrabold text-slate-900 tracking-tight">Vos coordonnées de facturation</h3>
+    <p class="text-[13px] text-slate-500 mt-0.5 mb-4">Elles figurent sur vos factures. Vous les saisissez une fois, vous pouvez les modifier à tout moment.</p>
+    <form id="fCoord" class="grid sm:grid-cols-2 gap-3">
+      ${champ('c_rs','Raison sociale',co.raison_sociale,'Ex. FDSEA de l\'Aveyron')}
+      ${champ('c_siret','SIRET (14 chiffres)',co.siret,'','inputmode="numeric"')}
+      ${champ('c_adr','Adresse',co.adresse,'Rue')}
+      <div class="grid grid-cols-3 gap-3">${champ('c_cp','Code postal',co.code_postal,'','inputmode="numeric"')}<div class="col-span-2">${champ('c_ville','Ville',co.ville,'')}</div></div>
+      ${champ('c_tva','N° TVA intracommunautaire',co.tva_intracom,'FR…')}
+      ${champ('c_mail','E-mail de facturation',co.email_facturation,'','type="email" autocomplete="email"')}
+      ${champ('c_iban','IBAN (pour le virement)',co.iban,'FR76…','autocomplete="off"')}
+      ${champ('c_bic','BIC',co.bic,'')}
+      <label class="flex items-center gap-2 text-[14px] text-slate-700 sm:col-span-2 min-h-[44px]"><input id="c_tvaok" type="checkbox" ${co.assujetti_tva===false?'':'checked'} class="h-5 w-5"/> Nous facturons la TVA (20 %)</label>
+      <div class="sm:col-span-2 flex items-center gap-3"><button type="submit" class="rounded-xl bg-primary-700 text-white px-5 py-3 text-[14px] font-bold hover:bg-primary-800">Enregistrer</button><span id="cMsg" class="text-[13px]"></span></div>
+    </form>
+  </section>
+  <section class="card p-6 sm:p-7 fade">
+    <h3 class="text-[16px] font-extrabold text-slate-900 tracking-tight">Votre facture</h3>
+    ${aFacturer.length?`<p class="text-[14px] text-slate-700 mt-1">${aFacturer.length} commission${aFacturer.length>1?'s':''} à facturer : <b>${eur(totalAF)} HT</b>.</p>
+      ${coordOk?`<form id="fFact" class="mt-4 flex flex-wrap items-end gap-3">
+        <label class="block"><span class="block text-[13px] font-semibold text-slate-700 mb-1">Numéro de votre facture</span>
+          <input id="f_num" required maxlength="40" class="rounded-xl border border-slate-300 px-3.5 py-2.5 text-[16px] sm:text-[14px] outline-none focus:border-primary-600 focus:ring-4 focus:ring-primary-100" placeholder="Votre numérotation"/></label>
+        <button type="submit" class="rounded-xl bg-primary-700 text-white px-5 py-3 text-[14px] font-bold hover:bg-primary-800">Générer ma facture (PDF)</button></form>
+        <p id="fMsg" class="text-[13px] mt-2"></p>`
+      :`<p class="text-[13px] text-amber-700 mt-2">Complétez d'abord la raison sociale, le SIRET et l'adresse ci-dessus.</p>`}`
+    :`<p class="text-[14px] text-slate-500 mt-1">Rien à facturer pour le moment.</p>`}
+    ${(FACT.factures||[]).length?`<div class="mt-5"><div class="text-[13px] font-semibold text-slate-700 mb-2">Vos factures</div>
+      <ul class="divide-y divide-slate-100 border-t border-slate-100">${FACT.factures.map(f=>`<li class="flex items-center justify-between gap-3 py-2.5 text-[14px]">
+        <span>N° ${esc(f.numero)} · ${dfr(f.emise_le)} · ${eur(f.total_ttc)} TTC</span>
+        <button data-num="${esc(f.numero)}" class="btnRedl rounded-lg border border-slate-200 px-3 py-1.5 text-[13px] font-semibold text-slate-700 hover:border-slate-300">Télécharger</button></li>`).join('')}</ul></div>`:''}
+  </section>`;
+  document.getElementById('fCoord').addEventListener('submit',async e=>{
+    e.preventDefault(); const m=document.getElementById('cMsg'); m.className='text-[13px] text-slate-500'; m.textContent='Enregistrement…';
+    const v=(id)=>document.getElementById(id).value.trim();
+    const r=await rpc('partenariat_coordonnees_enregistrer',{p_code:memo.get(),p:{raison_sociale:v('c_rs'),siret:v('c_siret'),adresse:v('c_adr'),code_postal:v('c_cp'),ville:v('c_ville'),tva_intracom:v('c_tva'),email_facturation:v('c_mail'),iban:v('c_iban'),bic:v('c_bic'),assujetti_tva:document.getElementById('c_tvaok').checked}});
+    if(r&&r.ok){ m.className='text-[13px] text-primary-700 font-semibold'; m.textContent='Enregistré.'; chargerFacturation(); }
+    else { m.className='text-[13px] text-rose-600 font-semibold'; m.textContent=(r&&r.error)||"Non enregistré, réessayez."; }
+  });
+  const ff=document.getElementById('fFact');
+  if(ff) ff.addEventListener('submit',async e=>{
+    e.preventDefault(); const m=document.getElementById('fMsg'); m.className='text-[13px] text-slate-500 mt-2'; m.textContent='Préparation de la facture…';
+    const r=await rpc('partenariat_facture_creer',{p_code:memo.get(),p_numero:document.getElementById('f_num').value.trim()});
+    if(r&&r.ok){ await pdfFacture(r.facture); m.className='text-[13px] text-primary-700 font-semibold mt-2'; m.textContent='Facture générée et téléchargée. Envoyez-la à Elga Energy : elle a aussi été notée de notre côté.'; chargerFacturation(); }
+    else { m.className='text-[13px] text-rose-600 font-semibold mt-2'; m.textContent=(r&&r.error)||'Impossible pour le moment, réessayez.'; }
+  });
+  document.querySelectorAll('.btnRedl').forEach(b=>b.addEventListener('click',async()=>{
+    const r=await rpc('partenariat_facture_lire',{p_code:memo.get(),p_numero:b.dataset.num});
+    if(r&&r.ok) pdfFacture(r.facture); else toast('Facture introuvable',false);
+  }));
+}
+function chargerScript(src){return new Promise((ok,ko)=>{const s=document.createElement('script');s.src=src;s.onload=ok;s.onerror=ko;document.head.appendChild(s);});}
+async function pdfFacture(f){
+  if(!window.jspdf){ await chargerScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js'); await chargerScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js'); }
+  const { jsPDF }=window.jspdf; const doc=new jsPDF({unit:'mm',format:'a4'});
+  const co=f.coordonnees||{}, de=(FACT&&FACT.destinataire)||{};
+  const n2=(x)=>Number(x||0).toLocaleString('fr-FR',{minimumFractionDigits:2,maximumFractionDigits:2})+' €';
+  doc.setFont('helvetica','bold'); doc.setFontSize(16); doc.text(co.raison_sociale||f.nom||'',15,20);
+  doc.setFont('helvetica','normal'); doc.setFontSize(10);
+  [co.adresse,[co.code_postal,co.ville].filter(Boolean).join(' '),co.siret?'SIRET '+co.siret:'',co.tva_intracom?'TVA '+co.tva_intracom:'',co.email_facturation||''].filter(Boolean).forEach((l,i)=>doc.text(l,15,27+i*5));
+  doc.setFont('helvetica','bold'); doc.setFontSize(20); doc.text('FACTURE',195,20,{align:'right'});
+  doc.setFont('helvetica','normal'); doc.setFontSize(10);
+  doc.text('N° '+f.numero,195,27,{align:'right'}); doc.text('Date : '+dfr(f.emise_le),195,32,{align:'right'});
+  doc.setFont('helvetica','bold'); doc.text('Facturé à',120,52); doc.setFont('helvetica','normal');
+  [de.raison_sociale||'Elga Energy',de.adresse,[de.code_postal,de.ville].filter(Boolean).join(' '),de.siret?'SIRET '+de.siret:'',de.tva_intracom?'TVA '+de.tva_intracom:''].filter(Boolean).forEach((l,i)=>doc.text(l,120,58+i*5));
+  doc.text("Objet : commissions d'apport d'affaires (convention de partenariat).",15,85);
+  doc.autoTable({startY:92,head:[['Adhérent','Signé le','Catégorie','Compteurs','Prix unitaire HT','Montant HT']],
+    body:(f.lignes||[]).map(l=>[l.adherent,dfr(l.signe_le),l.segment,String(l.nb),n2(l.unitaire),n2(l.montant)]),
+    styles:{fontSize:9,cellPadding:2.5},headStyles:{fillColor:[14,138,87]},columnStyles:{3:{halign:'center'},4:{halign:'right'},5:{halign:'right'}}});
+  let y=doc.lastAutoTable.finalY+8;
+  [['Total HT',n2(f.total_ht)],['TVA'+(Number(f.tva)>0?' 20 %':' (non applicable)'),n2(f.tva)],['Total TTC',n2(f.total_ttc)]].forEach(([l,v],i)=>{
+    doc.setFont('helvetica',i===2?'bold':'normal'); doc.text(l,150,y+i*6,{align:'right'}); doc.text(v,195,y+i*6,{align:'right'}); });
+  y+=26; doc.setFont('helvetica','normal'); doc.setFontSize(9);
+  if(Number(f.tva)===0) { doc.text('TVA non applicable.',15,y); y+=5; }
+  doc.text('Paiement par virement à 30 jours fin de mois.',15,y); y+=5;
+  if(co.iban) doc.text('IBAN : '+co.iban+(co.bic?'   BIC : '+co.bic:''),15,y);
+  doc.save('Facture-'+String(f.numero).replace(/[^A-Za-z0-9_-]+/g,'-')+'.pdf');
 }
 
 async function boot(){
