@@ -4,3 +4,10 @@
 .env
 .env.local
 node_modules/
+
+# 04/10/2026 : Impeccable installé dans le projet (outils locaux, jamais publiés)
+.claude/skills/
+.claude/agents/
+.claude/settings.local.json
+.impeccable/config.local.json
+.impeccable/cache/

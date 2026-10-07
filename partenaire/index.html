@@ -45,6 +45,14 @@ async function rpc(fn,body){
   try{return await r.json();}catch(_){return null;}
 }
 function lien(){ return `${SITE}/scanner.html?partenaire=${encodeURIComponent(STATE.code)}`; }
+// 07/10/2026 : l'espace complet (fil de suivi + dossiers si James les rend visibles, migration 0087).
+// Repli sur l'ancien espace si la nouvelle fonction ne répond pas.
+async function ouvrir(code){
+  const d=await rpc('partenariat_espace_complet',{p_code:code});
+  if(d&&d.ok) return d;
+  if(d&&d.error==='code inconnu') return d;
+  return await rpc('partenariat_espace_par_code',{p_code:code});
+}
 // 01/10/2026 : message aligné sur le mail FDSEA v10 (électricité, 30 secondes, PDF ou photo, bloquer les augmentations).
 // Ancien message (conservé) : `Bonjour, notre partenaire Elga Energy analyse gratuitement vos factures d'énergie et vous dit si vous payez trop cher — 15 secondes, sans engagement. Faites le test via notre lien : ${lien()}`
 function msg(){ return `Bonjour, l'électricité augmente avec un temps de retard : sur la plupart des factures, la hausse n'est pas encore visible. Avec notre partenaire Elga Energy, courtier en électricité, faites le bilan gratuit de votre facture en 30 secondes (PDF ou photo), sans engagement. Il est encore temps de bloquer les augmentations : ${lien()}`; }
@@ -105,7 +113,7 @@ function vueLogin(err){
   code.focus();
   document.getElementById('fLog').addEventListener('submit',async ev=>{
     ev.preventDefault();b.disabled=true;b.textContent='Vérification…';
-    const d=await rpc('partenariat_espace_par_code',{p_code:code.value});
+    const d=await ouvrir(code.value); // 07/10/2026 · avant : rpc('partenariat_espace_par_code',{p_code:code.value})
     if(d&&d.ok){ STATE=d; memo.set(code.value); render(); }
     else{ e.textContent="Ce code n'est pas reconnu. Vérifiez-le, ou contactez Elga Energy."; e.classList.remove('hidden'); b.textContent='Accéder à mon espace'; b.disabled=false; }
   });
@@ -172,6 +180,9 @@ function render(){
         </div>`}
     </section>
 
+    ${filHtml()}
+    ${dossiersHtml()}
+
     <section class="card p-6 sm:p-7 fade">
       <h3 class="text-[16px] font-extrabold text-slate-900 tracking-tight mb-5">Comment ça marche</h3>
       <div class="grid sm:grid-cols-3 gap-5">
@@ -185,6 +196,37 @@ function render(){
   </main>`;
 }
 
+/* 07/10/2026 : le fil de suivi écrit par Elga Energy, et la liste des dossiers (si rendue visible) */
+function filHtml(){
+  const fil=(STATE&&STATE.fil)||[];
+  if(!('fil' in (STATE||{}))) return '';
+  return `<section class="card p-6 sm:p-7 fade">
+    <h3 class="text-[16px] font-extrabold text-slate-900 tracking-tight">Le suivi d'Elga Energy</h3>
+    <p class="text-[13px] text-slate-500 mt-0.5 mb-4">Les nouvelles de vos dossiers, écrites par votre conseiller.</p>
+    ${fil.length?`<ol class="space-y-3">${fil.map(m=>`
+      <li class="rounded-xl border border-slate-100 bg-slate-50/60 px-4 py-3">
+        <div class="text-[12px] text-slate-500">${esc(m.le)}${m.qui?` · <span class="font-semibold text-slate-700">${esc(m.qui)}</span>`:''}</div>
+        <p class="text-[14px] text-slate-800 mt-1 whitespace-pre-line">${esc(m.message)}</p>
+      </li>`).join('')}</ol>`
+    :`<p class="text-[14px] text-slate-500 rounded-xl bg-slate-50 px-4 py-4">Pas encore de message. Votre conseiller écrira ici à chaque étape importante.</p>`}
+  </section>`;
+}
+function dossiersHtml(){
+  if(!STATE||!STATE.dossiers_visibles) return '';
+  const l=STATE.dossiers||[], t=STATE.totaux_dossiers||{};
+  return `<section class="card p-6 sm:p-7 fade">
+    <h3 class="text-[16px] font-extrabold text-slate-900 tracking-tight">Les adhérents que vous nous avez confiés</h3>
+    <p class="text-[13px] text-slate-500 mt-0.5 mb-4">${t.total||0} dossier${(t.total||0)>1?'s':''} · ${t.en_cours||0} en cours · ${t.signes||0} signé${(t.signes||0)>1?'s':''}</p>
+    ${l.length?`<div class="divide-y divide-slate-100 border-t border-slate-100">${l.map(a=>`
+      <div class="flex items-start justify-between gap-3 py-3.5">
+        <div class="min-w-0"><div class="text-[14px] font-semibold text-slate-800 truncate">${esc(a.qui)}</div>
+          <div class="text-[12px] text-slate-500">Suivi depuis le ${esc(a.le)}</div>
+          ${a.dernier?`<div class="text-[13px] text-slate-600 mt-1">${esc(a.dernier)}</div>`:''}</div>
+        ${badge(a.etat)}
+      </div>`).join('')}</div>`:''}
+  </section>`;
+}
+
 async function boot(){
   // 01/10/2026 : l'accès par lien (?t=token) est remplacé par un code d'accès (migration 0075).
   // Ancien amorçage conservé pour mémoire :
@@ -192,7 +234,7 @@ async function boot(){
   const c=memo.get();
   if(c){
     document.getElementById('app').innerHTML=loading('Ouverture de votre espace…');
-    const d=await rpc('partenariat_espace_par_code',{p_code:c});
+    const d=await ouvrir(c); // 07/10/2026 · avant : rpc('partenariat_espace_par_code',{p_code:c})
     if(d&&d.ok){ STATE=d; render(); return; }
     memo.del();
   }
