@@ -123,6 +123,7 @@ function deconnexion(){ memo.del(); STATE=null; vueLogin(); }
 
 function render(){
   setTimeout(chargerFacturation,0); // 07/10/2026 : commissions et factures
+  setTimeout(()=>{ if(STATE&&STATE.dossiers_visibles) listeAdherents(); },0); // 08/10/2026 : liste détaillée filtrable
 
   const app=document.getElementById('app');
   const t=STATE.totaux||{}, list=STATE.adherents||[];
@@ -162,6 +163,10 @@ function render(){
       </div>
     </section>
 
+    <!-- 08/10/2026 (James : « c'est quoi la différence en cours et adhérents suivis ? Il faudrait pouvoir cliquer dessus
+         pour voir le détail de chacun »). Liste détaillée ouverte au partenaire → 4 compteurs cliquables qui filtrent la
+         liste juste en dessous (adherentsHtml). Sinon → l'affichage d'avant, inchangé. -->
+    ${STATE.dossiers_visibles ? adherentsHtml() : `
     <!-- 08/10/2026 (James) : les compteurs prennent TOUS les adhérents confiés à Elga, anciens compris, qu'ils
          soient venus par le lien (analyse de facture) ou transmis autrement ; les renouvellements ne comptent pas.
          Avant : total = factures analysées par le lien uniquement. -->
@@ -189,8 +194,9 @@ function render(){
         </div>`}
     </section>
 
+    `}
     ${filHtml()}
-    ${dossiersHtml()}
+    ${STATE.dossiers_visibles ? '' : dossiersHtml()}<!-- 08/10/2026 : la liste détaillée est désormais dans adherentsHtml -->
     <div id="zoneFacturation"></div>
 
     <section class="card p-6 sm:p-7 fade">
@@ -240,6 +246,52 @@ function exporterSuivi(){
   const nom=String((STATE&&STATE.nom)||'partenaire').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^A-Za-z0-9]+/g,'-');
   a.download=`suivi-elga-energy-${nom}-${new Date().toISOString().slice(0,10)}.csv`;
   document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+}
+/* 08/10/2026 — Compteurs cliquables + détail de chaque adhérent (liste filtrée, recherche par nom). */
+let FILTRE='tous', RECH='';
+const LIB_ETAT={'En cours':'En cours','Signé':'Signé','Refusé':'Sans suite'};
+function adherentsHtml(){
+  const t=STATE.totaux_dossiers||STATE.totaux||{};
+  const carte=(cle,n,l,c,aide)=>`<button type="button" onclick="filtrer('${cle}')" aria-pressed="${FILTRE===cle}"
+      class="card p-5 text-left transition hover:-translate-y-0.5 hover:shadow-md active:scale-[0.98] ${FILTRE===cle?'ring-2 ring-primary-600':''}">
+      <div class="text-[32px] font-extrabold tabular-nums leading-none ${c}">${n||0}</div>
+      <div class="text-[13px] font-semibold text-slate-700 mt-2">${l}</div>
+      <div class="text-[12px] text-slate-500 mt-0.5">${aide}</div></button>`;
+  return `<section class="fade">
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+      ${carte('tous',t.total,'Adhérents confiés','text-slate-900','le total des trois à droite')}
+      ${carte('En cours',t.en_cours??t.contact,'En cours','text-sky-700','étude ou proposition en cours')}
+      ${carte('Signé',t.signes,`Contrat${(t.signes||0)>1?'s':''} signé${(t.signes||0)>1?'s':''}`,'text-primary-700','client chez Elga')}
+      ${carte('Refusé',t.refuses,'Sans suite','text-slate-400','pas donné suite')}
+    </div>
+    <p class="text-[12.5px] text-slate-500 mt-2.5 px-1">Cliquez sur un chiffre pour voir les adhérents concernés. Dont <b class="text-slate-700">${t.via_lien||0}</b> venu${(t.via_lien||0)>1?'s':''} par votre lien et <b class="text-slate-700">${t.via_autre||0}</b> transmis autrement (téléphone, mail, rendez-vous).</p>
+    <div class="card p-6 sm:p-7 mt-4">
+      <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
+        <h3 id="titreListe" class="text-[16px] font-extrabold text-slate-900 tracking-tight"></h3>
+        <label class="sr-only" for="rechAdh">Chercher un adhérent</label>
+        <input id="rechAdh" value="${esc(RECH)}" oninput="RECH=this.value;listeAdherents()" placeholder="Chercher un nom…" autocomplete="off"
+          class="w-full sm:w-64 rounded-xl border border-slate-300 px-3.5 py-2.5 text-[16px] sm:text-[14px] outline-none focus:border-primary-600 focus:ring-4 focus:ring-primary-100"/>
+      </div>
+      <div id="listeAdh"></div>
+    </div>
+  </section>`;
+}
+function filtrer(cle){ FILTRE=(FILTRE===cle&&cle!=='tous')?'tous':cle; render(); const l=document.getElementById('listeAdh'); if(l) l.scrollIntoView({behavior:'smooth',block:'start'}); }
+function listeAdherents(){
+  const z=document.getElementById('listeAdh'), h=document.getElementById('titreListe'); if(!z) return;
+  const sansAcc=(x)=>String(x||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
+  const q=sansAcc(RECH.trim());
+  const L=(STATE.dossiers||[]).filter(a=>(FILTRE==='tous'||a.etat===FILTRE)&&(!q||sansAcc(a.qui).includes(q)));
+  const titres={tous:'Tous vos adhérents','En cours':'En cours','Signé':'Contrats signés','Refusé':'Sans suite'};
+  h.textContent=`${titres[FILTRE]} (${L.length})`;
+  z.innerHTML=L.length?`<div class="divide-y divide-slate-100 border-t border-slate-100">${L.map(a=>`
+      <div class="flex items-start justify-between gap-3 py-3.5">
+        <div class="min-w-0"><div class="text-[14px] font-semibold text-slate-800">${esc(a.qui)}</div>
+          <div class="text-[12px] text-slate-500">Confié le ${esc(a.le)} · ${a.via==='lien'?'venu par votre lien':'transmis directement'}</div>
+          ${a.dernier?`<div class="text-[13px] text-slate-700 mt-1 rounded-lg bg-amber-50 px-2.5 py-1 inline-block">${esc(a.dernier)}</div>`:''}</div>
+        ${badge(LIB_ETAT[a.etat]||a.etat)}
+      </div>`).join('')}</div>`
+    :`<p class="text-[14px] text-slate-500 rounded-xl bg-slate-50 px-4 py-4">Aucun adhérent ${q?'ne correspond à cette recherche':'dans cette catégorie'}.</p>`;
 }
 function dossiersHtml(){
   if(!STATE||!STATE.dossiers_visibles) return '';
