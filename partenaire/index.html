@@ -236,7 +236,7 @@ function exporterSuivi(){
   const cel=(v)=>{ const t=String(v==null?'':v).replace(/\r?\n/g,' '); return /[";]/.test(t)?'"'+t.replace(/"/g,'""')+'"':t; };
   const lignes=[['Rubrique','Date','Adhérent','Détail','Montant HT (€)','Statut']];
   ((STATE&&STATE.fil)||[]).forEach(m=>lignes.push(['Suivi',m.le,m.qui||'Message général',m.message,'','']));
-  if(STATE&&STATE.dossiers_visibles) (STATE.dossiers||[]).forEach(a=>lignes.push(['Dossier',a.le,a.qui,[a.via==='lien'?'Venu par votre lien':a.via?'Transmis directement':'',a.dernier].filter(Boolean).join(' · '),'',a.etat]));
+  if(STATE&&STATE.dossiers_visibles) (STATE.dossiers||[]).forEach(a=>lignes.push(['Dossier',a.le,a.qui,[a.via==='lien'?'Venu par votre lien':a.via?'Transmis directement':'',a.dernier,a.paiement].filter(Boolean).join(' · '),'',LIB_ETAT[a.etat]||a.etat]));
   const lib={du:'À facturer',facture:'Facturé',paye:'Payé'};
   ((FACT&&FACT.commissions)||[]).forEach(l=>lignes.push(['Commission',dfr(l.signe_le),l.adherent,
     `${l.nb} compteur${l.nb>1?'s':''} ${l.segment||''}`.trim(),Number(l.montant||0).toFixed(2).replace('.',','),lib[l.statut]||'']));
@@ -258,11 +258,12 @@ function adherentsHtml(){
       <div class="text-[13px] font-semibold text-slate-700 mt-2">${l}</div>
       <div class="text-[12px] text-slate-500 mt-0.5">${aide}</div></button>`;
   return `<section class="fade">
-    <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
+    <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 sm:gap-4">
       ${carte('tous',t.total,'Adhérents confiés','text-slate-900','le total des trois à droite')}
       ${carte('En cours',t.en_cours??t.contact,'En cours','text-sky-700','étude ou proposition en cours')}
       ${carte('Signé',t.signes,`Contrat${(t.signes||0)>1?'s':''} signé${(t.signes||0)>1?'s':''}`,'text-primary-700','client chez Elga')}
       ${carte('Refusé',t.refuses,'Sans suite','text-slate-400','pas donné suite')}
+      ${carte('attente',t.attente_paiement,'En attente de paiement','text-amber-600','commissions à facturer')}
     </div>
     <p class="text-[12.5px] text-slate-500 mt-2.5 px-1">Cliquez sur un chiffre pour voir les adhérents concernés. Dont <b class="text-slate-700">${t.via_lien||0}</b> venu${(t.via_lien||0)>1?'s':''} par votre lien et <b class="text-slate-700">${t.via_autre||0}</b> transmis autrement (téléphone, mail, rendez-vous).</p>
     <div class="card p-6 sm:p-7 mt-4">
@@ -276,22 +277,31 @@ function adherentsHtml(){
     </div>
   </section>`;
 }
+function paieBadge(a){
+  const c={paye:'bg-primary-50 text-primary-700 ring-primary-100',attente:'bg-amber-50 text-amber-800 ring-amber-200',bientot:'bg-slate-50 text-slate-600 ring-slate-200'}[a.paiement_cle]||'bg-slate-50 text-slate-600 ring-slate-200';
+  return `<span class="inline-flex rounded-full px-2.5 py-0.5 text-[11.5px] font-semibold ring-1 ${c} text-right">${esc(a.paiement)}</span>`;
+}
 function filtrer(cle){ FILTRE=(FILTRE===cle&&cle!=='tous')?'tous':cle; render(); const l=document.getElementById('listeAdh'); if(l) l.scrollIntoView({behavior:'smooth',block:'start'}); }
 function listeAdherents(){
   const z=document.getElementById('listeAdh'), h=document.getElementById('titreListe'); if(!z) return;
   const sansAcc=(x)=>String(x||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
   const q=sansAcc(RECH.trim());
-  const L=(STATE.dossiers||[]).filter(a=>(FILTRE==='tous'||a.etat===FILTRE)&&(!q||sansAcc(a.qui).includes(q)));
-  const titres={tous:'Tous vos adhérents','En cours':'En cours','Signé':'Contrats signés','Refusé':'Sans suite'};
+  const garde=(a)=>FILTRE==='tous'||(FILTRE==='attente'?a.paiement_cle==='attente':a.etat===FILTRE);
+  const L=(STATE.dossiers||[]).filter(a=>garde(a)&&(!q||sansAcc(a.qui).includes(q)));
+  const titres={tous:'Tous vos adhérents','En cours':'En cours','Signé':'Contrats signés','Refusé':'Sans suite',attente:'En attente de paiement'};
   h.textContent=`${titres[FILTRE]} (${L.length})`;
-  z.innerHTML=L.length?`<div class="divide-y divide-slate-100 border-t border-slate-100">${L.map(a=>`
+  // 08/10/2026 : « en cliquant dessus, on voit le déblocage de la facturation » → raccourci vers la facture
+  const aide=FILTRE==='attente'?`<div class="mb-3 rounded-xl bg-amber-50 ring-1 ring-amber-100 px-4 py-3 text-[13.5px] text-amber-900 flex flex-wrap items-center justify-between gap-3">
+      <span>Une commission devient facturable le 1er jour du 2e mois après la signature. Celles-ci le sont déjà.</span>
+      <button type="button" onclick="document.getElementById('zoneFacturation').scrollIntoView({behavior:'smooth',block:'start'})" class="rounded-lg bg-primary-700 text-white px-4 min-h-[40px] text-[13px] font-bold hover:bg-primary-800">Générer ma facture</button></div>`:'';
+  z.innerHTML=aide+(L.length?`<div class="divide-y divide-slate-100 border-t border-slate-100">${L.map(a=>`
       <div class="flex items-start justify-between gap-3 py-3.5">
         <div class="min-w-0"><div class="text-[14px] font-semibold text-slate-800">${esc(a.qui)}</div>
           <div class="text-[12px] text-slate-500">${a.le?esc(a.le)+' · ':''}${a.via==='lien'?'venu par votre lien':'transmis directement'}</div>
           ${a.dernier?`<div class="text-[13px] text-slate-700 mt-1 rounded-lg bg-amber-50 px-2.5 py-1 inline-block">${esc(a.dernier)}</div>`:''}</div>
-        ${badge(LIB_ETAT[a.etat]||a.etat)}
+        <div class="flex flex-col items-end gap-1.5 shrink-0">${badge(LIB_ETAT[a.etat]||a.etat)}${a.paiement?paieBadge(a):''}</div>
       </div>`).join('')}</div>`
-    :`<p class="text-[14px] text-slate-500 rounded-xl bg-slate-50 px-4 py-4">Aucun adhérent ${q?'ne correspond à cette recherche':'dans cette catégorie'}.</p>`;
+    :`<p class="text-[14px] text-slate-500 rounded-xl bg-slate-50 px-4 py-4">Aucun adhérent ${q?'ne correspond à cette recherche':'dans cette catégorie'}.</p>`);
 }
 function dossiersHtml(){
   if(!STATE||!STATE.dossiers_visibles) return '';
