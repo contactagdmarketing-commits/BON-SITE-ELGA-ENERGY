@@ -162,10 +162,16 @@ function render(){
       </div>
     </section>
 
-    <div class="grid grid-cols-3 gap-3 sm:gap-4 fade">
-      ${stat(t.total||0, 'factures analysées', 'text-slate-900')}
-      ${stat(t.contact||0, 'en cours de suivi', 'text-sky-700')}
-      ${stat(t.signes||0, `contrat${(t.signes||0)>1?'s':''} signé${(t.signes||0)>1?'s':''}`, 'text-primary-700')}
+    <!-- 08/10/2026 (James) : les compteurs prennent TOUS les adhérents confiés à Elga, anciens compris, qu'ils
+         soient venus par le lien (analyse de facture) ou transmis autrement ; les renouvellements ne comptent pas.
+         Avant : total = factures analysées par le lien uniquement. -->
+    <div class="fade">
+      <div class="grid grid-cols-3 gap-3 sm:gap-4">
+        ${stat(t.total||0, `adhérent${(t.total||0)>1?'s':''} suivi${(t.total||0)>1?'s':''}`, 'text-slate-900')}
+        ${stat(t.contact||0, 'en cours', 'text-sky-700')}
+        ${stat(t.signes||0, `contrat${(t.signes||0)>1?'s':''} signé${(t.signes||0)>1?'s':''}`, 'text-primary-700')}
+      </div>
+      ${('via_lien' in t)?`<p class="text-[12.5px] text-slate-500 mt-2.5 px-1">Dont <b class="text-slate-700">${t.via_lien||0}</b> venu${(t.via_lien||0)>1?'s':''} par votre lien (analyse de facture) et <b class="text-slate-700">${t.via_autre||0}</b> transmis autrement (téléphone, mail, rendez-vous)${t.refuses?` · ${t.refuses} sans suite`:''}.</p>`:''}
     </div>
 
     <section class="card p-6 sm:p-7 fade">
@@ -224,7 +230,7 @@ function exporterSuivi(){
   const cel=(v)=>{ const t=String(v==null?'':v).replace(/\r?\n/g,' '); return /[";]/.test(t)?'"'+t.replace(/"/g,'""')+'"':t; };
   const lignes=[['Rubrique','Date','Adhérent','Détail','Montant HT (€)','Statut']];
   ((STATE&&STATE.fil)||[]).forEach(m=>lignes.push(['Suivi',m.le,m.qui||'Message général',m.message,'','']));
-  if(STATE&&STATE.dossiers_visibles) (STATE.dossiers||[]).forEach(a=>lignes.push(['Dossier',a.le,a.qui,a.dernier||'','',a.etat]));
+  if(STATE&&STATE.dossiers_visibles) (STATE.dossiers||[]).forEach(a=>lignes.push(['Dossier',a.le,a.qui,[a.via==='lien'?'Venu par votre lien':a.via?'Transmis directement':'',a.dernier].filter(Boolean).join(' · '),'',a.etat]));
   const lib={du:'À facturer',facture:'Facturé',paye:'Payé'};
   ((FACT&&FACT.commissions)||[]).forEach(l=>lignes.push(['Commission',dfr(l.signe_le),l.adherent,
     `${l.nb} compteur${l.nb>1?'s':''} ${l.segment||''}`.trim(),Number(l.montant||0).toFixed(2).replace('.',','),lib[l.statut]||'']));
@@ -244,7 +250,7 @@ function dossiersHtml(){
     ${l.length?`<div class="divide-y divide-slate-100 border-t border-slate-100">${l.map(a=>`
       <div class="flex items-start justify-between gap-3 py-3.5">
         <div class="min-w-0"><div class="text-[14px] font-semibold text-slate-800 truncate">${esc(a.qui)}</div>
-          <div class="text-[12px] text-slate-500">Suivi depuis le ${esc(a.le)}</div>
+          <div class="text-[12px] text-slate-500">Suivi depuis le ${esc(a.le)}${a.via?` · ${a.via==='lien'?'venu par votre lien':'transmis directement'}`:''}</div>
           ${a.dernier?`<div class="text-[13px] text-slate-600 mt-1">${esc(a.dernier)}</div>`:''}</div>
         ${badge(a.etat)}
       </div>`).join('')}</div>`:''}
