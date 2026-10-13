@@ -183,7 +183,7 @@ function render(){
     </section>
 
     `}
-    ${MASQUER_HORS_CARTES&&STATE.dossiers_visibles ? '' : filHtml()}
+    ${(MASQUER_HORS_CARTES||MASQUER_SUIVI)&&STATE.dossiers_visibles ? '' : filHtml()}
     ${STATE.dossiers_visibles ? '' : dossiersHtml()}<!-- 08/10/2026 : la liste détaillée est désormais dans adherentsHtml -->
     ${MASQUER_HORS_CARTES&&STATE.dossiers_visibles ? '' : '<div id="zoneFacturation" class="space-y-6"></div>'}
 
@@ -200,6 +200,9 @@ const VUE_CARTES=true;
 // des adhérents ») : le lien, le suivi, la facturation et « Comment ça marche » restent affichés comme avant ;
 // seule la liste des adhérents s'ouvre au clic sur une carte. true = tout masquer derrière les cartes (1re version du 13/10).
 const MASQUER_HORS_CARTES=false;
+// 13/10/2026 (James : « suivi Elga Energy, mets-le en carte également ou un autre bouton, mais pas toujours affiché ») :
+// le suivi s'ouvre au clic sur son bouton, sous les cartes. false = toujours affiché (comme avant).
+const MASQUER_SUIVI=true;
 function lienHtml(){
   const share=(k,l,c)=>`<button onclick="partager('${c}')" class="btn-share flex items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/10 py-3 text-[13.5px] font-semibold hover:bg-white/20">${ico(k,'w-[18px] h-[18px]')} ${l}</button>`;
   return `<section class="fade rounded-[22px] text-white shadow-strong overflow-hidden" style="background:#083f2a">
@@ -299,7 +302,7 @@ function adherentsHtml(){
   if(VUE_CARTES){
     let panneau='';
     if(MASQUER_HORS_CARTES&&FILTRE==='lien') panneau=lienHtml()+commentHtml();
-    else if(MASQUER_HORS_CARTES&&FILTRE==='suivi') panneau=filHtml();
+    else if((MASQUER_HORS_CARTES||MASQUER_SUIVI)&&FILTRE==='suivi') panneau=filHtml();
     else if(FILTRE) panneau=listeCarte+(MASQUER_HORS_CARTES&&FILTRE==='attente'?'<div id="zoneFacturation" class="space-y-6"></div>':'');
     return `<section class="fade">
     <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 sm:gap-4">
@@ -310,9 +313,9 @@ function adherentsHtml(){
       ${carte('attente',t.attente_paiement,'En attente de paiement','text-amber-600','commissions et facture')}
     </div>
     <p class="text-[12.5px] text-slate-500 mt-2.5 px-1">Cliquez sur une carte pour ouvrir son détail. Dont <b class="text-slate-700">${t.via_lien||0}</b> venu${(t.via_lien||0)>1?'s':''} par votre lien et <b class="text-slate-700">${t.via_autre||0}</b> transmis autrement (téléphone, mail, rendez-vous).</p>
-    ${MASQUER_HORS_CARTES?`<div class="grid sm:grid-cols-2 gap-3 mt-4">
-      ${mini('lien','link','Votre lien à partager','à envoyer à vos adhérents')}
-      ${('fil' in (STATE||{}))?mini('suivi','mail',"Le suivi d'Elga Energy",nMsg?`${nMsg} message${nMsg>1?'s':''} de votre conseiller`:'les nouvelles de vos dossiers'):''}
+    ${(MASQUER_HORS_CARTES||MASQUER_SUIVI)?`<div class="grid ${MASQUER_HORS_CARTES?'sm:grid-cols-2':''} gap-3 mt-4">
+      ${MASQUER_HORS_CARTES?mini('lien','link','Votre lien à partager','à envoyer à vos adhérents'):''}
+      ${('fil' in (STATE||{}))?mini('suivi','mail',"Le suivi d'Elga Energy",(nMsg?`${nMsg} message${nMsg>1?'s':''} de votre conseiller`:'les nouvelles de vos dossiers')+(FILTRE==='suivi'?' · cliquez pour fermer':' · cliquez pour lire')):''}
     </div>`:''}
     ${panneau?`<div id="panneau" class="mt-6 space-y-6 scroll-mt-4">${panneau}</div>`:''}
   </section>`;
