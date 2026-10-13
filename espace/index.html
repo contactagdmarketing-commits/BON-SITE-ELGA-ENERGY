@@ -169,6 +169,8 @@ const NAV=[
   {id:'assistant',label:'Mon assistant',action:'chat',icon:'M8 12h.01M12 12h.01M16 12h.01M21 12a9 9 0 11-4.7-7.9L21 3l-1.1 4.3A8.96 8.96 0 0121 12z'},
   {id:'contrat',label:'Mes contrats',icon:'M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z'},
   {id:'factures',label:'Mes factures',icon:'M9 14l6-6M9 8h.01M15 14h.01M5 21V5a2 2 0 012-2h10a2 2 0 012 2v16l-3-2-2 2-2-2-2 2-2-2-3 2z'},
+  // 13/10/2026 : le client prépare son courrier de résiliation, son conseiller le vérifie (migration CRM 0121)
+  {id:'resiliation',label:'Ma résiliation',icon:'M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z'},
   {id:'conseiller',label:'Mon conseiller',icon:'M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z'},
   {id:'parrainage',label:'Parrainage',icon:'M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8V6m0 8v2m0-10a9 9 0 100 18 9 9 0 000-18z'},
 ];
@@ -246,6 +248,7 @@ function renderContent(){
   if(TAB==='dashboard')   vue=vueDashboard();
   else if(TAB==='contrat')vue=vueContrat();
   else if(TAB==='factures')vue=vueFactures();
+  else if(TAB==='resiliation')vue=vueResiliation();
   else if(TAB==='conseiller')vue=vueConseiller();
   else if(TAB==='parrainage')vue=vueParrainage();
   el.innerHTML=vue;
@@ -465,7 +468,12 @@ function vueFactures(){
       <p class="text-[12px] text-slate-400">Vérification en 30 secondes</p>
     </button>
     <input id="fileFacture" type="file" accept=".pdf,image/*" class="hidden"/>
-  </section>`;
+  </section>
+  ${(list.length&&!(list[0].extracted||{}).est_trv)?`<button onclick="setTab('resiliation')" class="tile bg-white rounded-2xl shadow-soft p-5 text-left w-full flex items-center gap-4 mt-5">
+    <div class="h-11 w-11 rounded-xl bg-amber-50 grid place-items-center shrink-0 text-[20px]">✉️</div>
+    <div class="flex-1"><div class="font-bold text-[14.5px] text-slate-900">Mon courrier de résiliation</div>
+    <div class="text-[12.5px] text-slate-400">Préparé à partir de votre facture, vérifié par votre conseiller.</div></div>
+    <span class="text-slate-300 text-xl">→</span></button>`:''}`;
 }
 
 function carteConseillerMini(){
@@ -720,6 +728,104 @@ function joursAvant(d){if(!d)return null;const j=Math.round((new Date(d)-new Dat
 function frDate(d){if(!d)return null;const x=new Date(d);return isNaN(x)?esc(d):x.toLocaleDateString('fr-FR',{day:'2-digit',month:'long',year:'numeric'});}
 function frDateCourt(d){if(!d)return '—';const x=new Date(d);return isNaN(x)?esc(d):x.toLocaleDateString('fr-FR',{month:'short',year:'2-digit'});}
 
+/* ─── Ma résiliation (13/10/2026) ───────────────────────────────────────────────
+   James : « les clients eux-mêmes dans leur espace perso, en déposant leur facture […] attention vous devez
+   envoyer un courrier de résiliation […] de manière extrêmement fiable et que je puisse avoir le suivi […]
+   EDF TRV pas de résiliation mais les autres oui ».
+   Le client PRÉPARE (pré-rempli depuis sa facture), son conseiller VÉRIFIE dans le CRM puis lui envoie le
+   courrier prêt à signer. Rien ne part au fournisseur sans cette vérification (une erreur = des frais). */
+let RESIL=null, RESIL_SRC=0;
+async function chargerResil(){
+  const d=await rpc('espace_resiliation_contexte',{p_token:TOKEN});
+  RESIL=(d&&d.ok)?d:{ok:false};
+  if(TAB==='resiliation')renderContent();
+}
+// Les documents d'où l'on peut lire les infos : factures (la plus récente d'abord) puis contrats déposés
+function sourcesResil(){
+  const out=[];
+  (STATE.factures||[]).slice().reverse().forEach(f=>{const x=f.extracted||{};out.push({lib:`Facture déposée le ${frDate(f.le)||f.le}${x.supplier?' · '+x.supplier:''}`,
+    fournisseur:x.supplier,energie:x.energy_type==='gas'?'gaz':'elec',pdl:x.pdl||x.pce,client_ref:x.client_ref,date_fin:x.date_fin_contrat,
+    preavis:x.preavis_resiliation,trv:!!x.est_trv||/tarif bleu|r[ée]glement/i.test(x.contract_type||''),raison:x.client_name,siret:x.client_siret,adresse:x.site_address,site:x.site_address});});
+  (Array.isArray(STATE.contrats)?STATE.contrats:[]).forEach(c=>{const x=c.extracted||{};out.push({lib:`Contrat déposé${x.fournisseur?' · '+x.fournisseur:''}`,
+    fournisseur:x.fournisseur,energie:(c.energie||x.energie)==='gaz'||x.pce?'gaz':'elec',pdl:x.pdl||x.pce,client_ref:x.client_ref,date_fin:x.date_fin,
+    preavis:x.preavis_resiliation,trv:x.type_contrat==='trv',raison:x.raison_sociale,siret:x.siret,adresse:x.adresse_site,site:x.adresse_site});});
+  return out;
+}
+const RESIL_ETAPE={a_envoyer:'Vérifiée par votre conseiller : votre courrier arrive par mail',envoye_client:'Courrier envoyé par mail : signez-le et postez-le en recommandé avec accusé de réception',
+  poste:'Posté en recommandé',accuse_recu:'Accusé de réception reçu ✅',en_attente:'En attente : votre conseiller revient vers vous'};
+function vueResiliation(){
+  if(!RESIL){chargerResil();return `<section class="bg-white rounded-2xl shadow-soft p-8 text-center"><div class="spin mx-auto mb-3"></div><p class="text-slate-400 text-sm">Chargement…</p></section>`;}
+  if(!RESIL.ok)return `<section class="bg-white rounded-2xl shadow-soft p-5"><p class="text-[13.5px] text-slate-500">Cette partie n'est pas disponible pour le moment. Votre conseiller peut préparer le courrier pour vous.</p></section>`;
+  const dem=RESIL.demandes||[];
+  const suivi=dem.length?`<section class="bg-white rounded-2xl shadow-soft p-5 mb-5">
+    <h2 class="text-[16px] font-extrabold text-slate-900 mb-3">Suivi de mes courriers</h2>
+    <div class="space-y-2.5">${dem.map(r=>{const etape=!r.valide?'Reçue : votre conseiller vérifie chaque information':(RESIL_ETAPE[r.statut]||'En cours');
+      const fini=r.statut==='accuse_recu'||r.statut==='poste';
+      return `<div class="rounded-xl border ${fini?'border-primary-100 bg-primary-50/40':'border-slate-100'} p-3.5">
+        <div class="flex flex-wrap items-center justify-between gap-2"><div class="font-bold text-[14px] text-slate-800">${esc(r.fournisseur||'Fournisseur')} <span class="font-mono text-[12px] text-slate-400">${esc(r.pdl||'')}</span></div>
+        <span class="text-[11.5px] font-bold px-2 py-0.5 rounded-full ${fini?'bg-primary-100 text-primary-700':r.valide?'bg-sky-50 text-sky-700':'bg-amber-100 text-amber-700'}">${fini?'Terminé':r.valide?'En cours':'Vérification'}</span></div>
+        <div class="text-[13px] text-slate-600 mt-1">${esc(etape)}</div>
+        <div class="text-[12px] text-slate-400 mt-1">Fin du contrat : ${frDate(r.echeance)||'—'}${r.envoyer_avant&&!fini?` · à poster avant le ${frDate(r.envoyer_avant)}`:''}</div></div>`;}).join('')}</div>
+  </section>`:'';
+
+  const src=sourcesResil();
+  if(RESIL_SRC>=src.length)RESIL_SRC=0;
+  const s=src[RESIL_SRC]||{};
+  const intro=`<section class="bg-white rounded-2xl shadow-soft p-5 mb-5">
+    <h2 class="text-[16px] font-extrabold text-slate-900">Mon courrier de résiliation</h2>
+    <p class="text-[13.5px] text-slate-500 mt-1 leading-relaxed">Quand vous changez de fournisseur, l'ancien contrat doit souvent être résilié par lettre recommandée, avant une date limite. On prépare ce courrier à partir de votre facture ; votre conseiller vérifie chaque information, puis vous l'envoie prêt à signer.</p>
+  </section>`;
+  if(!src.length)return suivi+intro+`<section class="bg-white rounded-2xl shadow-soft p-5">
+    <p class="text-[13.5px] text-slate-600">Commencez par déposer votre facture actuelle : on y lit votre fournisseur, votre point de livraison et la date de fin de votre contrat.</p>
+    <button onclick="setTab('factures')" class="btn btn-p mt-3 px-4 py-2.5 text-[14px]">Déposer ma facture</button></section>`;
+  const choix=src.length>1?`<label class="block text-[12.5px] font-semibold text-slate-500 mb-3">Informations lues sur
+    <select onchange="RESIL_SRC=Number(this.value);renderContent()" class="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-[13.5px] text-slate-800">${src.map((x,i)=>`<option value="${i}" ${i===RESIL_SRC?'selected':''}>${esc(x.lib)}</option>`).join('')}</select></label>`:'';
+  if(s.trv)return suivi+intro+`<section class="bg-white rounded-2xl shadow-soft p-5">${choix}
+    <div class="rounded-xl bg-primary-50 text-primary-800 p-4"><div class="font-extrabold text-[14.5px]">✅ Aucun courrier à envoyer</div>
+    <p class="text-[13.5px] mt-1">Vous êtes au tarif réglementé (Tarif Bleu) : le changement de fournisseur résilie automatiquement votre contrat, sans frais. Vous n'avez rien à faire.</p></div></section>`;
+  const v=(k,def='')=>esc(s[k]!=null&&s[k]!==''?s[k]:def);
+  const inp=(id,label,val,extra='')=>`<label class="block text-[12.5px] font-semibold text-slate-500">${label}<input id="${id}" value="${val}" ${extra} class="mt-1 w-full rounded-xl border border-slate-200 focus:border-primary-500 focus:ring-4 focus:ring-primary-100 outline-none px-3 py-2.5 text-[14px] text-slate-800"/></label>`;
+  const fourn=(RESIL.fournisseurs||[]).map(f=>`<option value="${esc(f.nom)}">`).join('');
+  return suivi+intro+`<section class="bg-white rounded-2xl shadow-soft p-5">
+    ${choix}
+    <div class="grid sm:grid-cols-2 gap-3">
+      ${inp('rRaison','Raison sociale',esc(RESIL.societe||s.raison||''))}
+      ${inp('rSiret','SIRET du siège (14 chiffres)',esc(RESIL.siret||s.siret||''),'inputmode="numeric"')}
+      <label class="block text-[12.5px] font-semibold text-slate-500 sm:col-span-2">Adresse du siège
+        <textarea id="rAdresse" rows="2" class="mt-1 w-full rounded-xl border border-slate-200 focus:border-primary-500 focus:ring-4 focus:ring-primary-100 outline-none px-3 py-2.5 text-[14px] text-slate-800">${esc(RESIL.adresse||s.adresse||'')}</textarea></label>
+      <div class="grid grid-cols-[90px_1fr_1fr] gap-2 sm:col-span-2">
+        <label class="block text-[12.5px] font-semibold text-slate-500">Civilité<select id="rCiv" class="mt-1 w-full rounded-xl border border-slate-200 px-2 py-2.5 text-[14px]"><option>M.</option><option>MME</option></select></label>
+        ${inp('rPrenom','Prénom du signataire',esc(RESIL.prenom||''))}
+        ${inp('rNom','Nom du signataire',esc(RESIL.nom||''))}
+      </div>
+      <label class="block text-[12.5px] font-semibold text-slate-500">Qualité du signataire<select id="rQual" class="mt-1 w-full rounded-xl border border-slate-200 px-2 py-2.5 text-[14px]">
+        <option value="GERANT">Gérant</option><option value="GERANTE">Gérante</option><option value="PRESIDENT">Président</option><option value="PRESIDENTE">Présidente</option><option value="EXPLOITANT">Exploitant</option><option value="EXPLOITANTE">Exploitante</option><option value="DIRECTEUR">Directeur</option><option value="DIRECTRICE">Directrice</option></select></label>
+      ${inp('rFourn','Fournisseur actuel',v('fournisseur'),'list="rFournList"')}<datalist id="rFournList">${fourn}</datalist>
+      <label class="block text-[12.5px] font-semibold text-slate-500">Énergie<select id="rEn" class="mt-1 w-full rounded-xl border border-slate-200 px-2 py-2.5 text-[14px]"><option value="elec" ${s.energie!=='gaz'?'selected':''}>Électricité</option><option value="gaz" ${s.energie==='gaz'?'selected':''}>Gaz</option></select></label>
+      ${inp('rPdl',s.energie==='gaz'?'N° PCE':'Point de livraison (PDL, 14 chiffres)',v('pdl'),'inputmode="numeric" style="font-family:ui-monospace,Menlo,monospace"')}
+      ${inp('rRef','N° de client (si indiqué sur la facture)',v('client_ref'))}
+      ${inp('rFin','Date de fin du contrat actuel',v('date_fin'),'type="date"')}
+    </div>
+    ${!s.date_fin?`<p class="text-[12.5px] text-amber-700 mt-2">La date de fin n'apparaît pas sur ce document : regardez votre contrat ou votre dernier courrier du fournisseur.</p>`:''}
+    <label class="flex items-start gap-2.5 mt-4 text-[13.5px] text-slate-700"><input id="rOk" type="checkbox" class="mt-1"/> <span>J'ai vérifié ces informations sur ma facture, en particulier le point de livraison et la date de fin.</span></label>
+    <p id="rErr" class="text-[13px] text-rose-600 mt-2 hidden"></p>
+    <button id="rBtn" onclick="envoyerResil(this)" class="btn btn-p w-full sm:w-auto mt-4 px-5 py-3 text-[14.5px]">Envoyer à mon conseiller pour vérification</button>
+    <p class="text-[12px] text-slate-400 mt-2">Votre conseiller relit tout avant de vous envoyer le courrier. Rien n'est envoyé à votre fournisseur sans vous.</p>
+  </section>`;
+}
+async function envoyerResil(btn){
+  const g=id=>(document.getElementById(id)||{}).value||'';
+  const s=sourcesResil()[RESIL_SRC]||{};
+  const e=document.getElementById('rErr');e.classList.add('hidden');
+  const p={raison:g('rRaison'),siret:g('rSiret'),adresse:g('rAdresse'),civilite:g('rCiv'),signataire_prenom:g('rPrenom'),signataire_nom:g('rNom'),
+    qualite:g('rQual'),fournisseur:g('rFourn'),energie:g('rEn'),pdl:g('rPdl'),client_ref:g('rRef'),date_fin:g('rFin'),preavis:s.preavis||null,
+    site:s.site||null,est_trv:!!s.trv,origine:s.lib||null,verifie:!!(document.getElementById('rOk')||{}).checked};
+  btn.disabled=true;btn.textContent='Envoi…';
+  const r=await rpc('espace_resiliation_demander',{p_token:TOKEN,p_data:p});
+  if(r&&r.ok){toast(r.deja?'Déjà transmis : votre conseiller s\'en occupe ✓':'Transmis à votre conseiller ✓');RESIL=null;renderContent();window.scrollTo({top:0,behavior:'smooth'});}
+  else{e.textContent=(r&&r.error)||'Impossible pour le moment. Réessayez, ou contactez votre conseiller.';e.classList.remove('hidden');btn.disabled=false;btn.textContent='Envoyer à mon conseiller pour vérification';}
+}
+
 /* ─── Dépôts ─── */
 function brancherDepots(){
   [['dropContrat','fileContrat',scanContrat],['dropFacture','fileFacture',scanFacture]].forEach(([b,i,h])=>{
@@ -749,7 +855,10 @@ async function scanFacture(file){const close=overlay('Analyse de votre facture')
   const b64=await fileToB64(file);const r=await fetch(`${WORKER}/api/scan`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({file_data:b64,file_type:file.type,file_name:file.name,client_type:'professionnel'})});
   const j=await r.json();if(!r.ok)throw 0;const ex=j.multi?j.energies.electricity.extracted:j.extracted;const sv=j.multi?j.energies.electricity.savings:j.savings;
   await upload('facture',file);const res=await rpc('espace_save_facture',{p_token:TOKEN,p_extracted:ex,p_savings:sv});close();
-  if(res&&res.ok){toast('Facture vérifiée ✓');await recharger();}else toast((res&&res.error)||'Enregistrement impossible',false);
+  if(res&&res.ok){toast('Facture vérifiée ✓');RESIL=null;await recharger();
+    // 13/10/2026 : hors tarif réglementé, on rappelle le courrier de résiliation (préparé dans « Ma résiliation »)
+    if(ex&&!ex.est_trv&&ex.supplier)setTimeout(()=>toast('Pensez à votre courrier de résiliation : onglet « Ma résiliation »'),3400);}
+  else toast((res&&res.error)||'Enregistrement impossible',false);
 }catch(e){close();toast('Lecture impossible — reprenez une photo nette.',false);}}
 
 async function demanderRappel(btn,msg){
