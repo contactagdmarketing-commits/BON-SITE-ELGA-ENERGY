@@ -517,6 +517,12 @@ async function boot(){
   // 01/10/2026 : l'accès par lien (?t=token) est remplacé par un code d'accès (migration 0075).
   // Ancien amorçage conservé pour mémoire :
   //   const t=params.get('t'); const d=await rpc('partenariat_espace',{p_token:t}); if(d&&d.ok) STATE=d; render();
+  // 13/10/2026 (James : « partage avec leur lien et leur code d'accès ») : lien /partenaire/?code=XXXX envoyé depuis
+  // le CRM → le code est retenu puis retiré de l'adresse (il ne reste pas dans l'historique ni dans un partage).
+  try{
+    const u=new URL(location.href), cu=(u.searchParams.get('code')||'').replace(/[^a-z0-9]/gi,'').toUpperCase().slice(0,12);
+    if(cu){ memo.set(cu); u.searchParams.delete('code'); history.replaceState(null,'',u.pathname+(u.search||'')+u.hash); }
+  }catch(_){}
   const c=memo.get();
   if(c){
     document.getElementById('app').innerHTML=loading('Ouverture de votre espace…');
