@@ -149,7 +149,7 @@ function render(){
          quand la liste détaillée est ouverte au partenaire, le lien, le suivi, la facturation et « Comment ça marche »
          ne s'affichent plus d'office : chacun s'ouvre sous les cartes, au clic (voir adherentsHtml).
          Sans liste détaillée : affichage d'avant, inchangé. Pour revenir à l'ancien affichage : VUE_CARTES = false. -->
-    ${VUE_CARTES&&STATE.dossiers_visibles ? '' : lienHtml()}
+    ${MASQUER_HORS_CARTES&&STATE.dossiers_visibles ? '' : lienHtml()}
 
     <!-- 08/10/2026 (James : « c'est quoi la différence en cours et adhérents suivis ? Il faudrait pouvoir cliquer dessus
          pour voir le détail de chacun »). Liste détaillée ouverte au partenaire → 4 compteurs cliquables qui filtrent la
@@ -183,11 +183,11 @@ function render(){
     </section>
 
     `}
-    ${VUE_CARTES&&STATE.dossiers_visibles ? '' : filHtml()}
+    ${MASQUER_HORS_CARTES&&STATE.dossiers_visibles ? '' : filHtml()}
     ${STATE.dossiers_visibles ? '' : dossiersHtml()}<!-- 08/10/2026 : la liste détaillée est désormais dans adherentsHtml -->
-    ${VUE_CARTES&&STATE.dossiers_visibles ? '' : '<div id="zoneFacturation"></div>'}
+    ${MASQUER_HORS_CARTES&&STATE.dossiers_visibles ? '' : '<div id="zoneFacturation" class="space-y-6"></div>'}
 
-    ${VUE_CARTES&&STATE.dossiers_visibles ? '' : commentHtml()}
+    ${MASQUER_HORS_CARTES&&STATE.dossiers_visibles ? '' : commentHtml()}
 
     <p class="text-center text-[12px] text-slate-400 pb-6 flex items-center justify-center gap-1.5">${ico('shield','w-4 h-4')} Suivi mis à jour en temps réel · les coordonnées de vos adhérents restent confidentielles et servent uniquement à leur rappel.</p>
   </main>`;
@@ -196,6 +196,10 @@ function render(){
 /* 13/10/2026 : le bloc « Votre lien à partager » et « Comment ça marche » sortis de render() (texte inchangé),
    pour pouvoir les ouvrir au clic sous les 5 cartes. */
 const VUE_CARTES=true;
+// 13/10/2026 (James, 2e retour : « pas que les 5 cartes, la présentation d'avant était très bien, juste pas les détails
+// des adhérents ») : le lien, le suivi, la facturation et « Comment ça marche » restent affichés comme avant ;
+// seule la liste des adhérents s'ouvre au clic sur une carte. true = tout masquer derrière les cartes (1re version du 13/10).
+const MASQUER_HORS_CARTES=false;
 function lienHtml(){
   const share=(k,l,c)=>`<button onclick="partager('${c}')" class="btn-share flex items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/10 py-3 text-[13.5px] font-semibold hover:bg-white/20">${ico(k,'w-[18px] h-[18px]')} ${l}</button>`;
   return `<section class="fade rounded-[22px] text-white shadow-strong overflow-hidden" style="background:#083f2a">
@@ -284,16 +288,19 @@ function adherentsHtml(){
       <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
         <h3 id="titreListe" class="text-[16px] font-extrabold text-slate-900 tracking-tight"></h3>
         <label class="sr-only" for="rechAdh">Chercher un adhérent</label>
-        <input id="rechAdh" value="${esc(RECH)}" oninput="RECH=this.value;listeAdherents()" placeholder="Chercher un nom…" autocomplete="off"
-          class="w-full sm:w-64 rounded-xl border border-slate-300 px-3.5 py-2.5 text-[16px] sm:text-[14px] outline-none focus:border-primary-600 focus:ring-4 focus:ring-primary-100"/>
+        <div class="flex items-center gap-2 w-full sm:w-auto">
+          <input id="rechAdh" value="${esc(RECH)}" oninput="RECH=this.value;listeAdherents()" placeholder="Chercher un nom…" autocomplete="off"
+            class="flex-1 min-w-0 sm:w-64 rounded-xl border border-slate-300 px-3.5 py-2.5 text-[16px] sm:text-[14px] outline-none focus:border-primary-600 focus:ring-4 focus:ring-primary-100"/>
+          <button type="button" onclick="filtrer(FILTRE)" class="shrink-0 rounded-xl border border-slate-200 px-3.5 min-h-[44px] text-[13.5px] font-semibold text-slate-600 hover:border-slate-300 hover:bg-slate-50 active:scale-[0.97] transition">Fermer</button>
+        </div>
       </div>
       <div id="listeAdh"></div>
     </div>`;
   if(VUE_CARTES){
     let panneau='';
-    if(FILTRE==='lien') panneau=lienHtml()+commentHtml();
-    else if(FILTRE==='suivi') panneau=filHtml();
-    else if(FILTRE) panneau=listeCarte+(FILTRE==='attente'?'<div id="zoneFacturation" class="space-y-6"></div>':'');
+    if(MASQUER_HORS_CARTES&&FILTRE==='lien') panneau=lienHtml()+commentHtml();
+    else if(MASQUER_HORS_CARTES&&FILTRE==='suivi') panneau=filHtml();
+    else if(FILTRE) panneau=listeCarte+(MASQUER_HORS_CARTES&&FILTRE==='attente'?'<div id="zoneFacturation" class="space-y-6"></div>':'');
     return `<section class="fade">
     <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 sm:gap-4">
       ${carte('tous',t.total,'Adhérents confiés','text-slate-900','le total des trois à droite')}
@@ -303,10 +310,10 @@ function adherentsHtml(){
       ${carte('attente',t.attente_paiement,'En attente de paiement','text-amber-600','commissions et facture')}
     </div>
     <p class="text-[12.5px] text-slate-500 mt-2.5 px-1">Cliquez sur une carte pour ouvrir son détail. Dont <b class="text-slate-700">${t.via_lien||0}</b> venu${(t.via_lien||0)>1?'s':''} par votre lien et <b class="text-slate-700">${t.via_autre||0}</b> transmis autrement (téléphone, mail, rendez-vous).</p>
-    <div class="grid sm:grid-cols-2 gap-3 mt-4">
+    ${MASQUER_HORS_CARTES?`<div class="grid sm:grid-cols-2 gap-3 mt-4">
       ${mini('lien','link','Votre lien à partager','à envoyer à vos adhérents')}
       ${('fil' in (STATE||{}))?mini('suivi','mail',"Le suivi d'Elga Energy",nMsg?`${nMsg} message${nMsg>1?'s':''} de votre conseiller`:'les nouvelles de vos dossiers'):''}
-    </div>
+    </div>`:''}
     ${panneau?`<div id="panneau" class="mt-6 space-y-6 scroll-mt-4">${panneau}</div>`:''}
   </section>`;
   }
