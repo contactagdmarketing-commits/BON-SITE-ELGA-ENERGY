@@ -76,7 +76,8 @@ const ICON={
   dl:'<path d="M12 4v11m0 0l-4-4m4 4l4-4M5 19h14"/>',
   users:'<path d="M17 20h5v-2a4 4 0 00-3-3.87M9 20H4v-2a4 4 0 013-3.87m6-1.13a4 4 0 10-4-4 4 4 0 004 4z"/>',
   shield:'<path d="M12 3l8 3v6c0 4.5-3.4 8.3-8 9-4.6-.7-8-4.5-8-9V6l8-3z"/><path d="M9 12l2 2 4-4"/>',
-  out:'<path d="M15 17l5-5-5-5M20 12H9M12 21H5a2 2 0 01-2-2V5a2 2 0 012-2h7"/>'
+  out:'<path d="M15 17l5-5-5-5M20 12H9M12 21H5a2 2 0 01-2-2V5a2 2 0 012-2h7"/>',
+  link:'<path d="M10 14a5 5 0 007.07 0l3-3a5 5 0 00-7.07-7.07l-1 1"/><path d="M14 10a5 5 0 00-7.07 0l-3 3a5 5 0 007.07 7.07l1-1"/>'
 };
 const ico=(k,c='w-5 h-5')=>`<svg class="${c}" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" viewBox="0 0 24 24" aria-hidden="true">${ICON[k]}</svg>`;
 
@@ -144,24 +145,11 @@ function render(){
       <p class="text-[15px] text-slate-500 mt-2 max-w-2xl">Partagez votre lien avec vos adhérents. Ils font le bilan gratuit de leur facture d'électricité, et vous suivez ici l'avancement de chacun.</p>
     </section>
 
-    <section class="fade rounded-[22px] text-white shadow-strong overflow-hidden" style="background:#083f2a">
-      <div class="p-6 sm:p-8" style="background:radial-gradient(700px 300px at 100% 0%,rgba(16,185,129,.22),transparent 60%)">
-        <h2 class="text-[19px] font-extrabold tracking-tight">Votre lien à partager</h2>
-        <p class="text-white/75 text-[13.5px] mt-1 mb-5">Un seul lien pour tous vos adhérents. Chaque facture analysée via ce lien apparaît dans votre suivi.</p>
-        <div class="rounded-xl bg-white p-1.5 pl-4 flex items-center gap-2">
-          <input readonly value="${esc(lien())}" onclick="this.select()" aria-label="Votre lien" class="flex-1 min-w-0 bg-transparent text-[13px] text-slate-600 outline-none truncate"/>
-          <button onclick="partager('copy')" class="flex items-center gap-1.5 rounded-lg bg-primary-700 text-white px-4 py-2.5 text-[13.5px] font-bold hover:bg-primary-800 transition shrink-0">${ico('copy','w-4 h-4')} Copier</button>
-        </div>
-        <div class="grid grid-cols-3 gap-2.5 mt-3">${share('wa','WhatsApp','wa')}${share('sms','SMS','sms')}${share('mail','E-mail','mail')}</div>
-        <div class="mt-5 rounded-xl border border-white/15 bg-white/[.06] p-4">
-          <div class="flex items-center justify-between gap-3 mb-2">
-            <div class="text-[11px] font-bold uppercase tracking-[.12em] text-white/60">Message prêt à envoyer</div>
-            <button onclick="partager('msg')" class="text-[12.5px] font-semibold text-primary-300 hover:text-white">Copier le message</button>
-          </div>
-          <p class="text-[13.5px] text-white/90 leading-relaxed">${esc(msg())}</p>
-        </div>
-      </div>
-    </section>
+    <!-- 13/10/2026 (James : « je ne veux en fixe que les 5 cartes […] ça n'ouvre que ce sur quoi on clique ») :
+         quand la liste détaillée est ouverte au partenaire, le lien, le suivi, la facturation et « Comment ça marche »
+         ne s'affichent plus d'office : chacun s'ouvre sous les cartes, au clic (voir adherentsHtml).
+         Sans liste détaillée : affichage d'avant, inchangé. Pour revenir à l'ancien affichage : VUE_CARTES = false. -->
+    ${VUE_CARTES&&STATE.dossiers_visibles ? '' : lienHtml()}
 
     <!-- 08/10/2026 (James : « c'est quoi la différence en cours et adhérents suivis ? Il faudrait pouvoir cliquer dessus
          pour voir le détail de chacun »). Liste détaillée ouverte au partenaire → 4 compteurs cliquables qui filtrent la
@@ -195,21 +183,50 @@ function render(){
     </section>
 
     `}
-    ${filHtml()}
+    ${VUE_CARTES&&STATE.dossiers_visibles ? '' : filHtml()}
     ${STATE.dossiers_visibles ? '' : dossiersHtml()}<!-- 08/10/2026 : la liste détaillée est désormais dans adherentsHtml -->
-    <div id="zoneFacturation"></div>
+    ${VUE_CARTES&&STATE.dossiers_visibles ? '' : '<div id="zoneFacturation"></div>'}
 
-    <section class="card p-6 sm:p-7 fade">
+    ${VUE_CARTES&&STATE.dossiers_visibles ? '' : commentHtml()}
+
+    <p class="text-center text-[12px] text-slate-400 pb-6 flex items-center justify-center gap-1.5">${ico('shield','w-4 h-4')} Suivi mis à jour en temps réel · les coordonnées de vos adhérents restent confidentielles et servent uniquement à leur rappel.</p>
+  </main>`;
+}
+
+/* 13/10/2026 : le bloc « Votre lien à partager » et « Comment ça marche » sortis de render() (texte inchangé),
+   pour pouvoir les ouvrir au clic sous les 5 cartes. */
+const VUE_CARTES=true;
+function lienHtml(){
+  const share=(k,l,c)=>`<button onclick="partager('${c}')" class="btn-share flex items-center justify-center gap-2 rounded-xl border border-white/20 bg-white/10 py-3 text-[13.5px] font-semibold hover:bg-white/20">${ico(k,'w-[18px] h-[18px]')} ${l}</button>`;
+  return `<section class="fade rounded-[22px] text-white shadow-strong overflow-hidden" style="background:#083f2a">
+      <div class="p-6 sm:p-8" style="background:radial-gradient(700px 300px at 100% 0%,rgba(16,185,129,.22),transparent 60%)">
+        <h2 class="text-[19px] font-extrabold tracking-tight">Votre lien à partager</h2>
+        <p class="text-white/75 text-[13.5px] mt-1 mb-5">Un seul lien pour tous vos adhérents. Chaque facture analysée via ce lien apparaît dans votre suivi.</p>
+        <div class="rounded-xl bg-white p-1.5 pl-4 flex items-center gap-2">
+          <input readonly value="${esc(lien())}" onclick="this.select()" aria-label="Votre lien" class="flex-1 min-w-0 bg-transparent text-[13px] text-slate-600 outline-none truncate"/>
+          <button onclick="partager('copy')" class="flex items-center gap-1.5 rounded-lg bg-primary-700 text-white px-4 py-2.5 text-[13.5px] font-bold hover:bg-primary-800 transition shrink-0">${ico('copy','w-4 h-4')} Copier</button>
+        </div>
+        <div class="grid grid-cols-3 gap-2.5 mt-3">${share('wa','WhatsApp','wa')}${share('sms','SMS','sms')}${share('mail','E-mail','mail')}</div>
+        <div class="mt-5 rounded-xl border border-white/15 bg-white/[.06] p-4">
+          <div class="flex items-center justify-between gap-3 mb-2">
+            <div class="text-[11px] font-bold uppercase tracking-[.12em] text-white/60">Message prêt à envoyer</div>
+            <button onclick="partager('msg')" class="text-[12.5px] font-semibold text-primary-300 hover:text-white">Copier le message</button>
+          </div>
+          <p class="text-[13.5px] text-white/90 leading-relaxed">${esc(msg())}</p>
+        </div>
+      </div>
+    </section>`;
+}
+function commentHtml(){
+  const step=(n,titre,txt)=>`<div class="flex gap-3.5"><div class="shrink-0 grid place-items-center h-8 w-8 rounded-full bg-primary-50 text-primary-700 text-[13px] font-bold ring-1 ring-primary-100">${n}</div><div><div class="text-[14px] font-bold text-slate-800">${titre}</div><div class="text-[13px] text-slate-500 mt-0.5">${txt}</div></div></div>`;
+  return `<section class="card p-6 sm:p-7 fade">
       <h3 class="text-[16px] font-extrabold text-slate-900 tracking-tight mb-5">Comment ça marche</h3>
       <div class="grid sm:grid-cols-3 gap-5">
         ${step(1,'Vous partagez votre lien','Par mail, WhatsApp ou SMS, avec le message prêt à envoyer.')}
         ${step(2,"L'adhérent envoie sa facture",'En PDF ou en photo. Son bilan s\'affiche en 30 secondes.')}
         ${step(3,'Elga Energy le rappelle','Un conseiller suit son dossier, sans engagement pour lui.')}
       </div>
-    </section>
-
-    <p class="text-center text-[12px] text-slate-400 pb-6 flex items-center justify-center gap-1.5">${ico('shield','w-4 h-4')} Suivi mis à jour en temps réel · les coordonnées de vos adhérents restent confidentielles et servent uniquement à leur rappel.</p>
-  </main>`;
+    </section>`;
 }
 
 /* 07/10/2026 : le fil de suivi écrit par Elga Energy, et la liste des dossiers (si rendue visible) */
@@ -248,7 +265,8 @@ function exporterSuivi(){
   document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(a.href),2000);
 }
 /* 08/10/2026 — Compteurs cliquables + détail de chaque adhérent (liste filtrée, recherche par nom). */
-let FILTRE='tous', RECH='';
+// 13/10/2026 : en vue « 5 cartes », rien n'est ouvert au départ (avant : FILTRE='tous', liste de tous ouverte d'office)
+let FILTRE=VUE_CARTES?null:'tous', RECH='';
 const LIB_ETAT={'En cours':'En cours','Signé':'Signé','Refusé':'Sans suite'};
 function adherentsHtml(){
   const t=STATE.totaux_dossiers||STATE.totaux||{};
@@ -257,6 +275,41 @@ function adherentsHtml(){
       <div class="text-[32px] font-extrabold tabular-nums leading-none ${c}">${n||0}</div>
       <div class="text-[13px] font-semibold text-slate-700 mt-2">${l}</div>
       <div class="text-[12px] text-slate-500 mt-0.5">${aide}</div></button>`;
+  // 13/10/2026 : sous les 5 cartes, deux petits boutons (le lien, le suivi) ; un seul contenu ouvert à la fois
+  const mini=(cle,icone,l,sous)=>`<button type="button" onclick="filtrer('${cle}')" aria-expanded="${FILTRE===cle}"
+      class="flex items-center gap-3 rounded-2xl border px-4 py-2.5 min-h-[52px] text-left transition active:scale-[0.98] ${FILTRE===cle?'border-primary-600 bg-primary-50 text-primary-800':'border-slate-200 bg-white text-slate-700 hover:border-slate-300'}">
+      ${ico(icone,'w-5 h-5 shrink-0')}<span><span class="block text-[13.5px] font-bold">${l}</span><span class="block text-[12px] text-slate-500">${sous}</span></span></button>`;
+  const nMsg=((STATE&&STATE.fil)||[]).length;
+  const listeCarte=`<div class="card p-6 sm:p-7 fade">
+      <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
+        <h3 id="titreListe" class="text-[16px] font-extrabold text-slate-900 tracking-tight"></h3>
+        <label class="sr-only" for="rechAdh">Chercher un adhérent</label>
+        <input id="rechAdh" value="${esc(RECH)}" oninput="RECH=this.value;listeAdherents()" placeholder="Chercher un nom…" autocomplete="off"
+          class="w-full sm:w-64 rounded-xl border border-slate-300 px-3.5 py-2.5 text-[16px] sm:text-[14px] outline-none focus:border-primary-600 focus:ring-4 focus:ring-primary-100"/>
+      </div>
+      <div id="listeAdh"></div>
+    </div>`;
+  if(VUE_CARTES){
+    let panneau='';
+    if(FILTRE==='lien') panneau=lienHtml()+commentHtml();
+    else if(FILTRE==='suivi') panneau=filHtml();
+    else if(FILTRE) panneau=listeCarte+(FILTRE==='attente'?'<div id="zoneFacturation" class="space-y-6"></div>':'');
+    return `<section class="fade">
+    <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 sm:gap-4">
+      ${carte('tous',t.total,'Adhérents confiés','text-slate-900','le total des trois à droite')}
+      ${carte('En cours',t.en_cours??t.contact,'En cours','text-sky-700','étude ou proposition en cours')}
+      ${carte('Signé',t.signes,`Contrat${(t.signes||0)>1?'s':''} signé${(t.signes||0)>1?'s':''}`,'text-primary-700','client chez Elga')}
+      ${carte('Refusé',t.refuses,'Sans suite','text-slate-400','pas donné suite')}
+      ${carte('attente',t.attente_paiement,'En attente de paiement','text-amber-600','commissions et facture')}
+    </div>
+    <p class="text-[12.5px] text-slate-500 mt-2.5 px-1">Cliquez sur une carte pour ouvrir son détail. Dont <b class="text-slate-700">${t.via_lien||0}</b> venu${(t.via_lien||0)>1?'s':''} par votre lien et <b class="text-slate-700">${t.via_autre||0}</b> transmis autrement (téléphone, mail, rendez-vous).</p>
+    <div class="grid sm:grid-cols-2 gap-3 mt-4">
+      ${mini('lien','link','Votre lien à partager','à envoyer à vos adhérents')}
+      ${('fil' in (STATE||{}))?mini('suivi','mail',"Le suivi d'Elga Energy",nMsg?`${nMsg} message${nMsg>1?'s':''} de votre conseiller`:'les nouvelles de vos dossiers'):''}
+    </div>
+    ${panneau?`<div id="panneau" class="mt-6 space-y-6 scroll-mt-4">${panneau}</div>`:''}
+  </section>`;
+  }
   return `<section class="fade">
     <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 sm:gap-4">
       ${carte('tous',t.total,'Adhérents confiés','text-slate-900','le total des trois à droite')}
@@ -281,7 +334,12 @@ function paieBadge(a){
   const c={paye:'bg-primary-50 text-primary-700 ring-primary-100',attente:'bg-amber-50 text-amber-800 ring-amber-200',bientot:'bg-slate-50 text-slate-600 ring-slate-200'}[a.paiement_cle]||'bg-slate-50 text-slate-600 ring-slate-200';
   return `<span class="inline-flex rounded-full px-2.5 py-0.5 text-[11.5px] font-semibold ring-1 ${c} text-right">${esc(a.paiement)}</span>`;
 }
-function filtrer(cle){ FILTRE=(FILTRE===cle&&cle!=='tous')?'tous':cle; render(); const l=document.getElementById('listeAdh'); if(l) l.scrollIntoView({behavior:'smooth',block:'start'}); }
+// 13/10/2026 : en vue « 5 cartes », un 2e clic sur la même carte la referme. Avant (conservé si VUE_CARTES = false) :
+// FILTRE=(FILTRE===cle&&cle!=='tous')?'tous':cle; render(); scroll vers listeAdh
+function filtrer(cle){
+  if(VUE_CARTES){ FILTRE=(FILTRE===cle)?null:cle; render(); const p=document.getElementById('panneau'); if(p) p.scrollIntoView({behavior:'smooth',block:'start'}); return; }
+  FILTRE=(FILTRE===cle&&cle!=='tous')?'tous':cle; render(); const l=document.getElementById('listeAdh'); if(l) l.scrollIntoView({behavior:'smooth',block:'start'});
+}
 function listeAdherents(){
   const z=document.getElementById('listeAdh'), h=document.getElementById('titreListe'); if(!z) return;
   const sansAcc=(x)=>String(x||'').normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase();
@@ -337,7 +395,21 @@ function renderFacturation(){
   const lib={du:'À facturer',facture:'Facturé',paye:'Payé'};
   const cls={du:'bg-sky-50 text-sky-700 ring-sky-100',facture:'bg-violet-50 text-violet-700 ring-violet-100',paye:'bg-primary-50 text-primary-700 ring-primary-100'};
   const champ=(id,l,v,ph,extra='')=>`<label class="block"><span class="block text-[13px] font-semibold text-slate-700 mb-1">${l}</span><input id="${id}" value="${esc(v||'')}" placeholder="${esc(ph||'')}" ${extra} class="w-full rounded-xl border border-slate-300 px-3.5 py-2.5 text-[16px] sm:text-[14px] outline-none focus:border-primary-600 focus:ring-4 focus:ring-primary-100"/></label>`;
-  const coordOk=co.raison_sociale&&co.siret&&co.adresse;
+  // 13/10/2026 (James : « il faut Elga Energy sur la facture, toutes les coordonnées, celles de la FDSEA aussi, et la TVA en plus ») :
+  // adresse complète (code postal, ville) et n° de TVA exigés avant de générer. Avant : co.raison_sociale&&co.siret&&co.adresse
+  const coordOk=co.raison_sociale&&co.siret&&co.adresse&&co.code_postal&&co.ville&&(co.assujetti_tva===false||co.tva_intracom);
+  const de=FACT.destinataire||{};
+  const tvaAF=co.assujetti_tva===false?0:Math.round(totalAF*20)/100;
+  const bloc=(titre,l)=>`<div class="rounded-xl bg-slate-50 ring-1 ring-slate-100 px-4 py-3"><div class="text-[11px] font-bold uppercase tracking-[.12em] text-slate-500 mb-1">${titre}</div>${l.filter(Boolean).map((x,i)=>`<div class="text-[13.5px] ${i?'text-slate-600':'font-bold text-slate-800'}">${esc(x)}</div>`).join('')}</div>`;
+  const apercu=`<div class="mt-4 grid sm:grid-cols-2 gap-3">
+      ${bloc('De (vous)',[co.raison_sociale||'Raison sociale à compléter',co.adresse,[co.code_postal,co.ville].filter(Boolean).join(' '),co.siret?'SIRET '+co.siret:'SIRET à compléter',co.tva_intracom?'TVA '+co.tva_intracom:(co.assujetti_tva===false?'TVA non applicable':'N° de TVA à compléter')])}
+      ${bloc('Facturé à',[de.raison_sociale||'Elga Energy',de.adresse,[de.code_postal,de.ville].filter(Boolean).join(' '),de.siret?'SIRET '+de.siret:'',de.tva_intracom?'TVA '+de.tva_intracom:''])}
+    </div>
+    <dl class="mt-3 ml-auto max-w-xs text-[14px] tabular-nums">
+      <div class="flex justify-between py-1"><dt class="text-slate-600">Total HT</dt><dd>${eur(totalAF)}</dd></div>
+      <div class="flex justify-between py-1"><dt class="text-slate-600">${co.assujetti_tva===false?'TVA (non applicable)':'TVA 20 %'}</dt><dd>${eur(tvaAF)}</dd></div>
+      <div class="flex justify-between py-1 border-t border-slate-200 font-bold"><dt>Total TTC</dt><dd>${eur(totalAF+tvaAF)}</dd></div>
+    </dl>`;
   z.innerHTML=`
   <section class="card p-6 sm:p-7 fade">
     <h3 class="text-[16px] font-extrabold text-slate-900 tracking-tight">Vos commissions</h3>
@@ -370,12 +442,13 @@ function renderFacturation(){
   <section class="card p-6 sm:p-7 fade">
     <h3 class="text-[16px] font-extrabold text-slate-900 tracking-tight">Votre facture</h3>
     ${aFacturer.length?`<p class="text-[14px] text-slate-700 mt-1">${aFacturer.length} commission${aFacturer.length>1?'s':''} à facturer : <b>${eur(totalAF)} HT</b>.</p>
+      ${apercu}
       ${coordOk?`<form id="fFact" class="mt-4 flex flex-wrap items-end gap-3">
         <label class="block"><span class="block text-[13px] font-semibold text-slate-700 mb-1">Numéro de votre facture</span>
           <input id="f_num" required maxlength="40" class="rounded-xl border border-slate-300 px-3.5 py-2.5 text-[16px] sm:text-[14px] outline-none focus:border-primary-600 focus:ring-4 focus:ring-primary-100" placeholder="Votre numérotation"/></label>
         <button type="submit" class="rounded-xl bg-primary-700 text-white px-5 py-3 text-[14px] font-bold hover:bg-primary-800">Générer ma facture (PDF)</button></form>
         <p id="fMsg" class="text-[13px] mt-2"></p>`
-      :`<p class="text-[13px] text-amber-700 mt-2">Complétez d'abord la raison sociale, le SIRET et l'adresse ci-dessus.</p>`}`
+      :`<p class="text-[13px] text-amber-700 mt-2">Complétez d'abord vos coordonnées ci-dessus : raison sociale, SIRET, adresse complète et n° de TVA intracommunautaire.</p>`}`
     :`<p class="text-[14px] text-slate-500 mt-1">Rien à facturer pour le moment.</p>`}
     ${(FACT.factures||[]).length?`<div class="mt-5"><div class="text-[13px] font-semibold text-slate-700 mb-2">Vos factures</div>
       <ul class="divide-y divide-slate-100 border-t border-slate-100">${FACT.factures.map(f=>`<li class="flex items-center justify-between gap-3 py-2.5 text-[14px]">
