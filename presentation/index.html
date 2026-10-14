@@ -113,7 +113,7 @@
   .pill-card .more{margin-top:12px;font-size:12.5px;font-weight:600;color:var(--green);display:inline-flex;align-items:center;gap:5px}
   .pill-card .more svg{width:14px;height:14px;transition:transform .3s} .pill-card.on .more svg{transform:rotate(90deg)}
   .pill-detail{overflow:hidden;max-height:0;opacity:0;transition:max-height .5s cubic-bezier(.2,.8,.2,1),opacity .35s,margin .3s;margin-top:0}
-  .pill-detail.open{max-height:1600px;opacity:1;margin-top:16px}
+  .pill-detail.open{max-height:2600px;opacity:1;margin-top:16px} /* 14/10/2026 : 1600 → 2600 px, le levier 2 est plus haut sur téléphone */
   .panel{border:1px solid var(--line);border-radius:18px;background:var(--panel);padding:24px}
   .chips{display:flex;flex-wrap:wrap;gap:8px;margin-top:14px}
   .logobar{margin-top:16px;position:relative;overflow:hidden;-webkit-mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent);mask-image:linear-gradient(90deg,transparent,#000 6%,#000 94%,transparent)}
@@ -135,6 +135,64 @@
   .alert.warn{background:#fff7ed;border-color:#f5d9b0;color:#7c4a06} .alert.warn b{color:#5c3703}
   .highlight{margin-top:16px;padding:18px 20px;border-radius:14px;background:linear-gradient(180deg,var(--green-soft),#fff);border:1px solid #cfe7da}
   .highlight .t{font-family:var(--serif);font-size:17px;color:var(--green-deep)} .highlight p{font-size:13.5px;color:var(--ink-soft);margin-top:6px;line-height:1.55} .highlight b{color:var(--ink)}
+
+  /* 14/10/2026 — PROJECTION « si rien ne change » (entre la fin de l'ARENH et les 3 leviers), même logique que le scanner du site */
+  .pj,.gs{--mut2:#5c6a65} /* gris lisible (≥ 4,5:1 sur blanc) pour les petits textes de ces deux blocs */
+  .pj{margin-top:18px;border:1px solid var(--line);border-radius:18px;background:#fff;padding:24px}
+  .pj-top{display:flex;align-items:flex-start;justify-content:space-between;gap:12px 24px;flex-wrap:wrap}
+  .pj-t{font-family:var(--serif);font-size:20px}
+  .pj-ctl{display:flex;align-items:center;gap:10px;font-size:12px;color:var(--mut2)}
+  .pj-lead{color:var(--ink-soft);font-size:14.5px;margin-top:8px;max-width:66ch;line-height:1.6} .pj-lead b{color:var(--ink);white-space:nowrap} .pj-lead b.up{color:var(--rose)}
+  .pj-bars{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;height:300px;margin-top:22px;padding:0 6px;border-bottom:1.5px solid var(--line-strong)}
+  .pj-col{display:flex;flex-direction:column;justify-content:flex-end;height:100%;min-width:0}
+  .pj-amt{font-family:var(--serif);font-size:clamp(17px,2.3vw,25px);letter-spacing:-.02em;line-height:1.05;text-align:center;white-space:nowrap}
+  .pj-mo{font-size:12px;color:var(--mut2);text-align:center;margin:4px 0 10px;white-space:nowrap}
+  .pj-bar{height:calc(var(--h) * (100% - 64px));min-height:10px;border-radius:12px 12px 3px 3px;transform-origin:50% 100%;position:relative}
+  .pj-bar .pc{position:absolute;top:10px;left:0;right:0;text-align:center;font-size:12.5px;font-weight:700;color:#fff}
+  .pj-col.past .pj-amt{color:var(--green-deep)} .pj-col.past .pj-bar{background:var(--green-soft);box-shadow:inset 0 0 0 1px #cfe7da} .pj-col.past .pc{color:var(--green-deep)}
+  .pj-col.now .pj-bar{background:var(--ink)}
+  .pj-col.f5 .pj-amt{color:var(--amber)} .pj-col.f5 .pj-bar{background:linear-gradient(180deg,#c98a35,var(--amber))}
+  .pj-col.f10 .pj-amt{color:var(--rose)} .pj-col.f10 .pj-bar{background:linear-gradient(180deg,#d9604f,var(--rose));box-shadow:0 -10px 30px -18px rgba(192,57,43,.55)}
+  .pj-lbls{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;padding:10px 6px 0;text-align:center}
+  .pj-lbls b{display:block;font-size:13.5px;font-weight:600} .pj-lbls span{display:block;font-size:11.5px;color:var(--mut2);margin-top:1px}
+  .pj-cost{display:flex;flex-wrap:wrap;gap:14px 22px;align-items:center;margin-top:20px;padding:15px 18px;background:var(--ink);color:#fff;border-radius:12px}
+  .pj-cost .n{font-family:var(--serif);font-size:22px;color:#ffb4a8} .pj-cost .l{font-size:13px;opacity:.85}
+  .pj-cost .sep{width:1px;height:26px;background:rgba(255,255,255,.22)}
+  .pj-note{font-size:12px;color:var(--mut2);margin-top:12px;line-height:1.5;max-width:90ch}
+  .pj.go .pj-bar{animation:pjgrow 1.15s cubic-bezier(.16,1,.3,1) backwards}
+  .pj.go .pj-col:nth-child(2) .pj-bar{animation-delay:.14s} .pj.go .pj-col:nth-child(3) .pj-bar{animation-delay:.28s} .pj.go .pj-col:nth-child(4) .pj-bar{animation-delay:.42s}
+  .pj.go .pj-amt,.pj.go .pj-mo{animation:pjfade .6s ease-out .55s backwards}
+  @keyframes pjgrow{from{transform:scaleY(.04)}}
+  @keyframes pjfade{from{opacity:0;transform:translateY(6px)}}
+  .pj-ctl .seg button{white-space:nowrap}
+  @media(max-width:640px){.pj{padding:18px}.pj-ctl{width:100%;justify-content:space-between}.pj-ctl .seg button{padding:5px 9px;font-size:11.5px}.pj-bars{height:240px;gap:8px;padding:0 2px}.pj-lbls{gap:8px;padding:8px 2px 0}.pj-amt{font-size:14.5px}.pj-mo{font-size:10.5px;line-height:1.25;margin-bottom:8px}.pj-mo .pm{display:block}.pj-lbls b{white-space:nowrap}.pj-bar{height:calc(var(--h) * (100% - 64px))}.pj-bar .pc{font-size:11px;top:8px}.pj-lbls b{font-size:12px}.pj-lbls span{font-size:10.5px}.pj-cost .sep{display:none}}
+
+  /* 14/10/2026 — LEVIER 2 « Gestion & suivi » : espace client (chaque facture vérifiée) + audit des 12 dernières factures */
+  .gs-lead{color:var(--ink-soft);font-size:14.5px;margin-top:8px;max-width:64ch;line-height:1.6}
+  .gs{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:18px} @media(max-width:760px){.gs{grid-template-columns:1fr}}
+  .gs-card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:18px 18px 20px;box-shadow:0 1px 2px rgba(15,26,23,.04),0 18px 38px -30px rgba(13,122,82,.5)}
+  .gs-vis{border-radius:12px;background:var(--panel-2);padding:18px 16px;min-height:262px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+  .gs-card h4{font-family:var(--serif);font-weight:500;font-size:19.5px;letter-spacing:-.015em;line-height:1.2;margin-top:16px;text-wrap:balance}
+  .gs-card p{color:var(--ink-soft);font-size:13.5px;margin-top:7px;line-height:1.55} .gs-card p b{color:var(--ink)}
+  .gs-inv{width:100%;max-width:300px;background:#fff;border:1px solid var(--line);border-radius:10px;padding:13px 14px 12px;box-shadow:0 14px 28px -20px rgba(15,26,23,.4)}
+  .gs-inv-h{display:flex;justify-content:space-between;align-items:baseline;gap:8px;font-size:11.5px;color:var(--mut2);padding-bottom:8px;border-bottom:1px dashed var(--line-strong)} .gs-inv-h b{font-size:13px;color:var(--ink)}
+  .gs-ln{display:flex;align-items:center;gap:9px;font-size:12.5px;color:var(--ink-soft);padding:7px 0;border-bottom:1px solid var(--line)} .gs-ln span{flex:1}
+  .gs-ok{width:18px;height:18px;border-radius:50%;background:var(--green);color:#fff;display:grid;place-items:center;flex:0 0 auto} .gs-ok svg{width:10px;height:10px}
+  .gs-stamp{margin-top:9px;display:flex;align-items:center;gap:7px;font-size:12px;font-weight:600;color:var(--green-deep);background:var(--green-soft);border:1px solid #cfe7da;border-radius:8px;padding:7px 10px} .gs-stamp svg{width:14px;height:14px}
+  .gs-inv-h b,.gs-inv-h span{white-space:nowrap}
+  .gs-months{width:100%;display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-top:10px}
+  .gs-m{aspect-ratio:3/4;border-radius:7px;background:var(--green-soft);border:1px solid #cfe7da;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:6px 2px 6px;font-size:10.5px;font-weight:600;color:var(--green-deep)}
+  .gs-m .ls{width:62%;display:flex;flex-direction:column;gap:3px} .gs-m .ls i{display:block;height:2px;border-radius:2px;background:#bfe0d0} .gs-m .ls i+i{width:70%}
+  .gs-m .ck{width:15px;height:15px;border-radius:50%;background:var(--green);color:#fff;display:grid;place-items:center} .gs-m .ck svg{width:8px;height:8px}
+  .gs-chips{display:flex;flex-wrap:wrap;justify-content:center;gap:6px;margin-top:10px}
+  .gs-chip{font-size:11px;font-weight:600;color:var(--green-deep);background:#fff;border:1px solid #cfe7da;border-radius:999px;padding:3px 8px;white-space:nowrap}
+  @media(min-width:761px){.gs-vis{height:272px}}
+  .gs-ln .gs-ok,.gs-m .ck{animation:gspop .5s cubic-bezier(.2,1.5,.4,1) backwards}
+  .gs-m{animation:gsfill .55s ease-out backwards}
+  @keyframes gspop{from{transform:scale(.2);opacity:0}}
+  @keyframes gsfill{from{background:#fff;border-color:var(--line);color:var(--mut)}}
+  @media(max-width:400px){.gs-months{grid-template-columns:repeat(4,1fr)}}
+  @media(prefers-reduced-motion:reduce){.pj.go .pj-bar,.pj.go .pj-amt,.pj.go .pj-mo,.gs-ln .gs-ok,.gs-m,.gs-m .ck{animation:none}}
 
   /* cards de récap (conclusion, non dépliables) */
   .reccards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:28px}
@@ -399,6 +457,16 @@
       </div>
       <p style="font-size:12px;color:var(--mut);margin-top:12px">Source : UFC-Que Choisir, « la nouvelle régulation fera flamber la facture des consommateurs » (févr. 2025) — <a href="https://www.quechoisir.org/action-ufc-que-choisir-electricite-la-nouvelle-regulation-fera-flamber-la-facture-des-consommateurs-n149512/" target="_blank" rel="noopener" style="color:var(--green);text-decoration:underline;text-underline-offset:2px">voir l'analyse</a>. Simplification pédagogique du mécanisme.</p>
     </div>
+
+    <!-- 14/10/2026 — PROJECTION « si rien ne change » (demande de James) : il y a 5 ans / aujourd'hui (bilan) / dans 5 ans / dans 10 ans.
+         Calculée par renderProj() sur la facture du bilan chargé ; se met à jour avec le taux (+5/6/7 %) du bilan. -->
+    <div class="pj reveal" id="pj">
+      <div class="pj-top">
+        <div class="pj-t">Et si vous ne changez rien ?</div>
+        <div class="pj-ctl">Hausse de l'énergie <div class="seg" id="projSeg"><button type="button" onclick="setProjRate(0.05)">+5 %/an</button><button type="button" onclick="setProjRate(0.06)" class="on">+6 %/an</button><button type="button" onclick="setProjRate(0.07)">+7 %/an</button></div></div>
+      </div>
+      <div id="pjBody"></div>
+    </div>
   </div>
 </section>
 
@@ -565,7 +633,7 @@ function applyBilan(b){
     const e=Math.round(total-AT);
     return {nom:x.fournisseur||('Offre '+(i+1)),energie:e,total,duree:x.duree_mois||36,color:OCOL[i%OCOL.length],kwh:kwhOf(total),kwhE:kwhOf(e)};
   });
-  renderRows(); renderBilanInfo(); return OFFRES.length>0;
+  renderRows(); renderBilanInfo(); renderProj(); return OFFRES.length>0;
 }
 function renderBilanInfo(){ const el=document.getElementById('bilanInfo'); if(!el)return; if(!BILAN_INFO||!BILAN_INFO.client){el.innerHTML='';return;}
   const bi=BILAN_INFO, fr=n=>new Intl.NumberFormat('fr-FR').format(n);
@@ -650,7 +718,40 @@ function pillarHTML(p){
     <div class="alert warn"><b>⚠ Un comparatif n'a de valeur que s'il est complet.</b> Il suffit qu'un fournisseur manque pour que le « meilleur prix » n'en soit pas un. Nous les interrogeons <b>tous les 32</b>, à la même marge, sans exception. C'est la seule façon d'obtenir le vrai meilleur prix, celui qui vous arrange, vous.</div>
     <div class="logobar">${(()=>{const set=FOURN.map(f=>`<span class="flogo"><img src="/assets/fournisseurs/${f[1]}" alt="${f[0]}" loading="lazy"></span>`).join('')+(FOURN_TOTAL>FOURN.length?`<span class="flogo more">+ ${FOURN_TOTAL-FOURN.length} autres</span>`:'');return `<div class="logotrack">${set}${set}</div>`;})()}</div>
     <div class="kpis"><div class="kpi"><div class="n tnum">32</div><div class="l">fournisseurs interrogés à chaque bilan</div></div><div class="kpi"><div class="n tnum">35 h</div><div class="l">le temps qu'il vous faudrait pour le faire seul</div></div></div>`;
-  if(p===1)return `<div style="font-family:var(--serif);font-size:20px">On surveille votre prix face au marché, tous les jours.</div>
+  /* 14/10/2026 — Levier 2 refait (demande de James) : en premier, l'espace client (chaque facture vérifiée) et l'audit des
+     12 dernières factures (acheminement). Les textes déjà en place (titre, encadré marché, agent 24/7, démo) sont gardés.
+     L'ancienne mini-carte « Contrat, CGV, factures » est conservée plus bas, désactivée (false). */
+  if(p===1){const ck=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 13l4 4L19 7"/></svg>`;
+    const now=new Date(), mFmt=new Intl.DateTimeFormat('fr-FR',{month:'short'});
+    const last=new Date(now.getFullYear(),now.getMonth()-1,1);
+    const months=[...Array(12)].map((_,i)=>mFmt.format(new Date(now.getFullYear(),now.getMonth()-12+i,1)).replace('.',''));
+    const lines=['Prix du kWh, comme au contrat','Abonnement','Taxes et contributions','Consommation relevée'];
+    return `<div style="font-family:var(--serif);font-size:20px">On surveille votre prix face au marché, tous les jours.</div>
+    <p class="gs-lead">Et on ne s'arrête pas au prix. Vos factures et votre acheminement sont suivis eux aussi, du premier au dernier mois du contrat.</p>
+    <div class="gs">
+      <div class="gs-card"><div class="gs-vis"><div class="gs-inv">
+          <div class="gs-inv-h"><b>Facture de ${new Intl.DateTimeFormat('fr-FR',{month:'long'}).format(last)}</b><span>espace client</span></div>
+          ${lines.map((l,i)=>`<div class="gs-ln"><span>${l}</span><i class="gs-ok" style="animation-delay:${(.25+i*.2).toFixed(2)}s">${ck}</i></div>`).join('')}
+          <div class="gs-stamp"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l7 3v6c0 4.2-3 7.4-7 9-4-1.6-7-4.8-7-9V6l7-3z"/><path d="M9 12l2 2 4-4"/></svg>Conforme à votre contrat</div>
+        </div></div>
+        <h4>Chaque facture, vérifiée dès qu'elle arrive.</h4>
+        <p>Votre contrat et vos factures sont rangés dans <b>votre espace client</b>. À chaque nouvelle facture, on contrôle qu'elle respecte ce que vous avez signé : prix du kWh, abonnement, taxes. Si une ligne ne colle pas, on vous prévient.</p></div>
+      <div class="gs-card"><div class="gs-vis"><div class="gs-inv">
+          <div class="gs-inv-h"><b>12 factures relues</b><span>${months[0]} → ${months[11]}</span></div>
+          <div class="gs-months">
+          ${months.map((m,i)=>`<div class="gs-m" style="animation-delay:${(.2+i*.09).toFixed(2)}s">${m}<span class="ls"><i></i><i></i></span><i class="ck" style="animation-delay:${(.3+i*.09).toFixed(2)}s">${ck}</i></div>`).join('')}
+          </div><div class="gs-chips"><span class="gs-chip">Puissance souscrite</span><span class="gs-chip">Option tarifaire</span><span class="gs-chip">Dépassements</span></div></div></div>
+        <h4>Un audit de vos 12 dernières factures.</h4>
+        <p>Une année entière, relue ligne par ligne, pour vérifier que <b>votre acheminement est bien calibré</b> : la bonne puissance, la bonne option. Un acheminement mal réglé se paie tous les mois, sans que personne ne s'en aperçoive.</p></div>
+    </div>
+    <div class="highlight"><div class="t">La partie la plus importante de notre métier</div><p>On connaît votre prix. On connaît les prix du marché, mis à jour <b>chaque jour</b>. On croise les deux en continu pour rester vigilant aux variations. Dès qu'une opportunité passe sous votre tarif, une <b>alerte automatique</b> se déclenche, et on prépare votre renouvellement au bon moment. Vous n'avez rien à faire.</p></div>
+    <div class="mini" style="margin-top:14px"><div class="h"><span class="ic">🤖</span>Un agent 24/7</div><p>Une question sur une ligne, une échéance, un engagement ? Réponse immédiate, même à 2 h du matin.</p></div>
+    ${false?`<div class="mini"><div class="h"><span class="ic">📄</span>Contrat, CGV, factures</div><p>Tout au même endroit. Au bout de 12 mois, on vérifie si votre acheminement est bien calibré.</p></div>`:''}
+    <div style="margin-top:14px"><a class="btn ghost" href="/espace/?c=76A544DB" target="_blank" rel="noopener">Voir une démo de l'espace client
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M7 17L17 7M7 7h10v10"/></svg></a></div>`;}
+  /* ANCIENNE version du levier 2 — désactivée le 14/10/2026 (remplacée par le bloc ci-dessus), gardée intacte.
+     Pour la rétablir : remplacer « false&& » par « p===1&& ». */
+  if(false&&p===1)return `<div style="font-family:var(--serif);font-size:20px">On surveille votre prix face au marché, tous les jours.</div>
     <div class="highlight"><div class="t">La partie la plus importante de notre métier</div><p>On connaît votre prix. On connaît les prix du marché, mis à jour <b>chaque jour</b>. On croise les deux en continu pour rester vigilant aux variations. Dès qu'une opportunité passe sous votre tarif, une <b>alerte automatique</b> se déclenche, et on prépare votre renouvellement au bon moment. Vous n'avez rien à faire.</p></div>
     <div class="two"><div class="mini"><div class="h"><span class="ic">📄</span>Contrat, CGV, factures</div><p>Tout au même endroit. Au bout de 12 mois, on vérifie si votre acheminement est bien calibré.</p></div>
       <div class="mini"><div class="h"><span class="ic">🤖</span>Un agent 24/7</div><p>Une question sur une ligne, une échéance, un engagement ? Réponse immédiate, même à 2 h du matin.</p></div></div>
@@ -686,7 +787,44 @@ function offerYears(o){ const yf=Math.floor(o.duree/12), rem=o.duree-yf*12, a=[]
   return a; }
 function offerEcoTotal(o){ return offerYears(o).reduce((s,r)=>s+(r.edf-o.energie)*r.months/12,0); }
 function avgSaving(o){ return offerEcoTotal(o)/(o.duree/12); }
-function setBilanRate(r,btn){RATE=r;document.querySelectorAll('#bilanSeg button').forEach(b=>b.classList.remove('on'));btn.classList.add('on');renderRows();}
+function setBilanRate(r,btn){RATE=r;document.querySelectorAll('#bilanSeg button').forEach(b=>b.classList.remove('on'));btn.classList.add('on');renderRows();renderProj();syncSegs();}
+
+/* 14/10/2026 — PROJECTION « si rien ne change » (même logique que renderProjection du scanner du site).
+   · Il y a 5 ans : même consommation, facture × 0,79 = évolution RÉELLE du tarif réglementé (barèmes CRE), comme le scanner.
+   · Aujourd'hui : total annuel du bilan (REF.total).
+   · Dans 5 / 10 ans : seule la part énergie monte de RATE par an (le même taux que le bilan) ;
+     acheminement + taxes (AT) restent au niveau d'aujourd'hui → hypothèse PRUDENTE, jamais présentée comme une prévision. */
+const PROJ_IDX_MOINS5=0.79;
+const PROJ_RATES=[0.05,0.06,0.07];
+function syncSegs(){['#projSeg','#bilanSeg'].forEach(s=>document.querySelectorAll(s+' button').forEach((b,i)=>b.classList.toggle('on',PROJ_RATES[i]===RATE)));}
+function setProjRate(r){RATE=r;syncSegs();renderRows();renderProj();}
+function renderProj(){
+  const el=document.getElementById('pjBody'); if(!el)return;
+  const Y0=new Date().getFullYear(), fut=n=>REF.energie*Math.pow(1+RATE,n)+AT;
+  const cols=[
+    {k:'past',lbl:'Il y a 5 ans',sub:(Y0-5)+' · tarifs réels',v:REF.total*PROJ_IDX_MOINS5},
+    {k:'now',lbl:"Aujourd'hui",sub:Y0+' · '+(BILAN_INFO?'votre bilan':'exemple'),v:REF.total},
+    {k:'f5',lbl:'Dans 5 ans',sub:String(Y0+5),v:fut(5)},
+    {k:'f10',lbl:'Dans 10 ans',sub:String(Y0+10),v:fut(10)}];
+  const max=Math.max(...cols.map(c=>c.v));
+  const pc=v=>{const d=Math.round((v/REF.total-1)*100);return d?(d>0?'+':'−')+Math.abs(d)+' %':'';};
+  let cumul=0; for(let y=1;y<=10;y++) cumul+=REF.energie*(Math.pow(1+RATE,y)-1);
+  const pr=Math.round(RATE*100);
+  el.innerHTML=`<p class="pj-lead">Aujourd'hui, votre électricité vous coûte <b>${euro(REF.total)} par an</b>. Il y a cinq ans, la même consommation revenait à <b>${euro(cols[0].v)}</b>. Si rien ne change, elle passera à <b class="up">${euro(cols[3].v)} par an</b> dans dix ans.</p>
+    <div class="pj-bars" role="img" aria-label="${cols.map(c=>c.lbl+' : '+euro(c.v)+' par an').join(' ; ')}">
+      ${cols.map(c=>`<div class="pj-col ${c.k}"><div class="pj-amt tnum">${euro(c.v)}</div><div class="pj-mo tnum">≈ ${euro(c.v/12)} <span class="pm">/ mois</span></div><div class="pj-bar" style="--h:${(c.v/max).toFixed(3)}"><span class="pc tnum">${c.k==='now'?'':pc(c.v)}</span></div></div>`).join('')}
+    </div>
+    <div class="pj-lbls" aria-hidden="true">${cols.map(c=>`<div><b>${c.lbl}</b><span>${c.sub}</span></div>`).join('')}</div>
+    <div class="pj-cost">
+      <div><span class="n tnum">+ ${euro(cumul)}</span> <span class="l">de plus sur 10 ans, cumulés, si rien ne change</span></div>
+      <div class="sep"></div>
+      <div><span class="n tnum">≈ ${euro(cumul/120)}</span> <span class="l">de plus par mois, en moyenne</span></div>
+    </div>
+    <p class="pj-note">Il y a 5 ans : même consommation, au tarif réglementé de l'époque (barèmes CRE). Projections : seule la part énergie augmente, de +${pr} % par an ; l'acheminement et les taxes restent à leur niveau d'aujourd'hui. C'est une hypothèse prudente, pas une prévision.</p>`;
+}
+/* les barres poussent quand le bloc arrive à l'écran (visibles par défaut si l'observateur ne se déclenche pas) */
+(function(){const pj=document.getElementById('pj'); if(!pj||!('IntersectionObserver' in window))return;
+  const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){pj.classList.add('go');io.disconnect();}}),{threshold:.35}); io.observe(pj);})();
 function renderRows(){
   // Perte moyenne annuelle EDF/actuel si rien ne change (mêmes maths que la modale « référence », lissée sur 4 ans)
   let perte=0; for(let y=1;y<=4;y++) perte+=REF.energie*(Math.pow(1+RATE,y)-1); perte/=4;
@@ -875,7 +1013,7 @@ function caroSwitch(){CARO_GROS=!CARO_GROS;document.getElementById('caroElec').h
   document.getElementById('caroElecSub').textContent=CARO_GROS?'Marché de gros · 2001 → 2026':'Prix du kWh · source CRE · projection +6 % par an';
   document.getElementById('caroElecNote').textContent=CARO_GROS?'Le prix auquel les fournisseurs achètent l’électricité, mois par mois. C’est lui qui se cache derrière chaque révision du tarif.':'';
   const b=document.getElementById('caroElecBtn');b.firstChild.textContent=(CARO_GROS?'Tarif réglementé ':'Prix de gros ');}
-drawTRV();drawCaro();drawGros();renderRows();
+drawTRV();drawCaro();drawGros();renderRows();renderProj();
 document.body.style.overflow='hidden';
 </script>
 </body>
