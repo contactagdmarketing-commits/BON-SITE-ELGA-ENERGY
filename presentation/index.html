@@ -518,7 +518,7 @@
     <div class="reveal" style="margin-top:16px"><button id="origBtn" class="btn ghost" style="display:none" onclick="showOriginal()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></svg>
       Voir le bilan d'origine</button></div>
-    <div class="hint reveal"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v.01M11 12h1v4h1"/></svg>Chargez un bilan au démarrage pour remplir ce tableau avec vos vraies données. Sinon, exemple C5.</div>
+    <div class="hint reveal" id="hintExemple"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--green)" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8v.01M11 12h1v4h1"/></svg>Chargez un bilan au démarrage pour remplir ce tableau avec vos vraies données. Sinon, exemple C5.</div>
     <p class="src reveal">Sources : <a href="https://www.cre.fr/documents/open-data/historique-des-tarifs-reglementes-de-vente-delectricite-pour-les-consommateurs-residentiels.html" target="_blank" rel="noopener">CRE, tarifs réglementés</a> · projection fin ARENH, UFC-Que Choisir (+19 %).</p>
 
     <!-- 14/09/2026 — CLÔTURE « Pas de … » v3 (James : « beau, cards belles, pas de fond ») ; v2 sombre retirée le jour même ; l'ancien récap « trois leviers » reste conservé masqué ci-dessous -->
@@ -686,7 +686,8 @@ function drawSheetOffreSeule(o){
     <div class="proj"><div class="proj-h"><div class="t">Votre budget avec ${o.nom}, année par année</div></div>
       <div class="ptab"><div class="tr th"><div>Année</div><div>Énergie</div><div>Achem.+taxes</div><div>Total HTVA</div></div>${rows}</div></div>`;
 }
-function renderBilanInfo(){ const el=document.getElementById('bilanInfo'); if(!el)return; if(!BILAN_INFO||!BILAN_INFO.client){el.innerHTML='';return;}
+function renderBilanInfo(){ const el=document.getElementById('bilanInfo'); if(!el)return;
+  { const hx=document.getElementById('hintExemple'); if(hx) hx.style.display=(BILAN_INFO&&BILAN_INFO.client)?'none':''; } // 19/10/2026 : « Sinon, exemple C5 » masqué quand un vrai bilan est chargé if(!BILAN_INFO||!BILAN_INFO.client){el.innerHTML='';return;}
   const bi=BILAN_INFO, fr=n=>new Intl.NumberFormat('fr-FR').format(n);
   const cell=(k,v)=>v?`<div><div style="font-size:11px;color:var(--mut);text-transform:uppercase;letter-spacing:.04em">${k}</div><div style="font-weight:600;font-size:14.5px">${v}</div></div>`:'';
   el.innerHTML=`<div style="display:flex;flex-wrap:wrap;gap:12px 26px;align-items:center;margin:18px 0 2px;padding:15px 18px;border:1px solid var(--line);border-radius:14px;background:var(--panel)">
