@@ -925,6 +925,25 @@ function handleFile(f){
   };
   reader.readAsDataURL(f);
 }
+/* 19/10/2026 — James : « pour chaque client qui a un bilan, un lien présentation R2 avec le bilan qui correspond, directement
+   depuis mon CRM ». Le CRM ouvre cette page avec ?bilan=<lien secret> : on lit le bilan déjà extrait (même lecture que le
+   dépôt à la main ci-dessus) et on applique EXACTEMENT les mêmes calculs (applyBilan). Sans ?bilan=, rien ne change. */
+(function bilanDepuisCRM(){
+  const tok=new URLSearchParams(location.search).get('bilan');
+  if(!tok||tok.length<32) return;
+  const SUPA='https://zqvocdmxpxkhknsgmijt.supabase.co', KEY='sb_publishable_Yjplm_el8tlLJ_0xxvMB_g_XI8vStgr';
+  startScan(); BILAN_ERR=null;
+  fetch(SUPA+'/rest/v1/rpc/presentation_bilan',{method:'POST',headers:{apikey:KEY,Authorization:'Bearer '+KEY,'Content-Type':'application/json'},body:JSON.stringify({p_token:tok})})
+    .then(r=>r.json()).then(b=>{
+      if(b&&!b.code&&applyBilan(b)){
+        const n=(b.offres||[]).length, cl=(b.site||{}).raison_sociale;
+        scanStatus('ok','Bilan du client chargé'+(cl?' — '+cl:'')+' · '+n+' offre'+(n>1?'s':'')+' comparée'+(n>1?'s':''));
+      } else {
+        scanStatus('err', BILAN_ERR||"Ce lien de bilan n'est pas valide. Déposez le bilan à la main, ou continuez avec l'exemple.");
+      }
+    })
+    .catch(()=>scanStatus('err',"Lecture impossible (connexion). Réessayez, ou déposez le bilan à la main."));
+})();
 function scanStatus(kind, msg){ const el=document.getElementById('scanStatus'); if(!el)return; el.style.display='block'; el.textContent=msg;
   if(kind==='ok'){ el.style.background='var(--green-soft)'; el.style.color='var(--green-deep)'; }
   else { el.style.background='#fbeeee'; el.style.color='var(--rose)'; document.getElementById('scan').classList.remove('go'); }
