@@ -376,6 +376,47 @@
       </div>
     </div>
 
+    <!-- 19/10/2026 soir (James : « laisser nom prénom mail et tel en haut ») : carte « Vos coordonnées » remontée sous « Vous êtes » ;
+         la facture vient ensuite et l'analyse démarre toute seule dès qu'elle est jointe. -->
+    <div id="carteCoords" class="mb-5 bg-white rounded-2xl shadow-soft p-5">
+      <p class="text-sm font-semibold text-slate-700 text-center">Où vous envoyer votre bilan&nbsp;?</p>
+
+      <!-- Coordonnées — OBLIGATOIRES pour tout le monde (nom, prénom, tél, mail) -->
+      <div id="proIdentite" class="mt-3 max-w-md mx-auto grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div class="hidden sm:col-span-2" data-garde="enseigne-19-10"><!-- 19/10/2026 : enseigne masquée et non obligatoire — reprise de la facture (client_name) -->
+        <div id="champEnseigneWrap" class="sm:col-span-2">
+          <label for="champEnseigne" class="block text-xs font-semibold text-slate-600 mb-1">Enseigne / raison sociale <span class="text-rose-500">*</span></label>
+          <input id="champEnseigne" type="text" autocomplete="organization" placeholder="ex. Boulangerie Martin"
+            class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" />
+        </div>
+        </div>
+        <div>
+          <label for="champPrenom" class="block text-xs font-semibold text-slate-600 mb-1">Prénom <span class="text-rose-500">*</span></label>
+          <input id="champPrenom" type="text" autocomplete="given-name" placeholder="Jean"
+            class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" />
+        </div>
+        <div>
+          <label for="champNom" class="block text-xs font-semibold text-slate-600 mb-1">Nom <span class="text-rose-500">*</span></label>
+          <input id="champNom" type="text" autocomplete="family-name" placeholder="Martin"
+            class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" />
+        </div>
+        <div>
+          <label for="champTel" class="block text-xs font-semibold text-slate-600 mb-1">Téléphone portable <span class="text-rose-500">*</span></label>
+          <input id="champTel" type="tel" inputmode="tel" autocomplete="tel" placeholder="06 12 34 56 78"
+            class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" />
+        </div>
+        <div>
+          <label for="champMail" class="block text-xs font-semibold text-slate-600 mb-1">E-mail <span class="text-rose-500">*</span></label>
+          <input id="champMail" type="email" autocomplete="email" placeholder="vous@entreprise.fr"
+            class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" />
+        </div>
+        <p class="sm:col-span-2 text-[11.5px] text-slate-400 -mt-0.5 flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5 text-primary-500 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/></svg>
+          Obligatoire pour recevoir votre bilan. Vos coordonnées restent chez Elga Energy, jamais revendues (RGPD).
+        </p>
+      </div>
+        </div>
+
     <!-- Drop zone -->
     <div id="dropZone" class="reveal-card drop-zone rounded-2xl bg-white shadow-soft p-10 text-center cursor-pointer select-none">
       <input type="file" id="fileInput" accept=".pdf,image/jpeg,image/png,image/webp" class="sr-only" />
@@ -441,45 +482,7 @@
       </div>
     </div>
 
-    <!-- 19/10/2026 : carte « Vos coordonnées » — APRÈS la facture (la photo d'abord). Même bloc #proIdentite qu'avant, déplacé tel quel. -->
-    <div id="carteCoords" class="mt-5 bg-white rounded-2xl shadow-soft p-5">
-      <p class="text-sm font-semibold text-slate-700 text-center">Où vous envoyer votre bilan&nbsp;?</p>
-
-      <!-- Coordonnées — OBLIGATOIRES pour tout le monde (nom, prénom, tél, mail) -->
-      <div id="proIdentite" class="mt-3 max-w-md mx-auto grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <div class="hidden sm:col-span-2" data-garde="enseigne-19-10"><!-- 19/10/2026 : enseigne masquée et non obligatoire — reprise de la facture (client_name) -->
-        <div id="champEnseigneWrap" class="sm:col-span-2">
-          <label for="champEnseigne" class="block text-xs font-semibold text-slate-600 mb-1">Enseigne / raison sociale <span class="text-rose-500">*</span></label>
-          <input id="champEnseigne" type="text" autocomplete="organization" placeholder="ex. Boulangerie Martin"
-            class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" />
-        </div>
-        </div>
-        <div>
-          <label for="champPrenom" class="block text-xs font-semibold text-slate-600 mb-1">Prénom <span class="text-rose-500">*</span></label>
-          <input id="champPrenom" type="text" autocomplete="given-name" placeholder="Jean"
-            class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" />
-        </div>
-        <div>
-          <label for="champNom" class="block text-xs font-semibold text-slate-600 mb-1">Nom <span class="text-rose-500">*</span></label>
-          <input id="champNom" type="text" autocomplete="family-name" placeholder="Martin"
-            class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" />
-        </div>
-        <div>
-          <label for="champTel" class="block text-xs font-semibold text-slate-600 mb-1">Téléphone portable <span class="text-rose-500">*</span></label>
-          <input id="champTel" type="tel" inputmode="tel" autocomplete="tel" placeholder="06 12 34 56 78"
-            class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" />
-        </div>
-        <div>
-          <label for="champMail" class="block text-xs font-semibold text-slate-600 mb-1">E-mail <span class="text-rose-500">*</span></label>
-          <input id="champMail" type="email" autocomplete="email" placeholder="vous@entreprise.fr"
-            class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" />
-        </div>
-        <p class="sm:col-span-2 text-[11.5px] text-slate-400 -mt-0.5 flex items-center gap-1.5">
-          <svg class="w-3.5 h-3.5 text-primary-500 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/></svg>
-          Obligatoire pour recevoir votre bilan. Vos coordonnées restent chez Elga Energy, jamais revendues (RGPD).
-        </p>
-      </div>
-        </div>
+    <!-- (19/10/2026 soir : la carte « Vos coordonnées » est remontée sous « Vous êtes », à la demande de James) -->
 
     <!-- Bouton analyser -->
     <div class="mt-5">
@@ -1223,7 +1226,49 @@
     dropDefault.classList.add('hidden');
     dropSelected.classList.remove('hidden');
     btnAnalyze.disabled = false;
+    // 19/10/2026 soir (James : « quand on joint la photo / la facture, que directement ça analyse, avec une animation ») :
+    // l'analyse démarre toute seule. Fichier (PDF/image) → tout de suite ; photo → après 3 s (on peut encore ajouter une page).
+    planifierAnalyseAuto(_viaCamera); _viaCamera = false;
   }
+
+  // ── 19/10/2026 soir : ANALYSE AUTOMATIQUE dès que la facture est jointe ─────────
+  var _viaCamera = false, _attenteCoords = false, _compteAuto = null;
+  var _btnAnalyzeHtml = btnAnalyze.innerHTML;
+  function coordsCompletes() {
+    var v = function (id) { var e = document.getElementById(id); return (e && e.value || '').trim(); };
+    var tel = v('champTel'), mail = v('champMail');
+    return !!(v('champPrenom') && v('champNom') && /[0-9]/.test(tel) && tel.replace(/\D/g, '').length >= 9 && /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(mail));
+  }
+  function annulerCompteAuto() {
+    if (_compteAuto) { clearInterval(_compteAuto); _compteAuto = null; btnAnalyze.innerHTML = _btnAnalyzeHtml; }
+  }
+  function analyseEnCours() { var sc = document.getElementById('step-scanning'); return !!(sc && !sc.classList.contains('hidden')); }
+  btnAnalyze.addEventListener('click', annulerCompteAuto); // clic manuel pendant le compte à rebours → pas de 2e analyse
+  function lancerSiPret() {
+    annulerCompteAuto();
+    if (!selectedFile || analyseEnCours()) return;
+    if (!coordsCompletes()) { _attenteCoords = true; } else { _attenteCoords = false; }
+    startAnalysis(); // si une coordonnée manque, startAnalysis l'indique et met le curseur dans le champ
+  }
+  function planifierAnalyseAuto(photo) {
+    annulerCompteAuto();
+    if (!photo) { lancerSiPret(); return; }
+    // Photo : 3 s pour ajouter éventuellement la page « détail » (bouton « Ajouter une page en photo »), puis analyse
+    var n = 3;
+    btnAnalyze.innerHTML = 'Analyse dans ' + n + ' s… <span class="ml-2 text-white/85 font-semibold text-base">(touchez pour lancer)</span>';
+    _compteAuto = setInterval(function () {
+      n--;
+      if (n <= 0) { lancerSiPret(); return; }
+      btnAnalyze.innerHTML = 'Analyse dans ' + n + ' s… <span class="ml-2 text-white/85 font-semibold text-base">(touchez pour lancer)</span>';
+    }, 1000);
+  }
+  // Coordonnées complétées APRÈS avoir joint la facture → l'analyse part toute seule (à la validation du champ)
+  ['champPrenom', 'champNom', 'champTel', 'champMail'].forEach(function (id) {
+    var el = document.getElementById(id);
+    if (el) el.addEventListener('change', function () {
+      if (_attenteCoords && selectedFile && !analyseEnCours() && coordsCompletes()) { _attenteCoords = false; startAnalysis(); }
+    });
+  });
 
   // ── 28/09/2026 : APPAREIL PHOTO direct + plusieurs pages ─────────────────────
   // Chaque photo est ré-encodée en JPEG (≤ 2000 px, gère aussi le HEIC d'iPhone quand le navigateur sait le lire).
@@ -1291,12 +1336,12 @@
     document.getElementById('btnCameraLabel').textContent = _photos.length ? 'Ajouter une page en photo' : 'Prendre ma facture en photo';
   }
   if (btnCamera && cameraInput) {
-    btnCamera.addEventListener('click', function () { cameraInput.value = ''; cameraInput.click(); });
+    btnCamera.addEventListener('click', function () { annulerCompteAuto(); cameraInput.value = ''; cameraInput.click(); }); // 19/10 : ajouter une page suspend le départ auto
     cameraInput.addEventListener('change', async function () {
       var f = cameraInput.files && cameraInput.files[0]; if (!f) return;
       try {
         var p = await photoToJpeg(f);
-        _photos.push(p); renderPhotoPages(); await rebuildPhotoFile();
+        _photos.push(p); renderPhotoPages(); _viaCamera = true; await rebuildPhotoFile(); _viaCamera = false;
         try { gtag('event', 'photo_page', { event_category: 'scanner', value: _photos.length }); } catch (_) {}
       } catch (_) { showError("Cette photo n'a pas pu être lue. Réessayez, ou déposez la facture en PDF."); }
     });
