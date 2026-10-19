@@ -225,7 +225,7 @@
   .pj2.go .pj-today{animation:pjfade .5s ease-out .9s backwards}
   @keyframes pjex{from{transform:scaleY(0);opacity:.2}}
   .pj2 .pj-ex b i,.pj2 .pj-today i{font-style:normal}
-  @media(max-width:640px){.pj2 .pj-ex b{font-size:13px}.pj2 .pj-ex b i{display:none}.pj2 .pj-ex small{font-size:10px}
+  @media(max-width:640px){.pj2 .pj-ex b{font-size:13px}.pj2 .pj-ex b i{display:none}.pj2 .pj-ex small{display:none}
     .pj2 .pj-today span{font-size:10px;top:5px;left:6px;white-space:normal;max-width:28%;line-height:1.2}.pj2 .pj-today i{display:none}.pj2 .pj-cost{padding:14px 16px}}
   @media(prefers-reduced-motion:reduce){.pj2.go .pj-ex,.pj2.go .pj-today{animation:none}}
 
@@ -285,8 +285,24 @@
   .qcard .q{font-family:var(--serif);font-size:19px;margin-top:8px;line-height:1.2}
   .qcard .a{margin-top:12px;font-size:13px;font-weight:600;color:var(--mut)}
   .qcard.on .a{color:var(--green-deep)}
-  .q-pay{margin-top:20px;padding:20px 24px;border-radius:16px;background:var(--ink);color:#eaf5ef;font-size:16px;line-height:1.5}
-  .q-pay b{color:#fff}
+  /* 19/10/2026 — v1 (bandeau noir) gardée : .q-pay{margin-top:20px;padding:20px 24px;border-radius:16px;background:var(--ink);color:#eaf5ef;font-size:16px;line-height:1.5} .q-pay b{color:#fff}
+     v2 : le déclic passe en vert (le moment où Elga entre en scène), « Oui, oui, non. » en grand. */
+  .q-pay{margin-top:20px;padding:22px 26px;border-radius:16px;background:var(--green-soft);border:1px solid #bfe0d0;color:var(--ink-soft);font-size:16px;line-height:1.55}
+  .q-pay .yn{display:block;font-family:var(--serif);font-size:clamp(24px,3vw,32px);color:var(--green-deep);letter-spacing:-.02em;line-height:1.1;margin-bottom:6px}
+  .q-pay b{color:var(--ink);font-weight:600}
+  /* 19/10/2026 — chiffres-chocs de la page, même langage que le cumul « si rien ne change » : rose = ce que ça coûte, vert = ce qu'on gagne */
+  .ar-hit,.gain{display:flex;flex-wrap:wrap;gap:10px 28px;align-items:center;margin-top:18px;padding:18px 22px;border-radius:14px}
+  .ar-hit{background:var(--rose-soft);border:1px solid #f1cfca}
+  .gain{background:var(--green-soft);border:1px solid #bfe0d0;padding:20px 24px}
+  .gain:empty{display:none}
+  .ar-hit .n,.gain .n{font-family:var(--serif);font-weight:500;font-size:clamp(26px,3.4vw,36px);letter-spacing:-.02em;line-height:1;white-space:nowrap}
+  .ar-hit .n{color:var(--rose)} .gain .n{color:var(--green-deep);font-size:clamp(30px,4vw,44px)}
+  .ar-hit .sm .n{font-size:clamp(22px,2.8vw,30px)} .gain .sm .n{font-size:clamp(22px,2.8vw,30px)}
+  .ar-hit .l,.gain .l{font-size:14px;color:var(--ink-soft)} .gain .l b{color:var(--ink);font-weight:600}
+  .ar-hit .sep{width:1px;height:34px;background:#f1cfca} .gain .sep{width:1px;height:40px;background:#bfe0d0}
+  .gain{display:grid;grid-template-columns:minmax(0,1.35fr) 1px minmax(0,1fr);gap:8px 28px;align-items:center;padding:22px 26px}
+  .gain .l{display:block;margin-top:8px;line-height:1.4} .gain .sep{height:100%;min-height:48px}
+  @media(max-width:640px){.ar-hit,.gain{padding:14px 16px}.ar-hit .sep,.gain .sep{display:none}.gain{grid-template-columns:1fr;gap:14px}}
 
   /* Bilan */
   .bilan{margin-top:22px;border:1px solid var(--line);border-radius:18px;overflow:hidden;background:#fff}
@@ -485,10 +501,17 @@
           <div style="margin-top:10px;font-size:13px">Coût moyen = <b class="tnum" style="color:var(--rose)">70 €/MWh</b></div>
         </div>
       </div>
-      <div style="display:flex;flex-wrap:wrap;gap:14px 22px;align-items:center;margin-top:18px;padding:15px 18px;background:var(--ink);color:#fff;border-radius:12px">
-        <div><span style="font-family:var(--serif);font-size:22px">+ 25 %</span> <span style="font-size:13px;opacity:.85">sur la part énergie (56 → 70 €/MWh)</span></div>
+      <!-- 19/10/2026 — v1 (bandeau noir) gardée ici ; remplacée par .ar-hit (même langage que le cumul « si rien ne change ») à la demande de James (« trop de noir », « ultra percutant ») :
+      <div style="display:flex;flex-wrap:wrap;gap:14px 22px;align-items:center;margin-top:18px;padding:15px 18px;background:var(ink);color:#fff;border-radius:12px">
+        <div><span style="font-family:var(serif);font-size:22px">+ 25 %</span> <span style="font-size:13px;opacity:.85">sur la part énergie (56 → 70 €/MWh)</span></div>
         <div style="width:1px;height:26px;background:rgba(255,255,255,.22)"></div>
-        <div><span style="font-family:var(--serif);font-size:22px">+ 19 %</span> <span style="font-size:13px;opacity:.85">sur la facture, estimé par l'UFC-Que Choisir · jusqu'à +250 €/an</span></div>
+        <div><span style="font-family:var(serif);font-size:22px">+ 19 %</span> <span style="font-size:13px;opacity:.85">sur la facture, estimé par l'UFC-Que Choisir · jusqu'à +250 €/an</span></div>
+      </div>
+      (les « var(ink) » / « var(serif) » de cette copie s'écrivent avec deux tirets devant ; retirés ici pour garder un commentaire HTML valide) -->
+      <div class="ar-hit">
+        <div><span class="n tnum">+ 25 %</span> <span class="l">sur la part énergie (56 → 70 €/MWh)</span></div>
+        <div class="sep"></div>
+        <div class="sm"><span class="n tnum">+ 19 %</span> <span class="l">sur la facture, estimé par l'UFC-Que Choisir · jusqu'à +250 €/an</span></div>
       </div>
       <p style="font-size:12px;color:var(--mut);margin-top:12px">Source : UFC-Que Choisir, « la nouvelle régulation fera flamber la facture des consommateurs » (févr. 2025) — <a href="https://www.quechoisir.org/action-ufc-que-choisir-electricite-la-nouvelle-regulation-fera-flamber-la-facture-des-consommateurs-n149512/" target="_blank" rel="noopener" style="color:var(--green);text-decoration:underline;text-underline-offset:2px">voir l'analyse</a>. Simplification pédagogique du mécanisme.</p>
     </div>
@@ -530,7 +553,7 @@
       <div class="qcard"><div class="num">Question 2</div><div class="q">L'énergie est-elle devenue une charge qu'on ne peut plus se permettre de subir ?</div><div class="a">Réponse honnête : oui.</div></div>
       <div class="qcard"><div class="num">Question 3</div><div class="q">Avez-vous le temps de suivre les marchés vous-même, chaque semaine ?</div><div class="a">Réponse honnête : non.</div></div>
     </div>
-    <div class="q-pay reveal">Oui, oui, non. On parle le même langage. <b>Suivre les marchés à votre place, anticiper vos renouvellements, négocier chaque année : c'est exactement notre métier.</b></div>
+    <div class="q-pay reveal"><span class="yn">Oui, oui, non.</span> On parle le même langage. <b>Suivre les marchés à votre place, anticiper vos renouvellements, négocier chaque année : c'est exactement notre métier.</b></div>
   </div>
 </section>
 
@@ -550,6 +573,8 @@
       <div class="bhead"><div>Fournisseur</div><div>Engagement</div><div class="r">Énergie/an</div><div class="r">Achem.+taxes</div><div class="r">Total HTVA</div><div class="r" id="bheadLast">Éco. moy./an</div></div>
       <div id="rows"></div>
     </div>
+    <!-- 19/10/2026 — bandeau « ce que vous gagnez » (meilleure offre), miroir vert du cumul rose « si rien ne change ». Rempli par renderGain() ; vide (masqué) en mode offres seules / évolution. -->
+    <div id="gain" class="gain reveal"></div>
     <div class="reveal" style="margin-top:16px"><button id="origBtn" class="btn ghost" style="display:none" onclick="showOriginal()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:16px;height:16px"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"/><path d="M14 2v6h6M8 13h8M8 17h5"/></svg>
       Voir le bilan d'origine</button></div>
@@ -959,7 +984,27 @@ function renderProj(){
 /* les barres poussent quand le bloc arrive à l'écran (visibles par défaut si l'observateur ne se déclenche pas) */
 (function(){const pj=document.getElementById('pj'); if(!pj||!('IntersectionObserver' in window))return;
   const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){pj.classList.add('go');io.disconnect();}}),{threshold:.35}); io.observe(pj);})();
+/* 19/10/2026 — bandeau vert « ce que vous gagnez » sous le tableau : la meilleure offre (celle entourée en vert),
+   avec EXACTEMENT les chiffres du tableau et de sa modale (avgSaving / offerEcoTotal). k<0 ou null → bandeau vide (masqué). */
+let GAIN_VU=false;
+function renderGain(k){
+  const g=document.getElementById('gain'); if(!g) return;
+  if(k==null||k<0||!OFFRES[k]){ g.innerHTML=''; return; }
+  const o=OFFRES[k], a=avgSaving(o), t=offerEcoTotal(o);
+  if(!(a>0)){ g.innerHTML=''; return; }
+  g.innerHTML=`<div><span class="n tnum">− <i style="font-style:normal" data-v="${Math.round(a)}">${euro(a)}</i></span> <span class="l">par an en moyenne avec <b>${o.nom}</b>, prix fixe ${o.duree} mois</span></div>
+    <div class="sep"></div>
+    <div class="sm"><span class="n tnum"><i style="font-style:normal" data-v="${Math.round(t)}">${euro(t)}</i></span> <span class="l">d'économie estimée sur les ${o.duree} mois du contrat</span></div>`;
+  // Le chiffre « compte » une seule fois, quand le bandeau arrive à l'écran (sauf si le visiteur a coupé les animations).
+  if(GAIN_VU || !('IntersectionObserver' in window) || matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+  const io=new IntersectionObserver(es=>{ if(!es.some(e=>e.isIntersecting)) return; io.disconnect(); GAIN_VU=true;
+    const els=[...g.querySelectorAll('[data-v]')], t0=performance.now(), D=1100;
+    const step=now=>{ const p=Math.min(1,(now-t0)/D), e=1-Math.pow(1-p,3); els.forEach(el=>{ el.textContent=euro(+el.dataset.v*e); }); if(p<1) requestAnimationFrame(step); };
+    requestAnimationFrame(step); },{threshold:.6});
+  io.observe(g);
+}
 function renderRows(){
+  renderGain(null); // 19/10/2026 : vidé ici, rempli plus bas en mode normal seulement (pas en offres seules / évolution)
   if(SANS_REF) return renderRowsOffresSeules(); // 19/10/2026 : bilan sans offre de référence (et sans bilan de référence)
   if(EVOL_SEULE) return renderRowsEvolution();   // 19/10/2026 (4e) : sans offre de référence, budget actuel repris
   { setBhead(BHEAD_NORMAL); const lt=document.getElementById('bheadLast'); if(lt) lt.textContent='Éco. moy./an'; const nt=document.getElementById('sansRefNote'); if(nt) nt.innerHTML=''; }
@@ -977,6 +1022,7 @@ function renderRows(){
       <div class="ec-c ecart ${pos?'pos':'neg'} r">${pos?'−':'+'}${euro(Math.abs(eco))}<small style="font-weight:400;color:var(--mut);display:block;font-size:10.5px">/an moy. · ${o.duree}m</small></div>
       <svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></div>`;});
   document.getElementById('rows').innerHTML=h;
+  renderGain(bestK);
 }
 let curK=null;
 function openSheet(k){curK=k;document.querySelectorAll('.brow').forEach(r=>r.classList.toggle('sel',r.dataset.k==String(k)||(k===-1&&r.classList.contains('ref'))));drawSheet();document.getElementById('ov').classList.add('open');document.body.style.overflow='hidden';}
