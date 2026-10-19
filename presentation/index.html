@@ -623,6 +623,10 @@ function applyBilan(b){
     return applyBilanOffresSeules(b);
   }
   SANS_REF=false;
+  // 19/10/2026 (4e) — bilan SANS offre de référence présenté depuis le CRM : le budget actuel vient du bilan AVEC référence
+  // du même compteur (b.mode = 'evolution_seule'). Projection « si rien ne change » normale ; le tableau montre
+  // l'évolution chez le fournisseur actuel sur 4 ans au lieu des offres (James les montre à côté).
+  EVOL_SEULE = b.mode==='evolution_seule';
   const conso=s.conso_kwh?s.conso_kwh/1000:null;
   const kwhOf=e=>(conso&&e!=null)?Math.round(e/conso*10)/10:null;
   const dif=b.offres.filter(x=>x.total_annuel!=null&&x.energie_annuel!=null).map(x=>x.total_annuel-x.energie_annuel).sort((a,c)=>a-c);
@@ -643,13 +647,35 @@ function applyBilan(b){
 /* 19/10/2026 — Bilan SANS offre de référence : les offres du bilan, telles quelles, sans ligne « contrat actuel ».
    Même calcul de l'acheminement + taxes que applyBilan (médiane de total − énergie sur les offres). */
 let SANS_REF=false;
+let EVOL_SEULE=false; // 19/10/2026 (4e) : tableau = évolution chez le fournisseur actuel (bilan sans offre de référence)
+const BHEAD_NORMAL=['Fournisseur','Engagement','Énergie/an','Achem.+taxes','Total HTVA','Éco. moy./an'];
+const BHEAD_EVOL=['Si vous restez','Hausse','Énergie/an','Achem.+taxes','Total HTVA',"De plus qu'aujourd'hui"];
+function setBhead(labels){const h=document.querySelector('.bhead'); if(!h)return; [...h.children].forEach((c,i)=>{if(labels[i]!=null)c.textContent=labels[i];});}
+function renderRowsEvolution(){
+  setBhead(BHEAD_EVOL);
+  const Y0=new Date().getFullYear(), pr=Math.round(RATE*100);
+  const nt=document.getElementById('sansRefNote');
+  if(nt) nt.innerHTML=`<div style="margin:16px 0 10px;padding:12px 16px;border:1px solid var(--line);border-radius:12px;background:var(--panel);font-size:14px;color:var(--ink)"><b>Si vous restez chez ${REF.nom.replace(' — actuel','')} sans rien changer.</b> Votre budget année après année, avec une hausse de l'énergie de +${pr} % par an.</div>`;
+  let h=`<div class="brow ref" onclick="openSheet(-1)"><div class="fourn">${fmark(REF.nom,'#75837e',34)}<div><div class="fname">${REF.nom}</div><div class="fsub tnum">aujourd'hui · ${REF.kwh} €/MWh tout compris</div></div></div>
+    <div class="cell"><span class="pill evo">actuel</span></div><div class="cell r tnum">${euro(REF.energie)}</div><div class="cell r tnum">${euro(AT)}</div><div class="total-c total r tnum">${euro(REF.total)}</div>
+    <div class="ec-c r tnum">—</div><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></div>`;
+  let cumul=0;
+  for(let y=1;y<=4;y++){const e=REF.energie*Math.pow(1+RATE,y), t=e+AT, plus=t-REF.total; cumul+=plus;
+    h+=`<div class="brow" onclick="openSheet(-1)"><div class="fourn">${fmark(REF.nom,'#75837e',34)}<div><div class="fname">Année ${y} · ${Y0+y}</div><div class="fsub tnum">${REF.nom.replace(' — actuel','')}, sans rien changer</div></div></div>
+      <div class="cell"><span class="pill evo">+${pr} %/an</span></div><div class="cell r tnum">${euro(e)}</div><div class="cell r tnum">${euro(AT)}</div><div class="total-c total r tnum">${euro(t)}</div>
+      <div class="ec-c ecart neg r tnum">+${euro(plus)}</div><svg class="chev" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 6l6 6-6 6"/></svg></div>`;}
+  h+=`<div style="display:flex;flex-wrap:wrap;gap:6px 24px;align-items:baseline;padding:16px 18px;background:#fbeeee;border-top:1px solid var(--line)">
+      <div><span style="font-family:var(--serif);font-size:24px;color:var(--rose)" class="tnum">+${euro(cumul/4)}</span> <span style="font-size:14px">de plus par an, en moyenne, sur 4 ans</span></div>
+      <div style="font-size:14px;color:var(--mut)">soit <b class="tnum" style="color:var(--rose)">+${euro(cumul)}</b> sur 4 ans, si rien ne change</div></div>`;
+  document.getElementById('rows').innerHTML=h;
+}
 function applyBilanOffresSeules(b){
   const s=b.site||{};
   const conso=s.conso_kwh?s.conso_kwh/1000:null;
   const kwhOf=e=>(conso&&e!=null)?Math.round(e/conso*10)/10:null;
   const dif=b.offres.filter(x=>x.total_annuel!=null&&x.energie_annuel!=null).map(x=>x.total_annuel-x.energie_annuel).sort((a,c)=>a-c);
   if(dif.length) AT=Math.round(dif[Math.floor(dif.length/2)]);
-  SANS_REF=true;
+  SANS_REF=true; EVOL_SEULE=false;
   REF={nom:'—',energie:0,total:0,kwh:null,kwhE:null};
   BILAN_INFO={client:s.raison_sociale||null,interlocuteur:s.interlocuteur||null,date:s.date_bilan||null,ref:s.reference_bilan||null,conso:s.conso_kwh||null,puissance:s.puissance_kva||null,segment:s.segment||null};
   OFFRES=b.offres.filter(x=>x&&(x.total_annuel!=null||x.energie_annuel!=null)).map((x,i)=>{
@@ -660,7 +686,7 @@ function applyBilanOffresSeules(b){
   renderRows(); renderBilanInfo(); renderProj(); return OFFRES.length>0;
 }
 function renderRowsOffresSeules(){
-  const lt=document.getElementById('bheadLast'); if(lt) lt.textContent='Prix énergie';
+  setBhead(BHEAD_NORMAL); const lt=document.getElementById('bheadLast'); if(lt) lt.textContent='Prix énergie';
   const nt=document.getElementById('sansRefNote');
   if(nt) nt.innerHTML=`<div style="margin:16px 0 10px;padding:12px 16px;border:1px solid var(--line);border-radius:12px;background:var(--panel);font-size:14px;color:var(--ink)"><b>Les offres du marché pour votre site.</b> Ce bilan présente les offres seules, sans comparaison avec votre contrat actuel.</div>`;
   let bestK=-1,bestT=Infinity; OFFRES.forEach((o,k)=>{if(o.total<bestT){bestT=o.total;bestK=k;}});
@@ -880,8 +906,9 @@ function renderProj(){
 (function(){const pj=document.getElementById('pj'); if(!pj||!('IntersectionObserver' in window))return;
   const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){pj.classList.add('go');io.disconnect();}}),{threshold:.35}); io.observe(pj);})();
 function renderRows(){
-  if(SANS_REF) return renderRowsOffresSeules(); // 19/10/2026 : bilan sans offre de référence
-  { const lt=document.getElementById('bheadLast'); if(lt) lt.textContent='Éco. moy./an'; const nt=document.getElementById('sansRefNote'); if(nt) nt.innerHTML=''; }
+  if(SANS_REF) return renderRowsOffresSeules(); // 19/10/2026 : bilan sans offre de référence (et sans bilan de référence)
+  if(EVOL_SEULE) return renderRowsEvolution();   // 19/10/2026 (4e) : sans offre de référence, budget actuel repris
+  { setBhead(BHEAD_NORMAL); const lt=document.getElementById('bheadLast'); if(lt) lt.textContent='Éco. moy./an'; const nt=document.getElementById('sansRefNote'); if(nt) nt.innerHTML=''; }
   // Perte moyenne annuelle EDF/actuel si rien ne change (mêmes maths que la modale « référence », lissée sur 4 ans)
   let perte=0; for(let y=1;y<=4;y++) perte+=REF.energie*(Math.pow(1+RATE,y)-1); perte/=4;
   // Meilleure économie moyenne annuelle → entourée en vert
@@ -994,7 +1021,7 @@ function handleFile(f){
     .then(r=>r.json()).then(b=>{
       if(b&&!b.code&&applyBilan(b)){
         const n=(b.offres||[]).length, cl=(b.site||{}).raison_sociale;
-        scanStatus('ok','Bilan du client chargé'+(cl?' — '+cl:'')+' · '+n+' offre'+(n>1?'s':'')+(SANS_REF?' · offres seules (sans contrat actuel)':' comparée'+(n>1?'s':'')));
+        scanStatus('ok','Bilan du client chargé'+(cl?' — '+cl:'')+(EVOL_SEULE?' · évolution chez '+((b.reference||{}).fournisseur||'le fournisseur actuel')+' si rien ne change':' · '+n+' offre'+(n>1?'s':'')+(SANS_REF?' · offres seules (sans contrat actuel)':' comparée'+(n>1?'s':''))));
       } else {
         scanStatus('err', BILAN_ERR||"Ce lien de bilan n'est pas valide. Déposez le bilan à la main, ou continuez avec l'exemple.");
       }
