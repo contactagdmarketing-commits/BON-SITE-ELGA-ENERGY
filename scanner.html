@@ -224,6 +224,8 @@
     <div class="reveal-load inline-flex items-center gap-2 rounded-full border border-primary-200 bg-primary-50 text-primary-700 px-4 py-1.5 text-[13px] sm:text-sm font-semibold" style="--rd:0ms">
       <span class="size-1.5 rounded-full bg-primary-500 pulse shrink-0"></span> Gratuit · sans engagement · 100 % confidentiel
     </div>
+    <!-- 19/10/2026 : accueil partenaire (lien ?partenaire=fdsea-12…) — rassure : c'est le lien de sa fédération. Rempli par le script plus bas, masqué sinon. -->
+    <div id="partenaireAccueil" class="hidden mt-4 mx-auto w-fit max-w-full rounded-2xl border border-primary-200 bg-white px-4 py-2.5 text-[14px] sm:text-[15px] text-slate-700 shadow-soft"></div>
     <h1 class="reveal-load mt-6 text-3xl sm:text-4xl md:text-5xl font-extrabold leading-tight tracking-tight text-slate-900" style="--rd:90ms;text-wrap:balance">
       Votre facture d'énergie,<br class="hidden sm:block"> <span class="sweep-ink">décortiquée ligne par ligne</span>.
     </h1>
@@ -286,6 +288,8 @@
           </span>
         </button>
       </div>
+      <!-- 19/10/2026 (James : « plus simple l'accès au scan ») : activité MASQUÉE (elle était facultative) — rétablir : retirer la classe hidden du conteneur ci-dessous. -->
+      <div class="hidden" data-garde="activite-19-10">
       <!-- Recherche secteur par mot ou code NAF (pro uniquement) -->
       <div id="nafWrap" class="mt-4 max-w-md mx-auto relative">
         <label for="nafInput" class="block text-xs font-semibold text-slate-600 mb-1">
@@ -297,43 +301,18 @@
         <ul id="nafSuggest" role="listbox" class="hidden absolute z-20 left-0 right-0 mt-1 max-h-60 overflow-auto rounded-xl border border-slate-200 bg-white shadow-strong text-sm"></ul>
         <p id="nafSecteur" class="mt-1.5 text-xs"></p>
       </div>
-
-      <!-- Coordonnées — OBLIGATOIRES pour tout le monde (nom, prénom, tél, mail) -->
-      <div id="proIdentite" class="mt-4 max-w-md mx-auto grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <div id="champEnseigneWrap" class="sm:col-span-2">
-          <label for="champEnseigne" class="block text-xs font-semibold text-slate-600 mb-1">Enseigne / raison sociale <span class="text-rose-500">*</span></label>
-          <input id="champEnseigne" type="text" autocomplete="organization" placeholder="ex. Boulangerie Martin"
-            class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" />
-        </div>
-        <div>
-          <label for="champPrenom" class="block text-xs font-semibold text-slate-600 mb-1">Prénom <span class="text-rose-500">*</span></label>
-          <input id="champPrenom" type="text" autocomplete="given-name" placeholder="Jean"
-            class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" />
-        </div>
-        <div>
-          <label for="champNom" class="block text-xs font-semibold text-slate-600 mb-1">Nom <span class="text-rose-500">*</span></label>
-          <input id="champNom" type="text" autocomplete="family-name" placeholder="Martin"
-            class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" />
-        </div>
-        <div>
-          <label for="champTel" class="block text-xs font-semibold text-slate-600 mb-1">Téléphone portable <span class="text-rose-500">*</span></label>
-          <input id="champTel" type="tel" inputmode="tel" autocomplete="tel" placeholder="06 12 34 56 78"
-            class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" />
-        </div>
-        <div>
-          <label for="champMail" class="block text-xs font-semibold text-slate-600 mb-1">E-mail <span class="text-rose-500">*</span></label>
-          <input id="champMail" type="email" autocomplete="email" placeholder="vous@entreprise.fr"
-            class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" />
-        </div>
-        <p class="sm:col-span-2 text-[11.5px] text-slate-400 -mt-0.5 flex items-center gap-1.5">
-          <svg class="w-3.5 h-3.5 text-primary-500 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/></svg>
-          Obligatoire pour recevoir votre bilan. Vos coordonnées restent chez Elga Energy, jamais revendues (RGPD).
-        </p>
-      </div>
+      </div><!-- /activité masquée 19/10 -->
     </div>
 
+    <!-- 19/10/2026 : le bloc « Coordonnées » (#proIdentite) a été DÉPLACÉ après la facture (la photo d'abord, les coordonnées ensuite).
+         Il est maintenant dans la carte « Vos coordonnées », juste avant le bouton « Analyser ma facture ». Avant, il était ici,
+         dans la carte « Vous êtes : ». -->
+    <!-- (ancien emplacement du bloc coordonnées) -->
+
+    <!-- 19/10/2026 (James : « supprimer vos énergies, on peut le détecter ») : bloc MASQUÉ, l'énergie est lue sur la facture
+         (l'info « déclarée » envoyée au CRM est désormais l'énergie détectée). Rétablir : retirer « hidden » ci-dessous. -->
     <!-- Vos énergies + nombre de compteurs (plusieurs factures = même analyse, même profil) -->
-    <div class="mb-5 bg-white rounded-2xl shadow-soft p-5">
+    <div class="hidden mb-5 bg-white rounded-2xl shadow-soft p-5" data-garde="energies-19-10">
       <p class="text-sm font-semibold text-slate-700 text-center">Vos énergies&nbsp;:</p>
       <p class="text-xs text-slate-400 mt-0.5 mb-3 text-center">Plusieurs compteurs&nbsp;? Scannez une facture par compteur — tout est regroupé.</p>
       <div class="grid grid-cols-3 gap-2.5 max-w-md mx-auto" role="radiogroup" aria-label="Vos énergies">
@@ -367,8 +346,10 @@
       <p id="nrjHint" class="hidden text-[12px] text-primary-700 font-semibold text-center mt-3"></p>
     </div>
 
+    <!-- 19/10/2026 (James : « par principe on met tout à analyser ») : bloc MASQUÉ, l'analyse reste sur « Facture complète » (all).
+         Rétablir : retirer « hidden » ci-dessous. -->
     <!-- Que souhaitez-vous analyser ? (oriente le scan) -->
-    <div class="mb-5 bg-white rounded-2xl shadow-soft p-5">
+    <div class="hidden mb-5 bg-white rounded-2xl shadow-soft p-5" data-garde="focus-19-10">
       <p class="text-sm font-semibold text-slate-700 text-center">Que souhaitez-vous analyser&nbsp;?</p>
       <p class="text-xs text-slate-400 mt-0.5 mb-3 text-center">On regarde tout par défaut, ou ciblez un levier précis.</p>
       <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5" role="radiogroup" aria-label="Type d'analyse">
@@ -459,6 +440,46 @@
         <p class="mt-2 text-xs text-slate-500">Astuce : photographiez aussi la page « détail de votre facture » (consommation, prix du kWh) — l'analyse n'en sera que plus juste.</p>
       </div>
     </div>
+
+    <!-- 19/10/2026 : carte « Vos coordonnées » — APRÈS la facture (la photo d'abord). Même bloc #proIdentite qu'avant, déplacé tel quel. -->
+    <div id="carteCoords" class="mt-5 bg-white rounded-2xl shadow-soft p-5">
+      <p class="text-sm font-semibold text-slate-700 text-center">Où vous envoyer votre bilan&nbsp;?</p>
+
+      <!-- Coordonnées — OBLIGATOIRES pour tout le monde (nom, prénom, tél, mail) -->
+      <div id="proIdentite" class="mt-3 max-w-md mx-auto grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <div class="hidden sm:col-span-2" data-garde="enseigne-19-10"><!-- 19/10/2026 : enseigne masquée et non obligatoire — reprise de la facture (client_name) -->
+        <div id="champEnseigneWrap" class="sm:col-span-2">
+          <label for="champEnseigne" class="block text-xs font-semibold text-slate-600 mb-1">Enseigne / raison sociale <span class="text-rose-500">*</span></label>
+          <input id="champEnseigne" type="text" autocomplete="organization" placeholder="ex. Boulangerie Martin"
+            class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" />
+        </div>
+        </div>
+        <div>
+          <label for="champPrenom" class="block text-xs font-semibold text-slate-600 mb-1">Prénom <span class="text-rose-500">*</span></label>
+          <input id="champPrenom" type="text" autocomplete="given-name" placeholder="Jean"
+            class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" />
+        </div>
+        <div>
+          <label for="champNom" class="block text-xs font-semibold text-slate-600 mb-1">Nom <span class="text-rose-500">*</span></label>
+          <input id="champNom" type="text" autocomplete="family-name" placeholder="Martin"
+            class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" />
+        </div>
+        <div>
+          <label for="champTel" class="block text-xs font-semibold text-slate-600 mb-1">Téléphone portable <span class="text-rose-500">*</span></label>
+          <input id="champTel" type="tel" inputmode="tel" autocomplete="tel" placeholder="06 12 34 56 78"
+            class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" />
+        </div>
+        <div>
+          <label for="champMail" class="block text-xs font-semibold text-slate-600 mb-1">E-mail <span class="text-rose-500">*</span></label>
+          <input id="champMail" type="email" autocomplete="email" placeholder="vous@entreprise.fr"
+            class="w-full rounded-xl border border-slate-200 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary-400 focus:border-transparent" />
+        </div>
+        <p class="sm:col-span-2 text-[11.5px] text-slate-400 -mt-0.5 flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5 text-primary-500 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"/></svg>
+          Obligatoire pour recevoir votre bilan. Vos coordonnées restent chez Elga Energy, jamais revendues (RGPD).
+        </p>
+      </div>
+        </div>
 
     <!-- Bouton analyser -->
     <div class="mt-5">
@@ -1285,6 +1306,20 @@
     });
   }
 
+  // 19/10/2026 : accueil partenaire — « Lien réservé aux adhérents de la FDSEA 12 » quand on arrive par ?partenaire=
+  try {
+    var _pq = new URLSearchParams(location.search).get('partenaire');
+    var _pa = document.getElementById('partenaireAccueil');
+    if (_pq && _pa) {
+      var _pm = String(_pq).trim().toLowerCase().match(/^fdsea-?(\d{2,3})$/);
+      var _pnom = _pm ? 'FDSEA ' + _pm[1] : null;
+      if (_pnom) {
+        _pa.innerHTML = 'Lien réservé aux adhérents de la <b class="text-primary-700">' + _pnom + '</b>';
+        _pa.classList.remove('hidden');
+      }
+    }
+  } catch (_) {}
+
   // ── Analyze button ────────────────────────────────────────────────────────
   btnAnalyze.addEventListener('click', startAnalysis);
 
@@ -1323,7 +1358,10 @@
       mail: (champMail && champMail.value || '').trim(),
     };
     var manquant = null, msg = '';
-    if (clientType === 'professionnel' && !_ident.enseigne) { manquant = champEnseigne; msg = 'Renseignez votre enseigne / raison sociale.'; }
+    // 19/10/2026 (James : « simplifier l'accès au scan ») : l'enseigne n'est plus demandée — elle est lue sur la facture
+    // (client_name) au moment d'envoyer le scan au CRM. Ancienne règle gardée :
+    // if (clientType === 'professionnel' && !_ident.enseigne) { manquant = champEnseigne; msg = 'Renseignez votre enseigne / raison sociale.'; }
+    if (false) {}
     else if (!_ident.prenom) { manquant = champPrenom; msg = 'Renseignez votre prénom.'; }
     else if (!_ident.nom) { manquant = champNom; msg = 'Renseignez votre nom.'; }
     else if (!_telOk(_ident.tel)) { manquant = champTel; msg = 'Indiquez un numéro de portable valide (ex. 06 12 34 56 78).'; }
@@ -1621,6 +1659,12 @@
       // Déclaratif du visiteur (énergies + nb de compteurs) → visible dans le CRM
       try {
         var _c = nrjCounts();
+        // 19/10/2026 : le bloc « Vos énergies » est masqué → on envoie l'énergie DÉTECTÉE sur la facture (1 compteur par facture).
+        var _nrjMasque = !!document.querySelector('[data-garde="energies-19-10"].hidden');
+        if (_nrjMasque) {
+          var _det = etype === 'both' ? 'both' : (etype === 'gas' || etype === 'gaz' ? 'gaz' : 'elec');
+          ex = Object.assign({}, ex || {}, { declare: { energies: _det, compteurs_elec: _det !== 'gaz' ? 1 : 0, compteurs_gaz: _det !== 'elec' ? 1 : 0, detecte: true } });
+        } else
         ex = Object.assign({}, ex || {}, { declare: { energies: nrjChoice, compteurs_elec: _c.elec, compteurs_gaz: _c.gaz } });
       } catch (_) {}
       // Parrainage : rattache le scan au parrain (visible dans son espace client).
@@ -1636,7 +1680,8 @@
         energy_type: etype,
         naf: (clientType === 'professionnel' ? nafCode : null) || null,
         secteur: (clientType === 'professionnel' ? nafSecteur : null) || null,
-        enseigne: _ident.enseigne || null,
+        // 19/10/2026 : enseigne plus demandée → nom du client lu sur la facture (client_name), sinon rien
+        enseigne: _ident.enseigne || (ex && (ex.client_name || (ex.electricity && ex.electricity.client_name) || (ex.gas && ex.gas.client_name))) || null,
         contact_prenom: _ident.prenom || null,
         contact_nom: _ident.nom || null,
         telephone: _ident.tel || null,
