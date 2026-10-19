@@ -210,8 +210,11 @@
   .pj2 .pj-ex.mince small{display:none}
   .pj2 .pj-bar .pc{display:none}
   .pj2 .pj-col.past .pj-bar .pc{display:block}
-  .pj2 .pj-today{position:absolute;left:0;right:0;bottom:calc(var(--hn) * (100% - 64px));border-top:1.5px dashed var(--ink-soft);opacity:.55;pointer-events:none;z-index:2}
-  .pj2 .pj-today span{position:absolute;right:4px;top:-20px;font-size:11px;font-weight:600;color:var(--ink-soft);background:#fff;padding:0 6px;border-radius:4px;white-space:nowrap}
+  /* v1 : ligne sur toute la largeur + étiquette à droite au-dessus — elle coupait le chiffre « il y a 5 ans » et chevauchait la barre rouge (vu en rendu réel le 19/10) :
+     .pj2 .pj-today{position:absolute;left:0;right:0;bottom:calc(var(--hn) * (100% - 64px));border-top:1.5px dashed var(--ink-soft);opacity:.55;pointer-events:none;z-index:2}
+     .pj2 .pj-today span{position:absolute;right:4px;top:-20px;font-size:11px;font-weight:600;color:var(--ink-soft);background:#fff;padding:0 6px;border-radius:4px;white-space:nowrap} */
+  .pj2 .pj-today{position:absolute;left:25%;right:0;bottom:calc(var(--hn) * (100% - 64px));border-top:1.5px dashed rgba(60,72,66,.5);pointer-events:none;z-index:2}
+  .pj2 .pj-today span{position:absolute;left:10px;top:7px;font-size:11px;font-weight:600;color:var(--ink-soft);white-space:nowrap;letter-spacing:.01em}
   .pj2 .pj-cost{background:var(--rose-soft);color:var(--ink);border:1px solid #f1cfca;padding:18px 22px;gap:10px 28px}
   .pj2 .pj-cost .n{font-size:clamp(26px,3.4vw,36px);color:var(--rose);letter-spacing:-.02em;line-height:1}
   .pj2 .pj-cost .l{font-size:14px;opacity:1;color:var(--ink-soft)}
@@ -221,7 +224,9 @@
   .pj2.go .pj-col:nth-child(4) .pj-ex{animation-delay:1.25s}
   .pj2.go .pj-today{animation:pjfade .5s ease-out .9s backwards}
   @keyframes pjex{from{transform:scaleY(0);opacity:.2}}
-  @media(max-width:640px){.pj2 .pj-ex b{font-size:13px}.pj2 .pj-ex small{font-size:10px}.pj2 .pj-today span{font-size:10px;top:-18px}.pj2 .pj-cost{padding:14px 16px}}
+  .pj2 .pj-ex b i,.pj2 .pj-today i{font-style:normal}
+  @media(max-width:640px){.pj2 .pj-ex b{font-size:13px}.pj2 .pj-ex b i{display:none}.pj2 .pj-ex small{font-size:10px}
+    .pj2 .pj-today span{font-size:10px;top:5px;left:6px;white-space:normal;max-width:28%;line-height:1.2}.pj2 .pj-today i{display:none}.pj2 .pj-cost{padding:14px 16px}}
   @media(prefers-reduced-motion:reduce){.pj2.go .pj-ex,.pj2.go .pj-today{animation:none}}
 
   /* cards de récap (conclusion, non dépliables) */
@@ -935,13 +940,13 @@ function renderProj(){
   const hn=(REF.total/max).toFixed(3);
   const bar=c=>{
     if(c.k==='f5'||c.k==='f10'){ const ex=Math.max(0,c.v-REF.total), x=c.v>0?(ex/c.v):0;
-      return `<div class="pj-bar" style="--h:${(c.v/max).toFixed(3)}"><div class="pj-ex${x<0.24?' mince':''}" style="--x:${x.toFixed(3)}"><b class="tnum">+${euro(ex)}/an</b><small class="tnum">${pc(c.v)} vs aujourd'hui</small></div></div>`; }
+      return `<div class="pj-bar" style="--h:${(c.v/max).toFixed(3)}"><div class="pj-ex${x<0.24?' mince':''}" style="--x:${x.toFixed(3)}"><b class="tnum">+${euro(ex)}<i>/an</i></b><small class="tnum">${pc(c.v)} vs aujourd'hui</small></div></div>`; }
     return `<div class="pj-bar" style="--h:${(c.v/max).toFixed(3)}"><span class="pc tnum">${c.k==='now'?'':pc(c.v)}</span></div>`;
   };
   el.innerHTML=`<p class="pj-lead">Aujourd'hui, votre électricité vous coûte <b>${euro(REF.total)} par an</b>. Il y a cinq ans, la même consommation revenait à <b>${euro(cols[0].v)}</b>. Si rien ne change, elle passera à <b class="up">${euro(cols[3].v)} par an</b> dans dix ans.</p>
     <div class="pj-bars" style="--hn:${hn}" role="img" aria-label="${cols.map(c=>c.lbl+' : '+euro(c.v)+' par an').join(' ; ')}">
       ${cols.map(c=>`<div class="pj-col ${c.k}"><div class="pj-amt tnum">${euro(c.v)}</div><div class="pj-mo tnum">≈ ${euro(c.v/12)} <span class="pm">/ mois</span></div>${bar(c)}</div>`).join('')}
-      <div class="pj-today" aria-hidden="true"><span>niveau d'aujourd'hui · ${euro(REF.total)}</span></div>
+      <div class="pj-today" aria-hidden="true"><span>niveau d'aujourd'hui<i> · ${euro(REF.total)}</i></span></div>
     </div>
     <div class="pj-lbls" aria-hidden="true">${cols.map(c=>`<div><b>${c.lbl}</b><span>${c.sub}</span></div>`).join('')}</div>
     <div class="pj-cost">
