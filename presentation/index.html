@@ -193,6 +193,36 @@
   @keyframes gsfill{from{background:#fff;border-color:var(--line);color:var(--mut)}}
   @media(max-width:400px){.gs-months{grid-template-columns:repeat(4,1fr)}}
   @media(prefers-reduced-motion:reduce){.pj.go .pj-bar,.pj.go .pj-amt,.pj.go .pj-mo,.gs-ln .gs-ok,.gs-m,.gs-m .ck{animation:none}}
+  /* 19/10/2026 — « Et si vous ne changez rien ? » v2 (James : « trop de noir […] faire WOW, un déclic, sobre, élégant, compris
+     immédiatement »). Plus de noir : « Aujourd'hui » en neutre, une ligne « niveau d'aujourd'hui » traverse le graphique, et
+     tout ce qui dépasse (la hausse) est coloré, montant écrit dedans. Le cumul passe en rose doux. Les règles v1 ci-dessus
+     restent (classes .pj-col.now, .pj-cost…) ; celles-ci, plus bas, priment. */
+  .pj2 .pj-bars{position:relative;border-bottom-color:var(--line-strong)}
+  .pj2 .pj-col.now .pj-bar{background:#dfe6e2}
+  .pj2 .pj-col.now .pj-amt{color:var(--ink)}
+  .pj2 .pj-col.f5 .pj-bar,.pj2 .pj-col.f10 .pj-bar{background:#dfe6e2;box-shadow:none;overflow:hidden}
+  .pj2 .pj-ex{position:absolute;left:0;right:0;top:0;height:calc(var(--x) * 100%);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1px;
+    color:#fff;transform-origin:50% 100%;border-radius:12px 12px 0 0}
+  .pj2 .pj-col.f5 .pj-ex{background:linear-gradient(180deg,#c98a35,var(--amber))}
+  .pj2 .pj-col.f10 .pj-ex{background:linear-gradient(180deg,#d9604f,var(--rose))}
+  .pj2 .pj-ex b{font-family:var(--serif);font-weight:500;font-size:clamp(14px,1.7vw,19px);letter-spacing:-.01em;line-height:1.1;white-space:nowrap}
+  .pj2 .pj-ex small{font-size:11px;font-weight:600;opacity:.9;white-space:nowrap}
+  .pj2 .pj-ex.mince small{display:none}
+  .pj2 .pj-bar .pc{display:none}
+  .pj2 .pj-col.past .pj-bar .pc{display:block}
+  .pj2 .pj-today{position:absolute;left:0;right:0;bottom:calc(var(--hn) * (100% - 64px));border-top:1.5px dashed var(--ink-soft);opacity:.55;pointer-events:none;z-index:2}
+  .pj2 .pj-today span{position:absolute;right:4px;top:-20px;font-size:11px;font-weight:600;color:var(--ink-soft);background:#fff;padding:0 6px;border-radius:4px;white-space:nowrap}
+  .pj2 .pj-cost{background:var(--rose-soft);color:var(--ink);border:1px solid #f1cfca;padding:18px 22px;gap:10px 28px}
+  .pj2 .pj-cost .n{font-size:clamp(26px,3.4vw,36px);color:var(--rose);letter-spacing:-.02em;line-height:1}
+  .pj2 .pj-cost .l{font-size:14px;opacity:1;color:var(--ink-soft)}
+  .pj2 .pj-cost .sep{background:#f1cfca;height:34px}
+  .pj2 .pj-cost .sm .n{font-size:clamp(20px,2.4vw,26px)}
+  .pj2.go .pj-ex{animation:pjex .7s cubic-bezier(.16,1,.3,1) 1.05s backwards}
+  .pj2.go .pj-col:nth-child(4) .pj-ex{animation-delay:1.25s}
+  .pj2.go .pj-today{animation:pjfade .5s ease-out .9s backwards}
+  @keyframes pjex{from{transform:scaleY(0);opacity:.2}}
+  @media(max-width:640px){.pj2 .pj-ex b{font-size:13px}.pj2 .pj-ex small{font-size:10px}.pj2 .pj-today span{font-size:10px;top:-18px}.pj2 .pj-cost{padding:14px 16px}}
+  @media(prefers-reduced-motion:reduce){.pj2.go .pj-ex,.pj2.go .pj-today{animation:none}}
 
   /* cards de récap (conclusion, non dépliables) */
   .reccards{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:28px}
@@ -890,15 +920,34 @@ function renderProj(){
   const pc=v=>{const d=Math.round((v/REF.total-1)*100);return d?(d>0?'+':'−')+Math.abs(d)+' %':'';};
   let cumul=0; for(let y=1;y<=10;y++) cumul+=REF.energie*(Math.pow(1+RATE,y)-1);
   const pr=Math.round(RATE*100);
-  el.innerHTML=`<p class="pj-lead">Aujourd'hui, votre électricité vous coûte <b>${euro(REF.total)} par an</b>. Il y a cinq ans, la même consommation revenait à <b>${euro(cols[0].v)}</b>. Si rien ne change, elle passera à <b class="up">${euro(cols[3].v)} par an</b> dans dix ans.</p>
-    <div class="pj-bars" role="img" aria-label="${cols.map(c=>c.lbl+' : '+euro(c.v)+' par an').join(' ; ')}">
+  // 19/10/2026 — v2 « déclic » (James : « trop de noir […] mettre en évidence, sobre, élégant, compris immédiatement ») :
+  // ligne « niveau d'aujourd'hui » + la HAUSSE colorée et chiffrée dans les barres futures ; cumul en rose doux.
+  // Mêmes textes, mêmes calculs, mêmes 4 colonnes. v1 (barre noire + bandeau noir), gardée telle quelle en commentaire :
+  /* el.innerHTML=`<p class="pj-lead">…même phrase…</p>
+    <div class="pj-bars" role="img" aria-label="…">
       ${cols.map(c=>`<div class="pj-col ${c.k}"><div class="pj-amt tnum">${euro(c.v)}</div><div class="pj-mo tnum">≈ ${euro(c.v/12)} <span class="pm">/ mois</span></div><div class="pj-bar" style="--h:${(c.v/max).toFixed(3)}"><span class="pc tnum">${c.k==='now'?'':pc(c.v)}</span></div></div>`).join('')}
+    </div>
+    <div class="pj-lbls" aria-hidden="true">${cols.map(c=>`<div><b>${c.lbl}</b><span>${c.sub}</span></div>`).join('')}</div>
+    <div class="pj-cost"><div><span class="n tnum">+ ${euro(cumul)}</span> <span class="l">de plus sur 10 ans, cumulés, si rien ne change</span></div>
+      <div class="sep"></div><div><span class="n tnum">≈ ${euro(cumul/120)}</span> <span class="l">de plus par mois, en moyenne</span></div></div>…`;
+     Pour la rétablir : retirer la classe pj2 (ligne suivante) et remettre ce gabarit. */
+  { const pjEl=document.getElementById('pj'); if(pjEl) pjEl.classList.add('pj2'); }
+  const hn=(REF.total/max).toFixed(3);
+  const bar=c=>{
+    if(c.k==='f5'||c.k==='f10'){ const ex=Math.max(0,c.v-REF.total), x=c.v>0?(ex/c.v):0;
+      return `<div class="pj-bar" style="--h:${(c.v/max).toFixed(3)}"><div class="pj-ex${x<0.24?' mince':''}" style="--x:${x.toFixed(3)}"><b class="tnum">+${euro(ex)}/an</b><small class="tnum">${pc(c.v)} vs aujourd'hui</small></div></div>`; }
+    return `<div class="pj-bar" style="--h:${(c.v/max).toFixed(3)}"><span class="pc tnum">${c.k==='now'?'':pc(c.v)}</span></div>`;
+  };
+  el.innerHTML=`<p class="pj-lead">Aujourd'hui, votre électricité vous coûte <b>${euro(REF.total)} par an</b>. Il y a cinq ans, la même consommation revenait à <b>${euro(cols[0].v)}</b>. Si rien ne change, elle passera à <b class="up">${euro(cols[3].v)} par an</b> dans dix ans.</p>
+    <div class="pj-bars" style="--hn:${hn}" role="img" aria-label="${cols.map(c=>c.lbl+' : '+euro(c.v)+' par an').join(' ; ')}">
+      ${cols.map(c=>`<div class="pj-col ${c.k}"><div class="pj-amt tnum">${euro(c.v)}</div><div class="pj-mo tnum">≈ ${euro(c.v/12)} <span class="pm">/ mois</span></div>${bar(c)}</div>`).join('')}
+      <div class="pj-today" aria-hidden="true"><span>niveau d'aujourd'hui · ${euro(REF.total)}</span></div>
     </div>
     <div class="pj-lbls" aria-hidden="true">${cols.map(c=>`<div><b>${c.lbl}</b><span>${c.sub}</span></div>`).join('')}</div>
     <div class="pj-cost">
       <div><span class="n tnum">+ ${euro(cumul)}</span> <span class="l">de plus sur 10 ans, cumulés, si rien ne change</span></div>
       <div class="sep"></div>
-      <div><span class="n tnum">≈ ${euro(cumul/120)}</span> <span class="l">de plus par mois, en moyenne</span></div>
+      <div class="sm"><span class="n tnum">≈ ${euro(cumul/120)}</span> <span class="l">de plus par mois, en moyenne</span></div>
     </div>
     <p class="pj-note">Il y a 5 ans : même consommation, au tarif réglementé de l'époque (barèmes CRE). Projections : seule la part énergie augmente, de +${pr} % par an ; l'acheminement et les taxes restent à leur niveau d'aujourd'hui. C'est une hypothèse prudente, pas une prévision.</p>`;
 }
