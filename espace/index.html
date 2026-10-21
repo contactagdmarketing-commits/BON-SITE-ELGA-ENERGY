@@ -121,10 +121,24 @@ function onState(d){
 // pour montrer à quoi ressemble la cagnotte de parrainage. N'écrit RIEN en base.
 function maybeDemo(code){
   if((code||'').toUpperCase()!=='76A544DB') return;
-  const val=[['Boulangerie Martin','12 janv.'],['Garage du Centre','23 janv.'],['Pharmacie des Halles','4 févr.'],['Restaurant Le Terroir','18 févr.'],['Menuiserie Dubois','2 mars'],['Cabinet Dentaire Rey','15 mars'],['Fleuriste Élise','29 mars'],['Auto-École Volant','11 avr.'],['Cave Bacchus','26 avr.'],['Coiffure Néo','7 mai']];
-  const enc=[['Boucherie Sanzot','21 mai'],['Opticien Regard','28 mai'],['Camping Les Pins','3 juin'],['Hôtel du Parc','12 juin'],['Épicerie Gusto','24 juin']];
-  STATE.parr_val=val.map(x=>({qui:x[0],le:x[1]}));
-  STATE.parr_enc=enc.map(x=>({qui:x[0],le:x[1]}));
+  /* Avant (jusqu'au 21/10/2026) : noms + dates fixes (janv. → juin), sans aucun montant :
+     val=[['Boulangerie Martin','12 janv.'],…,['Coiffure Néo','7 mai']] ; enc=[['Boucherie Sanzot','21 mai'],…,['Épicerie Gusto','24 juin']]
+     21/10/2026 — James : « dans la démo espace client, niveau recommandation, mets les commissions en cours et validées,
+     cohérent, vraiment pour donner un exemple que le client puisse voir quand je lui montre ».
+     Montants = la part du client, cohérents avec la règle affichée (30 € minimum chacun, jusqu'à 250 €+ selon la
+     consommation du filleul). Dates recalculées à partir d'aujourd'hui pour que la démo reste toujours récente. */
+  window.DEMO=true;
+  const jour=n=>{const d=new Date(Date.now()-n*86400e3);return d.toLocaleDateString('fr-FR',{day:'numeric',month:'short'});};
+  // [qui, il y a N jours, part du client en €, état du versement]
+  const val=[['Boulangerie Martin',236,60,'verse'],['Garage du Centre',214,45,'verse'],['Pharmacie des Halles',190,85,'verse'],['Restaurant Le Terroir',161,70,'verse'],
+             ['Menuiserie Dubois',118,50,'en_cours'],['Cabinet Dentaire Rey',92,30,'dispo'],['Fleuriste Élise',71,30,'dispo'],['Auto-École Volant',49,30,'dispo'],['Cave Bacchus',33,40,'dispo'],['Coiffure Néo',19,30,'dispo']];
+  // [qui, il y a N jours, part estimée à la signature]
+  const enc=[['Boucherie Sanzot',14,55],['Opticien Regard',11,30],['Camping Les Pins',8,120],['Hôtel du Parc',5,95],['Épicerie Gusto',2,30]];
+  STATE.parr_val=val.map(x=>({qui:x[0],le:jour(x[1]),montant:x[2],etat:x[3]}));
+  STATE.parr_enc=enc.map(x=>({qui:x[0],le:jour(x[1]),montant:x[2]}));
+  const somme=(l,e)=>l.filter(x=>!e||x[3]===e).reduce((s,x)=>s+x[2],0);
+  STATE.recompense={versee:somme(val,'verse'),en_cours:somme(val,'en_cours'),disponible:somme(val,'dispo')};
+  STATE.parr_gagne=somme(val); STATE.parr_avenir=enc.reduce((s,x)=>s+x[2],0);
 }
 function loading(txt){return `<div class="min-h-screen grid place-items-center"><div class="text-center"><div class="spin mx-auto mb-3"></div><p class="text-slate-400 text-sm">${esc(txt)}</p></div></div>`;}
 
@@ -537,6 +551,8 @@ function blocRecompense(){
   </section>`;
 }
 async function declencherRecompense(btn){
+  // 21/10/2026 : en démo, on montre le geste sans rien envoyer (aucune demande de versement créée en base).
+  if(window.DEMO){ toast('Démonstration : en vrai, votre conseiller reçoit votre demande et vous verse '+euro((STATE.recompense||{}).disponible||0)+' en chèque-cadeau.'); return; }
   if(btn){btn.disabled=true;btn.textContent='Demande en cours…';}
   const d=await rpc('espace_recompense_demander',{p_token:TOKEN});
   if(d&&d.ok){ toast('Demande envoyée 🎉 votre conseiller vous verse '+euro(d.montant)); await recharger(); }
@@ -545,7 +561,10 @@ async function declencherRecompense(btn){
 function recoLine(p,ok){return `<div class="flex items-center justify-between gap-2 rounded-xl border ${ok?'border-primary-100 bg-primary-50/50':'border-amber-100 bg-amber-50/50'} px-3.5 py-2.5">
   <div class="flex items-center gap-2.5"><div class="h-9 w-9 rounded-xl ${ok?'bg-primary-100 text-primary-700':'bg-amber-100 text-amber-700'} grid place-items-center"><svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.7" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 21h18M5 21V7l7-4 7 4v14M9 9h.01M9 13h.01M9 17h.01M15 9h.01M15 13h.01M15 17h.01"/></svg></div>
   <div><div class="text-[13px] font-semibold text-slate-700">${esc(p.qui)}</div><div class="text-[11px] text-slate-400">${ok?'devenue cliente · '+esc(p.le):'a vérifié sa facture · '+esc(p.le)}</div></div></div>
-  <span class="text-[12px] font-bold ${ok?'text-primary-700':'text-amber-600'}">${ok?'✓ chèque-cadeau validé':'en attente de signature'}</span></div>`;}
+  ${p.montant
+    /* 21/10/2026 : montant de la commission (démo) — validée : versée / en cours de versement / disponible ; en cours : estimée à la signature */
+    ? `<div class="text-right shrink-0"><div class="text-[14px] font-extrabold tabular-nums ${ok?'text-primary-700':'text-amber-600'}">${ok?'+ ':'≈ '}${euro(p.montant)}</div><div class="text-[11px] font-semibold ${ok?'text-primary-600':'text-amber-600'}">${ok?({verse:'✓ versé',en_cours:'⏳ versement en cours',dispo:'✓ disponible'}[p.etat]||'✓ validé'):'à la signature'}</div></div>`
+    : `<span class="text-[12px] font-bold ${ok?'text-primary-700':'text-amber-600'}">${ok?'✓ chèque-cadeau validé':'en attente de signature'}</span>`}</div>`;}
 function vueParrainage(){
   const val=STATE.parr_val||[], enc=STATE.parr_enc||[];
   const rich=(val.length||enc.length);
@@ -672,17 +691,17 @@ function vueParrainage(){
       <div class="rounded-2xl p-4 sm:p-5 text-white" style="background:linear-gradient(120deg,#0e8a57,#0b6c45)">
         <div class="text-[12px] text-white/80">Recommandations signées</div>
         <div class="text-3xl sm:text-4xl font-extrabold mt-1 tabular-nums">${val.length}</div>
-        <div class="text-[12px] text-white/85 mt-1">chèque-cadeau déclenché${val.length>1?'s':''}</div>
+        <div class="text-[12px] text-white/85 mt-1">chèque-cadeau déclenché${val.length>1?'s':''}${STATE.parr_gagne?` · <strong class="text-white">${euro(STATE.parr_gagne)} gagnés</strong>`:''}</div>
       </div>
       <div class="rounded-2xl p-4 sm:p-5 bg-amber-50 border border-amber-100">
         <div class="text-[12px] text-amber-700">En attente</div>
         <div class="text-3xl sm:text-4xl font-extrabold mt-1 tabular-nums text-amber-700">${enc.length}</div>
-        <div class="text-[12px] text-amber-600 mt-1">scan${enc.length>1?'s':''} en cours de validation</div>
+        <div class="text-[12px] text-amber-600 mt-1">scan${enc.length>1?'s':''} en cours de validation${STATE.parr_avenir?` · <strong>≈ ${euro(STATE.parr_avenir)} à venir</strong>`:''}</div>
       </div>
     </div>
     <h3 class="text-[15px] font-extrabold text-slate-900 mb-2.5">Recommandations validées <span class="text-slate-400 font-semibold">· chèque-cadeau (30 € min. chacun)</span></h3>
     <div class="space-y-2">${val.map(p=>recoLine(p,true)).join('')}</div>
-    ${enc.length?`<h3 class="text-[15px] font-extrabold text-slate-900 mt-6 mb-2.5">En cours</h3><div class="space-y-2">${enc.map(p=>recoLine(p,false)).join('')}</div>`:''}
+    ${enc.length?`<h3 class="text-[15px] font-extrabold text-slate-900 mt-6 mb-2.5">En cours <span class="text-slate-400 font-semibold">· en attente de leur signature</span></h3><div class="space-y-2">${enc.map(p=>recoLine(p,false)).join('')}</div>`:''}
     <p class="text-[12px] text-slate-400 mt-5 text-center">Chaque pro qui signe grâce à vous = un chèque-cadeau (de 30 € à 250 €+ chacun selon sa consommation), versé à 30 jours fin de mois après sa signature.</p>
   </section>`:`
   <section class="fade bg-white rounded-3xl shadow-soft p-6 sm:p-7">
