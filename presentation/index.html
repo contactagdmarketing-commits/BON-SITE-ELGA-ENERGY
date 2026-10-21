@@ -686,6 +686,12 @@ function applyBilan(b){
   // 19/10/2026 (4e) — bilan SANS offre de référence présenté depuis le CRM : le budget actuel vient du bilan AVEC référence
   // du même compteur (b.mode = 'evolution_seule'). Projection « si rien ne change » normale ; le tableau montre
   // l'évolution chez le fournisseur actuel sur 4 ans au lieu des offres (James les montre à côté).
+  // 21/10/2026 — James : « pour tous ceux qui n'ont pas d'offre de référence, fais comme Lacassagne, avec prix marché dans le
+  // comparatif final ». Les bilans « evolution_seule » (sans offre de référence dans leur PDF) passent donc eux aussi en
+  // comparatif des offres avec « Prix du marché actuel » (offre n°1) comme référence. Le mode « évolution seule » reste
+  // dans le code : pour le rétablir, passer EVOL_SEULE_ACTIF à true.
+  const EVOL_SEULE_ACTIF=false;
+  if(b.mode==='evolution_seule' && !EVOL_SEULE_ACTIF) return applyBilanOffresSeules(b);
   EVOL_SEULE = b.mode==='evolution_seule';
   const conso=s.conso_kwh?s.conso_kwh/1000:null;
   const kwhOf=e=>(conso&&e!=null)?Math.round(e/conso*10)/10:null;
