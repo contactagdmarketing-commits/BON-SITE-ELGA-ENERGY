@@ -752,7 +752,9 @@ function applyBilanOffresSeules(b){
   // L'ancien affichage « offres seules » (renderRowsOffresSeules / drawSheetOffreSeule) reste utilisé s'il n'y a aucune offre.
   REF_N1=null;
   if(OFFRES.length){ const n1=OFFRES[0]; SANS_REF=false; REF_N1=n1.nom;
-    REF={nom:n1.nom+' — offre n°1',energie:n1.energie,total:n1.total,kwh:n1.kwh,kwhE:n1.kwhE}; }
+    // 21/10/2026 (2e) — James : « au lieu de mettre Engie offre n°1, remplace par prix de marché actuel […] ne mets pas
+    // Engie car on ne comprend rien ». Avant : nom: n1.nom+' — offre n°1'.
+    REF={nom:'Prix du marché actuel',energie:n1.energie,total:n1.total,kwh:n1.kwh,kwhE:n1.kwhE}; }
   renderRows(); renderBilanInfo(); renderProj(); return OFFRES.length>0;
 }
 function renderRowsOffresSeules(){
@@ -989,7 +991,7 @@ function renderProj(){
     return `<div class="pj-bar" style="--h:${(c.v/max).toFixed(3)}"><span class="pc tnum">${c.k==='now'?'':pc(c.v)}</span></div>`;
   };
   el.innerHTML=`${N1
-      ? `<p class="pj-lead">Au prix du marché d'aujourd'hui (l'offre n°1 de votre bilan, ${N1.nom}), l'électricité de ce compteur coûte <b>${euro(B.total)} par an</b>. Il y a cinq ans, la même consommation revenait à <b>${euro(cols[0].v)}</b>. Sans prix bloqué, elle passera à <b class="up">${euro(cols[3].v)} par an</b> dans dix ans.</p>`
+      ? `<p class="pj-lead">Au prix du marché actuel, l'électricité de ce compteur coûte <b>${euro(B.total)} par an</b>. Il y a cinq ans, la même consommation revenait à <b>${euro(cols[0].v)}</b>. Sans prix bloqué, elle passera à <b class="up">${euro(cols[3].v)} par an</b> dans dix ans.</p>`
       : `<p class="pj-lead">Aujourd'hui, votre électricité vous coûte <b>${euro(REF.total)} par an</b>. Il y a cinq ans, la même consommation revenait à <b>${euro(cols[0].v)}</b>. Si rien ne change, elle passera à <b class="up">${euro(cols[3].v)} par an</b> dans dix ans.</p>`}
     <div class="pj-bars" style="--hn:${hn}" role="img" aria-label="${cols.map(c=>c.lbl+' : '+euro(c.v)+' par an').join(' ; ')}">
       ${cols.map(c=>`<div class="pj-col ${c.k}"><div class="pj-amt tnum">${euro(c.v)}</div><div class="pj-mo tnum">≈ ${euro(c.v/12)} <span class="pm">/ mois</span></div>${bar(c)}</div>`).join('')}
@@ -1001,7 +1003,7 @@ function renderProj(){
       <div class="sep"></div>
       <div class="sm"><span class="n tnum">≈ ${euro(cumul/120)}</span> <span class="l">de plus par mois, en moyenne</span></div>
     </div>
-    <p class="pj-note">${N1?`Base « aujourd'hui » : ce bilan ne contient pas votre facture actuelle, on part donc du prix de l'offre n°1 (${N1.nom}) pour ce compteur. `:''}Il y a 5 ans : même consommation, au tarif réglementé de l'époque (barèmes CRE). Projections : seule la part énergie augmente, de +${pr} % par an ; l'acheminement et les taxes restent à leur niveau d'aujourd'hui. C'est une hypothèse prudente, pas une prévision.</p>`;
+    <p class="pj-note">${N1?`Base « aujourd'hui » : le prix du marché actuel pour ce compteur (ce bilan ne contient pas votre facture actuelle). `:''}Il y a 5 ans : même consommation, au tarif réglementé de l'époque (barèmes CRE). Projections : seule la part énergie augmente, de +${pr} % par an ; l'acheminement et les taxes restent à leur niveau d'aujourd'hui. C'est une hypothèse prudente, pas une prévision.</p>`;
 }
 /* les barres poussent quand le bloc arrive à l'écran (visibles par défaut si l'observateur ne se déclenche pas) */
 (function(){const pj=document.getElementById('pj'); if(!pj||!('IntersectionObserver' in window))return;
@@ -1031,7 +1033,7 @@ function renderRows(){
   if(EVOL_SEULE) return renderRowsEvolution();   // 19/10/2026 (4e) : sans offre de référence, budget actuel repris
   { setBhead(BHEAD_NORMAL); const lt=document.getElementById('bheadLast'); if(lt) lt.textContent='Éco. moy./an'; const nt=document.getElementById('sansRefNote');
     // 21/10/2026 : bilan sans facture actuelle → on dit clairement que la référence est l'offre n°1 (avant : note vide)
-    if(nt) nt.innerHTML=REF_N1?`<div style="margin:16px 0 10px;padding:12px 16px;border:1px solid var(--line);border-radius:12px;background:var(--panel);font-size:14px;color:var(--ink)"><b>Référence : l'offre n°1 de votre bilan (${REF_N1}).</b> Ce bilan ne contient pas votre facture actuelle : on part du prix du marché d'aujourd'hui pour votre compteur, et de ce qu'il deviendrait si rien n'est bloqué.</div>`:''; }
+    if(nt) nt.innerHTML=REF_N1?`<div style="margin:16px 0 10px;padding:12px 16px;border:1px solid var(--line);border-radius:12px;background:var(--panel);font-size:14px;color:var(--ink)"><b>Référence : le prix du marché actuel pour votre compteur.</b> Ce bilan ne contient pas votre facture actuelle : on part du prix du marché d'aujourd'hui, et de ce qu'il deviendrait si rien n'est bloqué.</div>`:''; }
   // Perte moyenne annuelle EDF/actuel si rien ne change (mêmes maths que la modale « référence », lissée sur 4 ans)
   let perte=0; for(let y=1;y<=4;y++) perte+=REF.energie*(Math.pow(1+RATE,y)-1); perte/=4;
   // Meilleure économie moyenne annuelle → entourée en vert
@@ -1069,7 +1071,7 @@ function drawSheet(){
   const sheet=document.getElementById('sheet');
   if(curK===-1){ // référence : si vous ne changez rien
     const years=4;let tot=0,rows='';for(let y=1;y<=years;y++){const e=REF.energie*Math.pow(1+RATE,y);tot+=e-REF.energie;rows+=`<div class="tr"><div>An ${y}</div><div class="tnum" style="color:var(--rose)">${euro(e)}</div><div class="tnum">${euro(REF.energie)}</div><div class="tnum" style="color:var(--rose);font-weight:700">+${euro(e-REF.energie)}</div></div>`;}
-    sheet.innerHTML=`<div class="sheet-top"><div style="display:flex;align-items:center;gap:13px">${fmark(REF.nom,'#75837e',42)}<div><div style="font-family:var(--serif);font-size:22px">${REF_N1?'Le prix du marché aujourd\'hui':'Votre contrat actuel'}</div><div style="font-size:13px;color:var(--mut)">${REF_N1?'Offre n°1 du bilan ('+REF_N1+'), si rien n\'est bloqué':'Si vous ne changez rien'}</div></div></div>
+    sheet.innerHTML=`<div class="sheet-top"><div style="display:flex;align-items:center;gap:13px">${fmark(REF.nom,'#75837e',42)}<div><div style="font-family:var(--serif);font-size:22px">${REF_N1?'Le prix du marché aujourd\'hui':'Votre contrat actuel'}</div><div style="font-size:13px;color:var(--mut)">${REF_N1?'Si rien n\'est bloqué':'Si vous ne changez rien'}</div></div></div>
       <button class="sheet-x" onclick="closeSheet()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 6l12 12M18 6L6 18"/></svg></button></div>
       <div class="lever"><div class="lvr fix"><div class="lh"><div class="lt">🔌 Acheminement + taxes</div><span class="badge">non négociable</span></div><div class="cmp"><div><div class="v tnum">${euro(AT)}/an</div><small>identique chez tous les fournisseurs</small></div></div><p>Régulé par l'État. Personne ne peut agir dessus, ni nous, ni un autre courtier.</p></div></div>
       <div class="proj"><div class="proj-h"><div class="t">Votre énergie si vous ne bougez pas</div>${segHTML()}</div>
