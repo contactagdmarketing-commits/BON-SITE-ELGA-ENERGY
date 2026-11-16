@@ -903,7 +903,10 @@ function pillarHTML(p){
     <div class="highlight"><div class="t">La partie la plus importante de notre métier</div><p>On connaît votre prix. On connaît les prix du marché, mis à jour <b>chaque jour</b>. On croise les deux en continu pour rester vigilant aux variations. Dès qu'une opportunité passe sous votre tarif, une <b>alerte automatique</b> se déclenche, et on prépare votre renouvellement au bon moment. Vous n'avez rien à faire.</p></div>
     <div class="mini" style="margin-top:14px"><div class="h"><span class="ic">🤖</span>Un agent 24/7</div><p>Une question sur une ligne, une échéance, un engagement ? Réponse immédiate, même à 2 h du matin.</p></div>
     ${false?`<div class="mini"><div class="h"><span class="ic">📄</span>Contrat, CGV, factures</div><p>Tout au même endroit. Au bout de 12 mois, on vérifie si votre acheminement est bien calibré.</p></div>`:''}
-    <div style="margin-top:14px"><a class="btn ghost" href="/espace/?c=76A544DB" target="_blank" rel="noopener">Voir une démo de l'espace client
+    <div style="margin-top:14px;display:flex;flex-wrap:wrap;gap:10px"><a class="btn ghost" href="/espace/?c=76A544DB" target="_blank" rel="noopener">Voir une démo de l'espace client
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M7 17L17 7M7 7h10v10"/></svg></a>
+      <!-- 16/11/2026 — James : un exemple de l'espace client avec des factures conformes au contrat et leur analyse -->
+      <a class="btn ghost" href="/espace/?c=76A544DB&onglet=factures" target="_blank" rel="noopener">Exemple : 12 factures vérifiées
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M7 17L17 7M7 7h10v10"/></svg></a></div>`;}
   /* ANCIENNE version du levier 2 — désactivée le 14/10/2026 (remplacée par le bloc ci-dessus), gardée intacte.
      Pour la rétablir : remplacer « false&& » par « p===1&& ». */

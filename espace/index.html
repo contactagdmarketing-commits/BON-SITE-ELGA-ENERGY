@@ -114,6 +114,8 @@ async function boot(){
   vueLogin();
 }
 function onState(d){
+  // 16/11 : + ?onglet=factures (la présentation R2 ouvre la démo directement sur les factures)
+  const og=params.get('onglet'); if(og&&NAV.some(n=>n.id===og&&!n.action)) TAB=og;
   if(d&&d.ok){ STATE=d; TOKEN=d.token; maybeDemo(params.get('c')); renderApp(); }
   else vueLogin(d&&d.error);
 }
@@ -139,6 +141,69 @@ function maybeDemo(code){
   const somme=(l,e)=>l.filter(x=>!e||x[3]===e).reduce((s,x)=>s+x[2],0);
   STATE.recompense={versee:somme(val,'verse'),en_cours:somme(val,'en_cours'),disponible:somme(val,'dispo')};
   STATE.parr_gagne=somme(val); STATE.parr_avenir=enc.reduce((s,x)=>s+x[2],0);
+  demoFactures();
+}
+/* 16/11/2026 — James : « pour la présentation R2 […] un exemple de l'espace client pour montrer […] dans facture on pourrait simuler des
+   factures qui correspondraient au contrat en exemple, avec l'analyse des factures […] que des factures conformes au contrat, dans
+   la démo ». Factures FICTIVES (démo seulement), calculées depuis le contrat de démo : prix de l'énergie, abonnement, puissance,
+   CEE et capacité lus dans le contrat. Les dates du contrat de démo sont recalées pour que les 12 derniers mois soient dans le contrat.
+   Rien n'est écrit en base. Les montants d'acheminement et de taxes sont illustratifs (démo). */
+function demoFactures(){
+  const L=STATE.contrats||[], ct=L[0]&&L[0].extracted; if(!ct) return;
+  const auj=new Date(), debut=new Date(auj.getFullYear(),auj.getMonth()-14,1), fin=new Date(debut.getFullYear()+3,debut.getMonth(),0);
+  const iso=d=>`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+  ct.date_debut=iso(debut); ct.date_fin=iso(fin);
+  if(STATE.contrat){STATE.contrat.date_debut=ct.date_debut; STATE.contrat.date_fin=ct.date_fin;}
+  const prix=Number(ct.prix_kwh_base_mwh)||84.97, abo=Number(ct.abonnement_mensuel_ht)||13.75, kva=ct.puissance_kva||36;
+  const PROFIL=[1.28,1.18,1.05,0.92,0.84,0.78,0.74,0.70,0.82,0.96,1.12,1.25], ANNUEL=58000;
+  STATE.factures_demo=[...Array(12)].map((_,i)=>{
+    const d=new Date(auj.getFullYear(),auj.getMonth()-12+i,1), f=new Date(d.getFullYear(),d.getMonth()+1,0);
+    const kwh=Math.round(ANNUEL/12*PROFIL[d.getMonth()]*(0.97+((i*37)%7)/100));
+    const mwh=kwh/1000, energie=mwh*prix, cee=mwh*11.74, cap=mwh*0.02, fourniture=energie+abo+cee+cap;
+    const acheminement=mwh*31+28, accise=mwh*25.79, cta=28*0.15, ht=fourniture+acheminement+accise+cta, ttc=ht*1.2;
+    return {mois:d, du:d, au:f, emise:new Date(f.getFullYear(),f.getMonth(),f.getDate()+6), kwh, prix, abo, kva, energie, fourniture, acheminement, taxes:accise+cta+ht*0.2, ttc};
+  });
+}
+function vueFacturesDemo(){
+  const L=STATE.factures_demo.slice().reverse(), m=x=>x.toLocaleDateString('fr-FR',{month:'long',year:'numeric'}), j=x=>x.toLocaleDateString('fr-FR',{day:'numeric',month:'short'});
+  const kwhTot=L.reduce((s,x)=>s+x.kwh,0), ttcTot=L.reduce((s,x)=>s+x.ttc,0), max=Math.max(...L.map(x=>x.kwh)), p=L[0];
+  const ok='<span class="inline-grid h-5 w-5 place-items-center rounded-full bg-primary-600 text-white text-[11px] font-bold shrink-0">✓</span>';
+  const ctrl=x=>[
+    ['Prix de l\'énergie',`${numf(x.prix,2)} €/MWh facturé`,`${numf(x.prix,2)} €/MWh au contrat`],
+    ['Abonnement',`${numf(x.abo,2)} € HT / mois`,'comme au contrat'],
+    ['Puissance souscrite',`${numf(x.kva)} kVA`,'comme au contrat'],
+    ['CEE et capacité','11,74 et 0,02 €/MWh','comme au contrat'],
+    ['Acheminement (TURPE)','tarif réglementé, même option','aucun dépassement'],
+    ['Taxes (accise, CTA, TVA)','aux taux en vigueur','rien en trop'],
+    ['Relevé',`${numf(x.kwh)} kWh, index réels`,'pas d\'estimation'],
+  ].map(([a,b,c])=>`<div class="flex items-start gap-2.5 py-1.5 border-b border-slate-100 last:border-0">${ok}<div class="flex-1 text-[12.5px]"><span class="font-semibold text-slate-800">${a}</span> · <span class="text-slate-600">${b}</span> <span class="text-primary-700 font-semibold">· ${c}</span></div></div>`).join('');
+  return `
+  <section class="bg-white rounded-2xl shadow-soft p-5">
+    <p class="text-[11.5px] font-semibold text-slate-400 mb-2">Exemple de démonstration : factures fictives, calculées à partir du contrat de démo.</p>
+    <h2 class="text-[16px] font-extrabold text-slate-900">Mes factures, vérifiées une par une</h2>
+    <div class="mt-3 rounded-2xl bg-primary-50 p-4 flex flex-wrap items-center gap-x-6 gap-y-3">
+      <div class="flex items-center gap-3"><div class="h-11 w-11 rounded-xl bg-primary-600 text-white grid place-items-center text-[20px]">✓</div>
+        <div><div class="text-[17px] font-extrabold text-primary-800">12 factures vérifiées · 12 conformes</div><div class="text-[12.5px] text-primary-700">0 € d'écart avec votre contrat sur les 12 derniers mois</div></div></div>
+      <div class="text-[12.5px] text-slate-700 leading-relaxed"><b class="text-slate-900">${numf(p.prix,2)} €/MWh</b> payés pour l'énergie, exactement le prix du contrat<br/><b class="text-slate-900">${numf(kwhTot)} kWh</b> sur l'année · ${euro(ttcTot)} TTC au total</div>
+    </div>
+    <div class="mt-4"><div class="text-[11px] uppercase tracking-wide text-slate-400 font-semibold mb-1.5">Consommation mois par mois</div>
+      <div class="flex items-end gap-1.5 h-[88px]">${STATE.factures_demo.map(x=>`<div class="flex-1 flex flex-col items-center gap-1"><div class="w-full rounded-t-md bg-primary-500/80" style="height:${Math.round(60*x.kwh/max)}px" title="${numf(x.kwh)} kWh"></div><span class="text-[10px] text-slate-400">${x.mois.toLocaleDateString('fr-FR',{month:'short'}).replace('.','')}</span></div>`).join('')}</div></div>
+    <div class="mt-5 space-y-2">${L.map((x,i)=>`
+      <details class="rounded-xl border border-slate-100 bg-white px-3.5 py-2.5"${i===0?' open':''}>
+        <summary class="flex items-center justify-between gap-2 cursor-pointer list-none">
+          <span class="flex items-center gap-2.5"><span class="h-8 w-8 rounded-lg bg-slate-50 grid place-items-center text-[15px]">🧾</span>
+            <span><span class="block text-[13.5px] font-bold text-slate-800 first-letter:uppercase">${m(x.mois)}</span><span class="block text-[11.5px] text-slate-400">du ${j(x.du)} au ${j(x.au)} · ${numf(x.kwh)} kWh · ${euro(x.ttc)} TTC</span></span></span>
+          <span class="text-[12.5px] font-bold text-primary-700 whitespace-nowrap">✅ Conforme</span>
+        </summary>
+        <div class="mt-2 pt-1 border-t border-slate-100">${ctrl(x)}
+          <p class="text-[11.5px] text-slate-400 mt-2">Fourniture ${euro(x.fourniture)} HT · acheminement ${euro(x.acheminement)} HT · taxes ${euro(x.taxes)} · total ${euro(x.ttc)} TTC (montants d'exemple)</p></div>
+      </details>`).join('')}</div>
+    <button id="dropFacture" class="drop w-full rounded-2xl p-6 text-center block mt-5">
+      <p class="text-[14px] font-bold text-slate-800">Scanner ma facture du mois</p>
+      <p class="text-[12px] text-slate-400">Vérification en 30 secondes</p>
+    </button>
+    <input id="fileFacture" type="file" accept=".pdf,image/*" class="hidden"/>
+  </section>`;
 }
 function loading(txt){return `<div class="min-h-screen grid place-items-center"><div class="text-center"><div class="spin mx-auto mb-3"></div><p class="text-slate-400 text-sm">${esc(txt)}</p></div></div>`;}
 
@@ -174,7 +239,7 @@ function vueLogin(err){
     else{ e.textContent="Ce code ne correspond à aucun espace. Vérifiez-le, ou contactez votre conseiller."; e.classList.remove('hidden'); b.textContent='Accéder à mon espace'; b.disabled=false; }
   });
 }
-async function recharger(){ const d=await rpc('espace_etat',{p_token:TOKEN}); if(d&&d.ok){STATE=d; renderContent();} }
+async function recharger(){ const d=await rpc('espace_etat',{p_token:TOKEN}); if(d&&d.ok){STATE=d; if(window.DEMO) maybeDemo('76A544DB'); /* 16/11 */ renderContent();} }
 function seDeconnecter(){ history.replaceState(null,'','/espace/'); location.reload(); }
 
 /* ─── Coquille de l'app (sidebar + contenu + agent) ─── */
@@ -466,6 +531,7 @@ function pickContrat(rid){STATE._replaceId=rid||null;const inp=document.getEleme
 async function delContrat(id){if(!confirm('Retirer ce contrat de votre espace ?'))return;const d=await rpc('espace_delete_contrat',{p_token:TOKEN,p_id:id});if(d&&d.ok){STATE._csel=0;await recharger();toast('Contrat retiré');}else toast((d&&d.error)||'Impossible pour le moment',false);}
 
 function vueFactures(){
+  if(window.DEMO&&STATE.factures_demo) return vueFacturesDemo(); // 16/11 : démo R2
   const list=(STATE.factures||[]).slice().reverse();
   const items=list.map(f=>{const eco=f.savings&&f.savings.savings_annual;const ok=!eco||eco<((f.extracted&&f.extracted.total_ttc_annual)||1)*0.05;
     return `<div class="flex items-center justify-between gap-2 rounded-xl border border-slate-100 bg-white px-3.5 py-3">
